@@ -126,33 +126,7 @@ export default function Dashboard() {
       </div>
 
       {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>
-            Frequently used actions to help you manage your business efficiently
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {quickActions.map((action, index) => (
-              <Button
-                key={index}
-                variant="outline"
-                className="h-20 flex-col space-y-2"
-                asChild
-              >
-                <a href={action.href}>
-                  <div className={`h-8 w-8 rounded-md ${action.color} flex items-center justify-center`}>
-                    <action.icon className="h-4 w-4 text-white" />
-                  </div>
-                  <span className="text-sm font-medium">{action.title}</span>
-                </a>
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <QuickActions />
 
       {/* Charts and Activities */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
