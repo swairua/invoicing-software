@@ -54,6 +54,7 @@ import {
   CheckCircle,
 } from 'lucide-react';
 import { ProformaInvoice, Customer, Product } from '@shared/types';
+import PDFService from '../services/pdfService';
 
 // Mock data
 const mockCustomers: Customer[] = [
