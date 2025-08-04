@@ -10,7 +10,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from './ui/dialog';
-import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 import {
   Select,
   SelectContent,
