@@ -62,7 +62,7 @@ import PDFService from '../services/pdfService';
 
 // Mock data
 const mockCustomers: Customer[] = [
-  { id: '1', name: 'Acme Corporation Ltd', email: 'contact@acme.com', phone: '+254700123456', kraPin: 'P051234567A', address: '123 Business Ave, Nairobi', creditLimit: 500000, balance: 125000, isActive: true, companyId: '1', createdAt: new Date(), updatedAt: new Date() },
+  { id: '1', name: 'The Panari Hotel', email: 'procurement@panarihotel.com', phone: '+254700123456', kraPin: 'P051234567A', address: 'P.O Box 12345, Nairobi Kenya', creditLimit: 500000, balance: 125000, isActive: true, companyId: '1', createdAt: new Date(), updatedAt: new Date() },
   { id: '2', name: 'Tech Solutions Kenya', email: 'info@techsolutions.co.ke', phone: '+254722987654', kraPin: 'P051234568B', address: '456 Innovation Hub, Nairobi', creditLimit: 300000, balance: 45000, isActive: true, companyId: '1', createdAt: new Date(), updatedAt: new Date() },
 ];
 
