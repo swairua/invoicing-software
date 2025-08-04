@@ -200,6 +200,13 @@ export default function Quotations() {
     console.log('Converting quotation to invoice:', quotationId);
   };
 
+  const handleDownloadPDF = (quotationId: string) => {
+    const quotation = quotations.find(q => q.id === quotationId);
+    if (quotation) {
+      PDFService.generateQuotationPDF(quotation);
+    }
+  };
+
   const totalQuotations = quotations.length;
   const acceptedQuotations = quotations.filter(q => q.status === 'accepted').length;
   const pendingQuotations = quotations.filter(q => q.status === 'sent').length;
