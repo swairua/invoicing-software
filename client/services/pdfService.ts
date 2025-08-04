@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { Invoice, Quotation, ProformaInvoice, Payment } from '@shared/types';
 import { CompanySettings, defaultCompanySettings } from '@shared/company';
 
@@ -7,6 +7,7 @@ import { CompanySettings, defaultCompanySettings } from '@shared/company';
 declare module 'jspdf' {
   interface jsPDF {
     autoTable: (options: any) => void;
+    lastAutoTable: any;
   }
 }
 
