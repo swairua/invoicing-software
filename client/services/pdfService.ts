@@ -209,16 +209,16 @@ export class PDFService {
   private static addCustomerAndDateInfo(doc: jsPDF, document: Invoice | Quotation | ProformaInvoice, pageWidth: number): void {
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    
+
     // Customer info (left side)
-    doc.text('To:', 20, 85);
+    doc.text('To:', 20, 95);
     doc.setFont('helvetica', 'bold');
-    doc.text(document.customer.name, 20, 92);
+    doc.text(document.customer.name, 20, 102);
     doc.setFont('helvetica', 'normal');
-    
+
     if (document.customer.address) {
       const addressLines = document.customer.address.split(',');
-      let yPos = 97;
+      let yPos = 107;
       addressLines.forEach(line => {
         doc.text(line.trim(), 20, yPos);
         yPos += 5;
@@ -228,14 +228,14 @@ export class PDFService {
     // Date and document info (right side)
     const dateLabel = 'issueDate' in document ? 'Date:' : 'Date:';
     const date = 'issueDate' in document ? document.issueDate : document.createdAt;
-    
-    doc.text(dateLabel, pageWidth - 80, 85);
-    doc.text(this.formatDate(date), pageWidth - 20, 85, { align: 'right' });
-    
+
+    doc.text(dateLabel, pageWidth - 80, 95);
+    doc.text(this.formatDate(date), pageWidth - 20, 95, { align: 'right' });
+
     // LPO number if available
     if ('invoiceNumber' in document) {
-      doc.text('LPO NO.', pageWidth - 80, 92);
-      doc.text('N/A', pageWidth - 20, 92, { align: 'right' });
+      doc.text('LPO NO.', pageWidth - 80, 102);
+      doc.text('N/A', pageWidth - 20, 102, { align: 'right' });
     }
   }
 
