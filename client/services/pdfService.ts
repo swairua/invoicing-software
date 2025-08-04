@@ -23,7 +23,7 @@ export class PDFService {
     // Invoice Title and Number
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.text(`INVOICE NO. ${invoice.invoiceNumber}`, pageWidth / 2, 70, { align: 'center' });
+    doc.text(`INVOICE NO. ${invoice.invoiceNumber}`, pageWidth / 2, 80, { align: 'center' });
 
     // Customer Information and Date
     this.addCustomerAndDateInfo(doc, invoice, pageWidth);
