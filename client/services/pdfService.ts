@@ -3,14 +3,6 @@ import autoTable from 'jspdf-autotable';
 import { Invoice, Quotation, ProformaInvoice, Payment } from '@shared/types';
 import { CompanySettings, defaultCompanySettings } from '@shared/company';
 
-// Extend jsPDF type to include autoTable
-declare module 'jspdf' {
-  interface jsPDF {
-    autoTable: (options: any) => void;
-    lastAutoTable: any;
-  }
-}
-
 export class PDFService {
   private static companySettings: CompanySettings = defaultCompanySettings;
 
@@ -261,7 +253,7 @@ export class PDFService {
       this.formatCurrency(item.total)
     ]);
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: 110,
       head: [['Item No.', 'Item Description', 'Qty', 'Unit Pack', 'Unit Price (incl) Ksh', 'Vat', 'Total Price (incl) Ksh']],
       body: tableData,
@@ -308,7 +300,7 @@ export class PDFService {
       this.formatCurrency(item.total)
     ]);
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: 110,
       head: [['Item No.', 'Item Description', 'Qty', 'Unit Pack', 'Unit Price (incl) Ksh', 'Vat', 'Total Price (incl) Ksh']],
       body: tableData,
@@ -355,7 +347,7 @@ export class PDFService {
       this.formatCurrency(item.total)
     ]);
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: 110,
       head: [['Item No.', 'Item Description', 'Qty', 'Unit Pack', 'Unit Price (incl) Ksh', 'Vat', 'Total Price (incl) Ksh']],
       body: tableData,
