@@ -505,7 +505,7 @@ export default function ProformaInvoices() {
                             Duplicate
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleDownloadPDF(proforma.id)}>
                             <Download className="mr-2 h-4 w-4" />
                             Download PDF
                           </DropdownMenuItem>
