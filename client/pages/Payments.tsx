@@ -772,9 +772,16 @@ export default function Payments() {
                       </TableCell>
                       <TableCell>
                         {invoice ? (
-                          <Link to={`/invoices/${invoice.id}`} className="text-primary hover:underline">
-                            {invoice.invoiceNumber}
-                          </Link>
+                          <div className="space-y-1">
+                            <Link to={`/invoices/${invoice.id}`} className="text-primary hover:underline">
+                              {invoice.invoiceNumber}
+                            </Link>
+                            <div className="flex items-center space-x-2">
+                              <Badge variant={invoice.balance === 0 ? "default" : "secondary"} className="text-xs">
+                                {invoice.balance === 0 ? "Fully Paid" : `${formatCurrency(invoice.balance)} due`}
+                              </Badge>
+                            </div>
+                          </div>
                         ) : (
                           <span className="text-muted-foreground">General Payment</span>
                         )}
