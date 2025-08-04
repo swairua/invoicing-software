@@ -96,7 +96,7 @@ const AppRoutes = () => (
       <Route path="reports/sales" element={<Reports />} />
       <Route path="reports/stock" element={<Reports />} />
       <Route path="reports/tax" element={<Reports />} />
-      <Route path="settings" element={<PlaceholderPage module="Settings" />} />
+      <Route path="settings" element={<Settings />} />
     </Route>
     
     {/* Catch-all redirect */}
