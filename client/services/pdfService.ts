@@ -99,7 +99,7 @@ export class PDFService {
     // Proforma Title and Number
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.text(`PROFORMA INVOICE NO. ${proforma.proformaNumber}`, pageWidth / 2, 70, { align: 'center' });
+    doc.text(`PROFORMA INVOICE NO. ${proforma.proformaNumber}`, pageWidth / 2, 80, { align: 'center' });
 
     // Customer Information and Date
     this.addCustomerAndDateInfo(doc, proforma, pageWidth);
