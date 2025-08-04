@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
-import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from './ui/sheet';
 import {
   Building2,
   LayoutDashboard,
