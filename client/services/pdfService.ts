@@ -61,7 +61,7 @@ export class PDFService {
     // Quotation Title and Number
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.text(`QUOTATION NO. ${quotation.quoteNumber}`, pageWidth / 2, 70, { align: 'center' });
+    doc.text(`QUOTATION NO. ${quotation.quoteNumber}`, pageWidth / 2, 80, { align: 'center' });
 
     // Customer Information and Date
     this.addCustomerAndDateInfo(doc, quotation, pageWidth);
