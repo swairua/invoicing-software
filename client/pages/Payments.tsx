@@ -211,6 +211,13 @@ export default function Payments() {
     return invoiceId ? mockInvoices.find(i => i.id === invoiceId) : null;
   };
 
+  const handleDownloadReceipt = (paymentId: string) => {
+    const payment = payments.find(p => p.id === paymentId);
+    if (payment) {
+      PDFService.generatePaymentReceiptPDF(payment);
+    }
+  };
+
   // Calculate metrics
   const totalPayments = payments.length;
   const totalAmount = payments.reduce((sum, p) => sum + p.amount, 0);
