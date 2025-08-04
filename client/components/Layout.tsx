@@ -36,6 +36,7 @@ const navigation = [
   { name: 'Customers', href: '/customers', icon: Users },
   { name: 'Products', href: '/products', icon: Package },
   { name: 'Quotations', href: '/quotations', icon: FileText },
+  { name: 'Proforma', href: '/proforma', icon: FileText },
   { name: 'Invoices', href: '/invoices', icon: Receipt },
   { name: 'Payments', href: '/payments', icon: CreditCard },
   { name: 'Reports', href: '/reports', icon: BarChart3 },
