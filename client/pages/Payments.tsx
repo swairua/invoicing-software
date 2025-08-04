@@ -551,7 +551,7 @@ export default function Payments() {
                               Edit Payment
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDownloadReceipt(payment.id)}>
                               <Download className="mr-2 h-4 w-4" />
                               Receipt PDF
                             </DropdownMenuItem>
