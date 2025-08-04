@@ -354,7 +354,7 @@ export class PDFService {
     ]);
 
     autoTable(doc, {
-      startY: 110,
+      startY: 125,
       head: [['Item No.', 'Item Description', 'Qty', 'Unit Pack', 'Unit Price (incl) Ksh', 'Vat', 'Total Price (incl) Ksh']],
       body: tableData,
       theme: 'grid',
@@ -378,11 +378,14 @@ export class PDFService {
       }
     });
 
-    // Total Amount
-    const finalY = (doc as any).lastAutoTable.finalY + 10;
+    // Total Amount - fix positioning to prevent overlap
+    const finalY = (doc as any).lastAutoTable.finalY + 15;
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
-    doc.text('Total Amount Inc. VAT (Kes)', 140, finalY);
+
+    // Create a bordered box for the total
+    doc.rect(120, finalY - 8, 70, 12);
+    doc.text('Total Amount Inc. VAT (Kes)', 125, finalY);
     doc.text(this.formatCurrency(proforma.total), 185, finalY, { align: 'right' });
   }
 
