@@ -12,6 +12,11 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Customers from "./pages/Customers";
 import Products from "./pages/Products";
+import Quotations from "./pages/Quotations";
+import Invoices from "./pages/Invoices";
+import ProformaInvoices from "./pages/ProformaInvoices";
+import Payments from "./pages/Payments";
+import Reports from "./pages/Reports";
 import PlaceholderPage from "./pages/PlaceholderPage";
 
 const queryClient = new QueryClient();
