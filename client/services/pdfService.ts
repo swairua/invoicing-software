@@ -137,7 +137,7 @@ export class PDFService {
     // Receipt Title
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.text('PAYMENT RECEIPT', pageWidth / 2, 70, { align: 'center' });
+    doc.text('PAYMENT RECEIPT', pageWidth / 2, 80, { align: 'center' });
 
     // Payment Details
     this.addPaymentDetails(doc, payment, pageWidth);
