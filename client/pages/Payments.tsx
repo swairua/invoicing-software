@@ -38,6 +38,7 @@ import {
 } from '../components/ui/select';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
+import { Alert, AlertDescription } from '../components/ui/alert';
 import {
   Plus,
   Search,
@@ -55,9 +56,12 @@ import {
   TrendingUp,
   Calendar,
   Filter,
+  AlertCircle,
+  CheckCircle,
 } from 'lucide-react';
 import { Payment, Customer, Invoice } from '@shared/types';
 import PDFService from '../services/pdfService';
+import { useToast } from '../hooks/use-toast';
 
 // Mock data
 const mockCustomers: Customer[] = [
@@ -85,6 +89,46 @@ const mockInvoices: Invoice[] = [
     createdBy: '1',
     createdAt: new Date('2024-01-15'),
     updatedAt: new Date('2024-01-16'),
+  },
+  {
+    id: '2',
+    invoiceNumber: 'INV-2024-002',
+    customerId: '2',
+    customer: mockCustomers[1],
+    items: [],
+    subtotal: 80000,
+    vatAmount: 12800,
+    discountAmount: 0,
+    total: 92800,
+    amountPaid: 50000,
+    balance: 42800,
+    status: 'sent',
+    dueDate: new Date('2024-02-28'),
+    issueDate: new Date('2024-01-28'),
+    companyId: '1',
+    createdBy: '1',
+    createdAt: new Date('2024-01-28'),
+    updatedAt: new Date('2024-01-28'),
+  },
+  {
+    id: '3',
+    invoiceNumber: 'INV-2024-003',
+    customerId: '1',
+    customer: mockCustomers[0],
+    items: [],
+    subtotal: 35000,
+    vatAmount: 5600,
+    discountAmount: 0,
+    total: 40600,
+    amountPaid: 18500,
+    balance: 22100,
+    status: 'sent',
+    dueDate: new Date('2024-03-15'),
+    issueDate: new Date('2024-02-15'),
+    companyId: '1',
+    createdBy: '1',
+    createdAt: new Date('2024-02-15'),
+    updatedAt: new Date('2024-02-15'),
   },
 ];
 
@@ -149,22 +193,42 @@ const mockPayments: Payment[] = [
   },
 ];
 
+interface PaymentFormData {
+  customerId: string;
+  invoiceId: string;
+  amount: string;
+  method: string;
+  reference: string;
+  notes: string;
+}
+
 export default function Payments() {
   const [payments, setPayments] = useState<Payment[]>(mockPayments);
+  const [invoices, setInvoices] = useState<Invoice[]>(mockInvoices);
   const [searchTerm, setSearchTerm] = useState('');
   const [methodFilter, setMethodFilter] = useState<string>('all');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [formData, setFormData] = useState<PaymentFormData>({
+    customerId: '',
+    invoiceId: '',
+    amount: '',
+    method: '',
+    reference: '',
+    notes: ''
+  });
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const { toast } = useToast();
 
   const filteredPayments = payments.filter(payment => {
     const customer = mockCustomers.find(c => c.id === payment.customerId);
-    const invoice = payment.invoiceId ? mockInvoices.find(i => i.id === payment.invoiceId) : null;
-    
+    const invoice = payment.invoiceId ? invoices.find(i => i.id === payment.invoiceId) : null;
+
     const matchesSearch = payment.reference.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          customer?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (invoice?.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) || false);
-    
+
     const matchesMethod = methodFilter === 'all' || payment.method === methodFilter;
-    
+
     return matchesSearch && matchesMethod;
   });
 
@@ -200,7 +264,116 @@ export default function Payments() {
 
   const handleCreatePayment = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate form
+    if (!formData.customerId || !formData.amount || !formData.method || !formData.reference) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const amount = parseFloat(formData.amount);
+    if (isNaN(amount) || amount <= 0) {
+      toast({
+        title: "Invalid Amount",
+        description: "Please enter a valid payment amount.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check if payment amount doesn't exceed invoice balance (if invoice selected)
+    if (formData.invoiceId && formData.invoiceId !== 'none' && selectedInvoice) {
+      if (amount > selectedInvoice.balance) {
+        toast({
+          title: "Amount Exceeds Balance",
+          description: `Payment amount cannot exceed invoice balance of ${formatCurrency(selectedInvoice.balance)}.`,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    // Create new payment
+    const newPayment: Payment = {
+      id: Date.now().toString(),
+      amount,
+      method: formData.method as any,
+      reference: formData.reference,
+      notes: formData.notes || undefined,
+      invoiceId: formData.invoiceId === 'none' ? undefined : formData.invoiceId,
+      customerId: formData.customerId,
+      companyId: '1',
+      createdBy: '1',
+      createdAt: new Date(),
+    };
+
+    // Update payments list
+    setPayments(prev => [newPayment, ...prev]);
+
+    // Update invoice if payment is linked to an invoice
+    if (formData.invoiceId && formData.invoiceId !== 'none') {
+      setInvoices(prev => prev.map(invoice => {
+        if (invoice.id === formData.invoiceId) {
+          const newAmountPaid = invoice.amountPaid + amount;
+          const newBalance = invoice.total - newAmountPaid;
+          const newStatus = newBalance <= 0 ? 'paid' : invoice.status;
+
+          return {
+            ...invoice,
+            amountPaid: newAmountPaid,
+            balance: newBalance,
+            status: newStatus as any,
+            updatedAt: new Date(),
+          };
+        }
+        return invoice;
+      }));
+    }
+
+    // Reset form and close dialog
+    setFormData({
+      customerId: '',
+      invoiceId: '',
+      amount: '',
+      method: '',
+      reference: '',
+      notes: ''
+    });
+    setSelectedInvoice(null);
     setIsCreateDialogOpen(false);
+
+    toast({
+      title: "Payment Recorded",
+      description: `Payment of ${formatCurrency(amount)} has been successfully recorded.`,
+    });
+  };
+
+  const handleCustomerChange = (customerId: string) => {
+    setFormData(prev => ({ ...prev, customerId, invoiceId: '' }));
+    setSelectedInvoice(null);
+  };
+
+  const handleInvoiceChange = (invoiceId: string) => {
+    setFormData(prev => ({ ...prev, invoiceId }));
+    if (invoiceId && invoiceId !== 'none') {
+      const invoice = invoices.find(i => i.id === invoiceId);
+      setSelectedInvoice(invoice || null);
+    } else {
+      setSelectedInvoice(null);
+    }
+  };
+
+  // Get unpaid/partially paid invoices for selected customer
+  const getAvailableInvoices = (customerId: string) => {
+    return invoices.filter(invoice =>
+      invoice.customerId === customerId &&
+      invoice.balance > 0 &&
+      invoice.status !== 'cancelled'
+    );
   };
 
   const getCustomerById = (customerId: string) => {
@@ -208,7 +381,7 @@ export default function Payments() {
   };
 
   const getInvoiceById = (invoiceId?: string) => {
-    return invoiceId ? mockInvoices.find(i => i.id === invoiceId) : null;
+    return invoiceId ? invoices.find(i => i.id === invoiceId) : null;
   };
 
   const handleDownloadReceipt = (paymentId: string) => {
