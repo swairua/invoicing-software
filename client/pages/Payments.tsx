@@ -434,7 +434,7 @@ export default function Payments() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="customer">Customer *</Label>
-                  <Select>
+                  <Select value={formData.customerId} onValueChange={handleCustomerChange}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select customer" />
                     </SelectTrigger>
@@ -449,29 +449,60 @@ export default function Payments() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="invoice">Invoice (Optional)</Label>
-                  <Select>
+                  <Select value={formData.invoiceId} onValueChange={handleInvoiceChange} disabled={!formData.customerId}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select invoice" />
+                      <SelectValue placeholder={formData.customerId ? "Select invoice" : "Select customer first"} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="none">General Payment</SelectItem>
-                      {mockInvoices.map(invoice => (
+                      {formData.customerId && getAvailableInvoices(formData.customerId).map(invoice => (
                         <SelectItem key={invoice.id} value={invoice.id}>
-                          {invoice.invoiceNumber} - {formatCurrency(invoice.balance)}
+                          {invoice.invoiceNumber} - Balance: {formatCurrency(invoice.balance)}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
               </div>
+
+              {/* Invoice Info Alert */}
+              {selectedInvoice && (
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    <div className="space-y-1">
+                      <div><strong>Invoice:</strong> {selectedInvoice.invoiceNumber}</div>
+                      <div><strong>Total:</strong> {formatCurrency(selectedInvoice.total)}</div>
+                      <div><strong>Paid:</strong> {formatCurrency(selectedInvoice.amountPaid)}</div>
+                      <div><strong>Balance:</strong> {formatCurrency(selectedInvoice.balance)}</div>
+                    </div>
+                  </AlertDescription>
+                </Alert>
+              )}
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="amount">Amount (KES) *</Label>
-                  <Input id="amount" type="number" placeholder="0.00" min="0" step="0.01" required />
+                  <Input
+                    id="amount"
+                    type="number"
+                    placeholder={selectedInvoice ? `Max: ${selectedInvoice.balance}` : "0.00"}
+                    min="0"
+                    step="0.01"
+                    max={selectedInvoice?.balance}
+                    value={formData.amount}
+                    onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value }))}
+                    required
+                  />
+                  {selectedInvoice && formData.amount && parseFloat(formData.amount) > 0 && (
+                    <div className="text-xs text-muted-foreground">
+                      Remaining balance: {formatCurrency(selectedInvoice.balance - parseFloat(formData.amount || '0'))}
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="method">Payment Method *</Label>
-                  <Select>
+                  <Select value={formData.method} onValueChange={(value) => setFormData(prev => ({ ...prev, method: value }))}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select method" />
                     </SelectTrigger>
@@ -487,11 +518,22 @@ export default function Payments() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="reference">Reference Number *</Label>
-                <Input id="reference" placeholder="Payment reference/transaction ID" required />
+                <Input
+                  id="reference"
+                  placeholder="Payment reference/transaction ID"
+                  value={formData.reference}
+                  onChange={(e) => setFormData(prev => ({ ...prev, reference: e.target.value }))}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="notes">Notes</Label>
-                <Textarea id="notes" placeholder="Additional payment notes" />
+                <Textarea
+                  id="notes"
+                  placeholder="Additional payment notes"
+                  value={formData.notes}
+                  onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                />
               </div>
               <div className="flex justify-end gap-2 pt-4">
                 <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
