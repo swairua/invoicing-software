@@ -55,6 +55,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { Quotation, Customer, Product } from '@shared/types';
+import PDFService from '../services/pdfService';
 
 // Mock data
 const mockCustomers: Customer[] = [
