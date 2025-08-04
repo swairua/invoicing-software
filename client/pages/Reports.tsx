@@ -123,6 +123,49 @@ export default function Reports() {
 
   const handleExportReport = (reportType: string, format: string) => {
     console.log(`Exporting ${reportType} as ${format}...`);
+
+    if (format === 'pdf') {
+      // Generate report PDF
+      const doc = new jsPDF();
+      doc.setFontSize(20);
+      doc.text(`${reportType.toUpperCase()} REPORT`, 20, 30);
+
+      doc.setFontSize(12);
+      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 50);
+      doc.text(`Report Period: ${dateRange.replace('_', ' ')}`, 20, 60);
+
+      // Add report content based on type
+      switch (reportType) {
+        case 'sales':
+          doc.text('Sales Summary:', 20, 80);
+          doc.text(`Total Sales: KES ${mockSalesData.totalSales.toLocaleString()}`, 20, 95);
+          doc.text(`Total Invoices: ${mockSalesData.totalInvoices}`, 20, 105);
+          doc.text(`Average Invoice: KES ${mockSalesData.averageInvoiceValue.toLocaleString()}`, 20, 115);
+          break;
+        case 'receivables':
+          doc.text('Aged Receivables Summary:', 20, 80);
+          let yPos = 95;
+          mockAgedReceivables.forEach(customer => {
+            doc.text(`${customer.customerName}: KES ${customer.total.toLocaleString()}`, 20, yPos);
+            yPos += 10;
+          });
+          break;
+        case 'inventory':
+          doc.text('Inventory Summary:', 20, 80);
+          doc.text(`Total Stock Value: KES ${mockStockReport.totalStockValue.toLocaleString()}`, 20, 95);
+          doc.text(`Low Stock Items: ${mockStockReport.lowStockProducts.length}`, 20, 105);
+          doc.text(`Overstock Items: ${mockStockReport.overstockProducts.length}`, 20, 115);
+          break;
+        case 'tax':
+          doc.text('Tax Summary:', 20, 80);
+          doc.text(`Total VAT Collected: KES ${mockTaxReport.totalVATCollected.toLocaleString()}`, 20, 95);
+          doc.text(`ETIMS Accepted: ${mockTaxReport.etimsSubmissions.accepted}`, 20, 105);
+          doc.text(`ETIMS Pending: ${mockTaxReport.etimsSubmissions.pending}`, 20, 115);
+          break;
+      }
+
+      doc.save(`${reportType}-report.pdf`);
+    }
   };
 
   return (
