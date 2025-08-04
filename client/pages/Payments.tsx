@@ -605,6 +605,62 @@ export default function Payments() {
         </Card>
       </div>
 
+      {/* Outstanding Invoices */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Outstanding Invoices</CardTitle>
+          <CardDescription>
+            Invoices with pending payments
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {invoices.filter(i => i.balance > 0).map(invoice => (
+              <div key={invoice.id} className="flex items-center justify-between p-3 border rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback className="text-xs">
+                      {invoice.customer.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <div className="font-medium">{invoice.invoiceNumber}</div>
+                    <div className="text-sm text-muted-foreground">{invoice.customer.name}</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="font-medium">{formatCurrency(invoice.balance)}</div>
+                  <div className="text-sm text-muted-foreground">
+                    of {formatCurrency(invoice.total)}
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    setFormData(prev => ({
+                      ...prev,
+                      customerId: invoice.customerId,
+                      invoiceId: invoice.id,
+                      amount: invoice.balance.toString()
+                    }));
+                    setSelectedInvoice(invoice);
+                    setIsCreateDialogOpen(true);
+                  }}
+                >
+                  Pay
+                </Button>
+              </div>
+            ))}
+            {invoices.filter(i => i.balance > 0).length === 0 && (
+              <div className="text-center py-6 text-muted-foreground">
+                <CheckCircle className="h-8 w-8 mx-auto mb-2" />
+                <p>All invoices are fully paid!</p>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Payment Methods Breakdown */}
       <Card>
         <CardHeader>
