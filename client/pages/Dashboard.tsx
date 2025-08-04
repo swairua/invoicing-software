@@ -44,12 +44,7 @@ const mockMetrics = {
   ]
 };
 
-const quickActions = [
-  { title: 'New Invoice', icon: FileText, href: '/invoices/new', color: 'bg-blue-500' },
-  { title: 'New Customer', icon: Users, href: '/customers/new', color: 'bg-green-500' },
-  { title: 'New Product', icon: Package, href: '/products/new', color: 'bg-purple-500' },
-  { title: 'Record Payment', icon: Receipt, href: '/payments/new', color: 'bg-orange-500' },
-];
+
 
 export default function Dashboard() {
   const { user } = useAuth();
