@@ -58,6 +58,7 @@ import {
   Copy,
 } from 'lucide-react';
 import { Invoice, Customer, Product } from '@shared/types';
+import PDFService from '../services/pdfService';
 
 // Mock data
 const mockCustomers: Customer[] = [
