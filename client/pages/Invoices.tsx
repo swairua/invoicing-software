@@ -67,7 +67,7 @@ const mockCustomers: Customer[] = [
 ];
 
 const mockProducts: Product[] = [
-  { id: '1', name: 'Wireless Bluetooth Headphones', description: 'High-quality wireless headphones', sku: 'WBH-001', category: 'Electronics', unit: 'piece', purchasePrice: 3500, sellingPrice: 5500, minStock: 10, maxStock: 100, currentStock: 45, isActive: true, companyId: '1', createdAt: new Date(), updatedAt: new Date() },
+  { id: '1', name: 'Latex Rubber Gloves Bicolor Reusable XL', description: 'High-quality latex rubber gloves', sku: 'LRG-001', category: 'Medical', unit: 'Pair', purchasePrice: 400, sellingPrice: 500, minStock: 10, maxStock: 1000, currentStock: 450, isActive: true, companyId: '1', createdAt: new Date(), updatedAt: new Date() },
   { id: '2', name: 'Office Chair Executive', description: 'Ergonomic office chair', sku: 'OFC-002', category: 'Furniture', unit: 'piece', purchasePrice: 12000, sellingPrice: 18000, minStock: 5, maxStock: 30, currentStock: 3, isActive: true, companyId: '1', createdAt: new Date(), updatedAt: new Date() },
 ];
 
