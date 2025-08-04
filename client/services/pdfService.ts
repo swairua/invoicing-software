@@ -403,16 +403,17 @@ export class PDFService {
       ['Date:', this.formatDate(payment.createdAt)],
     ];
 
-    let yPos = 85;
+    let yPos = 95;
     details.forEach(([label, value]) => {
       doc.text(label, 20, yPos);
       doc.setFont('helvetica', 'bold');
       doc.text(value, 80, yPos);
       doc.setFont('helvetica', 'normal');
-      yPos += 8;
+      yPos += 10;
     });
 
     if (payment.notes) {
+      yPos += 5;
       doc.text('Notes:', 20, yPos);
       doc.setFont('helvetica', 'bold');
       doc.text(payment.notes, 80, yPos);
