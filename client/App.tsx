@@ -80,18 +80,21 @@ const AppRoutes = () => (
       <Route path="products" element={<Products />} />
       <Route path="products/:id" element={<PlaceholderPage module="Product Details" />} />
       <Route path="products/new" element={<PlaceholderPage module="New Product" />} />
-      <Route path="quotations" element={<PlaceholderPage module="Quotations" />} />
+      <Route path="quotations" element={<Quotations />} />
       <Route path="quotations/:id" element={<PlaceholderPage module="Quotation Details" />} />
       <Route path="quotations/new" element={<PlaceholderPage module="New Quotation" />} />
-      <Route path="invoices" element={<PlaceholderPage module="Invoices" />} />
+      <Route path="proforma" element={<ProformaInvoices />} />
+      <Route path="proforma/:id" element={<PlaceholderPage module="Proforma Details" />} />
+      <Route path="proforma/new" element={<PlaceholderPage module="New Proforma" />} />
+      <Route path="invoices" element={<Invoices />} />
       <Route path="invoices/:id" element={<PlaceholderPage module="Invoice Details" />} />
       <Route path="invoices/new" element={<PlaceholderPage module="New Invoice" />} />
-      <Route path="payments" element={<PlaceholderPage module="Payments" />} />
+      <Route path="payments" element={<Payments />} />
       <Route path="payments/new" element={<PlaceholderPage module="Record Payment" />} />
-      <Route path="reports" element={<PlaceholderPage module="Reports" />} />
-      <Route path="reports/sales" element={<PlaceholderPage module="Sales Reports" />} />
-      <Route path="reports/stock" element={<PlaceholderPage module="Stock Reports" />} />
-      <Route path="reports/tax" element={<PlaceholderPage module="Tax Reports" />} />
+      <Route path="reports" element={<Reports />} />
+      <Route path="reports/sales" element={<Reports />} />
+      <Route path="reports/stock" element={<Reports />} />
+      <Route path="reports/tax" element={<Reports />} />
       <Route path="settings" element={<PlaceholderPage module="Settings" />} />
     </Route>
     
