@@ -124,6 +124,7 @@ export default function Layout() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-72">
+              <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
               <div className="flex items-center space-x-3 mb-6">
                 <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
                   <Building2 className="h-5 w-5 text-primary-foreground" />
