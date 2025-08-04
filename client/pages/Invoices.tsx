@@ -226,6 +226,13 @@ export default function Invoices() {
     console.log('Sending to ETIMS:', invoiceId);
   };
 
+  const handleDownloadPDF = (invoiceId: string) => {
+    const invoice = invoices.find(inv => inv.id === invoiceId);
+    if (invoice) {
+      PDFService.generateInvoicePDF(invoice);
+    }
+  };
+
   // Calculate metrics
   const totalInvoices = invoices.length;
   const paidInvoices = invoices.filter(i => i.status === 'paid').length;
