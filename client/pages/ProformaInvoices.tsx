@@ -191,6 +191,13 @@ export default function ProformaInvoices() {
     console.log('Converting proforma to invoice:', proformaId);
   };
 
+  const handleDownloadPDF = (proformaId: string) => {
+    const proforma = proformas.find(p => p.id === proformaId);
+    if (proforma) {
+      PDFService.generateProformaPDF(proforma);
+    }
+  };
+
   // Calculate metrics
   const totalProformas = proformas.length;
   const sentProformas = proformas.filter(p => p.status === 'sent').length;
