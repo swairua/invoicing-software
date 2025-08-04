@@ -437,9 +437,7 @@ export default function QuickActions() {
                 {/* Default fallback DialogContent to ensure accessibility */}
                 {!['New Invoice', 'New Customer', 'New Product', 'Record Payment'].includes(action.title) && (
                   <DialogContent>
-                    <VisuallyHidden.Root>
-                      <DialogTitle>Quick Action</DialogTitle>
-                    </VisuallyHidden.Root>
+                    <DialogTitle className="sr-only">Quick Action</DialogTitle>
                     <div className="p-4">
                       <p>This action is not implemented yet.</p>
                     </div>
