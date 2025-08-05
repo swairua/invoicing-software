@@ -85,18 +85,45 @@ export default function Invoices() {
 
   // Load initial data
   React.useEffect(() => {
-    setInvoices(businessData.getInvoices());
-    setCustomers(businessData.getCustomers());
-    setProducts(businessData.getProducts());
-  }, []);
+    const loadData = async () => {
+      try {
+        const [invoicesData, customersData, productsData] = await Promise.all([
+          businessData.getInvoices(),
+          businessData.getCustomers(),
+          businessData.getProducts()
+        ]);
+        setInvoices(invoicesData);
+        setCustomers(customersData);
+        setProducts(productsData);
+      } catch (error) {
+        console.error('Error loading data:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load data. Please refresh the page.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    loadData();
+  }, [toast]);
 
   // Refresh data periodically
   React.useEffect(() => {
-    const refreshInterval = setInterval(() => {
-      setInvoices(businessData.getInvoices());
-      setCustomers(businessData.getCustomers());
-      setProducts(businessData.getProducts());
-    }, 5000);
+    const refreshInterval = setInterval(async () => {
+      try {
+        const [invoicesData, customersData, productsData] = await Promise.all([
+          businessData.getInvoices(),
+          businessData.getCustomers(),
+          businessData.getProducts()
+        ]);
+        setInvoices(invoicesData);
+        setCustomers(customersData);
+        setProducts(productsData);
+      } catch (error) {
+        console.error('Error refreshing data:', error);
+      }
+    }, 30000); // Refresh every 30 seconds instead of 5
 
     return () => clearInterval(refreshInterval);
   }, []);
