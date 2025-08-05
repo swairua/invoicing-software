@@ -102,6 +102,7 @@ const AppRoutes = () => (
       <Route path="reports/tax" element={<Reports />} />
       <Route path="settings" element={<Settings />} />
       <Route path="settings/taxes" element={<TaxSettings />} />
+      <Route path="settings/users" element={<UserManagement />} />
       <Route path="templates" element={<Templates />} />
       <Route path="units" element={<UnitsOfMeasure />} />
     </Route>
