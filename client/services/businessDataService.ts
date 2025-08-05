@@ -969,8 +969,8 @@ class BusinessDataService {
     return Promise.resolve([...this.quotations]);
   }
 
-  public getProformas(): ProformaInvoice[] {
-    return [...this.proformas];
+  public getProformas(): Promise<ProformaInvoice[]> {
+    return Promise.resolve([...this.proformas]);
   }
 
   public getPayments(): Payment[] {
