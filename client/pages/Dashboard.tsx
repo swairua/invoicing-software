@@ -427,7 +427,10 @@ export default function Dashboard() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">KES {mockMetrics.totalRevenue.toLocaleString()}</div>
+                <div className="text-2xl font-bold">
+                  KES {(liveMetrics?.totalRevenue || mockMetrics.totalRevenue).toLocaleString()}
+                  {isSimulating && <Badge variant="secondary" className="ml-2 text-xs">Live</Badge>}
+                </div>
                 <p className="text-xs text-muted-foreground">
                   <span className="text-success font-medium">+12.5%</span> from last month
                 </p>
