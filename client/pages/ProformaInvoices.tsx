@@ -55,89 +55,38 @@ import {
 } from 'lucide-react';
 import { ProformaInvoice, Customer, Product } from '@shared/types';
 import PDFService from '../services/pdfService';
+import BusinessDataService from '../services/businessDataService';
+import { useToast } from '../hooks/use-toast';
 
-// Mock data
-const mockCustomers: Customer[] = [
-  { id: '1', name: 'Acme Corporation Ltd', email: 'contact@acme.com', phone: '+254700123456', kraPin: 'P051234567A', address: '123 Business Ave, Nairobi', creditLimit: 500000, balance: 125000, isActive: true, companyId: '1', createdAt: new Date(), updatedAt: new Date() },
-  { id: '2', name: 'Tech Solutions Kenya', email: 'info@techsolutions.co.ke', phone: '+254722987654', kraPin: 'P051234568B', address: '456 Innovation Hub, Nairobi', creditLimit: 300000, balance: 45000, isActive: true, companyId: '1', createdAt: new Date(), updatedAt: new Date() },
-];
-
-const mockProducts: Product[] = [
-  { id: '1', name: 'Wireless Bluetooth Headphones', description: 'High-quality wireless headphones', sku: 'WBH-001', category: 'Electronics', unit: 'piece', purchasePrice: 3500, sellingPrice: 5500, minStock: 10, maxStock: 100, currentStock: 45, isActive: true, companyId: '1', createdAt: new Date(), updatedAt: new Date() },
-  { id: '2', name: 'Office Chair Executive', description: 'Ergonomic office chair', sku: 'OFC-002', category: 'Furniture', unit: 'piece', purchasePrice: 12000, sellingPrice: 18000, minStock: 5, maxStock: 30, currentStock: 3, isActive: true, companyId: '1', createdAt: new Date(), updatedAt: new Date() },
-];
-
-const mockProformas: ProformaInvoice[] = [
-  {
-    id: '1',
-    proformaNumber: 'PRO-2024-001',
-    customerId: '1',
-    customer: mockCustomers[0],
-    items: [
-      { id: '1', productId: '1', product: mockProducts[0], quantity: 10, unitPrice: 5500, discount: 0, vatRate: 16, total: 55000 }
-    ],
-    subtotal: 55000,
-    vatAmount: 8800,
-    discountAmount: 0,
-    total: 63800,
-    status: 'sent',
-    validUntil: new Date('2024-02-15'),
-    issueDate: new Date('2024-01-15'),
-    notes: 'Advance payment required',
-    companyId: '1',
-    createdBy: '1',
-    createdAt: new Date('2024-01-15'),
-    updatedAt: new Date('2024-01-15'),
-  },
-  {
-    id: '2',
-    proformaNumber: 'PRO-2024-002',
-    customerId: '2',
-    customer: mockCustomers[1],
-    items: [
-      { id: '2', productId: '2', product: mockProducts[1], quantity: 5, unitPrice: 18000, discount: 5, vatRate: 16, total: 85500 }
-    ],
-    subtotal: 90000,
-    vatAmount: 14400,
-    discountAmount: 4500,
-    total: 99900,
-    status: 'converted',
-    validUntil: new Date('2024-02-20'),
-    issueDate: new Date('2024-01-20'),
-    notes: 'Converted to invoice INV-2024-002',
-    companyId: '1',
-    createdBy: '1',
-    createdAt: new Date('2024-01-20'),
-    updatedAt: new Date('2024-01-22'),
-  },
-  {
-    id: '3',
-    proformaNumber: 'PRO-2024-003',
-    customerId: '1',
-    customer: mockCustomers[0],
-    items: [
-      { id: '3', productId: '1', product: mockProducts[0], quantity: 25, unitPrice: 5500, discount: 10, vatRate: 16, total: 123750 }
-    ],
-    subtotal: 137500,
-    vatAmount: 22000,
-    discountAmount: 13750,
-    total: 145750,
-    status: 'draft',
-    validUntil: new Date('2024-02-25'),
-    issueDate: new Date('2024-01-25'),
-    notes: 'Volume discount applied',
-    companyId: '1',
-    createdBy: '1',
-    createdAt: new Date('2024-01-25'),
-    updatedAt: new Date('2024-01-25'),
-  },
-];
+// Get business data service instance
+const businessData = BusinessDataService.getInstance();
 
 export default function ProformaInvoices() {
-  const [proformas, setProformas] = useState<ProformaInvoice[]>(mockProformas);
+  const [proformas, setProformas] = useState<ProformaInvoice[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const { toast } = useToast();
+
+  // Load initial data
+  React.useEffect(() => {
+    setProformas(businessData.getProformas());
+    setCustomers(businessData.getCustomers());
+    setProducts(businessData.getProducts());
+  }, []);
+
+  // Refresh data periodically
+  React.useEffect(() => {
+    const refreshInterval = setInterval(() => {
+      setProformas(businessData.getProformas());
+      setCustomers(businessData.getCustomers());
+      setProducts(businessData.getProducts());
+    }, 5000);
+
+    return () => clearInterval(refreshInterval);
+  }, []);
 
   const filteredProformas = proformas.filter(proforma => {
     const matchesSearch = proforma.proformaNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -188,7 +137,20 @@ export default function ProformaInvoices() {
   };
 
   const handleConvertToInvoice = (proformaId: string) => {
-    console.log('Converting proforma to invoice:', proformaId);
+    const invoice = businessData.convertProformaToInvoice(proformaId);
+    if (invoice) {
+      setProformas(businessData.getProformas());
+      toast({
+        title: "Conversion Successful",
+        description: `Proforma converted to invoice ${invoice.invoiceNumber}`,
+      });
+    } else {
+      toast({
+        title: "Conversion Failed",
+        description: "Unable to convert proforma. Make sure it's sent status.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDownloadPDF = (proformaId: string) => {
@@ -238,7 +200,7 @@ export default function ProformaInvoices() {
                       <SelectValue placeholder="Select customer" />
                     </SelectTrigger>
                     <SelectContent>
-                      {mockCustomers.map(customer => (
+                      {customers.map(customer => (
                         <SelectItem key={customer.id} value={customer.id}>
                           {customer.name}
                         </SelectItem>
@@ -271,7 +233,7 @@ export default function ProformaInvoices() {
                         <SelectValue placeholder="Select product" />
                       </SelectTrigger>
                       <SelectContent>
-                        {mockProducts.map(product => (
+                        {products.map(product => (
                           <SelectItem key={product.id} value={product.id}>
                             {product.name}
                           </SelectItem>
