@@ -198,7 +198,7 @@ export class PDFService {
   /**
    * Add company header with logo placeholder
    */
-  private static addCompanyHeader(doc: jsPDF, pageWidth: number): void {
+  private static addCompanyHeader(doc: jsPDF, pageWidth: number, design?: TemplateDesign): void {
     // Logo placeholder (shield-like design similar to the document)
     doc.setFillColor(41, 128, 185);
     doc.circle(35, 25, 12, 'F');
