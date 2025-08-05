@@ -56,6 +56,8 @@ import {
   DollarSign,
   FileText,
   Copy,
+  Package,
+  Loader2,
 } from 'lucide-react';
 import { Invoice, Customer, Product } from '@shared/types';
 import PDFService from '../services/pdfService';
