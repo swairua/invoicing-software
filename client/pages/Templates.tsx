@@ -243,13 +243,19 @@ export default function Templates() {
   });
   const { toast } = useToast();
 
-  const documentTypes: { value: DocumentType; label: string }[] = [
-    { value: 'invoice', label: 'Invoice' },
-    { value: 'quotation', label: 'Quotation' },
-    { value: 'proforma', label: 'Proforma Invoice' },
-    { value: 'receipt', label: 'Receipt' },
-    { value: 'packing_list', label: 'Packing List' },
-    { value: 'delivery_note', label: 'Delivery Note' },
+  const documentTypes: { value: DocumentType; label: string; icon: string; description: string }[] = [
+    { value: 'invoice', label: 'Invoice', icon: '🧾', description: 'Customer billing documents' },
+    { value: 'quotation', label: 'Quotation', icon: '💼', description: 'Price quotes for customers' },
+    { value: 'proforma', label: 'Proforma Invoice', icon: '📋', description: 'Preliminary invoices' },
+    { value: 'receipt', label: 'Receipt', icon: '🧾', description: 'Payment acknowledgments' },
+    { value: 'packing_list', label: 'Packing List', icon: '📦', description: 'Item packaging details' },
+    { value: 'delivery_note', label: 'Delivery Note', icon: '🚚', description: 'Delivery confirmations' },
+    { value: 'purchase_order', label: 'Purchase Order', icon: '🛒', description: 'Supplier orders' },
+    { value: 'credit_note', label: 'Credit Note', icon: '↩️', description: 'Customer credit documents' },
+    { value: 'debit_note', label: 'Debit Note', icon: '↪️', description: 'Customer debit documents' },
+    { value: 'statement', label: 'Statement', icon: '📊', description: 'Account statements' },
+    { value: 'goods_received_note', label: 'Goods Received Note', icon: '📥', description: 'Inventory receipts' },
+    { value: 'material_transfer_note', label: 'Material Transfer Note', icon: '🔄', description: 'Internal transfers' },
   ];
 
   const layoutOptions = [
