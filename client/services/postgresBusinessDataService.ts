@@ -64,14 +64,11 @@ class PostgresBusinessDataService {
   }
 
   // Product methods
-  public async getProducts(): Promise<Product[]> {
-    try {
-      const response = await this.apiCall('/products');
-      return response.data || [];
-    } catch (error) {
+  public getProducts(): Promise<Product[]> {
+    return this.apiCall('/products').then(response => response.data || []).catch(error => {
       console.error('Failed to fetch products:', error);
       return this.getFallbackProducts();
-    }
+    });
   }
 
   public async getProductById(id: string): Promise<Product | undefined> {
