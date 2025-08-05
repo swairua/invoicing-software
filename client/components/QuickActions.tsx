@@ -253,13 +253,13 @@ export default function QuickActions() {
         customerId: selectedCustomer,
         customer: customer,
         items: selectedProducts.map(item => {
-          const product = mockProducts.find(p => p.id === item.productId);
+          const product = products.find(p => p.id === item.productId);
           return {
             productId: item.productId,
             product: product,
             quantity: item.quantity,
-            unitPrice: product?.price || 0,
-            lineTotal: (product?.price || 0) * item.quantity,
+            unitPrice: product?.sellingPrice || 0,
+            lineTotal: (product?.sellingPrice || 0) * item.quantity,
           };
         }),
         subtotal,
