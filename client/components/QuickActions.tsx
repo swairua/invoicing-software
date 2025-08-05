@@ -398,14 +398,18 @@ export default function QuickActions() {
               <SelectValue placeholder="Select customer" />
             </SelectTrigger>
             <SelectContent className="max-h-[200px] overflow-y-auto">
-              {customers.map(customer => (
+              {customers && customers.length > 0 ? customers.map(customer => (
                 <SelectItem key={customer.id} value={customer.id}>
                   <div className="space-y-1">
                     <div className="font-medium">{customer.name}</div>
                     <div className="text-xs text-muted-foreground">{customer.email}</div>
                   </div>
                 </SelectItem>
-              ))}
+              )) : (
+                <SelectItem value="no-customers" disabled>
+                  No customers available
+                </SelectItem>
+              )}
             </SelectContent>
           </Select>
         </div>
