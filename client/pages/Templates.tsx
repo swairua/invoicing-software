@@ -396,15 +396,8 @@ export default function Templates() {
   };
 
   const getTypeIcon = (type: DocumentType) => {
-    switch (type) {
-      case 'invoice': return '🧾';
-      case 'quotation': return '💼';
-      case 'proforma': return '📋';
-      case 'receipt': return '🧾';
-      case 'packing_list': return '📦';
-      case 'delivery_note': return '🚚';
-      default: return '📄';
-    }
+    const docType = documentTypes.find(dt => dt.value === type);
+    return docType?.icon || '📄';
   };
 
   const groupedTemplates = documentTypes.reduce((acc, docType) => {
