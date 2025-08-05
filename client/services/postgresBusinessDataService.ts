@@ -104,14 +104,11 @@ class PostgresBusinessDataService {
   }
 
   // Invoice methods
-  public async getInvoices(): Promise<Invoice[]> {
-    try {
-      const response = await this.apiCall('/invoices');
-      return response.data || [];
-    } catch (error) {
+  public getInvoices(): Promise<Invoice[]> {
+    return this.apiCall('/invoices').then(response => response.data || []).catch(error => {
       console.error('Failed to fetch invoices:', error);
       return this.getFallbackInvoices();
-    }
+    });
   }
 
   public async getInvoiceById(id: string): Promise<Invoice | undefined> {
