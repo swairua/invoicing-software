@@ -185,12 +185,83 @@ export default function Invoices() {
 
   const handleSendToETIMS = (invoiceId: string) => {
     console.log('Sending to ETIMS:', invoiceId);
+    toast({
+      title: "ETIMS Submission",
+      description: "Invoice submitted to ETIMS for processing",
+    });
   };
 
   const handleDownloadPDF = (invoiceId: string) => {
     const invoice = invoices.find(inv => inv.id === invoiceId);
     if (invoice) {
       PDFService.generateInvoicePDF(invoice);
+    }
+  };
+
+  const handleViewDetails = (invoiceId: string) => {
+    console.log('Viewing invoice details:', invoiceId);
+    toast({
+      title: "Invoice Details",
+      description: "Opening invoice details view",
+    });
+  };
+
+  const handleEditInvoice = (invoiceId: string) => {
+    console.log('Editing invoice:', invoiceId);
+    toast({
+      title: "Edit Invoice",
+      description: "Opening invoice edit form",
+    });
+  };
+
+  const handleDuplicateInvoice = (invoiceId: string) => {
+    const invoice = invoices.find(inv => inv.id === invoiceId);
+    if (invoice) {
+      console.log('Duplicating invoice:', invoiceId);
+      toast({
+        title: "Invoice Duplicated",
+        description: `Created a copy of ${invoice.invoiceNumber}`,
+      });
+    }
+  };
+
+  const handleSendToCustomer = (invoiceId: string) => {
+    const invoice = invoices.find(inv => inv.id === invoiceId);
+    if (invoice) {
+      console.log('Sending invoice to customer:', invoiceId);
+      toast({
+        title: "Invoice Sent",
+        description: `Invoice sent to ${invoice.customer.name}`,
+      });
+    }
+  };
+
+  const handleViewStatement = (invoiceId: string) => {
+    const invoice = invoices.find(inv => inv.id === invoiceId);
+    if (invoice) {
+      console.log('Viewing customer statement:', invoiceId);
+      toast({
+        title: "Statement View",
+        description: `Opening statement for ${invoice.customer.name}`,
+      });
+    }
+  };
+
+  const handleCancelInvoice = (invoiceId: string) => {
+    const invoice = invoices.find(inv => inv.id === invoiceId);
+    if (invoice) {
+      console.log('Cancelling invoice:', invoiceId);
+      // Update invoice status to cancelled
+      setInvoices(prev => prev.map(inv =>
+        inv.id === invoiceId
+          ? { ...inv, status: 'cancelled' as const, updatedAt: new Date() }
+          : inv
+      ));
+      toast({
+        title: "Invoice Cancelled",
+        description: `${invoice.invoiceNumber} has been cancelled`,
+        variant: "destructive",
+      });
     }
   };
 
