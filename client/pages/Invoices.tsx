@@ -67,6 +67,13 @@ import { useToast } from '../hooks/use-toast';
 // Get data service instance (PostgreSQL or mock)
 const businessData = dataService;
 
+// Utility function to safely convert dates
+const safeDate = (date: any): Date => {
+  if (!date) return new Date();
+  if (date instanceof Date) return date;
+  return new Date(date);
+};
+
 export default function Invoices() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
