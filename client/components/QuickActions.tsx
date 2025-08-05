@@ -510,8 +510,8 @@ export default function QuickActions() {
                               </p>
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                            <DialogHeader>
+                          <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[90vh] flex flex-col">
+                            <DialogHeader className="flex-shrink-0">
                               <DialogTitle className="flex items-center space-x-2">
                                 <action.icon className={`h-5 w-5 ${action.color}`} />
                                 <span>{action.title}</span>
@@ -520,7 +520,9 @@ export default function QuickActions() {
                                 {action.description}
                               </DialogDescription>
                             </DialogHeader>
-                            {renderDocumentForm(action.title)}
+                            <div className="flex-1 overflow-y-auto p-1">
+                              {renderDocumentForm(action.title)}
+                            </div>
                           </DialogContent>
                         </Dialog>
                       ) : (
