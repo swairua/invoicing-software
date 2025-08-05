@@ -55,6 +55,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { Quotation, Customer, Product } from '@shared/types';
+import { useToast } from '../hooks/use-toast';
 import PDFService from '../services/pdfService';
 
 // Mock data
