@@ -63,8 +63,8 @@ import { useToast } from '../hooks/use-toast';
 import PDFService from '../services/pdfService';
 import dataService from '../services/dataServiceFactory';
 
-// Get business data service instance
-const businessData = BusinessDataService.getInstance();
+// Get data service instance (either mock or PostgreSQL)
+const businessData = dataService;
 
 export default function Quotations() {
   const [quotations, setQuotations] = useState<Quotation[]>([]);
