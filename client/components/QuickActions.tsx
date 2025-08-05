@@ -518,7 +518,7 @@ export default function QuickActions() {
                               <SelectValue placeholder="Select product" />
                             </SelectTrigger>
                             <SelectContent className="max-h-[200px]">
-                              {products.map(product => (
+                              {products && products.length > 0 ? products.map(product => (
                                 <SelectItem key={product.id} value={product.id}>
                                   <div className="space-y-1">
                                     <div className="font-medium">{product.name}</div>
@@ -527,7 +527,11 @@ export default function QuickActions() {
                                     </div>
                                   </div>
                                 </SelectItem>
-                              ))}
+                              )) : (
+                                <SelectItem value="no-products" disabled>
+                                  No products available
+                                </SelectItem>
+                              )}
                             </SelectContent>
                           </Select>
                         </div>
