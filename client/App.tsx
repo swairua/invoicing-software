@@ -19,6 +19,7 @@ import Payments from "./pages/Payments";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import TaxSettings from "./pages/TaxSettings";
+import UserManagement from "./pages/UserManagement";
 import Templates from "./pages/Templates";
 import UnitsOfMeasure from "./pages/UnitsOfMeasure";
 import PlaceholderPage from "./pages/PlaceholderPage";
