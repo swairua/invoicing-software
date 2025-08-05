@@ -160,9 +160,112 @@ export default function Invoices() {
     return (amountPaid / total) * 100;
   };
 
-  const handleCreateInvoice = (e: React.FormEvent) => {
+  const addProduct = () => {
+    setFormData(prev => ({
+      ...prev,
+      items: [...prev.items, { productId: '', quantity: 1, unitPrice: 0 }]
+    }));
+  };
+
+  const removeProduct = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      items: prev.items.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateProduct = (index: number, field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      items: prev.items.map((item, i) =>
+        i === index ? { ...item, [field]: value } : item
+      )
+    }));
+  };
+
+  const handleCreateInvoice = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsCreateDialogOpen(false);
+
+    if (!formData.customerId || formData.items.length === 0) {
+      toast({
+        title: "Validation Error",
+        description: "Please select a customer and add at least one product.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // Calculate totals
+      const subtotal = formData.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
+      const vatAmount = subtotal * 0.16;
+      const total = subtotal + vatAmount;
+
+      // Generate invoice number
+      const invoiceNumber = `INV-2024-${String(invoices.length + 1).padStart(3, '0')}`;
+
+      const customer = customers.find(c => c.id === formData.customerId);
+
+      const newInvoice = {
+        id: Date.now().toString(),
+        invoiceNumber,
+        customerId: formData.customerId,
+        customer: customer!,
+        items: formData.items.map((item, index) => {
+          const product = products.find(p => p.id === item.productId);
+          return {
+            id: `item-${index}`,
+            productId: item.productId,
+            product: product!,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            discount: 0,
+            vatRate: product?.taxable ? 16 : 0,
+            total: item.unitPrice * item.quantity * (1 + (product?.taxable ? 0.16 : 0))
+          };
+        }),
+        subtotal,
+        vatAmount,
+        discountAmount: 0,
+        total,
+        balance: total,
+        amountPaid: 0,
+        status: 'draft' as const,
+        dueDate: new Date(formData.dueDate),
+        issueDate: new Date(),
+        notes: formData.notes,
+        companyId: '1',
+        createdBy: '1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      setInvoices(prev => [newInvoice, ...prev]);
+      setIsCreateDialogOpen(false);
+
+      // Reset form
+      setFormData({
+        customerId: '',
+        dueDate: '',
+        notes: '',
+        items: []
+      });
+
+      toast({
+        title: "Invoice Created",
+        description: `Invoice ${invoiceNumber} created successfully for ${customer?.name}`,
+      });
+
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create invoice. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleRecordPayment = (invoiceId: string) => {
