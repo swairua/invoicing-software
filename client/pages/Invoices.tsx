@@ -224,51 +224,20 @@ export default function Invoices() {
 
     setIsLoading(true);
     try {
-      // Calculate totals
-      const subtotal = formData.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
-      const vatAmount = subtotal * 0.16;
-      const total = subtotal + vatAmount;
-
-      // Generate invoice number
-      const invoiceNumber = `INV-2024-${String(invoices.length + 1).padStart(3, '0')}`;
-
       const customer = customers.find(c => c.id === formData.customerId);
 
-      const newInvoice = {
-        id: Date.now().toString(),
-        invoiceNumber,
+      // Create invoice via API
+      const newInvoice = await businessData.createInvoice({
         customerId: formData.customerId,
-        customer: customer!,
-        items: formData.items.map((item, index) => {
-          const product = products.find(p => p.id === item.productId);
-          return {
-            id: `item-${index}`,
-            productId: item.productId,
-            product: product!,
-            quantity: item.quantity,
-            unitPrice: item.unitPrice,
-            discount: 0,
-            vatRate: product?.taxable ? 16 : 0,
-            total: item.unitPrice * item.quantity * (1 + (product?.taxable ? 0.16 : 0))
-          };
-        }),
-        subtotal,
-        vatAmount,
-        discountAmount: 0,
-        total,
-        balance: total,
-        amountPaid: 0,
-        status: 'draft' as const,
-        dueDate: new Date(formData.dueDate),
-        issueDate: new Date(),
+        dueDate: formData.dueDate,
         notes: formData.notes,
-        companyId: '1',
-        createdBy: '1',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+        items: formData.items
+      });
 
-      setInvoices(prev => [newInvoice, ...prev]);
+      // Refresh invoices list
+      const updatedInvoices = await businessData.getInvoices();
+      setInvoices(updatedInvoices);
+
       setIsCreateDialogOpen(false);
 
       // Reset form
@@ -281,10 +250,11 @@ export default function Invoices() {
 
       toast({
         title: "Invoice Created",
-        description: `Invoice ${invoiceNumber} created successfully for ${customer?.name}`,
+        description: `Invoice ${newInvoice.invoiceNumber} created successfully for ${customer?.name}`,
       });
 
     } catch (error) {
+      console.error('Error creating invoice:', error);
       toast({
         title: "Error",
         description: "Failed to create invoice. Please try again.",
