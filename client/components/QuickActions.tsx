@@ -448,16 +448,20 @@ export default function QuickActions() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">Create new</SelectItem>
-                {mockQuotations.map(quotation => (
+                {quotations && quotations.length > 0 ? quotations.map(quotation => (
                   <SelectItem key={quotation.id} value={quotation.id}>
                     <div className="space-y-1">
-                      <div className="font-medium">{quotation.id}</div>
+                      <div className="font-medium">{quotation.quoteNumber}</div>
                       <div className="text-xs text-muted-foreground">
-                        {quotation.customer} - KES {quotation.amount.toLocaleString()}
+                        {quotation.customer.name} - KES {quotation.total.toLocaleString()}
                       </div>
                     </div>
                   </SelectItem>
-                ))}
+                )) : (
+                  <SelectItem value="no-quotations" disabled>
+                    No quotations available
+                  </SelectItem>
+                )}
               </SelectContent>
             </Select>
           </div>
