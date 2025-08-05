@@ -35,33 +35,53 @@ export class PDFService {
   /**
    * Generate Invoice PDF matching the document design
    */
-  static generateInvoicePDF(invoice: Invoice, download: boolean = true): jsPDF {
+  static generateInvoicePDF(invoice: Invoice, download: boolean = true, templateId?: string): jsPDF {
+    const template = templateId ? this.getTemplate(templateId) : this.getActiveTemplate('invoice');
+    const design = template?.design;
+
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
 
+    // Apply template colors if available
+    if (design) {
+      doc.setTextColor(design.colors.text);
+    }
+
     // Company Logo and Header
-    this.addCompanyHeader(doc, pageWidth);
+    this.addCompanyHeader(doc, pageWidth, design);
 
     // Company Information
-    this.addCompanyInfo(doc, pageWidth);
+    this.addCompanyInfo(doc, pageWidth, design);
 
     // Invoice Title and Number
-    doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(design?.fonts.size.heading || 16);
+    doc.setFont(design?.fonts.heading || 'helvetica', 'bold');
+    if (design?.colors.primary) {
+      doc.setTextColor(design.colors.primary);
+    }
     doc.text(`INVOICE NO. ${invoice.invoiceNumber}`, pageWidth / 2, 80, { align: 'center' });
 
+    // Reset text color
+    if (design?.colors.text) {
+      doc.setTextColor(design.colors.text);
+    }
+
     // Customer Information and Date
-    this.addCustomerAndDateInfo(doc, invoice, pageWidth);
+    this.addCustomerAndDateInfo(doc, invoice, pageWidth, design);
 
     // Invoice Items Table
-    this.addInvoiceItemsTable(doc, invoice);
+    this.addInvoiceItemsTable(doc, invoice, design);
 
     // Terms and Conditions
-    this.addTermsAndConditions(doc, pageWidth, pageHeight);
+    if (design?.footer.showTerms !== false) {
+      this.addTermsAndConditions(doc, pageWidth, pageHeight, design);
+    }
 
     // Signature Section
-    this.addSignatureSection(doc, pageWidth, pageHeight);
+    if (design?.footer.showSignature !== false) {
+      this.addSignatureSection(doc, pageWidth, pageHeight, design);
+    }
 
     if (download) {
       doc.save(`${invoice.invoiceNumber}.pdf`);
