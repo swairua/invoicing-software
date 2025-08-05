@@ -33,14 +33,11 @@ class PostgresBusinessDataService {
   }
 
   // Customer methods
-  public async getCustomers(): Promise<Customer[]> {
-    try {
-      const response = await this.apiCall('/customers');
-      return response.data || [];
-    } catch (error) {
+  public getCustomers(): Promise<Customer[]> {
+    return this.apiCall('/customers').then(response => response.data || []).catch(error => {
       console.error('Failed to fetch customers:', error);
       return this.getFallbackCustomers();
-    }
+    });
   }
 
   public async getCustomerById(id: string): Promise<Customer | undefined> {
