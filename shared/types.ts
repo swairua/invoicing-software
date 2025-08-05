@@ -249,6 +249,164 @@ export interface Payment {
 
 export type PaymentMethod = 'cash' | 'mpesa' | 'bank' | 'cheque' | 'card';
 
+// Additional Document Types
+export interface PackingList {
+  id: string;
+  packingNumber: string;
+  customerId: string;
+  customer: Customer;
+  items: PackingListItem[];
+  totalQuantity: number;
+  totalPackages: number;
+  weight?: number;
+  dimensions?: string;
+  status: 'draft' | 'packed' | 'shipped' | 'delivered';
+  packingDate: Date;
+  shippingDate?: Date;
+  deliveryDate?: Date;
+  notes?: string;
+  companyId: string;
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface PackingListItem {
+  id: string;
+  productId: string;
+  product: Product;
+  quantity: number;
+  packageType?: string;
+  packageQuantity?: number;
+  weight?: number;
+  serialNumbers?: string[];
+  batchNumbers?: string[];
+}
+
+export interface DeliveryNote {
+  id: string;
+  deliveryNumber: string;
+  customerId: string;
+  customer: Customer;
+  items: DeliveryNoteItem[];
+  totalQuantity: number;
+  status: 'draft' | 'in_transit' | 'delivered' | 'returned';
+  deliveryDate: Date;
+  deliveryAddress: string;
+  driverName?: string;
+  vehicleNumber?: string;
+  notes?: string;
+  signatureUrl?: string;
+  companyId: string;
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface DeliveryNoteItem {
+  id: string;
+  productId: string;
+  product: Product;
+  quantity: number;
+  deliveredQuantity?: number;
+  condition?: 'good' | 'damaged' | 'missing';
+  notes?: string;
+}
+
+export interface PurchaseOrder {
+  id: string;
+  orderNumber: string;
+  supplierId: string;
+  supplier: Supplier;
+  items: PurchaseOrderItem[];
+  subtotal: number;
+  vatAmount: number;
+  discountAmount: number;
+  total: number;
+  status: 'draft' | 'sent' | 'confirmed' | 'received' | 'cancelled';
+  orderDate: Date;
+  expectedDate?: Date;
+  receivedDate?: Date;
+  notes?: string;
+  companyId: string;
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface PurchaseOrderItem {
+  id: string;
+  productId: string;
+  product: Product;
+  quantity: number;
+  unitPrice: number;
+  discount: number;
+  total: number;
+  receivedQuantity?: number;
+}
+
+export interface CreditNote {
+  id: string;
+  creditNumber: string;
+  customerId: string;
+  customer: Customer;
+  invoiceId?: string;
+  items: CreditNoteItem[];
+  subtotal: number;
+  vatAmount: number;
+  total: number;
+  reason: string;
+  status: 'draft' | 'issued' | 'applied';
+  issueDate: Date;
+  notes?: string;
+  companyId: string;
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CreditNoteItem {
+  id: string;
+  productId: string;
+  product: Product;
+  quantity: number;
+  unitPrice: number;
+  vatRate: number;
+  total: number;
+}
+
+export interface GoodsReceivedNote {
+  id: string;
+  grnNumber: string;
+  supplierId: string;
+  supplier: Supplier;
+  purchaseOrderId?: string;
+  items: GoodsReceivedItem[];
+  totalQuantity: number;
+  status: 'draft' | 'received' | 'inspected' | 'accepted' | 'rejected';
+  receivedDate: Date;
+  inspectedBy?: string;
+  notes?: string;
+  companyId: string;
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface GoodsReceivedItem {
+  id: string;
+  productId: string;
+  product: Product;
+  orderedQuantity: number;
+  receivedQuantity: number;
+  acceptedQuantity: number;
+  rejectedQuantity?: number;
+  rejectionReason?: string;
+  condition: 'good' | 'damaged' | 'defective';
+  batchNumber?: string;
+  expiryDate?: Date;
+}
+
 // Report Types
 export interface SalesReport {
   period: 'day' | 'week' | 'month' | 'year';
