@@ -482,7 +482,7 @@ export default function QuickActions() {
                                   <div className="space-y-1">
                                     <div className="font-medium">{product.name}</div>
                                     <div className="text-xs text-muted-foreground">
-                                      KES {product.price.toLocaleString()} • {product.stock} in stock
+                                      KES {product.sellingPrice.toLocaleString()} • {product.currentStock} in stock
                                     </div>
                                   </div>
                                 </SelectItem>
