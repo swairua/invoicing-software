@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { Invoice, Quotation, ProformaInvoice, Payment } from '@shared/types';
+import { Invoice, Quotation, ProformaInvoice, Payment, DocumentTemplate, TemplateDesign } from '@shared/types';
 import { CompanySettings, defaultCompanySettings } from '@shared/company';
 
 export class PDFService {
