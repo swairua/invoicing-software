@@ -63,6 +63,13 @@ import { useToast } from '../hooks/use-toast';
 // Get business data service instance
 const businessData = BusinessDataService.getInstance();
 
+// Utility function to safely convert dates
+const safeDate = (date: any): Date => {
+  if (!date) return new Date();
+  if (date instanceof Date) return date;
+  return new Date(date);
+};
+
 export default function ProformaInvoices() {
   const [proformas, setProformas] = useState<ProformaInvoice[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
