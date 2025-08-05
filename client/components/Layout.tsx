@@ -199,8 +199,8 @@ export default function Layout() {
         </div>
 
         {/* Page content */}
-        <main className="py-8">
-          <div className="px-4 sm:px-6 lg:px-8">
+        <main className="flex-1 py-4 sm:py-6 lg:py-8">
+          <div className="px-4 sm:px-6 lg:px-8 max-w-full">
             <Outlet />
           </div>
         </main>
