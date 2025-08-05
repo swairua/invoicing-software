@@ -501,7 +501,7 @@ export default function QuickActions() {
           {selectedProducts.length > 0 && (
             <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
               {selectedProducts.map((item, index) => {
-                const product = products.find(p => p.id === item.productId);
+                const product = products && products.find(p => p.id === item.productId);
                 const lineTotal = product ? product.sellingPrice * item.quantity : 0;
 
                 return (
