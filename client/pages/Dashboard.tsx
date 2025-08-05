@@ -43,6 +43,9 @@ import { useAuth } from '../hooks/use-auth';
 import BusinessDataService from '../services/businessDataService';
 import { DashboardMetrics } from '@shared/types';
 
+// Get business data service instance
+const businessData = BusinessDataService.getInstance();
+
 // Enhanced mock data for demonstration
 const mockMetrics = {
   totalRevenue: 145230.50,
