@@ -483,7 +483,7 @@ export class PDFService {
   /**
    * Add terms and conditions
    */
-  private static addTermsAndConditions(doc: jsPDF, pageWidth: number, pageHeight: number): void {
+  private static addTermsAndConditions(doc: jsPDF, pageWidth: number, pageHeight: number, design?: TemplateDesign): void {
     const terms = this.companySettings.invoiceSettings.terms;
     if (!terms || terms.length === 0) return;
 
