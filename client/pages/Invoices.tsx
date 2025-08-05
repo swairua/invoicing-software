@@ -368,28 +368,49 @@ export default function Invoices() {
   };
 
   const handleViewDetails = (invoiceId: string) => {
-    console.log('Viewing invoice details:', invoiceId);
-    toast({
-      title: "Invoice Details",
-      description: "Opening invoice details view",
-    });
+    const invoice = invoices.find(inv => inv.id === invoiceId);
+    if (invoice) {
+      // In a real app, this would navigate to the invoice details page
+      window.open(`/invoices/${invoiceId}`, '_blank');
+      toast({
+        title: "Invoice Details",
+        description: `Opening details for ${invoice.invoiceNumber}`,
+      });
+    }
   };
 
   const handleEditInvoice = (invoiceId: string) => {
-    console.log('Editing invoice:', invoiceId);
-    toast({
-      title: "Edit Invoice",
-      description: "Opening invoice edit form",
-    });
+    const invoice = invoices.find(inv => inv.id === invoiceId);
+    if (invoice) {
+      // In a real app, this would navigate to the edit form
+      window.location.href = `/invoices/${invoiceId}/edit`;
+      toast({
+        title: "Edit Invoice",
+        description: `Opening edit form for ${invoice.invoiceNumber}`,
+      });
+    }
   };
 
   const handleDuplicateInvoice = (invoiceId: string) => {
     const invoice = invoices.find(inv => inv.id === invoiceId);
     if (invoice) {
-      console.log('Duplicating invoice:', invoiceId);
+      // Create a duplicate invoice
+      const duplicateInvoice = {
+        ...invoice,
+        id: Date.now().toString(),
+        invoiceNumber: `${invoice.invoiceNumber}-COPY`,
+        status: 'draft' as const,
+        amountPaid: 0,
+        balance: invoice.total,
+        issueDate: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+
+      setInvoices(prev => [duplicateInvoice, ...prev]);
       toast({
         title: "Invoice Duplicated",
-        description: `Created a copy of ${invoice.invoiceNumber}`,
+        description: `Created ${duplicateInvoice.invoiceNumber} from ${invoice.invoiceNumber}`,
       });
     }
   };
@@ -397,10 +418,16 @@ export default function Invoices() {
   const handleSendToCustomer = (invoiceId: string) => {
     const invoice = invoices.find(inv => inv.id === invoiceId);
     if (invoice) {
-      console.log('Sending invoice to customer:', invoiceId);
+      // Update invoice status to sent
+      setInvoices(prev => prev.map(inv =>
+        inv.id === invoiceId
+          ? { ...inv, status: 'sent' as const, updatedAt: new Date() }
+          : inv
+      ));
+
       toast({
         title: "Invoice Sent",
-        description: `Invoice sent to ${invoice.customer.name}`,
+        description: `Invoice ${invoice.invoiceNumber} sent to ${invoice.customer.name}`,
       });
     }
   };
@@ -408,9 +435,10 @@ export default function Invoices() {
   const handleViewStatement = (invoiceId: string) => {
     const invoice = invoices.find(inv => inv.id === invoiceId);
     if (invoice) {
-      console.log('Viewing customer statement:', invoiceId);
+      // In a real app, this would generate/view customer statement
+      window.open(`/customers/${invoice.customerId}/statement`, '_blank');
       toast({
-        title: "Statement View",
+        title: "Customer Statement",
         description: `Opening statement for ${invoice.customer.name}`,
       });
     }
