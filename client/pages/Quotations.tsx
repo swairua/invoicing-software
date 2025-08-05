@@ -187,6 +187,10 @@ export default function Quotations() {
 
   const handleCreateQuotation = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // This would normally be handled by the QuickActions component
+    // For now, we'll just close the dialog and show a message
+    console.log('Create quotation functionality moved to QuickActions component');
     setIsCreateDialogOpen(false);
   };
 
