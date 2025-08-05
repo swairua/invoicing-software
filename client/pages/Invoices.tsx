@@ -187,7 +187,7 @@ export default function Invoices() {
   const getDaysOverdue = (dueDate: Date | string, status: string) => {
     if (status !== 'overdue') return 0;
     const today = new Date();
-    const dueDateObj = new Date(dueDate);
+    const dueDateObj = safeDate(dueDate);
     return Math.floor((today.getTime() - dueDateObj.getTime()) / (1000 * 60 * 60 * 24));
   };
 
