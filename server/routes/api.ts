@@ -125,36 +125,8 @@ router.get('/dashboard/metrics', async (req, res) => {
 // Route handlers
 router.use('/customers', customersRouter);
 router.use('/products', productsRouter);
-
-// Placeholder routes for other entities
-router.get('/invoices', async (req, res) => {
-  try {
-    const companyId = req.headers['x-company-id'] as string || '550e8400-e29b-41d4-a716-446655440000';
-    
-    const result = await Database.query(`
-      SELECT 
-        i.*,
-        c.name as customer_name,
-        c.email as customer_email
-      FROM invoices i
-      JOIN customers c ON i.customer_id = c.id
-      WHERE i.company_id = $1
-      ORDER BY i.created_at DESC
-      LIMIT 50
-    `, [companyId]);
-
-    res.json({
-      success: true,
-      data: result.rows
-    });
-  } catch (error) {
-    console.error('Error fetching invoices:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch invoices'
-    });
-  }
-});
+router.use('/invoices', invoicesRouter);
+router.use('/taxes', taxesRouter);
 
 router.get('/quotations', async (req, res) => {
   try {
