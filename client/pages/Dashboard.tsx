@@ -178,6 +178,33 @@ export default function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [selectedDrillDown, setSelectedDrillDown] = useState<string | null>(null);
+  const [liveMetrics, setLiveMetrics] = useState<DashboardMetrics | null>(null);
+  const [isSimulating, setIsSimulating] = useState(false);
+
+  // Load metrics data
+  useEffect(() => {
+    setLiveMetrics(businessData.getDashboardMetrics());
+    setIsSimulating(businessData.isSimulationRunning());
+  }, []);
+
+  // Refresh metrics periodically
+  useEffect(() => {
+    const refreshInterval = setInterval(() => {
+      setLiveMetrics(businessData.getDashboardMetrics());
+      setIsSimulating(businessData.isSimulationRunning());
+    }, 3000); // Refresh every 3 seconds
+
+    return () => clearInterval(refreshInterval);
+  }, []);
+
+  const toggleSimulation = () => {
+    if (isSimulating) {
+      businessData.stopSimulation();
+    } else {
+      businessData.startSimulation();
+    }
+    setIsSimulating(!isSimulating);
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-KE', {
