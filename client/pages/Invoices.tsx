@@ -72,6 +72,13 @@ export default function Invoices() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    customerId: '',
+    dueDate: '',
+    notes: '',
+    items: [] as { productId: string; quantity: number; unitPrice: number; }[]
+  });
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   // Load initial data
