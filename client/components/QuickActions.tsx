@@ -239,8 +239,8 @@ export default function QuickActions() {
 
       // Calculate totals
       const subtotal = selectedProducts.reduce((sum, item) => {
-        const product = mockProducts.find(p => p.id === item.productId);
-        return sum + (product ? product.price * item.quantity : 0);
+        const product = products.find(p => p.id === item.productId);
+        return sum + (product ? product.sellingPrice * item.quantity : 0);
       }, 0);
 
       const vatAmount = subtotal * 0.16;
