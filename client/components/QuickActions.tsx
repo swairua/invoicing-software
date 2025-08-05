@@ -556,8 +556,8 @@ export default function QuickActions() {
             <div className="bg-muted/20 rounded-lg p-4 space-y-2">
               {(() => {
                 const subtotal = selectedProducts.reduce((sum, item) => {
-                  const product = mockProducts.find(p => p.id === item.productId);
-                  return sum + (product ? product.price * item.quantity : 0);
+                  const product = products.find(p => p.id === item.productId);
+                  return sum + (product ? product.sellingPrice * item.quantity : 0);
                 }, 0);
                 const vatAmount = subtotal * 0.16;
                 const total = subtotal + vatAmount;
