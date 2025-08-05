@@ -143,7 +143,7 @@ export default function ProformaInvoices() {
 
   const isExpiringSoon = (validUntil: Date | string) => {
     const today = new Date();
-    const validDate = new Date(validUntil);
+    const validDate = safeDate(validUntil);
     const diffDays = Math.ceil((validDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     return diffDays <= 7 && diffDays > 0;
   };
