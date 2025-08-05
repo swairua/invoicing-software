@@ -94,21 +94,52 @@ export default function Invoices() {
   React.useEffect(() => {
     const loadData = async () => {
       try {
+        // Load data with individual error handling for better resilience
+        const invoicesPromise = businessData.getInvoices().catch(error => {
+          console.error('Failed to load invoices:', error);
+          return [];
+        });
+
+        const customersPromise = businessData.getCustomers().catch(error => {
+          console.error('Failed to load customers:', error);
+          return [];
+        });
+
+        const productsPromise = businessData.getProducts().catch(error => {
+          console.error('Failed to load products:', error);
+          return [];
+        });
+
         const [invoicesData, customersData, productsData] = await Promise.all([
-          businessData.getInvoices(),
-          businessData.getCustomers(),
-          businessData.getProducts()
+          invoicesPromise,
+          customersPromise,
+          productsPromise
         ]);
+
         setInvoices(invoicesData);
         setCustomers(customersData);
         setProducts(productsData);
+
+        // Only show error if all data sources failed
+        if (!invoicesData.length && !customersData.length && !productsData.length) {
+          toast({
+            title: "Data Loading Issue",
+            description: "Some data may not be available. Using fallback data.",
+            variant: "destructive",
+          });
+        }
       } catch (error) {
         console.error('Error loading data:', error);
         toast({
           title: "Error",
-          description: "Failed to load data. Please refresh the page.",
+          description: "Failed to load data. Using fallback data.",
           variant: "destructive",
         });
+
+        // Set empty arrays as fallback
+        setInvoices([]);
+        setCustomers([]);
+        setProducts([]);
       }
     };
 
