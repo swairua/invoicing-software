@@ -5,6 +5,32 @@ import { CompanySettings, defaultCompanySettings } from '@shared/company';
 
 export class PDFService {
   private static companySettings: CompanySettings = defaultCompanySettings;
+  private static templates: Map<string, DocumentTemplate> = new Map();
+
+  /**
+   * Register a template for use
+   */
+  static registerTemplate(template: DocumentTemplate): void {
+    const key = `${template.type}_${template.isActive ? 'active' : template.id}`;
+    this.templates.set(key, template);
+  }
+
+  /**
+   * Get active template for document type
+   */
+  static getActiveTemplate(type: string): DocumentTemplate | null {
+    return this.templates.get(`${type}_active`) || null;
+  }
+
+  /**
+   * Get template by ID
+   */
+  static getTemplate(id: string): DocumentTemplate | null {
+    for (const template of this.templates.values()) {
+      if (template.id === id) return template;
+    }
+    return null;
+  }
 
   /**
    * Generate Invoice PDF matching the document design
