@@ -66,19 +66,56 @@ export default function QuickActions() {
   const [notes, setNotes] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [openDialog, setOpenDialog] = useState<string | null>(null);
-  const [customers, setCustomers] = useState(businessData.getCustomers());
-  const [products, setProducts] = useState(businessData.getProducts());
-  const [invoices, setInvoices] = useState(businessData.getInvoices());
-  const [quotations, setQuotations] = useState(businessData.getQuotations());
+  const [customers, setCustomers] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
+  const [invoices, setInvoices] = useState<any[]>([]);
+  const [quotations, setQuotations] = useState<any[]>([]);
+
+  // Load initial data
+  React.useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [customersData, productsData, invoicesData, quotationsData] = await Promise.all([
+          businessData.getCustomers(),
+          businessData.getProducts(),
+          businessData.getInvoices(),
+          businessData.getQuotations()
+        ]);
+        setCustomers(customersData);
+        setProducts(productsData);
+        setInvoices(invoicesData);
+        setQuotations(quotationsData);
+      } catch (error) {
+        console.error('Error loading data in QuickActions:', error);
+        // Set empty arrays as fallback
+        setCustomers([]);
+        setProducts([]);
+        setInvoices([]);
+        setQuotations([]);
+      }
+    };
+
+    loadData();
+  }, []);
 
   // Refresh data periodically
   React.useEffect(() => {
-    const refreshInterval = setInterval(() => {
-      setCustomers(businessData.getCustomers());
-      setProducts(businessData.getProducts());
-      setInvoices(businessData.getInvoices());
-      setQuotations(businessData.getQuotations());
-    }, 5000);
+    const refreshInterval = setInterval(async () => {
+      try {
+        const [customersData, productsData, invoicesData, quotationsData] = await Promise.all([
+          businessData.getCustomers(),
+          businessData.getProducts(),
+          businessData.getInvoices(),
+          businessData.getQuotations()
+        ]);
+        setCustomers(customersData);
+        setProducts(productsData);
+        setInvoices(invoicesData);
+        setQuotations(quotationsData);
+      } catch (error) {
+        console.error('Error refreshing data in QuickActions:', error);
+      }
+    }, 30000); // Refresh every 30 seconds
 
     return () => clearInterval(refreshInterval);
   }, []);
