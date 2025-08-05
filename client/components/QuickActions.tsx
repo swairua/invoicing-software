@@ -28,425 +28,524 @@ import {
   Receipt,
   CreditCard,
   Loader2,
+  Send,
+  Truck,
+  FileCheck,
+  ShoppingCart,
+  ClipboardList,
+  PackageOpen,
+  FileX,
+  Calculator,
+  Archive,
 } from 'lucide-react';
+import { useToast } from '../hooks/use-toast';
 
 interface QuickActionItem {
   title: string;
+  description: string;
   icon: React.ComponentType<{ className?: string }>;
   href?: string;
   color: string;
   action?: () => void;
   dialog?: boolean;
+  category: 'documents' | 'inventory' | 'customers' | 'financial';
 }
 
 // Mock data for dropdowns
 const mockCustomers = [
-  { id: '1', name: 'Acme Corporation Ltd' },
-  { id: '2', name: 'Tech Solutions Kenya' },
-  { id: '3', name: 'Global Trading Co.' },
+  { id: '1', name: 'Acme Corporation Ltd', email: 'contact@acme.com' },
+  { id: '2', name: 'Tech Solutions Kenya', email: 'info@techsolutions.co.ke' },
+  { id: '3', name: 'Global Trading Co.', email: 'orders@globaltrading.com' },
+  { id: '4', name: 'Innovation Hub Ltd', email: 'procurement@innovationhub.co.ke' },
 ];
 
 const mockProducts = [
-  { id: '1', name: 'Wireless Bluetooth Headphones', price: 5500 },
-  { id: '2', name: 'Office Chair Executive', price: 18000 },
-  { id: '3', name: 'A4 Copy Paper', price: 650 },
+  { id: '1', name: 'Wireless Bluetooth Headphones', price: 5500, stock: 45 },
+  { id: '2', name: 'Ergonomic Office Chair', price: 18000, stock: 8 },
+  { id: '3', name: 'Laptop Stand Adjustable', price: 3200, stock: 23 },
+  { id: '4', name: 'Wireless Mouse', price: 1200, stock: 67 },
+  { id: '5', name: 'Desk Organizer', price: 2400, stock: 12 },
 ];
 
-const mockOutstandingInvoices = [
-  { id: '1', number: 'INV-2024-001', customer: 'Acme Corporation Ltd', balance: 63800 },
-  { id: '2', number: 'INV-2024-002', customer: 'Tech Solutions Kenya', balance: 49900 },
-  { id: '3', number: 'INV-2024-003', customer: 'Global Trading Co.', balance: 145750 },
+const mockInvoices = [
+  { id: 'INV-2024-001', customer: 'Acme Corporation Ltd', amount: 25600, status: 'sent' },
+  { id: 'INV-2024-002', customer: 'Tech Solutions Kenya', amount: 18750, status: 'draft' },
+  { id: 'INV-2024-003', customer: 'Global Trading Co.', amount: 42300, status: 'paid' },
+];
+
+const mockQuotations = [
+  { id: 'QUO-2024-001', customer: 'Innovation Hub Ltd', amount: 38500, status: 'sent' },
+  { id: 'QUO-2024-002', customer: 'Acme Corporation Ltd', amount: 22100, status: 'accepted' },
 ];
 
 export default function QuickActions() {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [selectedCustomer, setSelectedCustomer] = useState('');
+  const [selectedProducts, setSelectedProducts] = useState<{ productId: string; quantity: number }[]>([]);
+  const [selectedInvoice, setSelectedInvoice] = useState('');
+  const [selectedQuotation, setSelectedQuotation] = useState('');
+  const [notes, setNotes] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [openDialogs, setOpenDialogs] = useState<Record<string, boolean>>({});
+  const [openDialog, setOpenDialog] = useState<string | null>(null);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-KE', {
-      style: 'currency',
-      currency: 'KES',
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const closeDialog = (key: string) => {
-    setOpenDialogs(prev => ({ ...prev, [key]: false }));
-  };
-
-  const openDialog = (key: string) => {
-    setOpenDialogs(prev => ({ ...prev, [key]: true }));
-  };
-
-  const handleQuickInvoice = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsLoading(false);
-    closeDialog('invoice');
-    navigate('/invoices');
-  };
-
-  const handleQuickCustomer = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsLoading(false);
-    closeDialog('customer');
-    navigate('/customers');
-  };
-
-  const handleQuickProduct = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsLoading(false);
-    closeDialog('product');
-    navigate('/products');
-  };
-
-  const handleQuickPayment = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsLoading(false);
-    closeDialog('payment');
-    navigate('/payments');
-  };
-
+  // Enhanced Quick Actions with comprehensive document types
   const quickActions: QuickActionItem[] = [
+    // Documents
     {
       title: 'New Invoice',
+      description: 'Create a new customer invoice',
       icon: FileText,
-      color: 'bg-blue-500',
+      color: 'text-blue-600',
       dialog: true,
-      action: () => openDialog('invoice'),
+      category: 'documents'
     },
     {
-      title: 'New Customer',
-      icon: Users,
-      color: 'bg-green-500',
+      title: 'New Quotation',
+      description: 'Send a price quote to customer',
+      icon: Calculator,
+      color: 'text-purple-600',
       dialog: true,
-      action: () => openDialog('customer'),
+      category: 'documents'
     },
     {
-      title: 'New Product',
+      title: 'Proforma Invoice',
+      description: 'Create preliminary invoice',
+      icon: FileCheck,
+      color: 'text-indigo-600',
+      dialog: true,
+      category: 'documents'
+    },
+    {
+      title: 'Delivery Note',
+      description: 'Create delivery confirmation',
+      icon: Truck,
+      color: 'text-green-600',
+      dialog: true,
+      category: 'documents'
+    },
+    {
+      title: 'Packing List',
+      description: 'Generate item packing list',
+      icon: PackageOpen,
+      color: 'text-orange-600',
+      dialog: true,
+      category: 'documents'
+    },
+    {
+      title: 'Credit Note',
+      description: 'Issue customer credit',
+      icon: FileX,
+      color: 'text-red-600',
+      dialog: true,
+      category: 'financial'
+    },
+    
+    // Inventory & Operations
+    {
+      title: 'Add Product',
+      description: 'Add new product to inventory',
       icon: Package,
-      color: 'bg-purple-500',
+      href: '/products',
+      color: 'text-emerald-600',
+      category: 'inventory'
+    },
+    {
+      title: 'Stock Adjustment',
+      description: 'Adjust product stock levels',
+      icon: Archive,
+      color: 'text-yellow-600',
       dialog: true,
-      action: () => openDialog('product'),
+      category: 'inventory'
+    },
+    {
+      title: 'Purchase Order',
+      description: 'Order from suppliers',
+      icon: ShoppingCart,
+      color: 'text-cyan-600',
+      dialog: true,
+      category: 'inventory'
+    },
+    
+    // Customer & Financial
+    {
+      title: 'Add Customer',
+      description: 'Register new customer',
+      icon: Users,
+      href: '/customers',
+      color: 'text-violet-600',
+      category: 'customers'
     },
     {
       title: 'Record Payment',
+      description: 'Log customer payment',
+      icon: CreditCard,
+      href: '/payments',
+      color: 'text-green-600',
+      category: 'financial'
+    },
+    {
+      title: 'Payment Receipt',
+      description: 'Generate payment receipt',
       icon: Receipt,
-      color: 'bg-orange-500',
+      color: 'text-teal-600',
       dialog: true,
-      action: () => openDialog('payment'),
+      category: 'financial'
     },
   ];
 
-  return (
-    <>
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>
-            Frequently used actions to help you manage your business efficiently
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {quickActions.map((action, index) => (
-              <Dialog 
-                key={index} 
-                open={openDialogs[action.title.toLowerCase().replace(' ', '_')] || false} 
-                onOpenChange={(open) => {
-                  const key = action.title.toLowerCase().replace(' ', '_');
-                  setOpenDialogs(prev => ({ ...prev, [key]: open }));
-                }}
-              >
-                <DialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="h-20 flex-col space-y-2"
-                    onClick={action.action}
-                  >
-                    <div className={`h-8 w-8 rounded-md ${action.color} flex items-center justify-center`}>
-                      <action.icon className="h-4 w-4 text-white" />
+  const handleQuickAction = (action: QuickActionItem) => {
+    if (action.href) {
+      navigate(action.href);
+    } else if (action.dialog) {
+      setOpenDialog(action.title);
+    } else if (action.action) {
+      action.action();
+    }
+  };
+
+  const handleCreateDocument = async (documentType: string) => {
+    if (!selectedCustomer) {
+      toast({
+        title: "Validation Error",
+        description: "Please select a customer.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const customer = mockCustomers.find(c => c.id === selectedCustomer);
+      const documentNumber = generateDocumentNumber(documentType);
+      
+      toast({
+        title: "Document Created",
+        description: `${documentType} ${documentNumber} created for ${customer?.name}`,
+      });
+      
+      // Reset form
+      setSelectedCustomer('');
+      setSelectedProducts([]);
+      setNotes('');
+      setOpenDialog(null);
+      
+      // Navigate to appropriate page
+      const routeMap: { [key: string]: string } = {
+        'New Invoice': '/invoices',
+        'New Quotation': '/quotations',
+        'Proforma Invoice': '/proforma',
+        'Delivery Note': '/deliveries',
+        'Packing List': '/packing-lists',
+        'Credit Note': '/credit-notes',
+      };
+      
+      if (routeMap[documentType]) {
+        navigate(routeMap[documentType]);
+      }
+      
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create document. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const generateDocumentNumber = (type: string) => {
+    const prefix = {
+      'New Invoice': 'INV',
+      'New Quotation': 'QUO',
+      'Proforma Invoice': 'PRO',
+      'Delivery Note': 'DEL',
+      'Packing List': 'PKG',
+      'Credit Note': 'CRN',
+    }[type] || 'DOC';
+    
+    return `${prefix}-2024-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`;
+  };
+
+  const addProduct = () => {
+    setSelectedProducts([...selectedProducts, { productId: '', quantity: 1 }]);
+  };
+
+  const removeProduct = (index: number) => {
+    setSelectedProducts(selectedProducts.filter((_, i) => i !== index));
+  };
+
+  const updateProduct = (index: number, field: 'productId' | 'quantity', value: string | number) => {
+    const updated = selectedProducts.map((item, i) => 
+      i === index ? { ...item, [field]: value } : item
+    );
+    setSelectedProducts(updated);
+  };
+
+  const renderDocumentForm = (documentType: string) => {
+    const isDeliveryNote = documentType === 'Delivery Note';
+    const isPackingList = documentType === 'Packing List';
+    const isFromQuotation = isDeliveryNote || documentType === 'Proforma Invoice';
+    
+    return (
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="customer">Customer *</Label>
+          <Select value={selectedCustomer} onValueChange={setSelectedCustomer}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select customer" />
+            </SelectTrigger>
+            <SelectContent>
+              {mockCustomers.map(customer => (
+                <SelectItem key={customer.id} value={customer.id}>
+                  <div>
+                    <div className="font-medium">{customer.name}</div>
+                    <div className="text-xs text-muted-foreground">{customer.email}</div>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {isFromQuotation && (
+          <div className="space-y-2">
+            <Label htmlFor="quotation">Based on Quotation</Label>
+            <Select value={selectedQuotation} onValueChange={setSelectedQuotation}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select quotation (optional)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Create new</SelectItem>
+                {mockQuotations.map(quotation => (
+                  <SelectItem key={quotation.id} value={quotation.id}>
+                    <div>
+                      <div className="font-medium">{quotation.id}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {quotation.customer} - KES {quotation.amount.toLocaleString()}
+                      </div>
                     </div>
-                    <span className="text-sm font-medium">{action.title}</span>
-                  </Button>
-                </DialogTrigger>
-
-                {/* Quick Invoice Dialog */}
-                {action.title === 'New Invoice' && (
-                  <DialogContent className="sm:max-w-[500px]">
-                    <DialogHeader>
-                      <DialogTitle>Create Quick Invoice</DialogTitle>
-                      <DialogDescription>
-                        Quickly create an invoice for an existing customer
-                      </DialogDescription>
-                    </DialogHeader>
-                    <form onSubmit={handleQuickInvoice} className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="customer">Customer *</Label>
-                        <Select>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select customer" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {mockCustomers.map(customer => (
-                              <SelectItem key={customer.id} value={customer.id}>
-                                {customer.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="product">Product *</Label>
-                          <Select>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select product" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {mockProducts.map(product => (
-                                <SelectItem key={product.id} value={product.id}>
-                                  {product.name} - {formatCurrency(product.price)}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="quantity">Quantity *</Label>
-                          <Input id="quantity" type="number" placeholder="1" min="1" required />
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="dueDate">Due Date *</Label>
-                        <Input id="dueDate" type="date" required />
-                      </div>
-                      <div className="flex justify-end gap-2">
-                        <Button type="button" variant="outline" onClick={() => closeDialog('invoice')}>
-                          Cancel
-                        </Button>
-                        <Button type="submit" disabled={isLoading}>
-                          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                          Create Invoice
-                        </Button>
-                      </div>
-                    </form>
-                  </DialogContent>
-                )}
-
-                {/* Quick Customer Dialog */}
-                {action.title === 'New Customer' && (
-                  <DialogContent className="sm:max-w-[500px]">
-                    <DialogHeader>
-                      <DialogTitle>Add Quick Customer</DialogTitle>
-                      <DialogDescription>
-                        Add a new customer to your database
-                      </DialogDescription>
-                    </DialogHeader>
-                    <form onSubmit={handleQuickCustomer} className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="customerName">Company Name *</Label>
-                        <Input id="customerName" placeholder="Enter company name" required />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="customerEmail">Email</Label>
-                          <Input id="customerEmail" type="email" placeholder="contact@company.com" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="customerPhone">Phone</Label>
-                          <Input id="customerPhone" placeholder="+254700123456" />
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="kraPin">KRA PIN</Label>
-                          <Input id="kraPin" placeholder="P051234567A" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="creditLimit">Credit Limit (KES)</Label>
-                          <Input id="creditLimit" type="number" placeholder="500000" min="0" />
-                        </div>
-                      </div>
-                      <div className="flex justify-end gap-2">
-                        <Button type="button" variant="outline" onClick={() => closeDialog('customer')}>
-                          Cancel
-                        </Button>
-                        <Button type="submit" disabled={isLoading}>
-                          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                          Add Customer
-                        </Button>
-                      </div>
-                    </form>
-                  </DialogContent>
-                )}
-
-                {/* Quick Product Dialog */}
-                {action.title === 'New Product' && (
-                  <DialogContent className="sm:max-w-[500px]">
-                    <DialogHeader>
-                      <DialogTitle>Add Quick Product</DialogTitle>
-                      <DialogDescription>
-                        Add a new product to your inventory
-                      </DialogDescription>
-                    </DialogHeader>
-                    <form onSubmit={handleQuickProduct} className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="productName">Product Name *</Label>
-                        <Input id="productName" placeholder="Enter product name" required />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="sku">SKU *</Label>
-                          <Input id="sku" placeholder="PRD-001" required />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="category">Category</Label>
-                          <Select>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="electronics">Electronics</SelectItem>
-                              <SelectItem value="furniture">Furniture</SelectItem>
-                              <SelectItem value="stationery">Stationery</SelectItem>
-                              <SelectItem value="office">Office Supplies</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-3 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="purchasePrice">Purchase Price</Label>
-                          <Input id="purchasePrice" type="number" placeholder="0.00" min="0" step="0.01" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="sellingPrice">Selling Price *</Label>
-                          <Input id="sellingPrice" type="number" placeholder="0.00" min="0" step="0.01" required />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="initialStock">Initial Stock</Label>
-                          <Input id="initialStock" type="number" placeholder="0" min="0" />
-                        </div>
-                      </div>
-                      <div className="flex justify-end gap-2">
-                        <Button type="button" variant="outline" onClick={() => closeDialog('product')}>
-                          Cancel
-                        </Button>
-                        <Button type="submit" disabled={isLoading}>
-                          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                          Add Product
-                        </Button>
-                      </div>
-                    </form>
-                  </DialogContent>
-                )}
-
-                {/* Quick Payment Dialog */}
-                {action.title === 'Record Payment' && (
-                  <DialogContent className="sm:max-w-[500px]">
-                    <DialogHeader>
-                      <DialogTitle>Record Quick Payment</DialogTitle>
-                      <DialogDescription>
-                        Record a payment received from a customer
-                      </DialogDescription>
-                    </DialogHeader>
-                    <form onSubmit={handleQuickPayment} className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="paymentCustomer">Customer *</Label>
-                        <Select>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select customer" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {mockCustomers.map(customer => (
-                              <SelectItem key={customer.id} value={customer.id}>
-                                {customer.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="paymentInvoice">Invoice (Optional)</Label>
-                        <Select>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select invoice or general payment" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="general">General Payment</SelectItem>
-                            {mockOutstandingInvoices.map(invoice => (
-                              <SelectItem key={invoice.id} value={invoice.id}>
-                                {invoice.number} - {invoice.customer} ({formatCurrency(invoice.balance)})
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="paymentAmount">Amount (KES) *</Label>
-                          <Input id="paymentAmount" type="number" placeholder="0.00" min="0" step="0.01" required />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="paymentMethod">Method *</Label>
-                          <Select>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Payment method" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="mpesa">MPESA</SelectItem>
-                              <SelectItem value="bank">Bank Transfer</SelectItem>
-                              <SelectItem value="cash">Cash</SelectItem>
-                              <SelectItem value="cheque">Cheque</SelectItem>
-                              <SelectItem value="card">Credit/Debit Card</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="paymentReference">Reference Number *</Label>
-                        <Input id="paymentReference" placeholder="Transaction ID or reference" required />
-                      </div>
-                      <div className="flex justify-end gap-2">
-                        <Button type="button" variant="outline" onClick={() => closeDialog('payment')}>
-                          Cancel
-                        </Button>
-                        <Button type="submit" disabled={isLoading}>
-                          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                          Record Payment
-                        </Button>
-                      </div>
-                    </form>
-                  </DialogContent>
-                )}
-
-                {/* Default fallback DialogContent to ensure accessibility */}
-                {!['New Invoice', 'New Customer', 'New Product', 'Record Payment'].includes(action.title) && (
-                  <DialogContent>
-                    <DialogTitle className="sr-only">Quick Action</DialogTitle>
-                    <div className="p-4">
-                      <p>This action is not implemented yet.</p>
-                    </div>
-                  </DialogContent>
-                )}
-              </Dialog>
-            ))}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-        </CardContent>
-      </Card>
-    </>
+        )}
+
+        {(isDeliveryNote || isPackingList) && (
+          <div className="space-y-2">
+            <Label htmlFor="invoice">Related Invoice</Label>
+            <Select value={selectedInvoice} onValueChange={setSelectedInvoice}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select invoice" />
+              </SelectTrigger>
+              <SelectContent>
+                {mockInvoices.map(invoice => (
+                  <SelectItem key={invoice.id} value={invoice.id}>
+                    <div>
+                      <div className="font-medium">{invoice.id}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {invoice.customer} - KES {invoice.amount.toLocaleString()}
+                      </div>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label>Products</Label>
+            <Button type="button" variant="outline" size="sm" onClick={addProduct}>
+              <Plus className="h-3 w-3 mr-1" />
+              Add Product
+            </Button>
+          </div>
+          
+          {selectedProducts.map((item, index) => (
+            <div key={index} className="flex gap-2 items-end">
+              <div className="flex-1">
+                <Select
+                  value={item.productId}
+                  onValueChange={(value) => updateProduct(index, 'productId', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select product" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {mockProducts.map(product => (
+                      <SelectItem key={product.id} value={product.id}>
+                        <div>
+                          <div className="font-medium">{product.name}</div>
+                          <div className="text-xs text-muted-foreground">
+                            KES {product.price.toLocaleString()} - {product.stock} in stock
+                          </div>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="w-20">
+                <Input
+                  type="number"
+                  placeholder="Qty"
+                  value={item.quantity}
+                  onChange={(e) => updateProduct(index, 'quantity', parseInt(e.target.value) || 1)}
+                  min="1"
+                />
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => removeProduct(index)}
+              >
+                Remove
+              </Button>
+            </div>
+          ))}
+          
+          {selectedProducts.length === 0 && (
+            <div className="text-center py-4 text-muted-foreground text-sm border-2 border-dashed rounded">
+              No products added. Click "Add Product" to get started.
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="notes">Notes</Label>
+          <Textarea
+            id="notes"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Additional notes..."
+            rows={3}
+          />
+        </div>
+
+        <div className="flex justify-end gap-2 pt-4">
+          <Button type="button" variant="outline" onClick={() => setOpenDialog(null)}>
+            Cancel
+          </Button>
+          <Button
+            onClick={() => handleCreateDocument(documentType)}
+            disabled={isLoading}
+          >
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Create {documentType}
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  const groupedActions = quickActions.reduce((acc, action) => {
+    if (!acc[action.category]) {
+      acc[action.category] = [];
+    }
+    acc[action.category].push(action);
+    return acc;
+  }, {} as Record<string, QuickActionItem[]>);
+
+  const categoryLabels = {
+    documents: 'Documents & Reports',
+    inventory: 'Inventory Management', 
+    customers: 'Customer Management',
+    financial: 'Financial Operations'
+  };
+
+  const categoryIcons = {
+    documents: FileText,
+    inventory: Package,
+    customers: Users,
+    financial: CreditCard
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Quick Actions</CardTitle>
+        <CardDescription>
+          Quickly create documents and perform common tasks
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-6">
+          {Object.entries(groupedActions).map(([category, actions]) => {
+            const Icon = categoryIcons[category as keyof typeof categoryIcons];
+            
+            return (
+              <div key={category}>
+                <div className="flex items-center space-x-2 mb-3">
+                  <Icon className="h-4 w-4 text-muted-foreground" />
+                  <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">
+                    {categoryLabels[category as keyof typeof categoryLabels]}
+                  </h4>
+                </div>
+                
+                <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                  {actions.map((action) => (
+                    <div key={action.title}>
+                      {action.dialog ? (
+                        <Dialog open={openDialog === action.title} onOpenChange={(open) => setOpenDialog(open ? action.title : null)}>
+                          <DialogTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className="w-full h-auto p-4 flex flex-col items-start space-y-2 hover:bg-accent/5"
+                              onClick={() => handleQuickAction(action)}
+                            >
+                              <div className="flex items-center space-x-2 w-full">
+                                <action.icon className={`h-5 w-5 ${action.color}`} />
+                                <span className="font-medium text-left">{action.title}</span>
+                              </div>
+                              <p className="text-xs text-muted-foreground text-left w-full">
+                                {action.description}
+                              </p>
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                            <DialogHeader>
+                              <DialogTitle className="flex items-center space-x-2">
+                                <action.icon className={`h-5 w-5 ${action.color}`} />
+                                <span>{action.title}</span>
+                              </DialogTitle>
+                              <DialogDescription>
+                                {action.description}
+                              </DialogDescription>
+                            </DialogHeader>
+                            {renderDocumentForm(action.title)}
+                          </DialogContent>
+                        </Dialog>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          className="w-full h-auto p-4 flex flex-col items-start space-y-2 hover:bg-accent/5"
+                          onClick={() => handleQuickAction(action)}
+                        >
+                          <div className="flex items-center space-x-2 w-full">
+                            <action.icon className={`h-5 w-5 ${action.color}`} />
+                            <span className="font-medium text-left">{action.title}</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground text-left w-full">
+                            {action.description}
+                          </p>
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
