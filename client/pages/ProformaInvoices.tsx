@@ -52,6 +52,8 @@ import {
   ArrowRight,
   Clock,
   CheckCircle,
+  Package,
+  Loader2,
 } from 'lucide-react';
 import { ProformaInvoice, Customer, Product } from '@shared/types';
 import PDFService from '../services/pdfService';
