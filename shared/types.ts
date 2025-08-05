@@ -374,7 +374,19 @@ export interface DocumentTemplate {
   updatedAt: Date;
 }
 
-export type DocumentType = 'invoice' | 'quotation' | 'proforma' | 'receipt' | 'packing_list' | 'delivery_note';
+export type DocumentType =
+  | 'invoice'
+  | 'quotation'
+  | 'proforma'
+  | 'receipt'
+  | 'packing_list'
+  | 'delivery_note'
+  | 'purchase_order'
+  | 'credit_note'
+  | 'debit_note'
+  | 'statement'
+  | 'goods_received_note'
+  | 'material_transfer_note';
 
 export interface TemplateDesign {
   layout: 'standard' | 'modern' | 'minimal' | 'corporate';
