@@ -391,17 +391,27 @@ export default function Dashboard() {
             Welcome back, {user?.firstName}! Here's what's happening with your business today.
           </p>
         </div>
-        <Button
-          onClick={() => {
-            const quickActionsElement = document.getElementById('quick-actions-section');
-            if (quickActionsElement) {
-              quickActionsElement.scrollIntoView({ behavior: 'smooth' });
-            }
-          }}
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Quick Actions
-        </Button>
+        <div className="flex items-center space-x-2">
+          <Button
+            variant={isSimulating ? "destructive" : "default"}
+            size="sm"
+            onClick={toggleSimulation}
+          >
+            <Activity className="mr-2 h-4 w-4" />
+            {isSimulating ? 'Stop Simulation' : 'Start Simulation'}
+          </Button>
+          <Button
+            onClick={() => {
+              const quickActionsElement = document.getElementById('quick-actions-section');
+              if (quickActionsElement) {
+                quickActionsElement.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Quick Actions
+          </Button>
+        </div>
       </div>
 
       {/* Key Metrics - Now Clickable */}
