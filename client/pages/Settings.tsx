@@ -24,6 +24,8 @@ import {
   Settings as SettingsIcon,
   User,
   Shield,
+  Ruler,
+  ExternalLink,
 } from 'lucide-react';
 import { CompanySettings, defaultCompanySettings } from '@shared/company';
 import PDFService from '../services/pdfService';
