@@ -81,8 +81,8 @@ export default function Layout() {
     <div className="min-h-screen bg-background">
       {/* Desktop Sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-        <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r bg-card px-6 pb-4">
-          <div className="flex h-16 shrink-0 items-center">
+        <div className="flex grow flex-col border-r bg-card">
+          <div className="flex h-16 shrink-0 items-center px-6 border-b">
             <div className="flex items-center space-x-3">
               <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
                 <Building2 className="h-5 w-5 text-primary-foreground" />
@@ -93,7 +93,9 @@ export default function Layout() {
               </div>
             </div>
           </div>
-          <NavigationItems />
+          <div className="flex-1 overflow-y-auto py-4 px-6">
+            <NavigationItems />
+          </div>
         </div>
       </div>
 
