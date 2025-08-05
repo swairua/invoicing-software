@@ -41,6 +41,7 @@ const navigation = [
   { name: 'Invoices', href: '/invoices', icon: Receipt },
   { name: 'Payments', href: '/payments', icon: CreditCard },
   { name: 'Reports', href: '/reports', icon: BarChart3 },
+  { name: 'Templates', href: '/templates', icon: Palette },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
