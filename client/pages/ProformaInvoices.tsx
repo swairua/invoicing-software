@@ -646,10 +646,10 @@ export default function ProformaInvoices() {
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>{proforma.issueDate.toLocaleDateString()}</TableCell>
+                    <TableCell>{new Date(proforma.issueDate).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <div className={`text-sm ${isExpiringSoon(proforma.validUntil) ? 'text-warning font-medium' : ''}`}>
-                        {proforma.validUntil.toLocaleDateString()}
+                        {new Date(proforma.validUntil).toLocaleDateString()}
                       </div>
                       {isExpiringSoon(proforma.validUntil) && (
                         <div className="text-xs text-warning">Expires soon!</div>
