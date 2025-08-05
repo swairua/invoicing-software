@@ -64,8 +64,8 @@ import PDFService from '../services/pdfService';
 import dataService from '../services/dataServiceFactory';
 import { useToast } from '../hooks/use-toast';
 
-// Get business data service instance
-const businessData = BusinessDataService.getInstance();
+// Get data service instance (PostgreSQL or mock)
+const businessData = dataService;
 
 export default function Invoices() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
