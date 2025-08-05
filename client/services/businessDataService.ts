@@ -961,8 +961,8 @@ class BusinessDataService {
     return [...this.products];
   }
 
-  public getInvoices(): Invoice[] {
-    return [...this.invoices];
+  public getInvoices(): Promise<Invoice[]> {
+    return Promise.resolve([...this.invoices]);
   }
 
   public getQuotations(): Quotation[] {
