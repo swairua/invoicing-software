@@ -477,16 +477,20 @@ export default function QuickActions() {
                 <SelectValue placeholder="Select invoice" />
               </SelectTrigger>
               <SelectContent>
-                {mockInvoices.map(invoice => (
+                {invoices && invoices.length > 0 ? invoices.map(invoice => (
                   <SelectItem key={invoice.id} value={invoice.id}>
                     <div className="space-y-1">
-                      <div className="font-medium">{invoice.id}</div>
+                      <div className="font-medium">{invoice.invoiceNumber}</div>
                       <div className="text-xs text-muted-foreground">
-                        {invoice.customer} - KES {invoice.amount.toLocaleString()}
+                        {invoice.customer.name} - KES {invoice.total.toLocaleString()}
                       </div>
                     </div>
                   </SelectItem>
-                ))}
+                )) : (
+                  <SelectItem value="no-invoices" disabled>
+                    No invoices available
+                  </SelectItem>
+                )}
               </SelectContent>
             </Select>
           </div>
