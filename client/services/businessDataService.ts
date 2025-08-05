@@ -957,8 +957,8 @@ class BusinessDataService {
     return Promise.resolve([...this.customers]);
   }
 
-  public getProducts(): Product[] {
-    return [...this.products];
+  public getProducts(): Promise<Product[]> {
+    return Promise.resolve([...this.products]);
   }
 
   public getInvoices(): Promise<Invoice[]> {
