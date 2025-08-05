@@ -206,6 +206,7 @@ export default function QuickActions() {
   };
 
   const handleCreateDocument = async (documentType: string) => {
+    // Validation
     if (!selectedCustomer) {
       toast({
         title: "Validation Error",
@@ -215,40 +216,102 @@ export default function QuickActions() {
       return;
     }
 
+    if (selectedProducts.length === 0) {
+      toast({
+        title: "Validation Error",
+        description: "Please add at least one product.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate all products are selected
+    const hasInvalidProducts = selectedProducts.some(item => !item.productId || item.quantity <= 0);
+    if (hasInvalidProducts) {
+      toast({
+        title: "Validation Error",
+        description: "Please ensure all products are selected with valid quantities.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
       const customer = mockCustomers.find(c => c.id === selectedCustomer);
       const documentNumber = generateDocumentNumber(documentType);
-      
+
+      // Calculate totals
+      const subtotal = selectedProducts.reduce((sum, item) => {
+        const product = mockProducts.find(p => p.id === item.productId);
+        return sum + (product ? product.price * item.quantity : 0);
+      }, 0);
+
+      const vatAmount = subtotal * 0.16;
+      const total = subtotal + vatAmount;
+
+      // Create document object (this would normally be sent to API)
+      const documentData = {
+        id: `${documentNumber.toLowerCase()}-${Date.now()}`,
+        documentNumber,
+        customerId: selectedCustomer,
+        customer: customer,
+        items: selectedProducts.map(item => {
+          const product = mockProducts.find(p => p.id === item.productId);
+          return {
+            productId: item.productId,
+            product: product,
+            quantity: item.quantity,
+            unitPrice: product?.price || 0,
+            lineTotal: (product?.price || 0) * item.quantity,
+          };
+        }),
+        subtotal,
+        vatAmount,
+        total,
+        notes,
+        status: 'draft',
+        createdAt: new Date(),
+      };
+
+      console.log(`Creating ${documentType}:`, documentData);
+
       toast({
-        title: "Document Created",
-        description: `${documentType} ${documentNumber} created for ${customer?.name}`,
+        title: "Document Created Successfully",
+        description: `${documentType} ${documentNumber} created for ${customer?.name} - Total: KES ${total.toLocaleString()}`,
       });
-      
+
       // Reset form
       setSelectedCustomer('');
       setSelectedProducts([]);
+      setSelectedInvoice('');
+      setSelectedQuotation('');
       setNotes('');
       setOpenDialog(null);
-      
-      // Navigate to appropriate page
-      const routeMap: { [key: string]: string } = {
-        'New Invoice': '/invoices',
-        'New Quotation': '/quotations',
-        'Proforma Invoice': '/proforma',
-        'Delivery Note': '/deliveries',
-        'Packing List': '/packing-lists',
-        'Credit Note': '/credit-notes',
-      };
-      
-      if (routeMap[documentType]) {
-        navigate(routeMap[documentType]);
-      }
-      
+
+      // Navigate to appropriate page after a brief delay
+      setTimeout(() => {
+        const routeMap: { [key: string]: string } = {
+          'New Invoice': '/invoices',
+          'New Quotation': '/quotations',
+          'Proforma Invoice': '/proforma',
+          'Delivery Note': '/deliveries',
+          'Packing List': '/packing-lists',
+          'Credit Note': '/credit-notes',
+          'Purchase Order': '/purchase-orders',
+          'Payment Receipt': '/payments',
+        };
+
+        if (routeMap[documentType]) {
+          navigate(routeMap[documentType]);
+        }
+      }, 1000);
+
     } catch (error) {
+      console.error('Error creating document:', error);
       toast({
         title: "Error",
         description: "Failed to create document. Please try again.",
