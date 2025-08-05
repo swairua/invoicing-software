@@ -252,7 +252,7 @@ export class PDFService {
   /**
    * Add customer and date information
    */
-  private static addCustomerAndDateInfo(doc: jsPDF, document: Invoice | Quotation | ProformaInvoice, pageWidth: number): void {
+  private static addCustomerAndDateInfo(doc: jsPDF, document: Invoice | Quotation | ProformaInvoice, pageWidth: number, design?: TemplateDesign): void {
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
 
