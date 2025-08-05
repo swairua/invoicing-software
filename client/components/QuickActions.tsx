@@ -271,12 +271,12 @@ export default function QuickActions() {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
 
-      const customer = customers.find(c => c.id === selectedCustomer);
+      const customer = customers && customers.find(c => c.id === selectedCustomer);
       const documentNumber = generateDocumentNumber(documentType);
 
       // Calculate totals
       const subtotal = selectedProducts.reduce((sum, item) => {
-        const product = products.find(p => p.id === item.productId);
+        const product = products && products.find(p => p.id === item.productId);
         return sum + (product ? product.sellingPrice * item.quantity : 0);
       }, 0);
 
