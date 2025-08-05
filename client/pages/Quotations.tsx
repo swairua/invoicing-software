@@ -667,10 +667,10 @@ export default function Quotations() {
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>{new Date(quotation.issueDate).toLocaleDateString()}</TableCell>
+                    <TableCell>{safeDate(quotation.issueDate).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <div className={`text-sm ${isExpiringSoon(quotation.validUntil) ? 'text-warning font-medium' : ''}`}>
-                        {new Date(quotation.validUntil).toLocaleDateString()}
+                        {safeDate(quotation.validUntil).toLocaleDateString()}
                       </div>
                       {isExpiringSoon(quotation.validUntil) && (
                         <div className="text-xs text-warning">Expires soon!</div>
