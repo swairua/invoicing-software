@@ -140,6 +140,14 @@ export default function Quotations() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    customerId: '',
+    validUntil: '',
+    notes: '',
+    items: [] as { productId: string; quantity: number; unitPrice: number }[]
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   const filteredQuotations = quotations.filter(quotation => {
     const matchesSearch = quotation.quoteNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
