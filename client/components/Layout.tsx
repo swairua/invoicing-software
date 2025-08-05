@@ -129,9 +129,9 @@ export default function Layout() {
                 <span className="sr-only">Open sidebar</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-72">
+            <SheetContent side="left" className="w-72 flex flex-col">
               <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-              <div className="flex items-center space-x-3 mb-6">
+              <div className="flex items-center space-x-3 mb-6 px-1">
                 <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
                   <Building2 className="h-5 w-5 text-primary-foreground" />
                 </div>
@@ -140,7 +140,9 @@ export default function Layout() {
                   <p className="text-xs text-muted-foreground">Management System</p>
                 </div>
               </div>
-              <NavigationItems mobile />
+              <div className="flex-1 overflow-y-auto">
+                <NavigationItems mobile />
+              </div>
             </SheetContent>
           </Sheet>
 
