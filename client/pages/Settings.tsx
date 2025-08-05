@@ -218,6 +218,80 @@ export default function Settings() {
         </div>
       </div>
 
+      {/* Quick Links */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="cursor-pointer hover:bg-accent/5 transition-colors">
+          <CardContent className="pt-6">
+            <div className="flex items-center space-x-4">
+              <div className="p-2 bg-primary/10 rounded-md">
+                <Palette className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold">Templates</h3>
+                <p className="text-sm text-muted-foreground">
+                  Manage document templates
+                </p>
+              </div>
+              <ExternalLink className="h-4 w-4 text-muted-foreground" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card
+          className="cursor-pointer hover:bg-accent/5 transition-colors"
+          onClick={() => window.location.href = '/units'}
+        >
+          <CardContent className="pt-6">
+            <div className="flex items-center space-x-4">
+              <div className="p-2 bg-primary/10 rounded-md">
+                <Ruler className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold">Units of Measure</h3>
+                <p className="text-sm text-muted-foreground">
+                  Manage product units
+                </p>
+              </div>
+              <ExternalLink className="h-4 w-4 text-muted-foreground" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="cursor-pointer hover:bg-accent/5 transition-colors">
+          <CardContent className="pt-6">
+            <div className="flex items-center space-x-4">
+              <div className="p-2 bg-primary/10 rounded-md">
+                <User className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold">Users & Roles</h3>
+                <p className="text-sm text-muted-foreground">
+                  Manage user access
+                </p>
+              </div>
+              <ExternalLink className="h-4 w-4 text-muted-foreground" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="cursor-pointer hover:bg-accent/5 transition-colors">
+          <CardContent className="pt-6">
+            <div className="flex items-center space-x-4">
+              <div className="p-2 bg-primary/10 rounded-md">
+                <Shield className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold">Security</h3>
+                <p className="text-sm text-muted-foreground">
+                  Security settings
+                </p>
+              </div>
+              <ExternalLink className="h-4 w-4 text-muted-foreground" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       <Tabs defaultValue="company" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="company">Company Info</TabsTrigger>
