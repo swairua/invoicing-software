@@ -40,6 +40,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
+import BusinessDataService from '../services/businessDataService';
 
 interface QuickActionItem {
   title: string;
