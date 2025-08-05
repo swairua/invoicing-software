@@ -288,7 +288,7 @@ export class PDFService {
   /**
    * Add invoice items table
    */
-  private static addInvoiceItemsTable(doc: jsPDF, invoice: Invoice): void {
+  private static addInvoiceItemsTable(doc: jsPDF, invoice: Invoice, design?: TemplateDesign): void {
     const tableData = invoice.items.map((item, index) => [
       index + 1,
       item.product.name,
