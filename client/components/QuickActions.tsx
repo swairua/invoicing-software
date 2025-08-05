@@ -37,6 +37,7 @@ import {
   FileX,
   Calculator,
   Archive,
+  Trash2,
 } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
 
