@@ -53,6 +53,10 @@ import {
   Download,
   Copy,
   ArrowRight,
+  Package,
+  Loader2,
+  TrendingUp,
+  DollarSign,
 } from 'lucide-react';
 import { Quotation, Customer, Product } from '@shared/types';
 import { useToast } from '../hooks/use-toast';
