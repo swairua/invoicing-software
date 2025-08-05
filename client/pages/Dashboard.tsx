@@ -491,7 +491,10 @@ export default function Dashboard() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{mockMetrics.lowStockAlerts}</div>
+                <div className="text-2xl font-bold">
+                  {liveMetrics?.lowStockAlerts || mockMetrics.lowStockAlerts}
+                  {isSimulating && <Badge variant="secondary" className="ml-2 text-xs">Live</Badge>}
+                </div>
                 <p className="text-xs text-muted-foreground">
                   <span className="text-destructive font-medium">+3</span> from yesterday
                 </p>
