@@ -477,7 +477,7 @@ export default function QuickActions() {
                               <SelectValue placeholder="Select product" />
                             </SelectTrigger>
                             <SelectContent className="max-h-[200px]">
-                              {mockProducts.map(product => (
+                              {products.map(product => (
                                 <SelectItem key={product.id} value={product.id}>
                                   <div className="space-y-1">
                                     <div className="font-medium">{product.name}</div>
