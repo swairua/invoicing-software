@@ -314,3 +314,61 @@ export interface CreateInvoiceForm {
   dueDate: Date;
   notes?: string;
 }
+
+// Template Management Types
+export interface DocumentTemplate {
+  id: string;
+  name: string;
+  description?: string;
+  type: DocumentType;
+  isActive: boolean;
+  isDefault: boolean;
+  design: TemplateDesign;
+  companyId: string;
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type DocumentType = 'invoice' | 'quotation' | 'proforma' | 'receipt' | 'packing_list' | 'delivery_note';
+
+export interface TemplateDesign {
+  layout: 'standard' | 'modern' | 'minimal' | 'corporate';
+  colors: {
+    primary: string;
+    secondary: string;
+    accent: string;
+    text: string;
+  };
+  fonts: {
+    heading: string;
+    body: string;
+    size: {
+      heading: number;
+      body: number;
+      small: number;
+    };
+  };
+  spacing: {
+    margins: number;
+    lineHeight: number;
+    sectionGap: number;
+  };
+  header: {
+    showLogo: boolean;
+    logoPosition: 'left' | 'center' | 'right';
+    showCompanyInfo: boolean;
+    backgroundColor?: string;
+  };
+  footer: {
+    showTerms: boolean;
+    showSignature: boolean;
+    showPageNumbers: boolean;
+    customText?: string;
+  };
+  table: {
+    headerBackgroundColor: string;
+    alternateRowColor?: string;
+    borderStyle: 'none' | 'light' | 'medium' | 'heavy';
+  };
+}
