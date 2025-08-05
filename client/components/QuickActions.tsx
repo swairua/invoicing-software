@@ -290,19 +290,23 @@ export default function QuickActions() {
     const isDeliveryNote = documentType === 'Delivery Note';
     const isPackingList = documentType === 'Packing List';
     const isFromQuotation = isDeliveryNote || documentType === 'Proforma Invoice';
-    
+    const isInvoice = documentType === 'New Invoice';
+    const isQuotation = documentType === 'New Quotation';
+    const isCredit = documentType === 'Credit Note';
+
     return (
-      <div className="space-y-4">
+      <div className="space-y-6 pb-4">
+        {/* Customer Selection */}
         <div className="space-y-2">
           <Label htmlFor="customer">Customer *</Label>
           <Select value={selectedCustomer} onValueChange={setSelectedCustomer}>
             <SelectTrigger>
               <SelectValue placeholder="Select customer" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="max-h-[200px] overflow-y-auto">
               {mockCustomers.map(customer => (
                 <SelectItem key={customer.id} value={customer.id}>
-                  <div>
+                  <div className="space-y-1">
                     <div className="font-medium">{customer.name}</div>
                     <div className="text-xs text-muted-foreground">{customer.email}</div>
                   </div>
@@ -312,6 +316,31 @@ export default function QuickActions() {
           </Select>
         </div>
 
+        {/* Document Dates */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="issueDate">
+              {isQuotation ? 'Quote Date' : isInvoice ? 'Invoice Date' : 'Issue Date'} *
+            </Label>
+            <Input
+              id="issueDate"
+              type="date"
+              defaultValue={new Date().toISOString().split('T')[0]}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="dueDate">
+              {isQuotation ? 'Valid Until' : isInvoice ? 'Due Date' : 'Valid Until'} *
+            </Label>
+            <Input
+              id="dueDate"
+              type="date"
+              defaultValue={new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
+            />
+          </div>
+        </div>
+
+        {/* Reference Documents */}
         {isFromQuotation && (
           <div className="space-y-2">
             <Label htmlFor="quotation">Based on Quotation</Label>
@@ -323,7 +352,7 @@ export default function QuickActions() {
                 <SelectItem value="none">Create new</SelectItem>
                 {mockQuotations.map(quotation => (
                   <SelectItem key={quotation.id} value={quotation.id}>
-                    <div>
+                    <div className="space-y-1">
                       <div className="font-medium">{quotation.id}</div>
                       <div className="text-xs text-muted-foreground">
                         {quotation.customer} - KES {quotation.amount.toLocaleString()}
@@ -336,9 +365,11 @@ export default function QuickActions() {
           </div>
         )}
 
-        {(isDeliveryNote || isPackingList) && (
+        {(isDeliveryNote || isPackingList || isCredit) && (
           <div className="space-y-2">
-            <Label htmlFor="invoice">Related Invoice</Label>
+            <Label htmlFor="invoice">
+              {isCredit ? 'Credit for Invoice' : 'Related Invoice'} *
+            </Label>
             <Select value={selectedInvoice} onValueChange={setSelectedInvoice}>
               <SelectTrigger>
                 <SelectValue placeholder="Select invoice" />
@@ -346,7 +377,7 @@ export default function QuickActions() {
               <SelectContent>
                 {mockInvoices.map(invoice => (
                   <SelectItem key={invoice.id} value={invoice.id}>
-                    <div>
+                    <div className="space-y-1">
                       <div className="font-medium">{invoice.id}</div>
                       <div className="text-xs text-muted-foreground">
                         {invoice.customer} - KES {invoice.amount.toLocaleString()}
@@ -359,87 +390,201 @@ export default function QuickActions() {
           </div>
         )}
 
-        <div className="space-y-2">
+        {/* Products Section */}
+        <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <Label>Products</Label>
+            <Label className="text-base font-semibold">Line Items</Label>
             <Button type="button" variant="outline" size="sm" onClick={addProduct}>
-              <Plus className="h-3 w-3 mr-1" />
+              <Plus className="h-4 w-4 mr-2" />
               Add Product
             </Button>
           </div>
-          
-          {selectedProducts.map((item, index) => (
-            <div key={index} className="flex gap-2 items-end">
-              <div className="flex-1">
-                <Select
-                  value={item.productId}
-                  onValueChange={(value) => updateProduct(index, 'productId', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select product" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {mockProducts.map(product => (
-                      <SelectItem key={product.id} value={product.id}>
+
+          {selectedProducts.length > 0 && (
+            <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
+              {selectedProducts.map((item, index) => {
+                const product = mockProducts.find(p => p.id === item.productId);
+                const lineTotal = product ? product.price * item.quantity : 0;
+
+                return (
+                  <div key={index} className="border rounded-lg p-4 space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="flex-1 space-y-3">
                         <div>
-                          <div className="font-medium">{product.name}</div>
-                          <div className="text-xs text-muted-foreground">
-                            KES {product.price.toLocaleString()} - {product.stock} in stock
+                          <Label className="text-sm">Product</Label>
+                          <Select
+                            value={item.productId}
+                            onValueChange={(value) => updateProduct(index, 'productId', value)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select product" />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-[200px]">
+                              {mockProducts.map(product => (
+                                <SelectItem key={product.id} value={product.id}>
+                                  <div className="space-y-1">
+                                    <div className="font-medium">{product.name}</div>
+                                    <div className="text-xs text-muted-foreground">
+                                      KES {product.price.toLocaleString()} • {product.stock} in stock
+                                    </div>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-3">
+                          <div>
+                            <Label className="text-sm">Quantity</Label>
+                            <Input
+                              type="number"
+                              placeholder="1"
+                              value={item.quantity}
+                              onChange={(e) => updateProduct(index, 'quantity', parseInt(e.target.value) || 1)}
+                              min="1"
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-sm">Unit Price</Label>
+                            <Input
+                              type="number"
+                              placeholder="0.00"
+                              value={product?.price || 0}
+                              disabled
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-sm">Line Total</Label>
+                            <Input
+                              value={`KES ${lineTotal.toLocaleString()}`}
+                              disabled
+                              className="font-medium"
+                            />
                           </div>
                         </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="w-20">
-                <Input
-                  type="number"
-                  placeholder="Qty"
-                  value={item.quantity}
-                  onChange={(e) => updateProduct(index, 'quantity', parseInt(e.target.value) || 1)}
-                  min="1"
-                />
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => removeProduct(index)}
-              >
-                Remove
-              </Button>
+                      </div>
+
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeProduct(index)}
+                        className="mt-6"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          ))}
-          
+          )}
+
           {selectedProducts.length === 0 && (
-            <div className="text-center py-4 text-muted-foreground text-sm border-2 border-dashed rounded">
-              No products added. Click "Add Product" to get started.
+            <div className="text-center py-8 border-2 border-dashed rounded-lg">
+              <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+              <p className="text-muted-foreground mb-4">No products added yet</p>
+              <Button type="button" variant="outline" onClick={addProduct}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Your First Product
+              </Button>
             </div>
           )}
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="notes">Notes</Label>
-          <Textarea
-            id="notes"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="Additional notes..."
-            rows={3}
-          />
+        {/* Document Totals */}
+        {selectedProducts.length > 0 && (
+          <div className="border-t pt-4 space-y-3">
+            <div className="bg-muted/20 rounded-lg p-4 space-y-2">
+              {(() => {
+                const subtotal = selectedProducts.reduce((sum, item) => {
+                  const product = mockProducts.find(p => p.id === item.productId);
+                  return sum + (product ? product.price * item.quantity : 0);
+                }, 0);
+                const vatAmount = subtotal * 0.16;
+                const total = subtotal + vatAmount;
+
+                return (
+                  <>
+                    <div className="flex justify-between text-sm">
+                      <span>Subtotal:</span>
+                      <span>KES {subtotal.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>VAT (16%):</span>
+                      <span>KES {vatAmount.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between font-bold text-lg border-t pt-2">
+                      <span>Total:</span>
+                      <span>KES {total.toLocaleString()}</span>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+          </div>
+        )}
+
+        {/* Additional Information */}
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="notes">Notes & Comments</Label>
+            <Textarea
+              id="notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Add any additional notes or special instructions..."
+              rows={3}
+              className="resize-none"
+            />
+          </div>
+
+          {isCredit && (
+            <div className="space-y-2">
+              <Label htmlFor="creditReason">Reason for Credit Note *</Label>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select reason" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="return">Product Return</SelectItem>
+                  <SelectItem value="discount">Additional Discount</SelectItem>
+                  <SelectItem value="error">Billing Error</SelectItem>
+                  <SelectItem value="damage">Damaged Goods</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
         </div>
 
-        <div className="flex justify-end gap-2 pt-4">
-          <Button type="button" variant="outline" onClick={() => setOpenDialog(null)}>
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setOpenDialog(null)}
+            className="w-full sm:w-auto"
+          >
             Cancel
           </Button>
           <Button
+            type="button"
+            variant="outline"
             onClick={() => handleCreateDocument(documentType)}
-            disabled={isLoading}
+            disabled={isLoading || !selectedCustomer || selectedProducts.length === 0}
+            className="w-full sm:w-auto"
+          >
+            Save as Draft
+          </Button>
+          <Button
+            onClick={() => handleCreateDocument(documentType)}
+            disabled={isLoading || !selectedCustomer || selectedProducts.length === 0}
+            className="w-full sm:w-auto"
           >
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Create {documentType}
+            Create & Send {documentType.replace('New ', '')}
           </Button>
         </div>
       </div>
