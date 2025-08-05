@@ -177,10 +177,11 @@ export default function Invoices() {
     }
   };
 
-  const getDaysOverdue = (dueDate: Date, status: string) => {
+  const getDaysOverdue = (dueDate: Date | string, status: string) => {
     if (status !== 'overdue') return 0;
     const today = new Date();
-    return Math.floor((today.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
+    const dueDateObj = new Date(dueDate);
+    return Math.floor((today.getTime() - dueDateObj.getTime()) / (1000 * 60 * 60 * 24));
   };
 
   const getPaymentProgress = (amountPaid: number, total: number) => {
