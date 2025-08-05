@@ -531,15 +531,15 @@ export default function Invoices() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleViewDetails(invoice.id)}>
                               <Eye className="mr-2 h-4 w-4" />
                               View Details
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleEditInvoice(invoice.id)}>
                               <Edit className="mr-2 h-4 w-4" />
                               Edit Invoice
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDuplicateInvoice(invoice.id)}>
                               <Copy className="mr-2 h-4 w-4" />
                               Duplicate
                             </DropdownMenuItem>
@@ -548,17 +548,20 @@ export default function Invoices() {
                               <Download className="mr-2 h-4 w-4" />
                               Download PDF
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleSendToCustomer(invoice.id)}>
                               <Send className="mr-2 h-4 w-4" />
                               Send to Customer
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleViewStatement(invoice.id)}>
                               <FileText className="mr-2 h-4 w-4" />
                               View Statement
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive">
+                            <DropdownMenuItem
+                              className="text-destructive"
+                              onClick={() => handleCancelInvoice(invoice.id)}
+                            >
                               <Trash2 className="mr-2 h-4 w-4" />
                               Cancel Invoice
                             </DropdownMenuItem>
