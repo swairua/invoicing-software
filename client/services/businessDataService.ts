@@ -973,6 +973,61 @@ class BusinessDataService {
     return Promise.resolve([...this.proformas]);
   }
 
+  public createInvoice(invoiceData: any): Promise<Invoice> {
+    return new Promise((resolve) => {
+      // Simulate API delay
+      setTimeout(() => {
+        // Calculate totals
+        const subtotal = invoiceData.items.reduce((sum: number, item: any) =>
+          sum + (item.unitPrice * item.quantity), 0);
+        const vatAmount = subtotal * 0.16;
+        const total = subtotal + vatAmount;
+
+        // Generate invoice number
+        const invoiceNumber = `INV-2024-${String(this.invoices.length + 1).padStart(3, '0')}`;
+
+        const customer = this.customers.find(c => c.id === invoiceData.customerId);
+
+        const newInvoice: Invoice = {
+          id: Date.now().toString(),
+          invoiceNumber,
+          customerId: invoiceData.customerId,
+          customer: customer!,
+          items: invoiceData.items.map((item: any, index: number) => {
+            const product = this.products.find(p => p.id === item.productId);
+            return {
+              id: `item-${index}`,
+              productId: item.productId,
+              product: product!,
+              quantity: item.quantity,
+              unitPrice: item.unitPrice,
+              discount: 0,
+              vatRate: product?.taxable ? 16 : 0,
+              total: item.unitPrice * item.quantity * (1 + (product?.taxable ? 0.16 : 0))
+            };
+          }),
+          subtotal,
+          vatAmount,
+          discountAmount: 0,
+          total,
+          balance: total,
+          amountPaid: 0,
+          status: 'draft' as const,
+          dueDate: new Date(invoiceData.dueDate),
+          issueDate: new Date(),
+          notes: invoiceData.notes,
+          companyId: '1',
+          createdBy: '1',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+
+        this.invoices.unshift(newInvoice);
+        resolve(newInvoice);
+      }, 500);
+    });
+  }
+
   public getPayments(): Payment[] {
     return [...this.payments];
   }
