@@ -61,86 +61,15 @@ import {
 import { Quotation, Customer, Product } from '@shared/types';
 import { useToast } from '../hooks/use-toast';
 import PDFService from '../services/pdfService';
+import BusinessDataService from '../services/businessDataService';
 
-// Mock data
-const mockCustomers: Customer[] = [
-  { id: '1', name: 'Acme Corporation Ltd', email: 'contact@acme.com', phone: '+254700123456', kraPin: 'P051234567A', address: '123 Business Ave, Nairobi', creditLimit: 500000, balance: 125000, isActive: true, companyId: '1', createdAt: new Date(), updatedAt: new Date() },
-  { id: '2', name: 'Tech Solutions Kenya', email: 'info@techsolutions.co.ke', phone: '+254722987654', kraPin: 'P051234568B', address: '456 Innovation Hub, Nairobi', creditLimit: 300000, balance: 45000, isActive: true, companyId: '1', createdAt: new Date(), updatedAt: new Date() },
-];
-
-const mockProducts: Product[] = [
-  { id: '1', name: 'Wireless Bluetooth Headphones', description: 'High-quality wireless headphones', sku: 'WBH-001', category: 'Electronics', unit: 'piece', purchasePrice: 3500, sellingPrice: 5500, minStock: 10, maxStock: 100, currentStock: 45, isActive: true, companyId: '1', createdAt: new Date(), updatedAt: new Date() },
-  { id: '2', name: 'Office Chair Executive', description: 'Ergonomic office chair', sku: 'OFC-002', category: 'Furniture', unit: 'piece', purchasePrice: 12000, sellingPrice: 18000, minStock: 5, maxStock: 30, currentStock: 3, isActive: true, companyId: '1', createdAt: new Date(), updatedAt: new Date() },
-];
-
-const mockQuotations: Quotation[] = [
-  {
-    id: '1',
-    quoteNumber: 'QUO-2024-001',
-    customerId: '1',
-    customer: mockCustomers[0],
-    items: [
-      { id: '1', productId: '1', product: mockProducts[0], quantity: 10, unitPrice: 5500, discount: 0, vatRate: 16, total: 55000 }
-    ],
-    subtotal: 55000,
-    vatAmount: 8800,
-    discountAmount: 0,
-    total: 63800,
-    status: 'sent',
-    validUntil: new Date('2024-02-15'),
-    issueDate: new Date('2024-01-15'),
-    notes: 'Bulk order discount available',
-    companyId: '1',
-    createdBy: '1',
-    createdAt: new Date('2024-01-15'),
-    updatedAt: new Date('2024-01-15'),
-  },
-  {
-    id: '2',
-    quoteNumber: 'QUO-2024-002',
-    customerId: '2',
-    customer: mockCustomers[1],
-    items: [
-      { id: '2', productId: '2', product: mockProducts[1], quantity: 5, unitPrice: 18000, discount: 5, vatRate: 16, total: 85500 }
-    ],
-    subtotal: 90000,
-    vatAmount: 14400,
-    discountAmount: 4500,
-    total: 99900,
-    status: 'accepted',
-    validUntil: new Date('2024-02-20'),
-    issueDate: new Date('2024-01-20'),
-    notes: 'Installation included',
-    companyId: '1',
-    createdBy: '1',
-    createdAt: new Date('2024-01-20'),
-    updatedAt: new Date('2024-01-22'),
-  },
-  {
-    id: '3',
-    quoteNumber: 'QUO-2024-003',
-    customerId: '1',
-    customer: mockCustomers[0],
-    items: [
-      { id: '3', productId: '1', product: mockProducts[0], quantity: 25, unitPrice: 5500, discount: 10, vatRate: 16, total: 123750 }
-    ],
-    subtotal: 137500,
-    vatAmount: 22000,
-    discountAmount: 13750,
-    total: 145750,
-    status: 'draft',
-    validUntil: new Date('2024-02-25'),
-    issueDate: new Date('2024-01-25'),
-    notes: 'Volume discount applied',
-    companyId: '1',
-    createdBy: '1',
-    createdAt: new Date('2024-01-25'),
-    updatedAt: new Date('2024-01-25'),
-  },
-];
+// Get business data service instance
+const businessData = BusinessDataService.getInstance();
 
 export default function Quotations() {
-  const [quotations, setQuotations] = useState<Quotation[]>(mockQuotations);
+  const [quotations, setQuotations] = useState<Quotation[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -152,6 +81,29 @@ export default function Quotations() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+
+  // Load initial data
+  React.useEffect(() => {
+    setQuotations(businessData.getQuotations());
+    setCustomers(businessData.getCustomers());
+    setProducts(businessData.getProducts());
+
+    // Start simulation if not already running
+    if (!businessData.isSimulationRunning()) {
+      businessData.startSimulation();
+    }
+  }, []);
+
+  // Refresh data periodically
+  React.useEffect(() => {
+    const refreshInterval = setInterval(() => {
+      setQuotations(businessData.getQuotations());
+      setCustomers(businessData.getCustomers());
+      setProducts(businessData.getProducts());
+    }, 5000); // Refresh every 5 seconds
+
+    return () => clearInterval(refreshInterval);
+  }, []);
 
   const filteredQuotations = quotations.filter(quotation => {
     const matchesSearch = quotation.quoteNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -220,7 +172,7 @@ export default function Quotations() {
       // Generate quotation number
       const quoteNumber = `QUO-2024-${String(quotations.length + 1).padStart(3, '0')}`;
 
-      const customer = mockCustomers.find(c => c.id === formData.customerId);
+      const customer = customers.find(c => c.id === formData.customerId);
 
       const newQuotation: Quotation = {
         id: Date.now().toString(),
@@ -228,7 +180,7 @@ export default function Quotations() {
         customerId: formData.customerId,
         customer: customer!,
         items: formData.items.map((item, index) => {
-          const product = mockProducts.find(p => p.id === item.productId);
+          const product = products.find(p => p.id === item.productId);
           return {
             id: `item-${index}`,
             productId: item.productId,
@@ -236,8 +188,8 @@ export default function Quotations() {
             quantity: item.quantity,
             unitPrice: item.unitPrice,
             discount: 0,
-            vatRate: 16,
-            total: item.unitPrice * item.quantity * 1.16
+            vatRate: product?.taxable ? 16 : 0,
+            total: item.unitPrice * item.quantity * (1 + (product?.taxable ? 0.16 : 0))
           };
         }),
         subtotal,
@@ -254,7 +206,9 @@ export default function Quotations() {
         updatedAt: new Date(),
       };
 
-      setQuotations(prev => [newQuotation, ...prev]);
+      // Add to business data service
+      businessData.getQuotations().unshift(newQuotation);
+      setQuotations(businessData.getQuotations());
       setIsCreateDialogOpen(false);
 
       // Reset form
@@ -305,13 +259,37 @@ export default function Quotations() {
   };
 
   const handleConvertToProforma = (quotationId: string) => {
-    // Navigate to create proforma with pre-filled data
-    console.log('Converting quotation to proforma:', quotationId);
+    const proforma = businessData.convertQuotationToProforma(quotationId);
+    if (proforma) {
+      setQuotations(businessData.getQuotations());
+      toast({
+        title: "Conversion Successful",
+        description: `Quotation converted to proforma ${proforma.proformaNumber}`,
+      });
+    } else {
+      toast({
+        title: "Conversion Failed",
+        description: "Unable to convert quotation. Make sure it's accepted.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleConvertToInvoice = (quotationId: string) => {
-    // Navigate to create invoice with pre-filled data
-    console.log('Converting quotation to invoice:', quotationId);
+    const invoice = businessData.convertQuotationToInvoice(quotationId);
+    if (invoice) {
+      setQuotations(businessData.getQuotations());
+      toast({
+        title: "Conversion Successful",
+        description: `Quotation converted to invoice ${invoice.invoiceNumber}`,
+      });
+    } else {
+      toast({
+        title: "Conversion Failed",
+        description: "Unable to convert quotation. Make sure it's accepted.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDownloadPDF = (quotationId: string) => {
@@ -360,7 +338,7 @@ export default function Quotations() {
                         <SelectValue placeholder="Select customer" />
                       </SelectTrigger>
                       <SelectContent>
-                        {mockCustomers.map(customer => (
+                        {customers.map(customer => (
                           <SelectItem key={customer.id} value={customer.id}>
                             <div>
                               <div className="font-medium">{customer.name}</div>
@@ -396,7 +374,7 @@ export default function Quotations() {
                   {formData.items.length > 0 && (
                     <div className="space-y-3 max-h-64 overflow-y-auto">
                       {formData.items.map((item, index) => {
-                        const product = mockProducts.find(p => p.id === item.productId);
+                        const product = products.find(p => p.id === item.productId);
                         const lineTotal = item.unitPrice * item.quantity;
 
                         return (
@@ -407,10 +385,10 @@ export default function Quotations() {
                                 <Select
                                   value={item.productId}
                                   onValueChange={(value) => {
-                                    const selectedProduct = mockProducts.find(p => p.id === value);
+                                    const selectedProduct = products.find(p => p.id === value);
                                     updateProduct(index, 'productId', value);
                                     if (selectedProduct) {
-                                      updateProduct(index, 'unitPrice', selectedProduct.price);
+                                      updateProduct(index, 'unitPrice', selectedProduct.sellingPrice);
                                     }
                                   }}
                                 >
@@ -418,12 +396,12 @@ export default function Quotations() {
                                     <SelectValue placeholder="Select product" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    {mockProducts.map(product => (
+                                    {products.map(product => (
                                       <SelectItem key={product.id} value={product.id}>
                                         <div>
                                           <div className="font-medium">{product.name}</div>
                                           <div className="text-xs text-muted-foreground">
-                                            KES {product.price.toLocaleString()}
+                                            KES {product.sellingPrice.toLocaleString()}
                                           </div>
                                         </div>
                                       </SelectItem>
