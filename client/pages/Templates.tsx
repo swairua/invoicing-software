@@ -724,11 +724,11 @@ export default function Templates() {
           <Card key={docType.value}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <span className="text-2xl">{getTypeIcon(docType.value)}</span>
+                <span className="text-2xl">{docType.icon}</span>
                 {docType.label} Templates
               </CardTitle>
               <CardDescription>
-                Manage templates for {docType.label.toLowerCase()} documents
+                {docType.description} - Manage templates for {docType.label.toLowerCase()} documents
               </CardDescription>
             </CardHeader>
             <CardContent>
