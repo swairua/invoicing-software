@@ -150,21 +150,28 @@ export default function Invoices() {
   React.useEffect(() => {
     const refreshInterval = setInterval(async () => {
       try {
+        // Silently refresh data with individual error handling
+        const invoicesPromise = businessData.getInvoices().catch(() => invoices);
+        const customersPromise = businessData.getCustomers().catch(() => customers);
+        const productsPromise = businessData.getProducts().catch(() => products);
+
         const [invoicesData, customersData, productsData] = await Promise.all([
-          businessData.getInvoices(),
-          businessData.getCustomers(),
-          businessData.getProducts()
+          invoicesPromise,
+          customersPromise,
+          productsPromise
         ]);
+
         setInvoices(invoicesData);
         setCustomers(customersData);
         setProducts(productsData);
       } catch (error) {
         console.error('Error refreshing data:', error);
+        // Don't show toast for refresh errors to avoid spam
       }
-    }, 30000); // Refresh every 30 seconds instead of 5
+    }, 30000); // Refresh every 30 seconds
 
     return () => clearInterval(refreshInterval);
-  }, []);
+  }, [invoices, customers, products]);
 
   const filteredInvoices = invoices.filter(invoice => {
     const matchesSearch = invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
