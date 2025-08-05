@@ -18,6 +18,7 @@ import ProformaInvoices from "./pages/ProformaInvoices";
 import Payments from "./pages/Payments";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
+import Templates from "./pages/Templates";
 import PlaceholderPage from "./pages/PlaceholderPage";
 
 const queryClient = new QueryClient();
