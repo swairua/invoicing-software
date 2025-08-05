@@ -299,17 +299,31 @@ export class PDFService {
       this.formatCurrency(item.total)
     ]);
 
+    // Convert hex to RGB for autoTable
+    const hexToRgb = (hex: string): [number, number, number] => {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? [
+        parseInt(result[1], 16),
+        parseInt(result[2], 16),
+        parseInt(result[3], 16)
+      ] : [128, 128, 128];
+    };
+
+    const headerColor = design?.table.headerBackgroundColor
+      ? hexToRgb(design.table.headerBackgroundColor)
+      : [128, 128, 128];
+
     autoTable(doc, {
       startY: 125,
       head: [['Item No.', 'Item Description', 'Qty', 'Unit Pack', 'Unit Price (incl) Ksh', 'Vat', 'Total Price (incl) Ksh']],
       body: tableData,
-      theme: 'grid',
+      theme: design?.table.borderStyle === 'none' ? 'plain' : 'grid',
       styles: {
-        fontSize: 8,
+        fontSize: design?.fonts.size.body || 8,
         cellPadding: 3,
       },
       headStyles: {
-        fillColor: [128, 128, 128],
+        fillColor: headerColor,
         textColor: [255, 255, 255],
         fontStyle: 'bold'
       },
