@@ -40,6 +40,8 @@ import {
   Target,
 } from 'lucide-react';
 import { useAuth } from '../hooks/use-auth';
+import BusinessDataService from '../services/businessDataService';
+import { DashboardMetrics } from '@shared/types';
 
 // Enhanced mock data for demonstration
 const mockMetrics = {
