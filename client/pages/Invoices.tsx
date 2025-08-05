@@ -59,100 +59,38 @@ import {
 } from 'lucide-react';
 import { Invoice, Customer, Product } from '@shared/types';
 import PDFService from '../services/pdfService';
+import BusinessDataService from '../services/businessDataService';
+import { useToast } from '../hooks/use-toast';
 
-// Mock data
-const mockCustomers: Customer[] = [
-  { id: '1', name: 'The Panari Hotel', email: 'procurement@panarihotel.com', phone: '+254700123456', kraPin: 'P051234567A', address: 'P.O Box 12345, Nairobi Kenya', creditLimit: 500000, balance: 125000, isActive: true, companyId: '1', createdAt: new Date(), updatedAt: new Date() },
-  { id: '2', name: 'Tech Solutions Kenya', email: 'info@techsolutions.co.ke', phone: '+254722987654', kraPin: 'P051234568B', address: '456 Innovation Hub, Nairobi', creditLimit: 300000, balance: 45000, isActive: true, companyId: '1', createdAt: new Date(), updatedAt: new Date() },
-];
-
-const mockProducts: Product[] = [
-  { id: '1', name: 'Latex Rubber Gloves Bicolor Reusable XL', description: 'High-quality latex rubber gloves', sku: 'LRG-001', category: 'Medical', unit: 'Pair', purchasePrice: 400, sellingPrice: 500, minStock: 10, maxStock: 1000, currentStock: 450, isActive: true, companyId: '1', createdAt: new Date(), updatedAt: new Date() },
-  { id: '2', name: 'Office Chair Executive', description: 'Ergonomic office chair', sku: 'OFC-002', category: 'Furniture', unit: 'piece', purchasePrice: 12000, sellingPrice: 18000, minStock: 5, maxStock: 30, currentStock: 3, isActive: true, companyId: '1', createdAt: new Date(), updatedAt: new Date() },
-];
-
-const mockInvoices: Invoice[] = [
-  {
-    id: '1',
-    invoiceNumber: 'INV-2024-001',
-    customerId: '1',
-    customer: mockCustomers[0],
-    items: [
-      { id: '1', productId: '1', product: mockProducts[0], quantity: 24, unitPrice: 500, discount: 0, vatRate: 0, total: 12000 }
-    ],
-    subtotal: 12000,
-    vatAmount: 0,
-    discountAmount: 0,
-    total: 12000,
-    amountPaid: 12000,
-    balance: 0,
-    status: 'paid',
-    dueDate: new Date('2024-07-18'),
-    issueDate: new Date('2024-06-18'),
-    notes: 'Payment received via MPESA',
-    etimsStatus: 'accepted',
-    etimsCode: 'ETIMS-001-2024',
-    companyId: '1',
-    createdBy: '1',
-    createdAt: new Date('2024-06-18'),
-    updatedAt: new Date('2024-06-19'),
-  },
-  {
-    id: '2',
-    invoiceNumber: 'INV-2024-002',
-    customerId: '2',
-    customer: mockCustomers[1],
-    items: [
-      { id: '2', productId: '2', product: mockProducts[1], quantity: 5, unitPrice: 18000, discount: 5, vatRate: 16, total: 85500 }
-    ],
-    subtotal: 90000,
-    vatAmount: 14400,
-    discountAmount: 4500,
-    total: 99900,
-    amountPaid: 50000,
-    balance: 49900,
-    status: 'sent',
-    dueDate: new Date('2024-02-20'),
-    issueDate: new Date('2024-01-20'),
-    notes: 'Partial payment received',
-    etimsStatus: 'accepted',
-    etimsCode: 'ETIMS-002-2024',
-    companyId: '1',
-    createdBy: '1',
-    createdAt: new Date('2024-01-20'),
-    updatedAt: new Date('2024-01-22'),
-  },
-  {
-    id: '3',
-    invoiceNumber: 'INV-2024-003',
-    customerId: '1',
-    customer: mockCustomers[0],
-    items: [
-      { id: '3', productId: '1', product: mockProducts[0], quantity: 25, unitPrice: 5500, discount: 10, vatRate: 16, total: 123750 }
-    ],
-    subtotal: 137500,
-    vatAmount: 22000,
-    discountAmount: 13750,
-    total: 145750,
-    amountPaid: 0,
-    balance: 145750,
-    status: 'overdue',
-    dueDate: new Date('2024-01-25'),
-    issueDate: new Date('2024-01-05'),
-    notes: 'Follow up required',
-    etimsStatus: 'pending',
-    companyId: '1',
-    createdBy: '1',
-    createdAt: new Date('2024-01-05'),
-    updatedAt: new Date('2024-01-05'),
-  },
-];
+// Get business data service instance
+const businessData = BusinessDataService.getInstance();
 
 export default function Invoices() {
-  const [invoices, setInvoices] = useState<Invoice[]>(mockInvoices);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const { toast } = useToast();
+
+  // Load initial data
+  React.useEffect(() => {
+    setInvoices(businessData.getInvoices());
+    setCustomers(businessData.getCustomers());
+    setProducts(businessData.getProducts());
+  }, []);
+
+  // Refresh data periodically
+  React.useEffect(() => {
+    const refreshInterval = setInterval(() => {
+      setInvoices(businessData.getInvoices());
+      setCustomers(businessData.getCustomers());
+      setProducts(businessData.getProducts());
+    }, 5000);
+
+    return () => clearInterval(refreshInterval);
+  }, []);
 
   const filteredInvoices = invoices.filter(invoice => {
     const matchesSearch = invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -219,7 +157,30 @@ export default function Invoices() {
   };
 
   const handleRecordPayment = (invoiceId: string) => {
-    console.log('Recording payment for invoice:', invoiceId);
+    const invoice = invoices.find(i => i.id === invoiceId);
+    if (!invoice || invoice.balance <= 0) return;
+
+    // For demo, process a random payment amount
+    const paymentAmount = Math.min(invoice.balance, Math.floor(Math.random() * invoice.balance) + 1000);
+    const paymentMethods = ['cash', 'mpesa', 'bank', 'cheque', 'card'] as const;
+    const method = paymentMethods[Math.floor(Math.random() * paymentMethods.length)];
+    const reference = 'PAY-' + Date.now();
+
+    const payment = businessData.processPayment(invoiceId, paymentAmount, method, reference, 'Manual payment recording');
+
+    if (payment) {
+      setInvoices(businessData.getInvoices());
+      toast({
+        title: "Payment Recorded",
+        description: `Payment of KES ${paymentAmount.toLocaleString()} recorded for ${invoice.invoiceNumber}`,
+      });
+    } else {
+      toast({
+        title: "Payment Failed",
+        description: "Unable to record payment. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSendToETIMS = (invoiceId: string) => {
@@ -273,7 +234,7 @@ export default function Invoices() {
                       <SelectValue placeholder="Select customer" />
                     </SelectTrigger>
                     <SelectContent>
-                      {mockCustomers.map(customer => (
+                      {customers.map(customer => (
                         <SelectItem key={customer.id} value={customer.id}>
                           {customer.name}
                         </SelectItem>
@@ -306,7 +267,7 @@ export default function Invoices() {
                         <SelectValue placeholder="Select product" />
                       </SelectTrigger>
                       <SelectContent>
-                        {mockProducts.map(product => (
+                        {products.map(product => (
                           <SelectItem key={product.id} value={product.id}>
                             {product.name}
                           </SelectItem>
