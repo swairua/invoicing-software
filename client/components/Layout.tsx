@@ -23,6 +23,7 @@ import {
   CreditCard,
   BarChart3,
   Settings,
+  Palette,
   Menu,
   LogOut,
   User,
