@@ -47,9 +47,9 @@ const navigation = [
 
 function NavigationItems({ mobile = false }: { mobile?: boolean }) {
   const location = useLocation();
-  
+
   return (
-    <nav className={cn("space-y-1", mobile && "p-4")}>
+    <nav className={cn("space-y-1", mobile && "px-2")}>
       {navigation.map((item) => {
         const isActive = location.pathname.startsWith(item.href);
         return (
@@ -61,7 +61,7 @@ function NavigationItems({ mobile = false }: { mobile?: boolean }) {
               isActive
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted",
-              mobile && "text-base px-4 py-3"
+              mobile && "text-base px-4 py-3 mx-2"
             )}
           >
             <item.icon className={cn("mr-3 h-4 w-4", mobile && "h-5 w-5")} />
