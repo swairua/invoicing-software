@@ -953,8 +953,8 @@ class BusinessDataService {
   }
 
   // Getter methods for data access
-  public getCustomers(): Customer[] {
-    return [...this.customers];
+  public getCustomers(): Promise<Customer[]> {
+    return Promise.resolve([...this.customers]);
   }
 
   public getProducts(): Product[] {
