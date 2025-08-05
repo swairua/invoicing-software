@@ -645,15 +645,54 @@ export default function Products() {
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="piece">Piece</SelectItem>
-                            <SelectItem value="kg">Kilogram</SelectItem>
-                            <SelectItem value="g">Gram</SelectItem>
-                            <SelectItem value="ltr">Liter</SelectItem>
-                            <SelectItem value="ml">Milliliter</SelectItem>
-                            <SelectItem value="pair">Pair</SelectItem>
-                            <SelectItem value="box">Box</SelectItem>
-                            <SelectItem value="pack">Pack</SelectItem>
+                          <SelectContent className="max-h-[200px]">
+                            {/* Most Common Units */}
+                            <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">Common Units</div>
+                            {UnitConverter.getCommonUnits().quantity.map(unit => (
+                              <SelectItem key={unit.id} value={unit.id}>
+                                {unit.name} ({unit.symbol})
+                              </SelectItem>
+                            ))}
+
+                            {/* Weight/Mass */}
+                            <div className="px-2 py-1 text-xs font-semibold text-muted-foreground border-t mt-2 pt-2">Weight/Mass</div>
+                            {UnitConverter.getCommonUnits().weight.map(unit => (
+                              <SelectItem key={unit.id} value={unit.id}>
+                                {unit.name} ({unit.symbol})
+                              </SelectItem>
+                            ))}
+
+                            {/* Volume */}
+                            <div className="px-2 py-1 text-xs font-semibold text-muted-foreground border-t mt-2 pt-2">Volume</div>
+                            {UnitConverter.getCommonUnits().volume.map(unit => (
+                              <SelectItem key={unit.id} value={unit.id}>
+                                {unit.name} ({unit.symbol})
+                              </SelectItem>
+                            ))}
+
+                            {/* Length */}
+                            <div className="px-2 py-1 text-xs font-semibold text-muted-foreground border-t mt-2 pt-2">Length</div>
+                            {UnitConverter.getCommonUnits().length.map(unit => (
+                              <SelectItem key={unit.id} value={unit.id}>
+                                {unit.name} ({unit.symbol})
+                              </SelectItem>
+                            ))}
+
+                            {/* Area */}
+                            <div className="px-2 py-1 text-xs font-semibold text-muted-foreground border-t mt-2 pt-2">Area</div>
+                            {UnitConverter.getCommonUnits().area.map(unit => (
+                              <SelectItem key={unit.id} value={unit.id}>
+                                {unit.name} ({unit.symbol})
+                              </SelectItem>
+                            ))}
+
+                            {/* Time */}
+                            <div className="px-2 py-1 text-xs font-semibold text-muted-foreground border-t mt-2 pt-2">Time</div>
+                            {UnitConverter.getCommonUnits().time.slice(0, 4).map(unit => (
+                              <SelectItem key={unit.id} value={unit.id}>
+                                {unit.name} ({unit.symbol})
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
