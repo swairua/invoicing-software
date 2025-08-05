@@ -98,6 +98,7 @@ const AppRoutes = () => (
       <Route path="reports/stock" element={<Reports />} />
       <Route path="reports/tax" element={<Reports />} />
       <Route path="settings" element={<Settings />} />
+      <Route path="templates" element={<Templates />} />
     </Route>
     
     {/* Catch-all redirect */}
