@@ -290,7 +290,7 @@ export default function QuickActions() {
         customerId: selectedCustomer,
         customer: customer,
         items: selectedProducts.map(item => {
-          const product = products.find(p => p.id === item.productId);
+          const product = products && products.find(p => p.id === item.productId);
           return {
             productId: item.productId,
             product: product,
