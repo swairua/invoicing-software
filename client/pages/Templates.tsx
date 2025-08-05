@@ -458,10 +458,16 @@ export default function Templates() {
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="max-h-[300px]">
                           {documentTypes.map(type => (
                             <SelectItem key={type.value} value={type.value}>
-                              {getTypeIcon(type.value)} {type.label}
+                              <div className="flex items-center space-x-2">
+                                <span>{type.icon}</span>
+                                <div>
+                                  <div className="font-medium">{type.label}</div>
+                                  <div className="text-xs text-muted-foreground">{type.description}</div>
+                                </div>
+                              </div>
                             </SelectItem>
                           ))}
                         </SelectContent>
