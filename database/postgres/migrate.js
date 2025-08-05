@@ -20,7 +20,8 @@ const client = new Client(dbConfig);
 // Migration files in order
 const migrations = [
   '001_initial_schema.sql',
-  '002_seed_data.sql'
+  '002_seed_data.sql',
+  '003_tax_configuration.sql'
 ];
 
 async function createMigrationsTable() {
