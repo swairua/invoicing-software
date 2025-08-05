@@ -511,7 +511,7 @@ export class PDFService {
   /**
    * Add signature section
    */
-  private static addSignatureSection(doc: jsPDF, pageWidth: number, pageHeight: number): void {
+  private static addSignatureSection(doc: jsPDF, pageWidth: number, pageHeight: number, design?: TemplateDesign): void {
     const signatureY = pageHeight - 25;
     
     doc.setFontSize(8);
