@@ -234,7 +234,7 @@ export default function QuickActions() {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
 
-      const customer = mockCustomers.find(c => c.id === selectedCustomer);
+      const customer = customers.find(c => c.id === selectedCustomer);
       const documentNumber = generateDocumentNumber(documentType);
 
       // Calculate totals
