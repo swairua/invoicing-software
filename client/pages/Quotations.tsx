@@ -88,7 +88,7 @@ export default function Quotations() {
     setCustomers(businessData.getCustomers());
     setProducts(businessData.getProducts());
 
-    // Start simulation if not already running
+    // Start simulation if not already running (only for mock data)
     if (!businessData.isSimulationRunning()) {
       businessData.startSimulation();
     }
