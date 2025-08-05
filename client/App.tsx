@@ -100,6 +100,7 @@ const AppRoutes = () => (
       <Route path="reports/stock" element={<Reports />} />
       <Route path="reports/tax" element={<Reports />} />
       <Route path="settings" element={<Settings />} />
+      <Route path="settings/taxes" element={<TaxSettings />} />
       <Route path="templates" element={<Templates />} />
       <Route path="units" element={<UnitsOfMeasure />} />
     </Route>
