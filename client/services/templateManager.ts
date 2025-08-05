@@ -186,6 +186,7 @@ export class TemplateManager {
    */
   private static getDefaultTemplates(): DocumentTemplate[] {
     return [
+      // Invoice Templates
       {
         id: 'default-invoice',
         name: 'Standard Invoice',
@@ -232,6 +233,8 @@ export class TemplateManager {
         createdAt: new Date(),
         updatedAt: new Date(),
       },
+
+      // Quotation Templates
       {
         id: 'default-quotation',
         name: 'Modern Quotation',
@@ -278,6 +281,8 @@ export class TemplateManager {
         createdAt: new Date(),
         updatedAt: new Date(),
       },
+
+      // Receipt Templates
       {
         id: 'default-receipt',
         name: 'Simple Receipt',
@@ -316,6 +321,446 @@ export class TemplateManager {
           table: {
             headerBackgroundColor: '#f9fafb',
             borderStyle: 'none',
+          },
+        },
+        companyId: '1',
+        createdBy: '1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+
+      // Packing List Templates
+      {
+        id: 'default-packing-list',
+        name: 'Standard Packing List',
+        description: 'Detailed packing list with item tracking',
+        type: 'packing_list',
+        isActive: true,
+        isDefault: true,
+        design: {
+          layout: 'standard',
+          colors: {
+            primary: '#dc2626',
+            secondary: '#64748b',
+            accent: '#f97316',
+            text: '#1f2937',
+          },
+          fonts: {
+            heading: 'helvetica',
+            body: 'helvetica',
+            size: { heading: 15, body: 9, small: 8 },
+          },
+          spacing: {
+            margins: 18,
+            lineHeight: 1.4,
+            sectionGap: 12,
+          },
+          header: {
+            showLogo: true,
+            logoPosition: 'left',
+            showCompanyInfo: true,
+          },
+          footer: {
+            showTerms: false,
+            showSignature: true,
+            showPageNumbers: true,
+            customText: 'Please verify items upon receipt',
+          },
+          table: {
+            headerBackgroundColor: '#fee2e2',
+            alternateRowColor: '#fef2f2',
+            borderStyle: 'medium',
+          },
+        },
+        companyId: '1',
+        createdBy: '1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+
+      // Delivery Note Templates
+      {
+        id: 'default-delivery-note',
+        name: 'Standard Delivery Note',
+        description: 'Professional delivery confirmation template',
+        type: 'delivery_note',
+        isActive: true,
+        isDefault: true,
+        design: {
+          layout: 'standard',
+          colors: {
+            primary: '#059669',
+            secondary: '#64748b',
+            accent: '#10b981',
+            text: '#1f2937',
+          },
+          fonts: {
+            heading: 'helvetica',
+            body: 'helvetica',
+            size: { heading: 15, body: 9, small: 8 },
+          },
+          spacing: {
+            margins: 18,
+            lineHeight: 1.4,
+            sectionGap: 12,
+          },
+          header: {
+            showLogo: true,
+            logoPosition: 'left',
+            showCompanyInfo: true,
+          },
+          footer: {
+            showTerms: false,
+            showSignature: true,
+            showPageNumbers: true,
+            customText: 'Customer signature required upon delivery',
+          },
+          table: {
+            headerBackgroundColor: '#ecfdf5',
+            alternateRowColor: '#f0fdf4',
+            borderStyle: 'light',
+          },
+        },
+        companyId: '1',
+        createdBy: '1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+
+      // Purchase Order Templates
+      {
+        id: 'default-purchase-order',
+        name: 'Standard Purchase Order',
+        description: 'Professional supplier ordering template',
+        type: 'purchase_order',
+        isActive: true,
+        isDefault: true,
+        design: {
+          layout: 'corporate',
+          colors: {
+            primary: '#1e40af',
+            secondary: '#64748b',
+            accent: '#3b82f6',
+            text: '#1f2937',
+          },
+          fonts: {
+            heading: 'helvetica',
+            body: 'helvetica',
+            size: { heading: 16, body: 10, small: 8 },
+          },
+          spacing: {
+            margins: 20,
+            lineHeight: 1.5,
+            sectionGap: 15,
+          },
+          header: {
+            showLogo: true,
+            logoPosition: 'left',
+            showCompanyInfo: true,
+          },
+          footer: {
+            showTerms: true,
+            showSignature: true,
+            showPageNumbers: true,
+            customText: 'Please confirm receipt of this purchase order',
+          },
+          table: {
+            headerBackgroundColor: '#dbeafe',
+            alternateRowColor: '#eff6ff',
+            borderStyle: 'medium',
+          },
+        },
+        companyId: '1',
+        createdBy: '1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+
+      // Credit Note Templates
+      {
+        id: 'default-credit-note',
+        name: 'Standard Credit Note',
+        description: 'Professional credit note template',
+        type: 'credit_note',
+        isActive: true,
+        isDefault: true,
+        design: {
+          layout: 'standard',
+          colors: {
+            primary: '#dc2626',
+            secondary: '#64748b',
+            accent: '#f87171',
+            text: '#1f2937',
+          },
+          fonts: {
+            heading: 'helvetica',
+            body: 'helvetica',
+            size: { heading: 15, body: 10, small: 8 },
+          },
+          spacing: {
+            margins: 20,
+            lineHeight: 1.5,
+            sectionGap: 15,
+          },
+          header: {
+            showLogo: true,
+            logoPosition: 'left',
+            showCompanyInfo: true,
+          },
+          footer: {
+            showTerms: true,
+            showSignature: true,
+            showPageNumbers: true,
+          },
+          table: {
+            headerBackgroundColor: '#fee2e2',
+            alternateRowColor: '#fef2f2',
+            borderStyle: 'light',
+          },
+        },
+        companyId: '1',
+        createdBy: '1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+
+      // Goods Received Note Templates
+      {
+        id: 'default-grn',
+        name: 'Standard GRN',
+        description: 'Goods received note for inventory tracking',
+        type: 'goods_received_note',
+        isActive: true,
+        isDefault: true,
+        design: {
+          layout: 'minimal',
+          colors: {
+            primary: '#7c2d12',
+            secondary: '#64748b',
+            accent: '#ea580c',
+            text: '#1f2937',
+          },
+          fonts: {
+            heading: 'helvetica',
+            body: 'helvetica',
+            size: { heading: 14, body: 9, small: 7 },
+          },
+          spacing: {
+            margins: 15,
+            lineHeight: 1.4,
+            sectionGap: 12,
+          },
+          header: {
+            showLogo: true,
+            logoPosition: 'left',
+            showCompanyInfo: true,
+          },
+          footer: {
+            showTerms: false,
+            showSignature: true,
+            showPageNumbers: true,
+            customText: 'Quality inspection completed',
+          },
+          table: {
+            headerBackgroundColor: '#fed7aa',
+            alternateRowColor: '#ffedd5',
+            borderStyle: 'light',
+          },
+        },
+        companyId: '1',
+        createdBy: '1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+
+      // Proforma Invoice Templates
+      {
+        id: 'default-proforma',
+        name: 'Standard Proforma',
+        description: 'Professional proforma invoice template',
+        type: 'proforma',
+        isActive: true,
+        isDefault: true,
+        design: {
+          layout: 'modern',
+          colors: {
+            primary: '#7c3aed',
+            secondary: '#64748b',
+            accent: '#a855f7',
+            text: '#374151',
+          },
+          fonts: {
+            heading: 'helvetica',
+            body: 'helvetica',
+            size: { heading: 17, body: 10, small: 8 },
+          },
+          spacing: {
+            margins: 22,
+            lineHeight: 1.5,
+            sectionGap: 16,
+          },
+          header: {
+            showLogo: true,
+            logoPosition: 'center',
+            showCompanyInfo: true,
+            backgroundColor: '#faf5ff',
+          },
+          footer: {
+            showTerms: true,
+            showSignature: false,
+            showPageNumbers: true,
+            customText: 'This is a proforma invoice - not a tax invoice',
+          },
+          table: {
+            headerBackgroundColor: '#e9d5ff',
+            alternateRowColor: '#f3e8ff',
+            borderStyle: 'medium',
+          },
+        },
+        companyId: '1',
+        createdBy: '1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+
+      // Statement Templates
+      {
+        id: 'default-statement',
+        name: 'Account Statement',
+        description: 'Customer account statement template',
+        type: 'statement',
+        isActive: true,
+        isDefault: true,
+        design: {
+          layout: 'corporate',
+          colors: {
+            primary: '#374151',
+            secondary: '#6b7280',
+            accent: '#9ca3af',
+            text: '#111827',
+          },
+          fonts: {
+            heading: 'helvetica',
+            body: 'helvetica',
+            size: { heading: 16, body: 9, small: 7 },
+          },
+          spacing: {
+            margins: 20,
+            lineHeight: 1.4,
+            sectionGap: 14,
+          },
+          header: {
+            showLogo: true,
+            logoPosition: 'left',
+            showCompanyInfo: true,
+          },
+          footer: {
+            showTerms: false,
+            showSignature: false,
+            showPageNumbers: true,
+            customText: 'Please remit payment for outstanding amounts',
+          },
+          table: {
+            headerBackgroundColor: '#f3f4f6',
+            alternateRowColor: '#f9fafb',
+            borderStyle: 'light',
+          },
+        },
+        companyId: '1',
+        createdBy: '1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+
+      // Material Transfer Note Templates
+      {
+        id: 'default-mtn',
+        name: 'Material Transfer Note',
+        description: 'Internal material transfer tracking',
+        type: 'material_transfer_note',
+        isActive: true,
+        isDefault: true,
+        design: {
+          layout: 'minimal',
+          colors: {
+            primary: '#0f766e',
+            secondary: '#64748b',
+            accent: '#14b8a6',
+            text: '#1f2937',
+          },
+          fonts: {
+            heading: 'helvetica',
+            body: 'helvetica',
+            size: { heading: 14, body: 9, small: 7 },
+          },
+          spacing: {
+            margins: 15,
+            lineHeight: 1.3,
+            sectionGap: 10,
+          },
+          header: {
+            showLogo: false,
+            logoPosition: 'left',
+            showCompanyInfo: true,
+          },
+          footer: {
+            showTerms: false,
+            showSignature: true,
+            showPageNumbers: false,
+            customText: 'Internal use only',
+          },
+          table: {
+            headerBackgroundColor: '#ccfbf1',
+            alternateRowColor: '#f0fdfa',
+            borderStyle: 'light',
+          },
+        },
+        companyId: '1',
+        createdBy: '1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+
+      // Debit Note Templates
+      {
+        id: 'default-debit-note',
+        name: 'Standard Debit Note',
+        description: 'Professional debit note template',
+        type: 'debit_note',
+        isActive: true,
+        isDefault: true,
+        design: {
+          layout: 'standard',
+          colors: {
+            primary: '#b91c1c',
+            secondary: '#64748b',
+            accent: '#ef4444',
+            text: '#1f2937',
+          },
+          fonts: {
+            heading: 'helvetica',
+            body: 'helvetica',
+            size: { heading: 15, body: 10, small: 8 },
+          },
+          spacing: {
+            margins: 20,
+            lineHeight: 1.5,
+            sectionGap: 15,
+          },
+          header: {
+            showLogo: true,
+            logoPosition: 'left',
+            showCompanyInfo: true,
+          },
+          footer: {
+            showTerms: true,
+            showSignature: true,
+            showPageNumbers: true,
+          },
+          table: {
+            headerBackgroundColor: '#fecaca',
+            alternateRowColor: '#fef2f2',
+            borderStyle: 'light',
           },
         },
         companyId: '1',
