@@ -61,7 +61,7 @@ import {
 import { Quotation, Customer, Product } from '@shared/types';
 import { useToast } from '../hooks/use-toast';
 import PDFService from '../services/pdfService';
-import BusinessDataService from '../services/businessDataService';
+import dataService from '../services/dataServiceFactory';
 
 // Get business data service instance
 const businessData = BusinessDataService.getInstance();
