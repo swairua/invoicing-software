@@ -53,32 +53,8 @@ interface QuickActionItem {
   category: 'documents' | 'inventory' | 'customers' | 'financial';
 }
 
-// Mock data for dropdowns
-const mockCustomers = [
-  { id: '1', name: 'Acme Corporation Ltd', email: 'contact@acme.com' },
-  { id: '2', name: 'Tech Solutions Kenya', email: 'info@techsolutions.co.ke' },
-  { id: '3', name: 'Global Trading Co.', email: 'orders@globaltrading.com' },
-  { id: '4', name: 'Innovation Hub Ltd', email: 'procurement@innovationhub.co.ke' },
-];
-
-const mockProducts = [
-  { id: '1', name: 'Wireless Bluetooth Headphones', price: 5500, stock: 45 },
-  { id: '2', name: 'Ergonomic Office Chair', price: 18000, stock: 8 },
-  { id: '3', name: 'Laptop Stand Adjustable', price: 3200, stock: 23 },
-  { id: '4', name: 'Wireless Mouse', price: 1200, stock: 67 },
-  { id: '5', name: 'Desk Organizer', price: 2400, stock: 12 },
-];
-
-const mockInvoices = [
-  { id: 'INV-2024-001', customer: 'Acme Corporation Ltd', amount: 25600, status: 'sent' },
-  { id: 'INV-2024-002', customer: 'Tech Solutions Kenya', amount: 18750, status: 'draft' },
-  { id: 'INV-2024-003', customer: 'Global Trading Co.', amount: 42300, status: 'paid' },
-];
-
-const mockQuotations = [
-  { id: 'QUO-2024-001', customer: 'Innovation Hub Ltd', amount: 38500, status: 'sent' },
-  { id: 'QUO-2024-002', customer: 'Acme Corporation Ltd', amount: 22100, status: 'accepted' },
-];
+// Get business data service instance
+const businessData = BusinessDataService.getInstance();
 
 export default function QuickActions() {
   const navigate = useNavigate();
@@ -90,6 +66,22 @@ export default function QuickActions() {
   const [notes, setNotes] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [openDialog, setOpenDialog] = useState<string | null>(null);
+  const [customers, setCustomers] = useState(businessData.getCustomers());
+  const [products, setProducts] = useState(businessData.getProducts());
+  const [invoices, setInvoices] = useState(businessData.getInvoices());
+  const [quotations, setQuotations] = useState(businessData.getQuotations());
+
+  // Refresh data periodically
+  React.useEffect(() => {
+    const refreshInterval = setInterval(() => {
+      setCustomers(businessData.getCustomers());
+      setProducts(businessData.getProducts());
+      setInvoices(businessData.getInvoices());
+      setQuotations(businessData.getQuotations());
+    }, 5000);
+
+    return () => clearInterval(refreshInterval);
+  }, []);
 
   // Enhanced Quick Actions with comprehensive document types
   const quickActions: QuickActionItem[] = [
