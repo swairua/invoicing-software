@@ -776,10 +776,10 @@ export default function Invoices() {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>{new Date(invoice.issueDate).toLocaleDateString()}</TableCell>
+                      <TableCell>{safeDate(invoice.issueDate).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <div className={`text-sm ${invoice.status === 'overdue' ? 'text-destructive font-medium' : ''}`}>
-                        {new Date(invoice.dueDate).toLocaleDateString()}
+                        {safeDate(invoice.dueDate).toLocaleDateString()}
                       </div>
                         {daysOverdue > 0 && (
                           <div className="text-xs text-destructive">
