@@ -492,7 +492,9 @@ export default function Dashboard() {
       </div>
 
       {/* Quick Actions */}
-      <QuickActions />
+      <div id="quick-actions-section">
+        <QuickActions />
+      </div>
 
       {/* Enhanced Charts and Activities */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
