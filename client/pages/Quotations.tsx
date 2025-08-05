@@ -339,82 +339,213 @@ export default function Quotations() {
               New Quotation
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[700px]">
-            <DialogHeader>
+          <DialogContent className="max-w-[95vw] sm:max-w-5xl max-h-[90vh] flex flex-col">
+            <DialogHeader className="flex-shrink-0">
               <DialogTitle>Create New Quotation</DialogTitle>
               <DialogDescription>
                 Generate a new sales quotation for your customer
               </DialogDescription>
             </DialogHeader>
-            <form onSubmit={handleCreateQuotation} className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="customer">Customer *</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select customer" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {mockCustomers.map(customer => (
-                        <SelectItem key={customer.id} value={customer.id}>
-                          {customer.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="validUntil">Valid Until *</Label>
-                  <Input id="validUntil" type="date" required />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="notes">Notes</Label>
-                <Textarea id="notes" placeholder="Additional notes or terms" />
-              </div>
-              <div className="space-y-4">
-                <Label>Items</Label>
-                <div className="border rounded-lg p-4 space-y-4">
-                  <div className="grid grid-cols-5 gap-2 text-sm font-medium text-muted-foreground">
-                    <span>Product</span>
-                    <span>Quantity</span>
-                    <span>Unit Price</span>
-                    <span>Discount %</span>
-                    <span>Total</span>
-                  </div>
-                  <div className="grid grid-cols-5 gap-2">
-                    <Select>
+            <div className="flex-1 overflow-y-auto p-1">
+              <form onSubmit={handleCreateQuotation} className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="customer">Customer *</Label>
+                    <Select value={formData.customerId} onValueChange={(value) => setFormData(prev => ({ ...prev, customerId: value }))}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select product" />
+                        <SelectValue placeholder="Select customer" />
                       </SelectTrigger>
                       <SelectContent>
-                        {mockProducts.map(product => (
-                          <SelectItem key={product.id} value={product.id}>
-                            {product.name}
+                        {mockCustomers.map(customer => (
+                          <SelectItem key={customer.id} value={customer.id}>
+                            <div>
+                              <div className="font-medium">{customer.name}</div>
+                              <div className="text-xs text-muted-foreground">{customer.email}</div>
+                            </div>
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    <Input type="number" placeholder="1" min="1" />
-                    <Input type="number" placeholder="0.00" min="0" step="0.01" />
-                    <Input type="number" placeholder="0" min="0" max="100" />
-                    <Input value="0.00" disabled />
                   </div>
-                  <Button type="button" variant="outline" size="sm">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Item
+                  <div className="space-y-2">
+                    <Label htmlFor="validUntil">Valid Until *</Label>
+                    <Input
+                      id="validUntil"
+                      type="date"
+                      value={formData.validUntil}
+                      onChange={(e) => setFormData(prev => ({ ...prev, validUntil: e.target.value }))}
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Products Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-base font-semibold">Products</Label>
+                    <Button type="button" variant="outline" size="sm" onClick={addProduct}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Product
+                    </Button>
+                  </div>
+
+                  {formData.items.length > 0 && (
+                    <div className="space-y-3 max-h-64 overflow-y-auto">
+                      {formData.items.map((item, index) => {
+                        const product = mockProducts.find(p => p.id === item.productId);
+                        const lineTotal = item.unitPrice * item.quantity;
+
+                        return (
+                          <div key={index} className="border rounded-lg p-4 space-y-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                              <div>
+                                <Label className="text-sm">Product</Label>
+                                <Select
+                                  value={item.productId}
+                                  onValueChange={(value) => {
+                                    const selectedProduct = mockProducts.find(p => p.id === value);
+                                    updateProduct(index, 'productId', value);
+                                    if (selectedProduct) {
+                                      updateProduct(index, 'unitPrice', selectedProduct.price);
+                                    }
+                                  }}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select product" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {mockProducts.map(product => (
+                                      <SelectItem key={product.id} value={product.id}>
+                                        <div>
+                                          <div className="font-medium">{product.name}</div>
+                                          <div className="text-xs text-muted-foreground">
+                                            KES {product.price.toLocaleString()}
+                                          </div>
+                                        </div>
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label className="text-sm">Quantity</Label>
+                                <Input
+                                  type="number"
+                                  placeholder="1"
+                                  value={item.quantity}
+                                  onChange={(e) => updateProduct(index, 'quantity', parseInt(e.target.value) || 1)}
+                                  min="1"
+                                />
+                              </div>
+                              <div>
+                                <Label className="text-sm">Unit Price</Label>
+                                <Input
+                                  type="number"
+                                  placeholder="0.00"
+                                  value={item.unitPrice}
+                                  onChange={(e) => updateProduct(index, 'unitPrice', parseFloat(e.target.value) || 0)}
+                                  min="0"
+                                  step="0.01"
+                                />
+                              </div>
+                              <div className="flex items-end gap-2">
+                                <div className="flex-1">
+                                  <Label className="text-sm">Line Total</Label>
+                                  <Input
+                                    value={`KES ${lineTotal.toLocaleString()}`}
+                                    disabled
+                                    className="font-medium"
+                                  />
+                                </div>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => removeProduct(index)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {formData.items.length === 0 && (
+                    <div className="text-center py-8 border-2 border-dashed rounded-lg">
+                      <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                      <p className="text-muted-foreground mb-4">No products added yet</p>
+                      <Button type="button" variant="outline" onClick={addProduct}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Your First Product
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Document Totals */}
+                {formData.items.length > 0 && (
+                  <div className="border-t pt-4">
+                    <div className="bg-muted/20 rounded-lg p-4 space-y-2">
+                      {(() => {
+                        const subtotal = formData.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
+                        const vatAmount = subtotal * 0.16;
+                        const total = subtotal + vatAmount;
+
+                        return (
+                          <>
+                            <div className="flex justify-between text-sm">
+                              <span>Subtotal:</span>
+                              <span>KES {subtotal.toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span>VAT (16%):</span>
+                              <span>KES {vatAmount.toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between font-bold text-lg border-t pt-2">
+                              <span>Total:</span>
+                              <span>KES {total.toLocaleString()}</span>
+                            </div>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <Label htmlFor="notes">Notes</Label>
+                  <Textarea
+                    id="notes"
+                    placeholder="Additional notes or terms"
+                    value={formData.notes}
+                    onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                    rows={3}
+                  />
+                </div>
+
+                <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsCreateDialogOpen(false)}
+                    className="w-full sm:w-auto"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={isLoading || !formData.customerId || formData.items.length === 0}
+                    className="w-full sm:w-auto"
+                  >
+                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Create Quotation
                   </Button>
                 </div>
-              </div>
-              <div className="flex justify-end gap-2 pt-4">
-                <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit">
-                  Create Quotation
-                </Button>
-              </div>
-            </form>
+              </form>
+            </div>
           </DialogContent>
         </Dialog>
       </div>
