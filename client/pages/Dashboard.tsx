@@ -359,7 +359,14 @@ export default function Dashboard() {
             Welcome back, {user?.firstName}! Here's what's happening with your business today.
           </p>
         </div>
-        <Button>
+        <Button
+          onClick={() => {
+            const quickActionsElement = document.getElementById('quick-actions-section');
+            if (quickActionsElement) {
+              quickActionsElement.scrollIntoView({ behavior: 'smooth' });
+            }
+          }}
+        >
           <Plus className="mr-2 h-4 w-4" />
           Quick Actions
         </Button>
