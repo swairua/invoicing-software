@@ -67,6 +67,7 @@ import {
   Box,
 } from 'lucide-react';
 import { Product, ProductStatus, ProductDimensions } from '@shared/types';
+import { UnitConverter, UnitCategory } from '@shared/units';
 import { useToast } from '../hooks/use-toast';
 
 // Enhanced mock data with comprehensive product attributes
