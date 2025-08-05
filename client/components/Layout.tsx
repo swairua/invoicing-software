@@ -197,7 +197,14 @@ export default function Layout() {
                     </>
                   )}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={logout} className="text-destructive">
+                  <DropdownMenuItem
+                    onClick={() => {
+                      if (confirm('Are you sure you want to sign out?')) {
+                        logout();
+                      }
+                    }}
+                    className="text-destructive"
+                  >
                     <LogOut className="mr-2 h-4 w-4" />
                     Sign out
                   </DropdownMenuItem>
