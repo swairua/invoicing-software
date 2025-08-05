@@ -66,6 +66,13 @@ import dataService from '../services/dataServiceFactory';
 // Get data service instance (either mock or PostgreSQL)
 const businessData = dataService;
 
+// Utility function to safely convert dates
+const safeDate = (date: any): Date => {
+  if (!date) return new Date();
+  if (date instanceof Date) return date;
+  return new Date(date);
+};
+
 export default function Quotations() {
   const [quotations, setQuotations] = useState<Quotation[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
