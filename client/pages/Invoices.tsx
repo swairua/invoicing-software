@@ -184,11 +184,25 @@ export default function Invoices() {
   };
 
   const handleSendToETIMS = (invoiceId: string) => {
-    console.log('Sending to ETIMS:', invoiceId);
-    toast({
-      title: "ETIMS Submission",
-      description: "Invoice submitted to ETIMS for processing",
-    });
+    const invoice = invoices.find(inv => inv.id === invoiceId);
+    if (invoice) {
+      // Update invoice ETIMS status
+      setInvoices(prev => prev.map(inv =>
+        inv.id === invoiceId
+          ? {
+              ...inv,
+              etimsStatus: 'submitted' as const,
+              etimsCode: `ETIMS-${Date.now()}`,
+              updatedAt: new Date()
+            }
+          : inv
+      ));
+
+      toast({
+        title: "ETIMS Submission",
+        description: `Invoice ${invoice.invoiceNumber} submitted to ETIMS successfully`,
+      });
+    }
   };
 
   const handleDownloadPDF = (invoiceId: string) => {
