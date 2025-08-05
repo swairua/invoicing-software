@@ -224,7 +224,7 @@ export class PDFService {
   /**
    * Add company information
    */
-  private static addCompanyInfo(doc: jsPDF, pageWidth: number): void {
+  private static addCompanyInfo(doc: jsPDF, pageWidth: number, design?: TemplateDesign): void {
     const settings = this.companySettings;
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
