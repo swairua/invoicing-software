@@ -61,7 +61,7 @@ import {
 } from 'lucide-react';
 import { Invoice, Customer, Product } from '@shared/types';
 import PDFService from '../services/pdfService';
-import BusinessDataService from '../services/businessDataService';
+import dataService from '../services/dataServiceFactory';
 import { useToast } from '../hooks/use-toast';
 
 // Get business data service instance
