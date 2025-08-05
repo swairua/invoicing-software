@@ -72,18 +72,62 @@ export interface Product {
   name: string;
   description?: string;
   sku: string;
+  barcode?: string;
   category: string;
+  subcategory?: string;
+  brand?: string;
+  supplier?: string;
   unit: string;
+  weight?: number;
+  dimensions?: ProductDimensions;
   purchasePrice: number;
   sellingPrice: number;
+  markup?: number;
+  costPrice?: number;
+  wholesalePrice?: number;
+  retailPrice?: number;
   minStock: number;
   maxStock: number;
   currentStock: number;
+  reservedStock?: number;
+  availableStock?: number;
+  reorderLevel?: number;
+  location?: string;
+  binLocation?: string;
+  tags?: string[];
+  taxable: boolean;
+  taxRate?: number;
+  trackInventory: boolean;
+  allowBackorders: boolean;
+  hasVariants: boolean;
+  variants?: ProductVariant[];
+  images?: string[];
+  notes?: string;
   isActive: boolean;
+  status: ProductStatus;
   companyId: string;
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface ProductDimensions {
+  length?: number;
+  width?: number;
+  height?: number;
+  unit: 'cm' | 'in' | 'm';
+}
+
+export interface ProductVariant {
+  id: string;
+  name: string;
+  sku: string;
+  attributes: Record<string, string>; // e.g., { color: 'red', size: 'M' }
+  price?: number;
+  stock?: number;
+  isActive: boolean;
+}
+
+export type ProductStatus = 'active' | 'inactive' | 'discontinued' | 'out_of_stock';
 
 export interface ProductCategory {
   id: string;
