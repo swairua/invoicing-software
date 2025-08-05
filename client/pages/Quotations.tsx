@@ -194,13 +194,110 @@ export default function Quotations() {
     return diffDays <= 7 && diffDays > 0;
   };
 
-  const handleCreateQuotation = (e: React.FormEvent) => {
+  const handleCreateQuotation = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // This would normally be handled by the QuickActions component
-    // For now, we'll just close the dialog and show a message
-    console.log('Create quotation functionality moved to QuickActions component');
-    setIsCreateDialogOpen(false);
+    if (!formData.customerId || formData.items.length === 0) {
+      toast({
+        title: "Validation Error",
+        description: "Please select a customer and add at least one product.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // Calculate totals
+      const subtotal = formData.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
+      const vatAmount = subtotal * 0.16;
+      const total = subtotal + vatAmount;
+
+      // Generate quotation number
+      const quoteNumber = `QUO-2024-${String(quotations.length + 1).padStart(3, '0')}`;
+
+      const customer = mockCustomers.find(c => c.id === formData.customerId);
+
+      const newQuotation: Quotation = {
+        id: Date.now().toString(),
+        quoteNumber,
+        customerId: formData.customerId,
+        customer: customer!,
+        items: formData.items.map((item, index) => {
+          const product = mockProducts.find(p => p.id === item.productId);
+          return {
+            id: `item-${index}`,
+            productId: item.productId,
+            product: product!,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            discount: 0,
+            vatRate: 16,
+            total: item.unitPrice * item.quantity * 1.16
+          };
+        }),
+        subtotal,
+        vatAmount,
+        discountAmount: 0,
+        total,
+        status: 'draft',
+        validUntil: new Date(formData.validUntil),
+        issueDate: new Date(),
+        notes: formData.notes,
+        companyId: '1',
+        createdBy: '1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      setQuotations(prev => [newQuotation, ...prev]);
+      setIsCreateDialogOpen(false);
+
+      // Reset form
+      setFormData({
+        customerId: '',
+        validUntil: '',
+        notes: '',
+        items: []
+      });
+
+      toast({
+        title: "Quotation Created",
+        description: `Quotation ${quoteNumber} created successfully for ${customer?.name}`,
+      });
+
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create quotation. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const addProduct = () => {
+    setFormData(prev => ({
+      ...prev,
+      items: [...prev.items, { productId: '', quantity: 1, unitPrice: 0 }]
+    }));
+  };
+
+  const removeProduct = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      items: prev.items.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateProduct = (index: number, field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      items: prev.items.map((item, i) =>
+        i === index ? { ...item, [field]: value } : item
+      )
+    }));
   };
 
   const handleConvertToProforma = (quotationId: string) => {
