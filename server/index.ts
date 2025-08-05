@@ -2,6 +2,8 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
+import apiRouter from "./routes/api";
+import Database from "./database";
 
 export function createServer() {
   const app = express();
@@ -11,6 +13,15 @@ export function createServer() {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
+  // Test database connection on startup
+  Database.testConnection().then(connected => {
+    if (connected) {
+      console.log('✅ PostgreSQL database connected successfully');
+    } else {
+      console.log('❌ PostgreSQL database connection failed');
+    }
+  });
+
   // Example API routes
   app.get("/api/ping", (_req, res) => {
     const ping = process.env.PING_MESSAGE ?? "ping";
@@ -18,6 +29,9 @@ export function createServer() {
   });
 
   app.get("/api/demo", handleDemo);
+
+  // Main API routes
+  app.use("/api", apiRouter);
 
   return app;
 }
