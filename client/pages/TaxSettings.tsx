@@ -247,16 +247,8 @@ export default function TaxSettings() {
 
   const handleSetDefault = async (id: string, name: string) => {
     try {
-      const response = await fetch(`/api/taxes/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "x-company-id": "550e8400-e29b-41d4-a716-446655440000",
-        },
-        body: JSON.stringify({ isDefault: true }),
-      });
-
-      const result = await response.json();
+      const dataService = dataServiceFactory.getDataService();
+      const result = await dataService.setDefaultTaxConfiguration(id);
 
       if (result.success) {
         await loadTaxConfigurations();
