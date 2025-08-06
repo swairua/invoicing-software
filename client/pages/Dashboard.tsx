@@ -46,6 +46,7 @@ import {
   Target,
 } from "lucide-react";
 import { useAuth } from "../hooks/use-auth";
+import ActivityLog from "../components/ActivityLog";
 import BusinessDataService from "../services/businessDataService";
 import { DashboardMetrics } from "@shared/types";
 
