@@ -63,6 +63,7 @@ interface InvoiceItemFormData {
   quantity: string;
   unitPrice: string;
   discount: string;
+  lineItemTaxes?: LineItemTax[];
 }
 
 export default function NewInvoice() {
