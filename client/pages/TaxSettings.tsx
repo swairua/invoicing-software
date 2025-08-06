@@ -102,18 +102,9 @@ export default function TaxSettings() {
 
   const loadTaxConfigurations = async () => {
     try {
-      const response = await fetch("/api/taxes", {
-        headers: {
-          "x-company-id": "550e8400-e29b-41d4-a716-446655440000",
-        },
-      });
-      const result = await response.json();
-
-      if (result.success) {
-        setTaxConfigurations(result.data);
-      } else {
-        throw new Error(result.error);
-      }
+      const dataService = dataServiceFactory.getDataService();
+      const configurations = dataService.getTaxConfigurations();
+      setTaxConfigurations(configurations);
     } catch (error) {
       console.error("Error loading tax configurations:", error);
       toast({
