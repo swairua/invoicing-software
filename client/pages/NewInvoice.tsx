@@ -843,6 +843,14 @@ export default function NewInvoice() {
                     </span>
                   </div>
                 )}
+                {totals.additionalTaxAmount > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-sm">Additional Taxes:</span>
+                    <span className="font-medium">
+                      {formatCurrency(totals.additionalTaxAmount)}
+                    </span>
+                  </div>
+                )}
                 <div className="flex justify-between border-t pt-3">
                   <span className="font-medium">Total:</span>
                   <span className="font-bold text-lg">
