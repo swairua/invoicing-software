@@ -223,16 +223,8 @@ export default function TaxSettings() {
 
   const handleToggleStatus = async (id: string, currentStatus: boolean) => {
     try {
-      const response = await fetch(`/api/taxes/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "x-company-id": "550e8400-e29b-41d4-a716-446655440000",
-        },
-        body: JSON.stringify({ isActive: !currentStatus }),
-      });
-
-      const result = await response.json();
+      const dataService = dataServiceFactory.getDataService();
+      const result = await dataService.toggleTaxConfigurationStatus(id, !currentStatus);
 
       if (result.success) {
         await loadTaxConfigurations();
