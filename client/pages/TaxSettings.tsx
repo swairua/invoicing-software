@@ -196,14 +196,8 @@ export default function TaxSettings() {
     }
 
     try {
-      const response = await fetch(`/api/taxes/${id}`, {
-        method: "DELETE",
-        headers: {
-          "x-company-id": "550e8400-e29b-41d4-a716-446655440000",
-        },
-      });
-
-      const result = await response.json();
+      const dataService = dataServiceFactory.getDataService();
+      const result = await dataService.deleteTaxConfiguration(id);
 
       if (result.success) {
         await loadTaxConfigurations();
