@@ -303,14 +303,14 @@ export default function ProformaInvoices() {
               New Proforma
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[90vh] flex flex-col">
-            <DialogHeader className="flex-shrink-0">
+          <DialogContentLarge>
+            <DialogHeader className="flex-shrink-0 p-6 pb-0">
               <DialogTitle>Create New Proforma Invoice</DialogTitle>
               <DialogDescription>
                 Generate a proforma invoice for advance billing
               </DialogDescription>
             </DialogHeader>
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto p-6 pt-4">
               <form onSubmit={handleCreateProforma} className="space-y-6 p-1">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -510,7 +510,7 @@ export default function ProformaInvoices() {
                 </div>
               </form>
             </div>
-          </DialogContent>
+          </DialogContentLarge>
         </Dialog>
       </div>
 
