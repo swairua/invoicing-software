@@ -62,6 +62,7 @@ import {
 } from "lucide-react";
 import { Invoice, Payment } from "@shared/types";
 import { dataServiceFactory } from "../services/dataServiceFactory";
+import TemplateManager from "../services/templateManager";
 import { useToast } from "../hooks/use-toast";
 
 export default function InvoiceDetails() {
