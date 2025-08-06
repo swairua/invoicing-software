@@ -75,6 +75,7 @@ export default function NewInvoice() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
+  const [availableTaxes, setAvailableTaxes] = useState<LineItemTax[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [productSearch, setProductSearch] = useState("");
 
@@ -104,6 +105,7 @@ export default function NewInvoice() {
     quantity: "1",
     unitPrice: "",
     discount: "0",
+    lineItemTaxes: [],
   });
 
   const dataService = dataServiceFactory.getDataService();
