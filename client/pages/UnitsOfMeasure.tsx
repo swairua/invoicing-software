@@ -214,7 +214,7 @@ export default function UnitsOfMeasure() {
               Add Custom Unit
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-[500px]">
+          <DialogContent>
             <DialogHeader>
               <DialogTitle>Add Custom Unit</DialogTitle>
               <DialogDescription>
