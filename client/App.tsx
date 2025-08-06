@@ -23,6 +23,8 @@ import UserManagement from "./pages/UserManagement";
 import Templates from "./pages/Templates";
 import UnitsOfMeasure from "./pages/UnitsOfMeasure";
 import PlaceholderPage from "./pages/PlaceholderPage";
+import ProductDetails from "./pages/ProductDetails";
+import NewProduct from "./pages/NewProduct";
 
 const queryClient = new QueryClient();
 
