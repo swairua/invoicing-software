@@ -46,6 +46,7 @@ class BusinessDataService {
 
   constructor() {
     this.initializeBaseData();
+    this.initializeTemplates();
   }
 
   private initializeBaseData() {
@@ -1537,6 +1538,16 @@ class BusinessDataService {
     ];
 
     this.creditNotes = mockCreditNotes;
+  }
+
+  private initializeTemplates() {
+    // Initialize template manager if not already done
+    try {
+      const { TemplateManager } = require('./templateManager');
+      TemplateManager.initialize();
+    } catch (error) {
+      console.warn('Template manager initialization failed:', error);
+    }
   }
 
   // Tax Configuration methods
