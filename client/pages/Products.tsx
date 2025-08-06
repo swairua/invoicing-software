@@ -543,7 +543,7 @@ export default function Products() {
                 Add Product
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-[95vw] sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-[95vw] sm:max-w-[900px]">
               <DialogHeader>
                 <DialogTitle>Add New Product</DialogTitle>
                 <DialogDescription>
