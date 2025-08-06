@@ -209,6 +209,7 @@ export interface Quotation {
   subtotal: number;
   vatAmount: number;
   discountAmount: number;
+  additionalTaxAmount?: number; // Sum of all line item taxes
   total: number;
   status: QuotationStatus;
   validUntil: Date;
