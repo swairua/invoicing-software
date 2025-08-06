@@ -25,6 +25,8 @@ import UnitsOfMeasure from "./pages/UnitsOfMeasure";
 import PlaceholderPage from "./pages/PlaceholderPage";
 import ProductDetails from "./pages/ProductDetails";
 import NewProduct from "./pages/NewProduct";
+import CustomerDetails from "./pages/CustomerDetails";
+import NewCustomer from "./pages/NewCustomer";
 
 const queryClient = new QueryClient();
 
