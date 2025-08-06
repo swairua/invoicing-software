@@ -15,5 +15,10 @@ export function getDataService() {
   }
 }
 
-// Export singleton instance
+// Export factory object for destructuring imports
+export const dataServiceFactory = {
+  getDataService
+};
+
+// Export singleton instance (for backward compatibility)
 export default getDataService();
