@@ -339,6 +339,7 @@ export default function NewInvoice() {
           unitPrice,
           discount,
           vatRate,
+          lineItemTaxes: item.lineItemTaxes || [],
           total,
         };
       });
