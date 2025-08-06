@@ -1462,11 +1462,76 @@ class BusinessDataService {
     this.activityLog = mockActivities;
   }
 
+  private initializeCreditNotes() {
+    const mockCreditNotes: CreditNote[] = [
+      {
+        id: "1",
+        creditNumber: "CRN0001",
+        customerId: "1",
+        customer: this.customers[0],
+        invoiceId: "1",
+        items: [
+          {
+            id: "1",
+            productId: "1",
+            product: this.products[0],
+            quantity: 2,
+            unitPrice: 75000,
+            vatRate: 16,
+            total: 150000,
+          }
+        ],
+        subtotal: 150000,
+        vatAmount: 24000,
+        total: 174000,
+        reason: "Defective items returned by customer",
+        status: "issued",
+        issueDate: new Date("2024-01-15"),
+        notes: "Customer reported defects in the delivered products",
+        companyId: "1",
+        createdBy: "John Doe",
+        createdAt: new Date("2024-01-15"),
+        updatedAt: new Date("2024-01-15"),
+      },
+      {
+        id: "2",
+        creditNumber: "CRN0002",
+        customerId: "2",
+        customer: this.customers[1],
+        items: [
+          {
+            id: "2",
+            productId: "2",
+            product: this.products[1],
+            quantity: 1,
+            unitPrice: 35000,
+            vatRate: 16,
+            total: 35000,
+          }
+        ],
+        subtotal: 35000,
+        vatAmount: 5600,
+        total: 40600,
+        reason: "Billing error correction",
+        status: "applied",
+        issueDate: new Date("2024-01-20"),
+        notes: "Applied to customer account as credit",
+        companyId: "1",
+        createdBy: "Jane Smith",
+        createdAt: new Date("2024-01-20"),
+        updatedAt: new Date("2024-01-20"),
+      }
+    ];
+
+    this.creditNotes = mockCreditNotes;
+  }
+
   // Tax Configuration methods
   public getTaxConfigurations(): any[] {
     if (this.taxConfigurations.length === 0) {
       this.initializeTaxConfigurations();
-    }
+    this.initializeCreditNotes();
+  }
     return [...this.taxConfigurations];
   }
 
