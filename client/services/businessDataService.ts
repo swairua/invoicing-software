@@ -31,6 +31,7 @@ class BusinessDataService {
   private stockMovements: StockMovement[] = [];
   private suppliers: Supplier[] = [];
   private taxConfigurations: any[] = [];
+  private activityLog: any[] = [];
 
   // Simulation state
   private isSimulating = false;
@@ -1362,6 +1363,103 @@ class BusinessDataService {
 
     this.creditNotes.splice(index, 1);
     return Promise.resolve();
+  }
+
+  // Activity Log methods
+  public getActivityLog(): Promise<any[]> {
+    // Generate some mock activity data if empty
+    if (this.activityLog.length === 0) {
+      this.initializeActivityLog();
+    }
+    return Promise.resolve(this.activityLog.sort((a, b) =>
+      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    ));
+  }
+
+  public addActivityLog(entry: any): Promise<void> {
+    this.activityLog.unshift(entry);
+    // Keep only last 100 activities
+    this.activityLog = this.activityLog.slice(0, 100);
+    return Promise.resolve();
+  }
+
+  private initializeActivityLog() {
+    const mockActivities = [
+      {
+        id: "1",
+        type: "invoice",
+        action: "created",
+        title: "Invoice INV0001 created",
+        description: "New invoice created for Acme Corporation Ltd worth KES 125,000",
+        user: "John Doe",
+        timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
+      },
+      {
+        id: "2",
+        type: "payment",
+        action: "created",
+        title: "Payment received",
+        description: "Payment of KES 50,000 received for Invoice INV0001",
+        user: "Jane Smith",
+        timestamp: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
+      },
+      {
+        id: "3",
+        type: "customer",
+        action: "created",
+        title: "New customer added",
+        description: "Tech Solutions Kenya Ltd added as new customer",
+        user: "John Doe",
+        timestamp: new Date(Date.now() - 1000 * 60 * 120), // 2 hours ago
+      },
+      {
+        id: "4",
+        type: "quotation",
+        action: "converted",
+        title: "Quotation converted",
+        description: "Quotation QUO0003 converted to Proforma Invoice",
+        user: "Sarah Wilson",
+        timestamp: new Date(Date.now() - 1000 * 60 * 180), // 3 hours ago
+      },
+      {
+        id: "5",
+        type: "product",
+        action: "updated",
+        title: "Product stock updated",
+        description: "Stock levels updated for Premium Office Chair",
+        user: "System",
+        timestamp: new Date(Date.now() - 1000 * 60 * 240), // 4 hours ago
+      },
+      {
+        id: "6",
+        type: "credit_note",
+        action: "created",
+        title: "Credit note issued",
+        description: "Credit note CRN0001 issued for returned items worth KES 15,000",
+        user: "John Doe",
+        timestamp: new Date(Date.now() - 1000 * 60 * 300), // 5 hours ago
+      },
+      {
+        id: "7",
+        type: "proforma",
+        action: "sent",
+        title: "Proforma invoice sent",
+        description: "Proforma PRO0002 sent to customer via email",
+        user: "Jane Smith",
+        timestamp: new Date(Date.now() - 1000 * 60 * 360), // 6 hours ago
+      },
+      {
+        id: "8",
+        type: "system",
+        action: "updated",
+        title: "Tax configuration updated",
+        description: "VAT rate updated to 16% for all products",
+        user: "System Admin",
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
+      },
+    ];
+
+    this.activityLog = mockActivities;
   }
 
   // Tax Configuration methods
