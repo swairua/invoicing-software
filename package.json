@@ -15,10 +15,12 @@
     "build": "npm run build:client && npm run build:server",
     "build:client": "vite build",
     "build:server": "vite build --config vite.config.server.ts",
-    "start": "node dist/server/node-build.mjs",
+    "start": "node dist/server/production.mjs",
+    "start:dev": "node dist/server/node-build.mjs",
     "test": "vitest --run",
     "format.fix": "prettier --write .",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "postinstall": "npm run build"
   },
   "dependencies": {
     "@radix-ui/react-visually-hidden": "^1.2.3",
@@ -28,7 +30,11 @@
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
     "pg": "^8.11.3",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "cors": "^2.8.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2"
   },
   "devDependencies": {
     "@hookform/resolvers": "^3.9.0",
