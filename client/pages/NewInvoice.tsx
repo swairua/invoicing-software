@@ -771,6 +771,14 @@ export default function NewInvoice() {
                               </span>
                             </div>
                           </TableCell>
+                          <TableCell>
+                            <LineItemTaxSelector
+                              selectedTaxes={item.lineItemTaxes || []}
+                              availableTaxes={getAvailableTaxes()}
+                              onTaxesChange={(taxes) => updateItemTaxes(index, taxes)}
+                              itemSubtotal={parseFloat(item.quantity) * parseFloat(item.unitPrice) - ((parseFloat(item.quantity) * parseFloat(item.unitPrice) * parseFloat(item.discount)) / 100)}
+                            />
+                          </TableCell>
                           <TableCell className="font-medium">
                             {formatCurrency(itemTotal)}
                           </TableCell>
