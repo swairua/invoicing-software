@@ -461,6 +461,13 @@ export default function NewQuotation() {
                 </div>
               </div>
 
+              {/* Template Selection */}
+              <TemplateSelector
+                documentType="quotation"
+                selectedTemplateId={selectedTemplateId}
+                onTemplateSelect={setSelectedTemplateId}
+              />
+
               <div className="space-y-2">
                 <Label htmlFor="notes">Notes</Label>
                 <Textarea
