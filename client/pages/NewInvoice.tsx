@@ -361,6 +361,7 @@ export default function NewInvoice() {
         items: invoiceItems,
         dueDate: new Date(formData.dueDate),
         notes: formData.notes,
+        additionalTaxAmount: totals.additionalTaxAmount,
       };
 
       // Here you would normally call the createInvoice API
