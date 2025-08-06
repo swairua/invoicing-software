@@ -181,6 +181,7 @@ export interface Invoice {
   subtotal: number;
   vatAmount: number;
   discountAmount: number;
+  additionalTaxAmount?: number; // Sum of all line item taxes
   total: number;
   amountPaid: number;
   balance: number;
