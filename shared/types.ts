@@ -11,7 +11,7 @@ export interface User {
   updatedAt: Date;
 }
 
-export type UserRole = 'admin' | 'sales' | 'accountant' | 'viewer';
+export type UserRole = "admin" | "sales" | "accountant" | "viewer";
 
 export interface AuthState {
   user: User | null;
@@ -114,7 +114,7 @@ export interface ProductDimensions {
   length?: number;
   width?: number;
   height?: number;
-  unit: 'cm' | 'in' | 'm';
+  unit: "cm" | "in" | "m";
 }
 
 export interface ProductVariant {
@@ -127,7 +127,11 @@ export interface ProductVariant {
   isActive: boolean;
 }
 
-export type ProductStatus = 'active' | 'inactive' | 'discontinued' | 'out_of_stock';
+export type ProductStatus =
+  | "active"
+  | "inactive"
+  | "discontinued"
+  | "out_of_stock";
 
 export interface ProductCategory {
   id: string;
@@ -140,7 +144,7 @@ export interface ProductCategory {
 export interface StockMovement {
   id: string;
   productId: string;
-  type: 'in' | 'out' | 'adjustment';
+  type: "in" | "out" | "adjustment";
   quantity: number;
   previousStock: number;
   newStock: number;
@@ -197,8 +201,8 @@ export interface Invoice {
   updatedAt: Date;
 }
 
-export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
-export type EtimsStatus = 'pending' | 'submitted' | 'accepted' | 'rejected';
+export type InvoiceStatus = "draft" | "sent" | "paid" | "overdue" | "cancelled";
+export type EtimsStatus = "pending" | "submitted" | "accepted" | "rejected";
 
 export interface Quotation {
   id: string;
@@ -221,7 +225,12 @@ export interface Quotation {
   updatedAt: Date;
 }
 
-export type QuotationStatus = 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired';
+export type QuotationStatus =
+  | "draft"
+  | "sent"
+  | "accepted"
+  | "rejected"
+  | "expired";
 
 export interface ProformaInvoice {
   id: string;
@@ -244,7 +253,7 @@ export interface ProformaInvoice {
   updatedAt: Date;
 }
 
-export type ProformaStatus = 'draft' | 'sent' | 'converted' | 'expired';
+export type ProformaStatus = "draft" | "sent" | "converted" | "expired";
 
 // Payment Types
 export interface Payment {
@@ -260,7 +269,7 @@ export interface Payment {
   createdAt: Date;
 }
 
-export type PaymentMethod = 'cash' | 'mpesa' | 'bank' | 'cheque' | 'card';
+export type PaymentMethod = "cash" | "mpesa" | "bank" | "cheque" | "card";
 
 // Additional Document Types
 export interface PackingList {
@@ -273,7 +282,7 @@ export interface PackingList {
   totalPackages: number;
   weight?: number;
   dimensions?: string;
-  status: 'draft' | 'packed' | 'shipped' | 'delivered';
+  status: "draft" | "packed" | "shipped" | "delivered";
   packingDate: Date;
   shippingDate?: Date;
   deliveryDate?: Date;
@@ -303,7 +312,7 @@ export interface DeliveryNote {
   customer: Customer;
   items: DeliveryNoteItem[];
   totalQuantity: number;
-  status: 'draft' | 'in_transit' | 'delivered' | 'returned';
+  status: "draft" | "in_transit" | "delivered" | "returned";
   deliveryDate: Date;
   deliveryAddress: string;
   driverName?: string;
@@ -322,7 +331,7 @@ export interface DeliveryNoteItem {
   product: Product;
   quantity: number;
   deliveredQuantity?: number;
-  condition?: 'good' | 'damaged' | 'missing';
+  condition?: "good" | "damaged" | "missing";
   notes?: string;
 }
 
@@ -336,7 +345,7 @@ export interface PurchaseOrder {
   vatAmount: number;
   discountAmount: number;
   total: number;
-  status: 'draft' | 'sent' | 'confirmed' | 'received' | 'cancelled';
+  status: "draft" | "sent" | "confirmed" | "received" | "cancelled";
   orderDate: Date;
   expectedDate?: Date;
   receivedDate?: Date;
@@ -370,7 +379,7 @@ export interface CreditNote {
   additionalTaxAmount?: number; // Sum of all line item taxes
   total: number;
   reason: string;
-  status: 'draft' | 'issued' | 'applied';
+  status: "draft" | "issued" | "applied";
   issueDate: Date;
   notes?: string;
   companyId: string;
@@ -398,7 +407,7 @@ export interface GoodsReceivedNote {
   purchaseOrderId?: string;
   items: GoodsReceivedItem[];
   totalQuantity: number;
-  status: 'draft' | 'received' | 'inspected' | 'accepted' | 'rejected';
+  status: "draft" | "received" | "inspected" | "accepted" | "rejected";
   receivedDate: Date;
   inspectedBy?: string;
   notes?: string;
@@ -417,14 +426,14 @@ export interface GoodsReceivedItem {
   acceptedQuantity: number;
   rejectedQuantity?: number;
   rejectionReason?: string;
-  condition: 'good' | 'damaged' | 'defective';
+  condition: "good" | "damaged" | "defective";
   batchNumber?: string;
   expiryDate?: Date;
 }
 
 // Report Types
 export interface SalesReport {
-  period: 'day' | 'week' | 'month' | 'year';
+  period: "day" | "week" | "month" | "year";
   startDate: Date;
   endDate: Date;
   totalSales: number;
@@ -548,21 +557,21 @@ export interface DocumentTemplate {
 }
 
 export type DocumentType =
-  | 'invoice'
-  | 'quotation'
-  | 'proforma'
-  | 'receipt'
-  | 'packing_list'
-  | 'delivery_note'
-  | 'purchase_order'
-  | 'credit_note'
-  | 'debit_note'
-  | 'statement'
-  | 'goods_received_note'
-  | 'material_transfer_note';
+  | "invoice"
+  | "quotation"
+  | "proforma"
+  | "receipt"
+  | "packing_list"
+  | "delivery_note"
+  | "purchase_order"
+  | "credit_note"
+  | "debit_note"
+  | "statement"
+  | "goods_received_note"
+  | "material_transfer_note";
 
 export interface TemplateDesign {
-  layout: 'standard' | 'modern' | 'minimal' | 'corporate';
+  layout: "standard" | "modern" | "minimal" | "corporate";
   colors: {
     primary: string;
     secondary: string;
@@ -585,7 +594,7 @@ export interface TemplateDesign {
   };
   header: {
     showLogo: boolean;
-    logoPosition: 'left' | 'center' | 'right';
+    logoPosition: "left" | "center" | "right";
     showCompanyInfo: boolean;
     backgroundColor?: string;
   };
@@ -598,6 +607,6 @@ export interface TemplateDesign {
   table: {
     headerBackgroundColor: string;
     alternateRowColor?: string;
-    borderStyle: 'none' | 'light' | 'medium' | 'heavy';
+    borderStyle: "none" | "light" | "medium" | "heavy";
   };
 }

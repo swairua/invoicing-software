@@ -86,15 +86,19 @@ export default function InvoiceDetails() {
     if (!invoice) return;
 
     try {
-      const activeTemplate = TemplateManager.getActiveTemplate('invoice');
-      await PDFService.generateDocument('invoice', invoice, activeTemplate || undefined);
+      const activeTemplate = TemplateManager.getActiveTemplate("invoice");
+      await PDFService.generateDocument(
+        "invoice",
+        invoice,
+        activeTemplate || undefined,
+      );
 
       toast({
         title: "Success",
         description: "PDF downloaded successfully",
       });
     } catch (error) {
-      console.error('Error generating PDF:', error);
+      console.error("Error generating PDF:", error);
       toast({
         title: "Error",
         description: "Failed to generate PDF",

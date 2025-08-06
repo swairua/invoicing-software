@@ -69,70 +69,178 @@ import { useToast } from "../hooks/use-toast";
 import TemplateManager from "../services/templateManager";
 import PDFService from "../services/pdfService";
 
-const DOCUMENT_TYPES: { value: DocumentType; label: string; description: string }[] = [
-  { value: 'invoice', label: 'Invoice', description: 'Customer billing documents' },
-  { value: 'quotation', label: 'Quotation', description: 'Price quotations and estimates' },
-  { value: 'proforma', label: 'Proforma Invoice', description: 'Preliminary billing documents' },
-  { value: 'receipt', label: 'Receipt', description: 'Payment acknowledgment documents' },
-  { value: 'packing_list', label: 'Packing List', description: 'Item listing for shipments' },
-  { value: 'delivery_note', label: 'Delivery Note', description: 'Delivery confirmation documents' },
-  { value: 'purchase_order', label: 'Purchase Order', description: 'Supplier ordering documents' },
-  { value: 'credit_note', label: 'Credit Note', description: 'Customer credit adjustments' },
-  { value: 'debit_note', label: 'Debit Note', description: 'Customer debit adjustments' },
-  { value: 'statement', label: 'Statement', description: 'Account statements' },
-  { value: 'goods_received_note', label: 'Goods Received Note', description: 'Inventory receipt tracking' },
-  { value: 'material_transfer_note', label: 'Material Transfer Note', description: 'Internal transfers' },
+const DOCUMENT_TYPES: {
+  value: DocumentType;
+  label: string;
+  description: string;
+}[] = [
+  {
+    value: "invoice",
+    label: "Invoice",
+    description: "Customer billing documents",
+  },
+  {
+    value: "quotation",
+    label: "Quotation",
+    description: "Price quotations and estimates",
+  },
+  {
+    value: "proforma",
+    label: "Proforma Invoice",
+    description: "Preliminary billing documents",
+  },
+  {
+    value: "receipt",
+    label: "Receipt",
+    description: "Payment acknowledgment documents",
+  },
+  {
+    value: "packing_list",
+    label: "Packing List",
+    description: "Item listing for shipments",
+  },
+  {
+    value: "delivery_note",
+    label: "Delivery Note",
+    description: "Delivery confirmation documents",
+  },
+  {
+    value: "purchase_order",
+    label: "Purchase Order",
+    description: "Supplier ordering documents",
+  },
+  {
+    value: "credit_note",
+    label: "Credit Note",
+    description: "Customer credit adjustments",
+  },
+  {
+    value: "debit_note",
+    label: "Debit Note",
+    description: "Customer debit adjustments",
+  },
+  { value: "statement", label: "Statement", description: "Account statements" },
+  {
+    value: "goods_received_note",
+    label: "Goods Received Note",
+    description: "Inventory receipt tracking",
+  },
+  {
+    value: "material_transfer_note",
+    label: "Material Transfer Note",
+    description: "Internal transfers",
+  },
 ];
 
 const LAYOUT_OPTIONS = [
-  { value: 'standard', label: 'Standard', description: 'Classic business layout' },
-  { value: 'modern', label: 'Modern', description: 'Contemporary design with colors' },
-  { value: 'minimal', label: 'Minimal', description: 'Clean and simple layout' },
-  { value: 'corporate', label: 'Corporate', description: 'Professional corporate style' },
+  {
+    value: "standard",
+    label: "Standard",
+    description: "Classic business layout",
+  },
+  {
+    value: "modern",
+    label: "Modern",
+    description: "Contemporary design with colors",
+  },
+  {
+    value: "minimal",
+    label: "Minimal",
+    description: "Clean and simple layout",
+  },
+  {
+    value: "corporate",
+    label: "Corporate",
+    description: "Professional corporate style",
+  },
 ];
 
 const FONT_OPTIONS = [
-  { value: 'helvetica', label: 'Helvetica' },
-  { value: 'times', label: 'Times Roman' },
-  { value: 'courier', label: 'Courier' },
+  { value: "helvetica", label: "Helvetica" },
+  { value: "times", label: "Times Roman" },
+  { value: "courier", label: "Courier" },
 ];
 
 const BORDER_STYLES = [
-  { value: 'none', label: 'None' },
-  { value: 'light', label: 'Light' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'heavy', label: 'Heavy' },
+  { value: "none", label: "None" },
+  { value: "light", label: "Light" },
+  { value: "medium", label: "Medium" },
+  { value: "heavy", label: "Heavy" },
 ];
 
 const COLOR_PRESETS = [
-  { name: 'Blue Professional', colors: { primary: '#2563eb', secondary: '#64748b', accent: '#059669', text: '#1f2937' } },
-  { name: 'Purple Modern', colors: { primary: '#7c3aed', secondary: '#64748b', accent: '#f59e0b', text: '#374151' } },
-  { name: 'Green Corporate', colors: { primary: '#059669', secondary: '#64748b', accent: '#10b981', text: '#1f2937' } },
-  { name: 'Red Statement', colors: { primary: '#dc2626', secondary: '#64748b', accent: '#f87171', text: '#1f2937' } },
-  { name: 'Gray Minimal', colors: { primary: '#374151', secondary: '#6b7280', accent: '#9ca3af', text: '#111827' } },
+  {
+    name: "Blue Professional",
+    colors: {
+      primary: "#2563eb",
+      secondary: "#64748b",
+      accent: "#059669",
+      text: "#1f2937",
+    },
+  },
+  {
+    name: "Purple Modern",
+    colors: {
+      primary: "#7c3aed",
+      secondary: "#64748b",
+      accent: "#f59e0b",
+      text: "#374151",
+    },
+  },
+  {
+    name: "Green Corporate",
+    colors: {
+      primary: "#059669",
+      secondary: "#64748b",
+      accent: "#10b981",
+      text: "#1f2937",
+    },
+  },
+  {
+    name: "Red Statement",
+    colors: {
+      primary: "#dc2626",
+      secondary: "#64748b",
+      accent: "#f87171",
+      text: "#1f2937",
+    },
+  },
+  {
+    name: "Gray Minimal",
+    colors: {
+      primary: "#374151",
+      secondary: "#6b7280",
+      accent: "#9ca3af",
+      text: "#111827",
+    },
+  },
 ];
 
 export default function Templates() {
   const { toast } = useToast();
   const [templates, setTemplates] = useState<DocumentTemplate[]>([]);
-  const [filteredTemplates, setFilteredTemplates] = useState<DocumentTemplate[]>([]);
-  const [selectedType, setSelectedType] = useState<DocumentType | 'all'>('all');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredTemplates, setFilteredTemplates] = useState<
+    DocumentTemplate[]
+  >([]);
+  const [selectedType, setSelectedType] = useState<DocumentType | "all">("all");
+  const [searchTerm, setSearchTerm] = useState("");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [editingTemplate, setEditingTemplate] = useState<DocumentTemplate | null>(null);
-  const [previewTemplate, setPreviewTemplate] = useState<DocumentTemplate | null>(null);
+  const [editingTemplate, setEditingTemplate] =
+    useState<DocumentTemplate | null>(null);
+  const [previewTemplate, setPreviewTemplate] =
+    useState<DocumentTemplate | null>(null);
 
   // Form state for creating/editing templates
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    type: 'invoice' as DocumentType,
+    name: "",
+    description: "",
+    type: "invoice" as DocumentType,
     design: {
-      layout: 'standard',
+      layout: "standard",
       colors: COLOR_PRESETS[0].colors,
       fonts: {
-        heading: 'helvetica',
-        body: 'helvetica',
+        heading: "helvetica",
+        body: "helvetica",
         size: { heading: 16, body: 10, small: 8 },
       },
       spacing: {
@@ -142,7 +250,7 @@ export default function Templates() {
       },
       header: {
         showLogo: true,
-        logoPosition: 'left' as const,
+        logoPosition: "left" as const,
         showCompanyInfo: true,
       },
       footer: {
@@ -151,9 +259,9 @@ export default function Templates() {
         showPageNumbers: true,
       },
       table: {
-        headerBackgroundColor: '#f8fafc',
-        alternateRowColor: '#f1f5f9',
-        borderStyle: 'light' as const,
+        headerBackgroundColor: "#f8fafc",
+        alternateRowColor: "#f1f5f9",
+        borderStyle: "light" as const,
       },
     } as TemplateDesign,
   });
@@ -174,14 +282,15 @@ export default function Templates() {
   const filterTemplates = () => {
     let filtered = templates;
 
-    if (selectedType !== 'all') {
-      filtered = filtered.filter(t => t.type === selectedType);
+    if (selectedType !== "all") {
+      filtered = filtered.filter((t) => t.type === selectedType);
     }
 
     if (searchTerm) {
-      filtered = filtered.filter(t =>
-        t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        t.description?.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(
+        (t) =>
+          t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          t.description?.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
@@ -194,19 +303,19 @@ export default function Templates() {
         formData.name,
         formData.description,
         formData.type,
-        formData.design
+        formData.design,
       );
-      
+
       loadTemplates();
       setCreateDialogOpen(false);
       resetForm();
-      
+
       toast({
         title: "Success",
         description: `Template "${template.name}" created successfully`,
       });
     } catch (error) {
-      console.error('Error creating template:', error);
+      console.error("Error creating template:", error);
       toast({
         title: "Error",
         description: "Failed to create template",
@@ -224,17 +333,17 @@ export default function Templates() {
         description: formData.description,
         design: formData.design,
       });
-      
+
       loadTemplates();
       setEditingTemplate(null);
       resetForm();
-      
+
       toast({
         title: "Success",
         description: `Template "${formData.name}" updated successfully`,
       });
     } catch (error) {
-      console.error('Error updating template:', error);
+      console.error("Error updating template:", error);
       toast({
         title: "Error",
         description: "Failed to update template",
@@ -257,13 +366,13 @@ export default function Templates() {
       try {
         TemplateManager.deleteTemplate(template.id);
         loadTemplates();
-        
+
         toast({
           title: "Success",
           description: `Template "${template.name}" deleted successfully`,
         });
       } catch (error) {
-        console.error('Error deleting template:', error);
+        console.error("Error deleting template:", error);
         toast({
           title: "Error",
           description: "Failed to delete template",
@@ -284,7 +393,7 @@ export default function Templates() {
         });
       }
     } catch (error) {
-      console.error('Error duplicating template:', error);
+      console.error("Error duplicating template:", error);
       toast({
         title: "Error",
         description: "Failed to duplicate template",
@@ -297,13 +406,13 @@ export default function Templates() {
     try {
       TemplateManager.setActiveTemplate(template.type, template.id);
       loadTemplates();
-      
+
       toast({
         title: "Success",
         description: `"${template.name}" is now the active template for ${template.type}`,
       });
     } catch (error) {
-      console.error('Error setting active template:', error);
+      console.error("Error setting active template:", error);
       toast({
         title: "Error",
         description: "Failed to set active template",
@@ -321,13 +430,13 @@ export default function Templates() {
       // Generate a sample PDF using the template
       const mockData = generateMockDocumentData(template.type);
       await PDFService.generateDocument(template.type, mockData, template);
-      
+
       toast({
         title: "Success",
         description: "Template preview downloaded successfully",
       });
     } catch (error) {
-      console.error('Error downloading template:', error);
+      console.error("Error downloading template:", error);
       toast({
         title: "Error",
         description: "Failed to download template preview",
@@ -339,22 +448,22 @@ export default function Templates() {
   const generateMockDocumentData = (type: DocumentType) => {
     // Generate sample data based on document type for preview
     const baseData = {
-      id: 'SAMPLE',
+      id: "SAMPLE",
       customer: {
-        name: 'Sample Customer Ltd',
-        email: 'customer@example.com',
-        address: '123 Business Street, City, Country',
-        phone: '+1 234 567 8900',
+        name: "Sample Customer Ltd",
+        email: "customer@example.com",
+        address: "123 Business Street, City, Country",
+        phone: "+1 234 567 8900",
       },
       items: [
         {
-          name: 'Sample Product 1',
+          name: "Sample Product 1",
           quantity: 2,
           unitPrice: 100,
           total: 200,
         },
         {
-          name: 'Sample Product 2',
+          name: "Sample Product 2",
           quantity: 1,
           unitPrice: 50,
           total: 50,
@@ -367,14 +476,18 @@ export default function Templates() {
     };
 
     switch (type) {
-      case 'invoice':
-        return { ...baseData, invoiceNumber: 'INV-SAMPLE' };
-      case 'quotation':
-        return { ...baseData, quotationNumber: 'QUO-SAMPLE' };
-      case 'proforma':
-        return { ...baseData, proformaNumber: 'PRO-SAMPLE' };
-      case 'credit_note':
-        return { ...baseData, creditNumber: 'CRN-SAMPLE', reason: 'Sample credit note reason' };
+      case "invoice":
+        return { ...baseData, invoiceNumber: "INV-SAMPLE" };
+      case "quotation":
+        return { ...baseData, quotationNumber: "QUO-SAMPLE" };
+      case "proforma":
+        return { ...baseData, proformaNumber: "PRO-SAMPLE" };
+      case "credit_note":
+        return {
+          ...baseData,
+          creditNumber: "CRN-SAMPLE",
+          reason: "Sample credit note reason",
+        };
       default:
         return baseData;
     }
@@ -382,15 +495,15 @@ export default function Templates() {
 
   const resetForm = () => {
     setFormData({
-      name: '',
-      description: '',
-      type: 'invoice' as DocumentType,
+      name: "",
+      description: "",
+      type: "invoice" as DocumentType,
       design: {
-        layout: 'standard',
+        layout: "standard",
         colors: COLOR_PRESETS[0].colors,
         fonts: {
-          heading: 'helvetica',
-          body: 'helvetica',
+          heading: "helvetica",
+          body: "helvetica",
           size: { heading: 16, body: 10, small: 8 },
         },
         spacing: {
@@ -400,7 +513,7 @@ export default function Templates() {
         },
         header: {
           showLogo: true,
-          logoPosition: 'left' as const,
+          logoPosition: "left" as const,
           showCompanyInfo: true,
         },
         footer: {
@@ -409,9 +522,9 @@ export default function Templates() {
           showPageNumbers: true,
         },
         table: {
-          headerBackgroundColor: '#f8fafc',
-          alternateRowColor: '#f1f5f9',
-          borderStyle: 'light' as const,
+          headerBackgroundColor: "#f8fafc",
+          alternateRowColor: "#f1f5f9",
+          borderStyle: "light" as const,
         },
       } as TemplateDesign,
     });
@@ -420,38 +533,49 @@ export default function Templates() {
   const startEdit = (template: DocumentTemplate) => {
     setFormData({
       name: template.name,
-      description: template.description || '',
+      description: template.description || "",
       type: template.type,
       design: template.design,
     });
     setEditingTemplate(template);
   };
 
-  const templatesByType = DOCUMENT_TYPES.map(docType => ({
+  const templatesByType = DOCUMENT_TYPES.map((docType) => ({
     ...docType,
-    templates: filteredTemplates.filter(t => t.type === docType.value),
-    activeTemplate: templates.find(t => t.type === docType.value && t.isActive),
+    templates: filteredTemplates.filter((t) => t.type === docType.value),
+    activeTemplate: templates.find(
+      (t) => t.type === docType.value && t.isActive,
+    ),
   }));
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Document Templates</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Document Templates
+          </h1>
           <p className="text-muted-foreground">
             Create and manage templates for all your business documents
           </p>
         </div>
         <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={() => { resetForm(); setCreateDialogOpen(true); }}>
+            <Button
+              onClick={() => {
+                resetForm();
+                setCreateDialogOpen(true);
+              }}
+            >
               <Plus className="h-4 w-4 mr-2" />
               Create Template
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{editingTemplate ? 'Edit Template' : 'Create New Template'}</DialogTitle>
+              <DialogTitle>
+                {editingTemplate ? "Edit Template" : "Create New Template"}
+              </DialogTitle>
               <DialogDescription>
                 Design a custom template for your business documents
               </DialogDescription>
@@ -459,7 +583,9 @@ export default function Templates() {
             <TemplateDesigner
               formData={formData}
               setFormData={setFormData}
-              onSave={editingTemplate ? handleUpdateTemplate : handleCreateTemplate}
+              onSave={
+                editingTemplate ? handleUpdateTemplate : handleCreateTemplate
+              }
               onCancel={() => {
                 setCreateDialogOpen(false);
                 setEditingTemplate(null);
@@ -481,14 +607,17 @@ export default function Templates() {
             className="pl-10"
           />
         </div>
-        <Select value={selectedType} onValueChange={(value: any) => setSelectedType(value)}>
+        <Select
+          value={selectedType}
+          onValueChange={(value: any) => setSelectedType(value)}
+        >
           <SelectTrigger className="w-48">
             <Filter className="h-4 w-4 mr-2" />
             <SelectValue placeholder="Filter by type" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Types</SelectItem>
-            {DOCUMENT_TYPES.map(type => (
+            {DOCUMENT_TYPES.map((type) => (
               <SelectItem key={type.value} value={type.value}>
                 {type.label}
               </SelectItem>
@@ -509,7 +638,8 @@ export default function Templates() {
                     <CardTitle className="flex items-center gap-2">
                       {category.label}
                       <Badge variant="outline">
-                        {category.templates.length} template{category.templates.length !== 1 ? 's' : ''}
+                        {category.templates.length} template
+                        {category.templates.length !== 1 ? "s" : ""}
                       </Badge>
                       {category.activeTemplate && (
                         <Badge variant="default" className="text-xs">
@@ -532,7 +662,10 @@ export default function Templates() {
                     size="sm"
                     className="mt-4"
                     onClick={() => {
-                      setFormData(prev => ({ ...prev, type: category.value }));
+                      setFormData((prev) => ({
+                        ...prev,
+                        type: category.value,
+                      }));
                       setCreateDialogOpen(true);
                     }}
                   >
@@ -562,7 +695,10 @@ export default function Templates() {
       </div>
 
       {/* Edit Dialog */}
-      <Dialog open={!!editingTemplate} onOpenChange={(open) => !open && setEditingTemplate(null)}>
+      <Dialog
+        open={!!editingTemplate}
+        onOpenChange={(open) => !open && setEditingTemplate(null)}
+      >
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Template</DialogTitle>
@@ -580,7 +716,10 @@ export default function Templates() {
       </Dialog>
 
       {/* Preview Dialog */}
-      <Dialog open={!!previewTemplate} onOpenChange={(open) => !open && setPreviewTemplate(null)}>
+      <Dialog
+        open={!!previewTemplate}
+        onOpenChange={(open) => !open && setPreviewTemplate(null)}
+      >
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Template Preview</DialogTitle>
@@ -669,7 +808,10 @@ function TemplateCard({
               )}
               <DropdownMenuSeparator />
               {!template.isDefault && (
-                <DropdownMenuItem onClick={onDelete} className="text-destructive">
+                <DropdownMenuItem
+                  onClick={onDelete}
+                  className="text-destructive"
+                >
                   <Trash2 className="h-4 w-4 mr-2" />
                   Delete
                 </DropdownMenuItem>
@@ -682,7 +824,9 @@ function TemplateCard({
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <Layout className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm capitalize">{template.design.layout} Layout</span>
+            <span className="text-sm capitalize">
+              {template.design.layout} Layout
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <Palette className="h-4 w-4 text-muted-foreground" />
@@ -732,20 +876,20 @@ function TemplateDesigner({
   const updateDesign = (path: string, value: any) => {
     setFormData((prev: any) => {
       const newData = { ...prev };
-      const keys = path.split('.');
+      const keys = path.split(".");
       let current = newData.design;
-      
+
       for (let i = 0; i < keys.length - 1; i++) {
         current = current[keys[i]];
       }
       current[keys[keys.length - 1]] = value;
-      
+
       return newData;
     });
   };
 
-  const applyColorPreset = (preset: typeof COLOR_PRESETS[0]) => {
-    updateDesign('colors', preset.colors);
+  const applyColorPreset = (preset: (typeof COLOR_PRESETS)[0]) => {
+    updateDesign("colors", preset.colors);
   };
 
   return (
@@ -765,7 +909,9 @@ function TemplateDesigner({
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, name: e.target.value }))
+                }
                 placeholder="Enter template name"
               />
             </div>
@@ -774,7 +920,12 @@ function TemplateDesigner({
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
                 placeholder="Describe this template"
               />
             </div>
@@ -782,13 +933,15 @@ function TemplateDesigner({
               <Label htmlFor="type">Document Type *</Label>
               <Select
                 value={formData.type}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, type: value }))}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, type: value }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {DOCUMENT_TYPES.map(type => (
+                  {DOCUMENT_TYPES.map((type) => (
                     <SelectItem key={type.value} value={type.value}>
                       {type.label}
                     </SelectItem>
@@ -805,13 +958,13 @@ function TemplateDesigner({
               <h4 className="font-medium">Layout Style</h4>
               <Select
                 value={formData.design.layout}
-                onValueChange={(value) => updateDesign('layout', value)}
+                onValueChange={(value) => updateDesign("layout", value)}
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {LAYOUT_OPTIONS.map(layout => (
+                  {LAYOUT_OPTIONS.map((layout) => (
                     <SelectItem key={layout.value} value={layout.value}>
                       {layout.label} - {layout.description}
                     </SelectItem>
@@ -854,12 +1007,16 @@ function TemplateDesigner({
                       <Input
                         type="color"
                         value={formData.design.colors.primary}
-                        onChange={(e) => updateDesign('colors.primary', e.target.value)}
+                        onChange={(e) =>
+                          updateDesign("colors.primary", e.target.value)
+                        }
                         className="w-12 h-10"
                       />
                       <Input
                         value={formData.design.colors.primary}
-                        onChange={(e) => updateDesign('colors.primary', e.target.value)}
+                        onChange={(e) =>
+                          updateDesign("colors.primary", e.target.value)
+                        }
                         placeholder="#000000"
                       />
                     </div>
@@ -870,12 +1027,16 @@ function TemplateDesigner({
                       <Input
                         type="color"
                         value={formData.design.colors.secondary}
-                        onChange={(e) => updateDesign('colors.secondary', e.target.value)}
+                        onChange={(e) =>
+                          updateDesign("colors.secondary", e.target.value)
+                        }
                         className="w-12 h-10"
                       />
                       <Input
                         value={formData.design.colors.secondary}
-                        onChange={(e) => updateDesign('colors.secondary', e.target.value)}
+                        onChange={(e) =>
+                          updateDesign("colors.secondary", e.target.value)
+                        }
                         placeholder="#000000"
                       />
                     </div>
@@ -893,13 +1054,15 @@ function TemplateDesigner({
                   <Label>Heading Font</Label>
                   <Select
                     value={formData.design.fonts.heading}
-                    onValueChange={(value) => updateDesign('fonts.heading', value)}
+                    onValueChange={(value) =>
+                      updateDesign("fonts.heading", value)
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {FONT_OPTIONS.map(font => (
+                      {FONT_OPTIONS.map((font) => (
                         <SelectItem key={font.value} value={font.value}>
                           {font.label}
                         </SelectItem>
@@ -911,13 +1074,13 @@ function TemplateDesigner({
                   <Label>Body Font</Label>
                   <Select
                     value={formData.design.fonts.body}
-                    onValueChange={(value) => updateDesign('fonts.body', value)}
+                    onValueChange={(value) => updateDesign("fonts.body", value)}
                   >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {FONT_OPTIONS.map(font => (
+                      {FONT_OPTIONS.map((font) => (
                         <SelectItem key={font.value} value={font.value}>
                           {font.label}
                         </SelectItem>
@@ -939,21 +1102,27 @@ function TemplateDesigner({
                   <Label>Show Logo</Label>
                   <Switch
                     checked={formData.design.header.showLogo}
-                    onCheckedChange={(checked) => updateDesign('header.showLogo', checked)}
+                    onCheckedChange={(checked) =>
+                      updateDesign("header.showLogo", checked)
+                    }
                   />
                 </div>
                 <div className="flex items-center justify-between">
                   <Label>Show Company Info</Label>
                   <Switch
                     checked={formData.design.header.showCompanyInfo}
-                    onCheckedChange={(checked) => updateDesign('header.showCompanyInfo', checked)}
+                    onCheckedChange={(checked) =>
+                      updateDesign("header.showCompanyInfo", checked)
+                    }
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Logo Position</Label>
                   <Select
                     value={formData.design.header.logoPosition}
-                    onValueChange={(value) => updateDesign('header.logoPosition', value)}
+                    onValueChange={(value) =>
+                      updateDesign("header.logoPosition", value)
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -977,21 +1146,27 @@ function TemplateDesigner({
                   <Label>Show Terms & Conditions</Label>
                   <Switch
                     checked={formData.design.footer.showTerms}
-                    onCheckedChange={(checked) => updateDesign('footer.showTerms', checked)}
+                    onCheckedChange={(checked) =>
+                      updateDesign("footer.showTerms", checked)
+                    }
                   />
                 </div>
                 <div className="flex items-center justify-between">
                   <Label>Show Signature Area</Label>
                   <Switch
                     checked={formData.design.footer.showSignature}
-                    onCheckedChange={(checked) => updateDesign('footer.showSignature', checked)}
+                    onCheckedChange={(checked) =>
+                      updateDesign("footer.showSignature", checked)
+                    }
                   />
                 </div>
                 <div className="flex items-center justify-between">
                   <Label>Show Page Numbers</Label>
                   <Switch
                     checked={formData.design.footer.showPageNumbers}
-                    onCheckedChange={(checked) => updateDesign('footer.showPageNumbers', checked)}
+                    onCheckedChange={(checked) =>
+                      updateDesign("footer.showPageNumbers", checked)
+                    }
                   />
                 </div>
               </div>
@@ -1006,13 +1181,15 @@ function TemplateDesigner({
                   <Label>Border Style</Label>
                   <Select
                     value={formData.design.table.borderStyle}
-                    onValueChange={(value) => updateDesign('table.borderStyle', value)}
+                    onValueChange={(value) =>
+                      updateDesign("table.borderStyle", value)
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {BORDER_STYLES.map(style => (
+                      {BORDER_STYLES.map((style) => (
                         <SelectItem key={style.value} value={style.value}>
                           {style.label}
                         </SelectItem>
@@ -1026,12 +1203,22 @@ function TemplateDesigner({
                     <Input
                       type="color"
                       value={formData.design.table.headerBackgroundColor}
-                      onChange={(e) => updateDesign('table.headerBackgroundColor', e.target.value)}
+                      onChange={(e) =>
+                        updateDesign(
+                          "table.headerBackgroundColor",
+                          e.target.value,
+                        )
+                      }
                       className="w-12 h-10"
                     />
                     <Input
                       value={formData.design.table.headerBackgroundColor}
-                      onChange={(e) => updateDesign('table.headerBackgroundColor', e.target.value)}
+                      onChange={(e) =>
+                        updateDesign(
+                          "table.headerBackgroundColor",
+                          e.target.value,
+                        )
+                      }
                       placeholder="#f8fafc"
                     />
                   </div>
@@ -1071,19 +1258,20 @@ function TemplatePreview({ template }: { template: DocumentTemplate }) {
   return (
     <div className="space-y-4">
       <div className="border rounded-lg p-6 bg-white">
-        <div 
+        <div
           className="space-y-4"
-          style={{ 
+          style={{
             fontFamily: template.design.fonts.body,
             color: template.design.colors.text,
             lineHeight: template.design.spacing.lineHeight,
           }}
         >
           {/* Header */}
-          <div 
+          <div
             className="flex items-center justify-between p-4 rounded"
-            style={{ 
-              backgroundColor: template.design.header.backgroundColor || 'transparent',
+            style={{
+              backgroundColor:
+                template.design.header.backgroundColor || "transparent",
             }}
           >
             {template.design.header.showLogo && (
@@ -1092,9 +1280,15 @@ function TemplatePreview({ template }: { template: DocumentTemplate }) {
               </div>
             )}
             {template.design.header.showCompanyInfo && (
-              <div className={template.design.header.logoPosition === 'center' ? 'text-center' : 'text-right'}>
-                <h3 
-                  style={{ 
+              <div
+                className={
+                  template.design.header.logoPosition === "center"
+                    ? "text-center"
+                    : "text-right"
+                }
+              >
+                <h3
+                  style={{
                     color: template.design.colors.primary,
                     fontSize: template.design.fonts.size.heading,
                     fontFamily: template.design.fonts.heading,
@@ -1110,14 +1304,14 @@ function TemplatePreview({ template }: { template: DocumentTemplate }) {
 
           {/* Title */}
           <div className="text-center py-4">
-            <h1 
-              style={{ 
+            <h1
+              style={{
                 color: template.design.colors.primary,
                 fontSize: template.design.fonts.size.heading + 4,
                 fontFamily: template.design.fonts.heading,
               }}
             >
-              {template.type.toUpperCase().replace('_', ' ')}
+              {template.type.toUpperCase().replace("_", " ")}
             </h1>
           </div>
 
@@ -1125,7 +1319,12 @@ function TemplatePreview({ template }: { template: DocumentTemplate }) {
           <div className="overflow-hidden rounded border">
             <table className="w-full">
               <thead>
-                <tr style={{ backgroundColor: template.design.table.headerBackgroundColor }}>
+                <tr
+                  style={{
+                    backgroundColor:
+                      template.design.table.headerBackgroundColor,
+                  }}
+                >
                   <th className="text-left p-2 border-b">Item</th>
                   <th className="text-right p-2 border-b">Qty</th>
                   <th className="text-right p-2 border-b">Price</th>
@@ -1133,7 +1332,12 @@ function TemplatePreview({ template }: { template: DocumentTemplate }) {
                 </tr>
               </thead>
               <tbody>
-                <tr style={{ backgroundColor: template.design.table.alternateRowColor || 'transparent' }}>
+                <tr
+                  style={{
+                    backgroundColor:
+                      template.design.table.alternateRowColor || "transparent",
+                  }}
+                >
                   <td className="p-2 border-b">Sample Product 1</td>
                   <td className="text-right p-2 border-b">2</td>
                   <td className="text-right p-2 border-b">$100.00</td>
@@ -1150,7 +1354,8 @@ function TemplatePreview({ template }: { template: DocumentTemplate }) {
           </div>
 
           {/* Footer */}
-          {(template.design.footer.showTerms || template.design.footer.showSignature) && (
+          {(template.design.footer.showTerms ||
+            template.design.footer.showSignature) && (
             <div className="pt-8 space-y-4">
               {template.design.footer.showTerms && (
                 <p className="text-sm text-muted-foreground">

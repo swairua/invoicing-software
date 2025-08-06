@@ -47,20 +47,23 @@ export default function LineItemTaxSelector({
       onTaxesChange([...selectedTaxes, newTax]);
     } else {
       // Remove tax
-      onTaxesChange(selectedTaxes.filter(t => t.id !== tax.id));
+      onTaxesChange(selectedTaxes.filter((t) => t.id !== tax.id));
     }
   };
 
   const removeTax = (taxId: string) => {
-    onTaxesChange(selectedTaxes.filter(t => t.id !== taxId));
+    onTaxesChange(selectedTaxes.filter((t) => t.id !== taxId));
   };
 
   const calculateTotalTaxAmount = () => {
-    return selectedTaxes.reduce((sum, tax) => sum + (itemTotal * (tax.rate / 100)), 0);
+    return selectedTaxes.reduce(
+      (sum, tax) => sum + itemTotal * (tax.rate / 100),
+      0,
+    );
   };
 
   const isSelected = (taxId: string) => {
-    return selectedTaxes.some(t => t.id === taxId);
+    return selectedTaxes.some((t) => t.id === taxId);
   };
 
   return (
@@ -85,10 +88,13 @@ export default function LineItemTaxSelector({
               <div className="bg-muted/30 p-3 rounded-lg">
                 <div className="flex items-center gap-2 text-sm">
                   <Calculator className="h-4 w-4" />
-                  <span>Item Total: <strong>KES {itemTotal.toLocaleString()}</strong></span>
+                  <span>
+                    Item Total:{" "}
+                    <strong>KES {itemTotal.toLocaleString()}</strong>
+                  </span>
                 </div>
               </div>
-              
+
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -103,21 +109,28 @@ export default function LineItemTaxSelector({
                   {availableTaxes.map((tax) => {
                     const selected = isSelected(tax.id);
                     const taxAmount = itemTotal * (tax.rate / 100);
-                    
+
                     return (
                       <TableRow key={tax.id}>
                         <TableCell>
                           <Checkbox
                             checked={selected}
-                            onCheckedChange={(checked) => 
+                            onCheckedChange={(checked) =>
                               handleTaxToggle(tax, checked as boolean)
                             }
                           />
                         </TableCell>
-                        <TableCell className="font-medium">{tax.name}</TableCell>
+                        <TableCell className="font-medium">
+                          {tax.name}
+                        </TableCell>
                         <TableCell>{tax.rate}%</TableCell>
                         <TableCell>
-                          <Badge variant={tax.isCompoundTax ? "secondary" : "outline"} className="text-xs">
+                          <Badge
+                            variant={
+                              tax.isCompoundTax ? "secondary" : "outline"
+                            }
+                            className="text-xs"
+                          >
                             {tax.isCompoundTax ? "Compound" : "Simple"}
                           </Badge>
                         </TableCell>
@@ -134,7 +147,9 @@ export default function LineItemTaxSelector({
                 <div className="border-t pt-4">
                   <div className="flex justify-between items-center font-medium">
                     <span>Total Additional Tax:</span>
-                    <span>KES {calculateTotalTaxAmount().toLocaleString()}</span>
+                    <span>
+                      KES {calculateTotalTaxAmount().toLocaleString()}
+                    </span>
                   </div>
                 </div>
               )}
@@ -150,7 +165,10 @@ export default function LineItemTaxSelector({
             {selectedTaxes.map((tax) => {
               const taxAmount = itemTotal * (tax.rate / 100);
               return (
-                <div key={tax.id} className="flex items-center justify-between p-2 bg-muted/30 rounded">
+                <div
+                  key={tax.id}
+                  className="flex items-center justify-between p-2 bg-muted/30 rounded"
+                >
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">{tax.name}</span>
                     <Badge variant="outline" className="text-xs">
@@ -163,7 +181,9 @@ export default function LineItemTaxSelector({
                     )}
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">KES {taxAmount.toLocaleString()}</span>
+                    <span className="text-sm font-medium">
+                      KES {taxAmount.toLocaleString()}
+                    </span>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -183,7 +203,9 @@ export default function LineItemTaxSelector({
           </div>
         </div>
       ) : (
-        <p className="text-sm text-muted-foreground">No additional taxes selected</p>
+        <p className="text-sm text-muted-foreground">
+          No additional taxes selected
+        </p>
       )}
     </div>
   );

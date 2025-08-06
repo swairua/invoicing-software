@@ -1543,10 +1543,10 @@ class BusinessDataService {
   private initializeTemplates() {
     // Initialize template manager if not already done
     try {
-      const { TemplateManager } = require('./templateManager');
+      const { TemplateManager } = require("./templateManager");
       TemplateManager.initialize();
     } catch (error) {
-      console.warn('Template manager initialization failed:', error);
+      console.warn("Template manager initialization failed:", error);
     }
   }
 

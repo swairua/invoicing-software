@@ -45,8 +45,18 @@ import {
   Calendar,
   Send,
 } from "lucide-react";
-import { Customer, Product, Invoice, InvoiceItem, LineItemTax } from "@shared/types";
-import { getAvailableTaxes, calculateLineItemTaxes, updateLineItemTaxAmounts } from "@shared/taxUtils";
+import {
+  Customer,
+  Product,
+  Invoice,
+  InvoiceItem,
+  LineItemTax,
+} from "@shared/types";
+import {
+  getAvailableTaxes,
+  calculateLineItemTaxes,
+  updateLineItemTaxAmounts,
+} from "@shared/taxUtils";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import TemplateSelector from "../components/TemplateSelector";
 import LineItemTaxSelector from "../components/LineItemTaxSelector";
@@ -197,7 +207,7 @@ export default function NewInvoice() {
       // Calculate additional line item taxes
       if (item.lineItemTaxes && item.lineItemTaxes.length > 0) {
         const itemTaxAmount = item.lineItemTaxes.reduce((taxSum, tax) => {
-          return taxSum + (afterDiscount * (tax.rate / 100));
+          return taxSum + afterDiscount * (tax.rate / 100);
         }, 0);
         additionalTaxAmount += itemTaxAmount;
       }
@@ -776,8 +786,17 @@ export default function NewInvoice() {
                             <LineItemTaxSelector
                               selectedTaxes={item.lineItemTaxes || []}
                               availableTaxes={getAvailableTaxes()}
-                              onTaxesChange={(taxes) => updateItemTaxes(index, taxes)}
-                              itemSubtotal={parseFloat(item.quantity) * parseFloat(item.unitPrice) - ((parseFloat(item.quantity) * parseFloat(item.unitPrice) * parseFloat(item.discount)) / 100)}
+                              onTaxesChange={(taxes) =>
+                                updateItemTaxes(index, taxes)
+                              }
+                              itemSubtotal={
+                                parseFloat(item.quantity) *
+                                  parseFloat(item.unitPrice) -
+                                (parseFloat(item.quantity) *
+                                  parseFloat(item.unitPrice) *
+                                  parseFloat(item.discount)) /
+                                  100
+                              }
                             />
                           </TableCell>
                           <TableCell className="font-medium">
