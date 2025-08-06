@@ -699,6 +699,7 @@ export default function NewInvoice() {
                       <TableHead>Quantity</TableHead>
                       <TableHead>Unit Price</TableHead>
                       <TableHead>Discount</TableHead>
+                      <TableHead>Additional Taxes</TableHead>
                       <TableHead>Total</TableHead>
                       <TableHead className="w-[50px]"></TableHead>
                     </TableRow>
