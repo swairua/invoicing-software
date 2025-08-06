@@ -330,14 +330,14 @@ export default function Quotations() {
               New Quotation
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-[95vw] sm:max-w-5xl max-h-[90vh] flex flex-col">
-            <DialogHeader className="flex-shrink-0">
+          <DialogContentLarge>
+            <DialogHeader className="flex-shrink-0 p-6 pb-0">
               <DialogTitle>Create New Quotation</DialogTitle>
               <DialogDescription>
                 Generate a new sales quotation for your customer
               </DialogDescription>
             </DialogHeader>
-            <div className="flex-1 overflow-y-auto p-1">
+            <div className="flex-1 overflow-y-auto p-6 pt-4">
               <form onSubmit={handleCreateQuotation} className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -537,7 +537,7 @@ export default function Quotations() {
                 </div>
               </form>
             </div>
-          </DialogContent>
+          </DialogContentLarge>
         </Dialog>
       </div>
 
