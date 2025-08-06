@@ -84,8 +84,8 @@ const AppRoutes = () => (
       <Route index element={<Navigate to="/dashboard" replace />} />
       <Route path="dashboard" element={<Dashboard />} />
       <Route path="customers" element={<Customers />} />
-      <Route path="customers/:id" element={<PlaceholderPage module="Customer Details" />} />
-      <Route path="customers/new" element={<PlaceholderPage module="New Customer" />} />
+      <Route path="customers/:id" element={<CustomerDetails />} />
+      <Route path="customers/new" element={<NewCustomer />} />
       <Route path="products" element={<Products />} />
       <Route path="products/:id" element={<ProductDetails />} />
       <Route path="products/new" element={<NewProduct />} />
