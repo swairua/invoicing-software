@@ -47,6 +47,7 @@ import {
 } from "lucide-react";
 import { Customer, Product, Invoice, InvoiceItem } from "@shared/types";
 import { dataServiceFactory } from "../services/dataServiceFactory";
+import TemplateSelector from "../components/TemplateSelector";
 import { useToast } from "../hooks/use-toast";
 
 interface InvoiceFormData {
