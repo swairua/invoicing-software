@@ -113,6 +113,9 @@ const AppRoutes = () => (
       <Route path="invoices/new" element={<NewInvoice />} />
       <Route path="payments" element={<Payments />} />
       <Route path="payments/new" element={<RecordPayment />} />
+      <Route path="credit-notes" element={<CreditNotes />} />
+      <Route path="credit-notes/:id" element={<CreditNoteDetails />} />
+      <Route path="credit-notes/new" element={<NewCreditNote />} />
       <Route path="reports" element={<Reports />} />
       <Route path="reports/sales" element={<Reports />} />
       <Route path="reports/stock" element={<Reports />} />
