@@ -150,6 +150,15 @@ export interface StockMovement {
   createdAt: Date;
 }
 
+// Tax Types for Line Items
+export interface LineItemTax {
+  id: string;
+  name: string;
+  rate: number;
+  amount: number;
+  isCompoundTax?: boolean; // Applied after other taxes
+}
+
 // Invoice/Document Types
 export interface InvoiceItem {
   id: string;
@@ -159,6 +168,7 @@ export interface InvoiceItem {
   unitPrice: number;
   discount: number;
   vatRate: number;
+  lineItemTaxes?: LineItemTax[]; // Optional additional taxes per line item
   total: number;
 }
 
