@@ -437,7 +437,7 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent>
             <DialogHeader>
               <DialogTitle>Revenue Breakdown</DialogTitle>
               <DialogDescription>
