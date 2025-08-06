@@ -382,6 +382,7 @@ export interface CreditNoteItem {
   quantity: number;
   unitPrice: number;
   vatRate: number;
+  lineItemTaxes?: LineItemTax[]; // Optional additional taxes per line item
   total: number;
 }
 
