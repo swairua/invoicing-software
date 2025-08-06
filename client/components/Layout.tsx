@@ -21,6 +21,7 @@ import {
   FileText,
   Receipt,
   CreditCard,
+  RefreshCw,
   BarChart3,
   Settings,
   Palette,
