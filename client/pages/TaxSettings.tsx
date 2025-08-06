@@ -120,16 +120,8 @@ export default function TaxSettings() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/taxes", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-company-id": "550e8400-e29b-41d4-a716-446655440000",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const result = await response.json();
+      const dataService = dataServiceFactory.getDataService();
+      const result = await dataService.createTaxConfiguration(formData);
 
       if (result.success) {
         await loadTaxConfigurations();
