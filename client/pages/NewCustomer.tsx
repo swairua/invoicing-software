@@ -1,11 +1,17 @@
-import React, { useState } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Textarea } from '../components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Switch } from '../components/ui/switch';
+import React, { useState } from "react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Textarea } from "../components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Switch } from "../components/ui/switch";
 import {
   ArrowLeft,
   Save,
@@ -15,11 +21,11 @@ import {
   MapPin,
   Hash,
   CreditCard,
-  Building
-} from 'lucide-react';
-import { Customer } from '@shared/types';
-import { dataServiceFactory } from '../services/dataServiceFactory';
-import { useToast } from '../hooks/use-toast';
+  Building,
+} from "lucide-react";
+import { Customer } from "@shared/types";
+import { dataServiceFactory } from "../services/dataServiceFactory";
+import { useToast } from "../hooks/use-toast";
 
 interface CustomerFormData {
   name: string;
@@ -40,12 +46,12 @@ export default function NewCustomer() {
   const duplicateData = location.state?.duplicateFrom;
 
   const [formData, setFormData] = useState<CustomerFormData>({
-    name: duplicateData?.name || '',
-    email: duplicateData?.email || '',
-    phone: duplicateData?.phone || '',
-    kraPin: duplicateData?.kraPin || '',
-    address: duplicateData?.address || '',
-    creditLimit: duplicateData?.creditLimit?.toString() || '0',
+    name: duplicateData?.name || "",
+    email: duplicateData?.email || "",
+    phone: duplicateData?.phone || "",
+    kraPin: duplicateData?.kraPin || "",
+    address: duplicateData?.address || "",
+    creditLimit: duplicateData?.creditLimit?.toString() || "0",
     isActive: duplicateData?.isActive ?? true,
   });
 
@@ -53,7 +59,7 @@ export default function NewCustomer() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name) {
       toast({
         title: "Validation Error",
@@ -75,7 +81,7 @@ export default function NewCustomer() {
     setIsSubmitting(true);
 
     try {
-      const newCustomer: Omit<Customer, 'id' | 'createdAt' | 'updatedAt'> = {
+      const newCustomer: Omit<Customer, "id" | "createdAt" | "updatedAt"> = {
         name: formData.name,
         email: formData.email || undefined,
         phone: formData.phone || undefined,
@@ -84,21 +90,21 @@ export default function NewCustomer() {
         creditLimit: parseFloat(formData.creditLimit) || 0,
         balance: 0,
         isActive: formData.isActive,
-        companyId: '1',
+        companyId: "1",
       };
 
       // Here you would normally call a create API
       // For now, we'll simulate success
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       toast({
         title: "Customer Created",
         description: `Customer "${formData.name}" has been created successfully.`,
       });
 
-      navigate('/customers');
+      navigate("/customers");
     } catch (error) {
-      console.error('Error creating customer:', error);
+      console.error("Error creating customer:", error);
       toast({
         title: "Error",
         description: "Failed to create customer. Please try again.",
@@ -116,17 +122,22 @@ export default function NewCustomer() {
 
   const formatKraPin = (value: string) => {
     // Remove any non-alphanumeric characters and convert to uppercase
-    const cleaned = value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-    
+    const cleaned = value.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+
     // Format as P000000000A (P + 9 digits + A)
     if (cleaned.length <= 1) return cleaned;
-    if (cleaned.length <= 10) return cleaned.substring(0, 1) + cleaned.substring(1);
-    return cleaned.substring(0, 1) + cleaned.substring(1, 10) + cleaned.substring(10, 11);
+    if (cleaned.length <= 10)
+      return cleaned.substring(0, 1) + cleaned.substring(1);
+    return (
+      cleaned.substring(0, 1) +
+      cleaned.substring(1, 10) +
+      cleaned.substring(10, 11)
+    );
   };
 
   const handleKraPinChange = (value: string) => {
     const formatted = formatKraPin(value);
-    setFormData(prev => ({ ...prev, kraPin: formatted }));
+    setFormData((prev) => ({ ...prev, kraPin: formatted }));
   };
 
   return (
@@ -142,10 +153,12 @@ export default function NewCustomer() {
           </Button>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              {duplicateData ? 'Duplicate Customer' : 'New Customer'}
+              {duplicateData ? "Duplicate Customer" : "New Customer"}
             </h1>
             <p className="text-muted-foreground">
-              {duplicateData ? 'Create a copy of an existing customer' : 'Add a new customer to your database'}
+              {duplicateData
+                ? "Create a copy of an existing customer"
+                : "Add a new customer to your database"}
             </p>
           </div>
         </div>
@@ -177,9 +190,7 @@ export default function NewCustomer() {
               <User className="h-5 w-5" />
               Customer Information
             </CardTitle>
-            <CardDescription>
-              Basic details about the customer
-            </CardDescription>
+            <CardDescription>Basic details about the customer</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -188,7 +199,9 @@ export default function NewCustomer() {
                 <Input
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, name: e.target.value }))
+                  }
                   placeholder="Enter customer name"
                   required
                 />
@@ -202,7 +215,12 @@ export default function NewCustomer() {
                     id="email"
                     type="email"
                     value={formData.email}
-                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        email: e.target.value,
+                      }))
+                    }
                     placeholder="customer@example.com"
                     className="pl-10"
                   />
@@ -216,7 +234,12 @@ export default function NewCustomer() {
                   <Input
                     id="phone"
                     value={formData.phone}
-                    onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        phone: e.target.value,
+                      }))
+                    }
                     placeholder="+254 700 123 456"
                     className="pl-10"
                   />
@@ -248,7 +271,12 @@ export default function NewCustomer() {
                   <Textarea
                     id="address"
                     value={formData.address}
-                    onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        address: e.target.value,
+                      }))
+                    }
                     placeholder="P.O Box 12345, City, Country"
                     className="pl-10 min-h-[80px]"
                     rows={3}
@@ -278,7 +306,12 @@ export default function NewCustomer() {
                   id="creditLimit"
                   type="number"
                   value={formData.creditLimit}
-                  onChange={(e) => setFormData(prev => ({ ...prev, creditLimit: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      creditLimit: e.target.value,
+                    }))
+                  }
                   placeholder="0.00"
                   min="0"
                   step="0.01"
@@ -300,7 +333,9 @@ export default function NewCustomer() {
               <Switch
                 id="isActive"
                 checked={formData.isActive}
-                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isActive: checked }))}
+                onCheckedChange={(checked) =>
+                  setFormData((prev) => ({ ...prev, isActive: checked }))
+                }
               />
             </div>
 
@@ -308,19 +343,25 @@ export default function NewCustomer() {
               <h4 className="font-medium mb-3">Account Summary</h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Initial Balance:</span>
+                  <span className="text-muted-foreground">
+                    Initial Balance:
+                  </span>
                   <span className="font-medium">KES 0.00</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Credit Limit:</span>
                   <span className="font-medium">
-                    KES {parseFloat(formData.creditLimit || '0').toLocaleString()}
+                    KES{" "}
+                    {parseFloat(formData.creditLimit || "0").toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Available Credit:</span>
+                  <span className="text-muted-foreground">
+                    Available Credit:
+                  </span>
                   <span className="font-medium text-green-600">
-                    KES {parseFloat(formData.creditLimit || '0').toLocaleString()}
+                    KES{" "}
+                    {parseFloat(formData.creditLimit || "0").toLocaleString()}
                   </span>
                 </div>
               </div>

@@ -1,9 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Button } from '../components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import React, { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { Button } from "../components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -11,7 +22,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../components/ui/table';
+} from "../components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -19,10 +30,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../components/ui/dialog';
-import { Label } from '../components/ui/label';
-import { Input } from '../components/ui/input';
-import { Textarea } from '../components/ui/textarea';
+} from "../components/ui/dialog";
+import { Label } from "../components/ui/label";
+import { Input } from "../components/ui/input";
+import { Textarea } from "../components/ui/textarea";
 import {
   ArrowLeft,
   Edit,
@@ -47,11 +58,11 @@ import {
   Copy,
   Image as ImageIcon,
   Download,
-  Upload
-} from 'lucide-react';
-import { Product, StockMovement } from '@shared/types';
-import { dataServiceFactory } from '../services/dataServiceFactory';
-import { useToast } from '../hooks/use-toast';
+  Upload,
+} from "lucide-react";
+import { Product, StockMovement } from "@shared/types";
+import { dataServiceFactory } from "../services/dataServiceFactory";
+import { useToast } from "../hooks/use-toast";
 
 export default function ProductDetails() {
   const { id } = useParams<{ id: string }>();
@@ -61,9 +72,11 @@ export default function ProductDetails() {
   const [stockMovements, setStockMovements] = useState<StockMovement[]>([]);
   const [loading, setLoading] = useState(true);
   const [isStockDialogOpen, setIsStockDialogOpen] = useState(false);
-  const [stockMovementType, setStockMovementType] = useState<'in' | 'out' | 'adjustment'>('in');
-  const [stockQuantity, setStockQuantity] = useState('');
-  const [stockNotes, setStockNotes] = useState('');
+  const [stockMovementType, setStockMovementType] = useState<
+    "in" | "out" | "adjustment"
+  >("in");
+  const [stockQuantity, setStockQuantity] = useState("");
+  const [stockNotes, setStockNotes] = useState("");
 
   const dataService = dataServiceFactory.getDataService();
 
@@ -72,15 +85,15 @@ export default function ProductDetails() {
       try {
         setLoading(true);
         const products = await dataService.getProducts();
-        const foundProduct = products.find(p => p.id === id);
-        
+        const foundProduct = products.find((p) => p.id === id);
+
         if (!foundProduct) {
           toast({
             title: "Product Not Found",
             description: "The requested product could not be found.",
             variant: "destructive",
           });
-          navigate('/products');
+          navigate("/products");
           return;
         }
 
@@ -88,10 +101,10 @@ export default function ProductDetails() {
 
         // Get stock movements for this product
         const allMovements = dataService.getStockMovements?.() || [];
-        const productMovements = allMovements.filter(m => m.productId === id);
+        const productMovements = allMovements.filter((m) => m.productId === id);
         setStockMovements(productMovements);
       } catch (error) {
-        console.error('Error loading product:', error);
+        console.error("Error loading product:", error);
         toast({
           title: "Error",
           description: "Failed to load product details.",
@@ -108,28 +121,40 @@ export default function ProductDetails() {
   }, [id, dataService, navigate, toast]);
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-KE', {
-      style: 'currency',
-      currency: 'KES',
+    return new Intl.NumberFormat("en-KE", {
+      style: "currency",
+      currency: "KES",
       minimumFractionDigits: 0,
     }).format(amount);
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-500';
-      case 'inactive': return 'bg-gray-500';
-      case 'discontinued': return 'bg-red-500';
-      case 'out_of_stock': return 'bg-orange-500';
-      default: return 'bg-gray-500';
+      case "active":
+        return "bg-green-500";
+      case "inactive":
+        return "bg-gray-500";
+      case "discontinued":
+        return "bg-red-500";
+      case "out_of_stock":
+        return "bg-orange-500";
+      default:
+        return "bg-gray-500";
     }
   };
 
   const getStockStatus = (product: Product) => {
-    if (product.currentStock === 0) return { status: 'Out of Stock', color: 'destructive', icon: AlertTriangle };
-    if (product.currentStock <= (product.reorderLevel || product.minStock)) return { status: 'Low Stock', color: 'warning', icon: TrendingDown };
-    if (product.currentStock >= product.maxStock) return { status: 'Overstock', color: 'secondary', icon: TrendingUp };
-    return { status: 'In Stock', color: 'success', icon: Package };
+    if (product.currentStock === 0)
+      return {
+        status: "Out of Stock",
+        color: "destructive",
+        icon: AlertTriangle,
+      };
+    if (product.currentStock <= (product.reorderLevel || product.minStock))
+      return { status: "Low Stock", color: "warning", icon: TrendingDown };
+    if (product.currentStock >= product.maxStock)
+      return { status: "Overstock", color: "secondary", icon: TrendingUp };
+    return { status: "In Stock", color: "success", icon: Package };
   };
 
   const handleStockMovement = async () => {
@@ -145,11 +170,12 @@ export default function ProductDetails() {
       return;
     }
 
-    const newStock = stockMovementType === 'in' 
-      ? product.currentStock + quantity
-      : stockMovementType === 'out'
-      ? Math.max(0, product.currentStock - quantity)
-      : quantity; // adjustment sets absolute value
+    const newStock =
+      stockMovementType === "in"
+        ? product.currentStock + quantity
+        : stockMovementType === "out"
+          ? Math.max(0, product.currentStock - quantity)
+          : quantity; // adjustment sets absolute value
 
     const movement: StockMovement = {
       id: Date.now().toString(),
@@ -160,8 +186,8 @@ export default function ProductDetails() {
       newStock,
       reference: `MANUAL-${Date.now()}`,
       notes: stockNotes || `Manual ${stockMovementType} adjustment`,
-      createdBy: '1',
-      createdAt: new Date()
+      createdBy: "1",
+      createdAt: new Date(),
     };
 
     // Update product stock
@@ -169,15 +195,15 @@ export default function ProductDetails() {
       ...product,
       currentStock: newStock,
       availableStock: newStock - (product.reservedStock || 0),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
 
     setProduct(updatedProduct);
-    setStockMovements(prev => [movement, ...prev]);
-    
+    setStockMovements((prev) => [movement, ...prev]);
+
     // Reset form
-    setStockQuantity('');
-    setStockNotes('');
+    setStockQuantity("");
+    setStockNotes("");
     setIsStockDialogOpen(false);
 
     toast({
@@ -188,17 +214,17 @@ export default function ProductDetails() {
 
   const duplicateProduct = () => {
     if (!product) return;
-    
+
     // Navigate to new product page with pre-filled data
-    navigate('/products/new', { 
-      state: { 
+    navigate("/products/new", {
+      state: {
         duplicateFrom: {
           ...product,
-          name: product.name + ' (Copy)',
-          sku: product.sku + '-COPY',
-          id: undefined
-        }
-      }
+          name: product.name + " (Copy)",
+          sku: product.sku + "-COPY",
+          id: undefined,
+        },
+      },
     });
   };
 
@@ -214,7 +240,9 @@ export default function ProductDetails() {
     return (
       <div className="max-w-2xl mx-auto text-center">
         <h1 className="text-2xl font-bold">Product Not Found</h1>
-        <p className="text-muted-foreground mb-4">The requested product could not be found.</p>
+        <p className="text-muted-foreground mb-4">
+          The requested product could not be found.
+        </p>
         <Button asChild>
           <Link to="/products">Back to Products</Link>
         </Button>
@@ -237,7 +265,9 @@ export default function ProductDetails() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">{product.name}</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              {product.name}
+            </h1>
             <p className="text-muted-foreground">
               SKU: {product.sku} • Category: {product.category}
             </p>
@@ -271,46 +301,58 @@ export default function ProductDetails() {
               <div className="space-y-4">
                 <div className="grid grid-cols-3 gap-2">
                   <Button
-                    variant={stockMovementType === 'in' ? 'default' : 'outline'}
-                    onClick={() => setStockMovementType('in')}
+                    variant={stockMovementType === "in" ? "default" : "outline"}
+                    onClick={() => setStockMovementType("in")}
                     className="flex items-center"
                   >
                     <Plus className="mr-2 h-4 w-4" />
                     Stock In
                   </Button>
                   <Button
-                    variant={stockMovementType === 'out' ? 'default' : 'outline'}
-                    onClick={() => setStockMovementType('out')}
+                    variant={
+                      stockMovementType === "out" ? "default" : "outline"
+                    }
+                    onClick={() => setStockMovementType("out")}
                     className="flex items-center"
                   >
                     <Minus className="mr-2 h-4 w-4" />
                     Stock Out
                   </Button>
                   <Button
-                    variant={stockMovementType === 'adjustment' ? 'default' : 'outline'}
-                    onClick={() => setStockMovementType('adjustment')}
+                    variant={
+                      stockMovementType === "adjustment" ? "default" : "outline"
+                    }
+                    onClick={() => setStockMovementType("adjustment")}
                     className="flex items-center"
                   >
                     <RotateCcw className="mr-2 h-4 w-4" />
                     Adjust
                   </Button>
                 </div>
-                
+
                 <div className="space-y-2">
-                  <Label>Current Stock: {product.currentStock} {product.unit}</Label>
+                  <Label>
+                    Current Stock: {product.currentStock} {product.unit}
+                  </Label>
                   <Label htmlFor="quantity">
-                    {stockMovementType === 'adjustment' ? 'New Stock Level' : 'Quantity'}
+                    {stockMovementType === "adjustment"
+                      ? "New Stock Level"
+                      : "Quantity"}
                   </Label>
                   <Input
                     id="quantity"
                     type="number"
                     value={stockQuantity}
                     onChange={(e) => setStockQuantity(e.target.value)}
-                    placeholder={stockMovementType === 'adjustment' ? 'Enter new stock level' : 'Enter quantity'}
+                    placeholder={
+                      stockMovementType === "adjustment"
+                        ? "Enter new stock level"
+                        : "Enter quantity"
+                    }
                     min="0"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="notes">Notes</Label>
                   <Textarea
@@ -320,14 +362,15 @@ export default function ProductDetails() {
                     placeholder="Reason for stock movement..."
                   />
                 </div>
-                
+
                 <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setIsStockDialogOpen(false)}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsStockDialogOpen(false)}
+                  >
                     Cancel
                   </Button>
-                  <Button onClick={handleStockMovement}>
-                    Update Stock
-                  </Button>
+                  <Button onClick={handleStockMovement}>Update Stock</Button>
                 </div>
               </div>
             </DialogContent>
@@ -343,7 +386,9 @@ export default function ProductDetails() {
             <StockIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{product.currentStock} {product.unit}</div>
+            <div className="text-2xl font-bold">
+              {product.currentStock} {product.unit}
+            </div>
             <Badge variant={stockStatus.color as any} className="mt-1">
               {stockStatus.status}
             </Badge>
@@ -356,7 +401,9 @@ export default function ProductDetails() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(product.sellingPrice)}</div>
+            <div className="text-2xl font-bold">
+              {formatCurrency(product.sellingPrice)}
+            </div>
             <p className="text-xs text-muted-foreground">
               Cost: {formatCurrency(product.purchasePrice)}
             </p>
@@ -381,12 +428,16 @@ export default function ProductDetails() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Status</CardTitle>
-            <div className={`h-2 w-2 rounded-full ${getStatusColor(product.status)}`} />
+            <div
+              className={`h-2 w-2 rounded-full ${getStatusColor(product.status)}`}
+            />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold capitalize">{product.status.replace('_', ' ')}</div>
+            <div className="text-2xl font-bold capitalize">
+              {product.status.replace("_", " ")}
+            </div>
             <p className="text-xs text-muted-foreground">
-              {product.isActive ? 'Active' : 'Inactive'}
+              {product.isActive ? "Active" : "Inactive"}
             </p>
           </CardContent>
         </Card>
@@ -411,13 +462,15 @@ export default function ProductDetails() {
               <CardContent className="space-y-4">
                 <div>
                   <Label className="text-sm font-medium">Product Name</Label>
-                  <p className="text-sm text-muted-foreground">{product.name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {product.name}
+                  </p>
                 </div>
-                
+
                 <div>
                   <Label className="text-sm font-medium">Description</Label>
                   <p className="text-sm text-muted-foreground">
-                    {product.description || 'No description provided'}
+                    {product.description || "No description provided"}
                   </p>
                 </div>
 
@@ -427,12 +480,14 @@ export default function ProductDetails() {
                       <Barcode className="h-3 w-3" />
                       SKU
                     </Label>
-                    <p className="text-sm text-muted-foreground font-mono">{product.sku}</p>
+                    <p className="text-sm text-muted-foreground font-mono">
+                      {product.sku}
+                    </p>
                   </div>
                   <div>
                     <Label className="text-sm font-medium">Barcode</Label>
                     <p className="text-sm text-muted-foreground font-mono">
-                      {product.barcode || 'Not assigned'}
+                      {product.barcode || "Not assigned"}
                     </p>
                   </div>
                 </div>
@@ -440,12 +495,14 @@ export default function ProductDetails() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label className="text-sm font-medium">Category</Label>
-                    <p className="text-sm text-muted-foreground">{product.category}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {product.category}
+                    </p>
                   </div>
                   <div>
                     <Label className="text-sm font-medium">Subcategory</Label>
                     <p className="text-sm text-muted-foreground">
-                      {product.subcategory || 'Not specified'}
+                      {product.subcategory || "Not specified"}
                     </p>
                   </div>
                 </div>
@@ -454,12 +511,14 @@ export default function ProductDetails() {
                   <div>
                     <Label className="text-sm font-medium">Brand</Label>
                     <p className="text-sm text-muted-foreground">
-                      {product.brand || 'Not specified'}
+                      {product.brand || "Not specified"}
                     </p>
                   </div>
                   <div>
                     <Label className="text-sm font-medium">Unit</Label>
-                    <p className="text-sm text-muted-foreground">{product.unit}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {product.unit}
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -476,7 +535,7 @@ export default function ProductDetails() {
                     Weight
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    {product.weight ? `${product.weight} kg` : 'Not specified'}
+                    {product.weight ? `${product.weight} kg` : "Not specified"}
                   </p>
                 </div>
 
@@ -487,7 +546,8 @@ export default function ProductDetails() {
                       Dimensions
                     </Label>
                     <p className="text-sm text-muted-foreground">
-                      {product.dimensions.length} × {product.dimensions.width} × {product.dimensions.height} {product.dimensions.unit}
+                      {product.dimensions.length} × {product.dimensions.width} ×{" "}
+                      {product.dimensions.height} {product.dimensions.unit}
                     </p>
                   </div>
                 )}
@@ -498,7 +558,7 @@ export default function ProductDetails() {
                     Location
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    {product.location || 'Not specified'}
+                    {product.location || "Not specified"}
                     {product.binLocation && ` (${product.binLocation})`}
                   </p>
                 </div>
@@ -506,7 +566,7 @@ export default function ProductDetails() {
                 <div>
                   <Label className="text-sm font-medium">Supplier</Label>
                   <p className="text-sm text-muted-foreground">
-                    {product.supplier || 'Not specified'}
+                    {product.supplier || "Not specified"}
                   </p>
                 </div>
 
@@ -517,7 +577,7 @@ export default function ProductDetails() {
                       Tags
                     </Label>
                     <div className="flex gap-1 flex-wrap mt-1">
-                      {product.tags.map(tag => (
+                      {product.tags.map((tag) => (
                         <Badge key={tag} variant="outline" className="text-xs">
                           {tag}
                         </Badge>
@@ -529,7 +589,9 @@ export default function ProductDetails() {
                 {product.notes && (
                   <div>
                     <Label className="text-sm font-medium">Notes</Label>
-                    <p className="text-sm text-muted-foreground">{product.notes}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {product.notes}
+                    </p>
                   </div>
                 )}
               </CardContent>
@@ -552,14 +614,19 @@ export default function ProductDetails() {
                   <div className="space-y-3">
                     <div className="flex justify-between">
                       <span className="text-sm">Purchase Price:</span>
-                      <span className="font-medium">{formatCurrency(product.purchasePrice)}</span>
+                      <span className="font-medium">
+                        {formatCurrency(product.purchasePrice)}
+                      </span>
                     </div>
-                    {product.costPrice && product.costPrice !== product.purchasePrice && (
-                      <div className="flex justify-between">
-                        <span className="text-sm">Cost Price:</span>
-                        <span className="font-medium">{formatCurrency(product.costPrice)}</span>
-                      </div>
-                    )}
+                    {product.costPrice &&
+                      product.costPrice !== product.purchasePrice && (
+                        <div className="flex justify-between">
+                          <span className="text-sm">Cost Price:</span>
+                          <span className="font-medium">
+                            {formatCurrency(product.costPrice)}
+                          </span>
+                        </div>
+                      )}
                     {product.markup && (
                       <div className="flex justify-between">
                         <span className="text-sm">Markup:</span>
@@ -574,20 +641,27 @@ export default function ProductDetails() {
                   <div className="space-y-3">
                     <div className="flex justify-between">
                       <span className="text-sm">Selling Price:</span>
-                      <span className="font-medium">{formatCurrency(product.sellingPrice)}</span>
+                      <span className="font-medium">
+                        {formatCurrency(product.sellingPrice)}
+                      </span>
                     </div>
                     {product.wholesalePrice && (
                       <div className="flex justify-between">
                         <span className="text-sm">Wholesale Price:</span>
-                        <span className="font-medium">{formatCurrency(product.wholesalePrice)}</span>
+                        <span className="font-medium">
+                          {formatCurrency(product.wholesalePrice)}
+                        </span>
                       </div>
                     )}
-                    {product.retailPrice && product.retailPrice !== product.sellingPrice && (
-                      <div className="flex justify-between">
-                        <span className="text-sm">Retail Price:</span>
-                        <span className="font-medium">{formatCurrency(product.retailPrice)}</span>
-                      </div>
-                    )}
+                    {product.retailPrice &&
+                      product.retailPrice !== product.sellingPrice && (
+                        <div className="flex justify-between">
+                          <span className="text-sm">Retail Price:</span>
+                          <span className="font-medium">
+                            {formatCurrency(product.retailPrice)}
+                          </span>
+                        </div>
+                      )}
                   </div>
                 </div>
               </div>
@@ -597,8 +671,8 @@ export default function ProductDetails() {
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="flex justify-between">
                     <span className="text-sm">Taxable:</span>
-                    <Badge variant={product.taxable ? 'default' : 'secondary'}>
-                      {product.taxable ? 'Yes' : 'No'}
+                    <Badge variant={product.taxable ? "default" : "secondary"}>
+                      {product.taxable ? "Yes" : "No"}
                     </Badge>
                   </div>
                   {product.taxable && product.taxRate && (
@@ -623,38 +697,53 @@ export default function ProductDetails() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label className="text-sm font-medium">Current Stock</Label>
-                    <p className="text-lg font-bold">{product.currentStock} {product.unit}</p>
+                    <p className="text-lg font-bold">
+                      {product.currentStock} {product.unit}
+                    </p>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium">Available Stock</Label>
+                    <Label className="text-sm font-medium">
+                      Available Stock
+                    </Label>
                     <p className="text-lg font-bold">
-                      {product.availableStock || product.currentStock} {product.unit}
+                      {product.availableStock || product.currentStock}{" "}
+                      {product.unit}
                     </p>
                   </div>
                 </div>
 
                 {product.reservedStock && product.reservedStock > 0 && (
                   <div>
-                    <Label className="text-sm font-medium">Reserved Stock</Label>
-                    <p className="text-lg font-bold">{product.reservedStock} {product.unit}</p>
+                    <Label className="text-sm font-medium">
+                      Reserved Stock
+                    </Label>
+                    <p className="text-lg font-bold">
+                      {product.reservedStock} {product.unit}
+                    </p>
                   </div>
                 )}
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label className="text-sm font-medium">Minimum Stock</Label>
-                    <p className="text-sm text-muted-foreground">{product.minStock} {product.unit}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {product.minStock} {product.unit}
+                    </p>
                   </div>
                   <div>
                     <Label className="text-sm font-medium">Maximum Stock</Label>
-                    <p className="text-sm text-muted-foreground">{product.maxStock} {product.unit}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {product.maxStock} {product.unit}
+                    </p>
                   </div>
                 </div>
 
                 {product.reorderLevel && (
                   <div>
                     <Label className="text-sm font-medium">Reorder Level</Label>
-                    <p className="text-sm text-muted-foreground">{product.reorderLevel} {product.unit}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {product.reorderLevel} {product.unit}
+                    </p>
                   </div>
                 )}
               </CardContent>
@@ -667,22 +756,28 @@ export default function ProductDetails() {
               <CardContent className="space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="text-sm">Track Inventory:</span>
-                  <Badge variant={product.trackInventory ? 'default' : 'secondary'}>
-                    {product.trackInventory ? 'Yes' : 'No'}
+                  <Badge
+                    variant={product.trackInventory ? "default" : "secondary"}
+                  >
+                    {product.trackInventory ? "Yes" : "No"}
                   </Badge>
                 </div>
-                
+
                 <div className="flex justify-between items-center">
                   <span className="text-sm">Allow Backorders:</span>
-                  <Badge variant={product.allowBackorders ? 'default' : 'secondary'}>
-                    {product.allowBackorders ? 'Yes' : 'No'}
+                  <Badge
+                    variant={product.allowBackorders ? "default" : "secondary"}
+                  >
+                    {product.allowBackorders ? "Yes" : "No"}
                   </Badge>
                 </div>
 
                 <div className="flex justify-between items-center">
                   <span className="text-sm">Has Variants:</span>
-                  <Badge variant={product.hasVariants ? 'default' : 'secondary'}>
-                    {product.hasVariants ? 'Yes' : 'No'}
+                  <Badge
+                    variant={product.hasVariants ? "default" : "secondary"}
+                  >
+                    {product.hasVariants ? "Yes" : "No"}
                   </Badge>
                 </div>
 
@@ -695,12 +790,16 @@ export default function ProductDetails() {
                         <span className="text-sm">Out of stock</span>
                       </div>
                     )}
-                    {product.currentStock > 0 && product.currentStock <= (product.reorderLevel || product.minStock) && (
-                      <div className="flex items-center gap-2 text-yellow-600">
-                        <AlertTriangle className="h-4 w-4" />
-                        <span className="text-sm">Low stock - reorder needed</span>
-                      </div>
-                    )}
+                    {product.currentStock > 0 &&
+                      product.currentStock <=
+                        (product.reorderLevel || product.minStock) && (
+                        <div className="flex items-center gap-2 text-yellow-600">
+                          <AlertTriangle className="h-4 w-4" />
+                          <span className="text-sm">
+                            Low stock - reorder needed
+                          </span>
+                        </div>
+                      )}
                     {product.currentStock >= product.maxStock && (
                       <div className="flex items-center gap-2 text-blue-600">
                         <TrendingUp className="h-4 w-4" />
@@ -719,11 +818,14 @@ export default function ProductDetails() {
             <CardHeader>
               <CardTitle>Product Variants</CardTitle>
               <CardDescription>
-                Different variations of this product with their own pricing and stock
+                Different variations of this product with their own pricing and
+                stock
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {product.hasVariants && product.variants && product.variants.length > 0 ? (
+              {product.hasVariants &&
+              product.variants &&
+              product.variants.length > 0 ? (
                 <div className="rounded-md border">
                   <Table>
                     <TableHeader>
@@ -739,26 +841,44 @@ export default function ProductDetails() {
                     <TableBody>
                       {product.variants.map((variant) => (
                         <TableRow key={variant.id}>
-                          <TableCell className="font-medium">{variant.name}</TableCell>
-                          <TableCell className="font-mono text-sm">{variant.sku}</TableCell>
+                          <TableCell className="font-medium">
+                            {variant.name}
+                          </TableCell>
+                          <TableCell className="font-mono text-sm">
+                            {variant.sku}
+                          </TableCell>
                           <TableCell>
                             <div className="flex gap-1 flex-wrap">
-                              {Object.entries(variant.attributes).map(([key, value]) => (
-                                <Badge key={key} variant="outline" className="text-xs">
-                                  {key}: {value}
-                                </Badge>
-                              ))}
+                              {Object.entries(variant.attributes).map(
+                                ([key, value]) => (
+                                  <Badge
+                                    key={key}
+                                    variant="outline"
+                                    className="text-xs"
+                                  >
+                                    {key}: {value}
+                                  </Badge>
+                                ),
+                              )}
                             </div>
                           </TableCell>
                           <TableCell>
-                            {variant.price ? formatCurrency(variant.price) : 'Same as parent'}
+                            {variant.price
+                              ? formatCurrency(variant.price)
+                              : "Same as parent"}
                           </TableCell>
                           <TableCell>
-                            {variant.stock !== undefined ? `${variant.stock} ${product.unit}` : 'N/A'}
+                            {variant.stock !== undefined
+                              ? `${variant.stock} ${product.unit}`
+                              : "N/A"}
                           </TableCell>
                           <TableCell>
-                            <Badge variant={variant.isActive ? 'default' : 'secondary'}>
-                              {variant.isActive ? 'Active' : 'Inactive'}
+                            <Badge
+                              variant={
+                                variant.isActive ? "default" : "secondary"
+                              }
+                            >
+                              {variant.isActive ? "Active" : "Inactive"}
                             </Badge>
                           </TableCell>
                         </TableRow>
@@ -806,21 +926,39 @@ export default function ProductDetails() {
                       {stockMovements.slice(0, 10).map((movement) => (
                         <TableRow key={movement.id}>
                           <TableCell>
-                            {movement.createdAt.toLocaleDateString()} {movement.createdAt.toLocaleTimeString()}
+                            {movement.createdAt.toLocaleDateString()}{" "}
+                            {movement.createdAt.toLocaleTimeString()}
                           </TableCell>
                           <TableCell>
-                            <Badge 
-                              variant={movement.type === 'in' ? 'default' : movement.type === 'out' ? 'destructive' : 'secondary'}
+                            <Badge
+                              variant={
+                                movement.type === "in"
+                                  ? "default"
+                                  : movement.type === "out"
+                                    ? "destructive"
+                                    : "secondary"
+                              }
                             >
                               {movement.type.toUpperCase()}
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            {movement.type === 'in' ? '+' : movement.type === 'out' ? '-' : ''}{movement.quantity} {product.unit}
+                            {movement.type === "in"
+                              ? "+"
+                              : movement.type === "out"
+                                ? "-"
+                                : ""}
+                            {movement.quantity} {product.unit}
                           </TableCell>
-                          <TableCell>{movement.previousStock} {product.unit}</TableCell>
-                          <TableCell>{movement.newStock} {product.unit}</TableCell>
-                          <TableCell className="font-mono text-sm">{movement.reference}</TableCell>
+                          <TableCell>
+                            {movement.previousStock} {product.unit}
+                          </TableCell>
+                          <TableCell>
+                            {movement.newStock} {product.unit}
+                          </TableCell>
+                          <TableCell className="font-mono text-sm">
+                            {movement.reference}
+                          </TableCell>
                           <TableCell>{movement.notes}</TableCell>
                         </TableRow>
                       ))}

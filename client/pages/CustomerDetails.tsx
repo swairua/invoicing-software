@@ -1,9 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Button } from '../components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import React, { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { Button } from "../components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -11,8 +22,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../components/ui/table';
-import { Label } from '../components/ui/label';
+} from "../components/ui/table";
+import { Label } from "../components/ui/label";
 import {
   ArrowLeft,
   Edit,
@@ -31,11 +42,11 @@ import {
   CheckCircle,
   Copy,
   Download,
-  Plus
-} from 'lucide-react';
-import { Customer, Invoice, Payment, Quotation } from '@shared/types';
-import { dataServiceFactory } from '../services/dataServiceFactory';
-import { useToast } from '../hooks/use-toast';
+  Plus,
+} from "lucide-react";
+import { Customer, Invoice, Payment, Quotation } from "@shared/types";
+import { dataServiceFactory } from "../services/dataServiceFactory";
+import { useToast } from "../hooks/use-toast";
 
 export default function CustomerDetails() {
   const { id } = useParams<{ id: string }>();
@@ -54,15 +65,15 @@ export default function CustomerDetails() {
       try {
         setLoading(true);
         const customers = await dataService.getCustomers();
-        const foundCustomer = customers.find(c => c.id === id);
-        
+        const foundCustomer = customers.find((c) => c.id === id);
+
         if (!foundCustomer) {
           toast({
             title: "Customer Not Found",
             description: "The requested customer could not be found.",
             variant: "destructive",
           });
-          navigate('/customers');
+          navigate("/customers");
           return;
         }
 
@@ -70,18 +81,22 @@ export default function CustomerDetails() {
 
         // Get customer-related data
         const allInvoices = await dataService.getInvoices();
-        const customerInvoices = allInvoices.filter(inv => inv.customerId === id);
+        const customerInvoices = allInvoices.filter(
+          (inv) => inv.customerId === id,
+        );
         setInvoices(customerInvoices);
 
         const allQuotations = await dataService.getQuotations();
-        const customerQuotations = allQuotations.filter(q => q.customerId === id);
+        const customerQuotations = allQuotations.filter(
+          (q) => q.customerId === id,
+        );
         setQuotations(customerQuotations);
 
         const allPayments = dataService.getPayments?.() || [];
-        const customerPayments = allPayments.filter(p => p.customerId === id);
+        const customerPayments = allPayments.filter((p) => p.customerId === id);
         setPayments(customerPayments);
       } catch (error) {
-        console.error('Error loading customer:', error);
+        console.error("Error loading customer:", error);
         toast({
           title: "Error",
           description: "Failed to load customer details.",
@@ -98,54 +113,68 @@ export default function CustomerDetails() {
   }, [id, dataService, navigate, toast]);
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-KE', {
-      style: 'currency',
-      currency: 'KES',
+    return new Intl.NumberFormat("en-KE", {
+      style: "currency",
+      currency: "KES",
       minimumFractionDigits: 0,
     }).format(amount);
   };
 
   const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-KE', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
+    return new Intl.DateTimeFormat("en-KE", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     }).format(new Date(date));
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'paid': return 'success';
-      case 'sent': return 'default';
-      case 'overdue': return 'destructive';
-      case 'draft': return 'secondary';
-      case 'accepted': return 'success';
-      case 'rejected': return 'destructive';
-      case 'expired': return 'destructive';
-      default: return 'secondary';
+      case "paid":
+        return "success";
+      case "sent":
+        return "default";
+      case "overdue":
+        return "destructive";
+      case "draft":
+        return "secondary";
+      case "accepted":
+        return "success";
+      case "rejected":
+        return "destructive";
+      case "expired":
+        return "destructive";
+      default:
+        return "secondary";
     }
   };
 
   const getCreditStatus = (customer: Customer) => {
-    const utilizationRate = customer.creditLimit > 0 ? (customer.balance / customer.creditLimit) * 100 : 0;
-    
-    if (utilizationRate >= 90) return { status: 'Critical', color: 'destructive', icon: AlertTriangle };
-    if (utilizationRate >= 70) return { status: 'High', color: 'warning', icon: TrendingUp };
-    if (utilizationRate >= 50) return { status: 'Moderate', color: 'default', icon: TrendingUp };
-    return { status: 'Good', color: 'success', icon: CheckCircle };
+    const utilizationRate =
+      customer.creditLimit > 0
+        ? (customer.balance / customer.creditLimit) * 100
+        : 0;
+
+    if (utilizationRate >= 90)
+      return { status: "Critical", color: "destructive", icon: AlertTriangle };
+    if (utilizationRate >= 70)
+      return { status: "High", color: "warning", icon: TrendingUp };
+    if (utilizationRate >= 50)
+      return { status: "Moderate", color: "default", icon: TrendingUp };
+    return { status: "Good", color: "success", icon: CheckCircle };
   };
 
   const duplicateCustomer = () => {
     if (!customer) return;
-    
-    navigate('/customers/new', { 
-      state: { 
+
+    navigate("/customers/new", {
+      state: {
         duplicateFrom: {
           ...customer,
-          name: customer.name + ' (Copy)',
-          id: undefined
-        }
-      }
+          name: customer.name + " (Copy)",
+          id: undefined,
+        },
+      },
     });
   };
 
@@ -161,7 +190,9 @@ export default function CustomerDetails() {
     return (
       <div className="max-w-2xl mx-auto text-center">
         <h1 className="text-2xl font-bold">Customer Not Found</h1>
-        <p className="text-muted-foreground mb-4">The requested customer could not be found.</p>
+        <p className="text-muted-foreground mb-4">
+          The requested customer could not be found.
+        </p>
         <Button asChild>
           <Link to="/customers">Back to Customers</Link>
         </Button>
@@ -174,10 +205,19 @@ export default function CustomerDetails() {
 
   // Calculate totals
   const totalInvoices = invoices.length;
-  const paidInvoices = invoices.filter(inv => inv.status === 'paid').length;
+  const paidInvoices = invoices.filter((inv) => inv.status === "paid").length;
   const totalRevenue = invoices.reduce((sum, inv) => sum + inv.amountPaid, 0);
-  const outstandingBalance = invoices.reduce((sum, inv) => sum + inv.balance, 0);
-  const lastPayment = payments.length > 0 ? payments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0] : null;
+  const outstandingBalance = invoices.reduce(
+    (sum, inv) => sum + inv.balance,
+    0,
+  );
+  const lastPayment =
+    payments.length > 0
+      ? payments.sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        )[0]
+      : null;
 
   return (
     <div className="space-y-6">
@@ -191,9 +231,12 @@ export default function CustomerDetails() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">{customer.name}</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              {customer.name}
+            </h1>
             <p className="text-muted-foreground">
-              Customer ID: {customer.id} • Member since {formatDate(customer.createdAt)}
+              Customer ID: {customer.id} • Member since{" "}
+              {formatDate(customer.createdAt)}
             </p>
           </div>
         </div>
@@ -225,7 +268,9 @@ export default function CustomerDetails() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalRevenue)}</div>
+            <div className="text-2xl font-bold">
+              {formatCurrency(totalRevenue)}
+            </div>
             <p className="text-xs text-muted-foreground">
               From {totalInvoices} invoices
             </p>
@@ -234,13 +279,17 @@ export default function CustomerDetails() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Outstanding Balance</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Outstanding Balance
+            </CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(outstandingBalance)}</div>
+            <div className="text-2xl font-bold">
+              {formatCurrency(outstandingBalance)}
+            </div>
             <p className="text-xs text-muted-foreground">
-              {invoices.filter(inv => inv.balance > 0).length} unpaid invoices
+              {invoices.filter((inv) => inv.balance > 0).length} unpaid invoices
             </p>
           </CardContent>
         </Card>
@@ -251,7 +300,9 @@ export default function CustomerDetails() {
             <CreditIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(customer.creditLimit - customer.balance)}</div>
+            <div className="text-2xl font-bold">
+              {formatCurrency(customer.creditLimit - customer.balance)}
+            </div>
             <Badge variant={creditStatus.color as any} className="mt-1">
               {creditStatus.status}
             </Badge>
@@ -265,7 +316,10 @@ export default function CustomerDetails() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {totalInvoices > 0 ? Math.round((paidInvoices / totalInvoices) * 100) : 0}%
+              {totalInvoices > 0
+                ? Math.round((paidInvoices / totalInvoices) * 100)
+                : 0}
+              %
             </div>
             <p className="text-xs text-muted-foreground">
               {paidInvoices} of {totalInvoices} paid
@@ -279,8 +333,12 @@ export default function CustomerDetails() {
         <TabsList>
           <TabsTrigger value="details">Customer Details</TabsTrigger>
           <TabsTrigger value="invoices">Invoices ({totalInvoices})</TabsTrigger>
-          <TabsTrigger value="quotations">Quotations ({quotations.length})</TabsTrigger>
-          <TabsTrigger value="payments">Payments ({payments.length})</TabsTrigger>
+          <TabsTrigger value="quotations">
+            Quotations ({quotations.length})
+          </TabsTrigger>
+          <TabsTrigger value="payments">
+            Payments ({payments.length})
+          </TabsTrigger>
           <TabsTrigger value="credit">Credit & Limits</TabsTrigger>
         </TabsList>
 
@@ -296,9 +354,11 @@ export default function CustomerDetails() {
               <CardContent className="space-y-4">
                 <div>
                   <Label className="text-sm font-medium">Customer Name</Label>
-                  <p className="text-sm text-muted-foreground">{customer.name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {customer.name}
+                  </p>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label className="text-sm font-medium flex items-center gap-1">
@@ -306,7 +366,7 @@ export default function CustomerDetails() {
                       Email
                     </Label>
                     <p className="text-sm text-muted-foreground">
-                      {customer.email || 'Not provided'}
+                      {customer.email || "Not provided"}
                     </p>
                   </div>
                   <div>
@@ -315,7 +375,7 @@ export default function CustomerDetails() {
                       Phone
                     </Label>
                     <p className="text-sm text-muted-foreground">
-                      {customer.phone || 'Not provided'}
+                      {customer.phone || "Not provided"}
                     </p>
                   </div>
                 </div>
@@ -326,7 +386,7 @@ export default function CustomerDetails() {
                     Address
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    {customer.address || 'Not provided'}
+                    {customer.address || "Not provided"}
                   </p>
                 </div>
 
@@ -336,7 +396,7 @@ export default function CustomerDetails() {
                     KRA PIN
                   </Label>
                   <p className="text-sm text-muted-foreground font-mono">
-                    {customer.kraPin || 'Not provided'}
+                    {customer.kraPin || "Not provided"}
                   </p>
                 </div>
               </CardContent>
@@ -353,16 +413,24 @@ export default function CustomerDetails() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label className="text-sm font-medium">Credit Limit</Label>
-                    <p className="text-lg font-bold">{formatCurrency(customer.creditLimit)}</p>
+                    <p className="text-lg font-bold">
+                      {formatCurrency(customer.creditLimit)}
+                    </p>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium">Current Balance</Label>
-                    <p className="text-lg font-bold">{formatCurrency(customer.balance)}</p>
+                    <Label className="text-sm font-medium">
+                      Current Balance
+                    </Label>
+                    <p className="text-lg font-bold">
+                      {formatCurrency(customer.balance)}
+                    </p>
                   </div>
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium">Available Credit</Label>
+                  <Label className="text-sm font-medium">
+                    Available Credit
+                  </Label>
                   <p className="text-lg font-bold text-green-600">
                     {formatCurrency(customer.creditLimit - customer.balance)}
                   </p>
@@ -370,8 +438,11 @@ export default function CustomerDetails() {
 
                 <div>
                   <Label className="text-sm font-medium">Account Status</Label>
-                  <Badge variant={customer.isActive ? 'default' : 'secondary'} className="mt-1">
-                    {customer.isActive ? 'Active' : 'Inactive'}
+                  <Badge
+                    variant={customer.isActive ? "default" : "secondary"}
+                    className="mt-1"
+                  >
+                    {customer.isActive ? "Active" : "Inactive"}
                   </Badge>
                 </div>
 
@@ -379,10 +450,12 @@ export default function CustomerDetails() {
                   <div>
                     <Label className="text-sm font-medium">Last Payment</Label>
                     <p className="text-sm text-muted-foreground">
-                      {formatCurrency(lastPayment.amount)} on {formatDate(lastPayment.createdAt)}
+                      {formatCurrency(lastPayment.amount)} on{" "}
+                      {formatDate(lastPayment.createdAt)}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      via {lastPayment.method.toUpperCase()} • Ref: {lastPayment.reference}
+                      via {lastPayment.method.toUpperCase()} • Ref:{" "}
+                      {lastPayment.reference}
                     </p>
                   </div>
                 )}
@@ -404,9 +477,7 @@ export default function CustomerDetails() {
           <Card>
             <CardHeader>
               <CardTitle>Customer Invoices</CardTitle>
-              <CardDescription>
-                All invoices for this customer
-              </CardDescription>
+              <CardDescription>All invoices for this customer</CardDescription>
             </CardHeader>
             <CardContent>
               {invoices.length > 0 ? (
@@ -427,7 +498,7 @@ export default function CustomerDetails() {
                       {invoices.map((invoice) => (
                         <TableRow key={invoice.id}>
                           <TableCell>
-                            <Link 
+                            <Link
                               to={`/invoices/${invoice.id}`}
                               className="font-mono hover:underline"
                             >
@@ -436,10 +507,16 @@ export default function CustomerDetails() {
                           </TableCell>
                           <TableCell>{formatDate(invoice.issueDate)}</TableCell>
                           <TableCell>{formatCurrency(invoice.total)}</TableCell>
-                          <TableCell>{formatCurrency(invoice.amountPaid)}</TableCell>
-                          <TableCell>{formatCurrency(invoice.balance)}</TableCell>
                           <TableCell>
-                            <Badge variant={getStatusColor(invoice.status) as any}>
+                            {formatCurrency(invoice.amountPaid)}
+                          </TableCell>
+                          <TableCell>
+                            {formatCurrency(invoice.balance)}
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant={getStatusColor(invoice.status) as any}
+                            >
                               {invoice.status.toUpperCase()}
                             </Badge>
                           </TableCell>
@@ -494,25 +571,35 @@ export default function CustomerDetails() {
                       {quotations.map((quotation) => (
                         <TableRow key={quotation.id}>
                           <TableCell>
-                            <Link 
+                            <Link
                               to={`/quotations/${quotation.id}`}
                               className="font-mono hover:underline"
                             >
                               {quotation.quoteNumber}
                             </Link>
                           </TableCell>
-                          <TableCell>{formatDate(quotation.issueDate)}</TableCell>
-                          <TableCell>{formatCurrency(quotation.total)}</TableCell>
                           <TableCell>
-                            <Badge variant={getStatusColor(quotation.status) as any}>
+                            {formatDate(quotation.issueDate)}
+                          </TableCell>
+                          <TableCell>
+                            {formatCurrency(quotation.total)}
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant={getStatusColor(quotation.status) as any}
+                            >
                               {quotation.status.toUpperCase()}
                             </Badge>
                           </TableCell>
-                          <TableCell>{formatDate(quotation.validUntil)}</TableCell>
                           <TableCell>
-                            {quotation.status === 'accepted' && (
+                            {formatDate(quotation.validUntil)}
+                          </TableCell>
+                          <TableCell>
+                            {quotation.status === "accepted" && (
                               <Button size="sm" variant="outline" asChild>
-                                <Link to={`/invoices/new?quotation=${quotation.id}`}>
+                                <Link
+                                  to={`/invoices/new?quotation=${quotation.id}`}
+                                >
                                   Convert to Invoice
                                 </Link>
                               </Button>
@@ -581,7 +668,7 @@ export default function CustomerDetails() {
                           </TableCell>
                           <TableCell>
                             {payment.invoiceId && (
-                              <Link 
+                              <Link
                                 to={`/invoices/${payment.invoiceId}`}
                                 className="text-blue-600 hover:underline"
                               >
@@ -623,24 +710,34 @@ export default function CustomerDetails() {
                   <div className="space-y-3">
                     <div className="flex justify-between">
                       <span className="text-sm">Credit Limit:</span>
-                      <span className="font-medium">{formatCurrency(customer.creditLimit)}</span>
+                      <span className="font-medium">
+                        {formatCurrency(customer.creditLimit)}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm">Current Balance:</span>
-                      <span className="font-medium">{formatCurrency(customer.balance)}</span>
+                      <span className="font-medium">
+                        {formatCurrency(customer.balance)}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm">Available Credit:</span>
                       <span className="font-medium text-green-600">
-                        {formatCurrency(customer.creditLimit - customer.balance)}
+                        {formatCurrency(
+                          customer.creditLimit - customer.balance,
+                        )}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm">Utilization Rate:</span>
                       <span className="font-medium">
-                        {customer.creditLimit > 0 
-                          ? ((customer.balance / customer.creditLimit) * 100).toFixed(1)
-                          : 0}%
+                        {customer.creditLimit > 0
+                          ? (
+                              (customer.balance / customer.creditLimit) *
+                              100
+                            ).toFixed(1)
+                          : 0}
+                        %
                       </span>
                     </div>
                   </div>
@@ -655,31 +752,40 @@ export default function CustomerDetails() {
                         {creditStatus.status}
                       </Badge>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span>Credit Usage</span>
                         <span>
-                          {customer.creditLimit > 0 
-                            ? ((customer.balance / customer.creditLimit) * 100).toFixed(1)
-                            : 0}%
+                          {customer.creditLimit > 0
+                            ? (
+                                (customer.balance / customer.creditLimit) *
+                                100
+                              ).toFixed(1)
+                            : 0}
+                          %
                         </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
+                        <div
                           className={`h-2 rounded-full ${
-                            ((customer.balance / customer.creditLimit) * 100) >= 90 ? 'bg-red-500' :
-                            ((customer.balance / customer.creditLimit) * 100) >= 70 ? 'bg-yellow-500' :
-                            'bg-green-500'
+                            (customer.balance / customer.creditLimit) * 100 >=
+                            90
+                              ? "bg-red-500"
+                              : (customer.balance / customer.creditLimit) *
+                                    100 >=
+                                  70
+                                ? "bg-yellow-500"
+                                : "bg-green-500"
                           }`}
                           style={{
-                            width: `${Math.min(100, customer.creditLimit > 0 ? (customer.balance / customer.creditLimit) * 100 : 0)}%`
+                            width: `${Math.min(100, customer.creditLimit > 0 ? (customer.balance / customer.creditLimit) * 100 : 0)}%`,
                           }}
                         />
                       </div>
                     </div>
 
-                    {((customer.balance / customer.creditLimit) * 100) >= 70 && (
+                    {(customer.balance / customer.creditLimit) * 100 >= 70 && (
                       <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                         <div className="flex items-center gap-2">
                           <AlertTriangle className="h-4 w-4 text-yellow-600" />
@@ -688,7 +794,8 @@ export default function CustomerDetails() {
                           </span>
                         </div>
                         <p className="text-xs text-yellow-700 mt-1">
-                          Consider reviewing credit terms or collecting outstanding balances.
+                          Consider reviewing credit terms or collecting
+                          outstanding balances.
                         </p>
                       </div>
                     )}

@@ -1,9 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Button } from '../components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import React, { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { Button } from "../components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -11,7 +22,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../components/ui/table';
+} from "../components/ui/table";
 import {
   ArrowLeft,
   Edit,
@@ -23,11 +34,11 @@ import {
   Clock,
   AlertTriangle,
   User,
-  Calendar
-} from 'lucide-react';
-import { Quotation } from '@shared/types';
-import { dataServiceFactory } from '../services/dataServiceFactory';
-import { useToast } from '../hooks/use-toast';
+  Calendar,
+} from "lucide-react";
+import { Quotation } from "@shared/types";
+import { dataServiceFactory } from "../services/dataServiceFactory";
+import { useToast } from "../hooks/use-toast";
 
 export default function QuotationDetails() {
   const { id } = useParams<{ id: string }>();
@@ -43,21 +54,21 @@ export default function QuotationDetails() {
       try {
         setLoading(true);
         const quotations = await dataService.getQuotations();
-        const foundQuotation = quotations.find(q => q.id === id);
-        
+        const foundQuotation = quotations.find((q) => q.id === id);
+
         if (!foundQuotation) {
           toast({
             title: "Quotation Not Found",
             description: "The requested quotation could not be found.",
             variant: "destructive",
           });
-          navigate('/quotations');
+          navigate("/quotations");
           return;
         }
 
         setQuotation(foundQuotation);
       } catch (error) {
-        console.error('Error loading quotation:', error);
+        console.error("Error loading quotation:", error);
         toast({
           title: "Error",
           description: "Failed to load quotation details.",
@@ -74,40 +85,52 @@ export default function QuotationDetails() {
   }, [id, dataService, navigate, toast]);
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-KE', {
-      style: 'currency',
-      currency: 'KES',
+    return new Intl.NumberFormat("en-KE", {
+      style: "currency",
+      currency: "KES",
       minimumFractionDigits: 0,
     }).format(amount);
   };
 
   const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-KE', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
+    return new Intl.DateTimeFormat("en-KE", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     }).format(new Date(date));
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'accepted': return 'success';
-      case 'sent': return 'default';
-      case 'rejected': return 'destructive';
-      case 'draft': return 'secondary';
-      case 'expired': return 'destructive';
-      default: return 'secondary';
+      case "accepted":
+        return "success";
+      case "sent":
+        return "default";
+      case "rejected":
+        return "destructive";
+      case "draft":
+        return "secondary";
+      case "expired":
+        return "destructive";
+      default:
+        return "secondary";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'accepted': return CheckCircle;
-      case 'sent': return Send;
-      case 'rejected': return AlertTriangle;
-      case 'draft': return Edit;
-      case 'expired': return Clock;
-      default: return FileText;
+      case "accepted":
+        return CheckCircle;
+      case "sent":
+        return Send;
+      case "rejected":
+        return AlertTriangle;
+      case "draft":
+        return Edit;
+      case "expired":
+        return Clock;
+      default:
+        return FileText;
     }
   };
 
@@ -117,23 +140,23 @@ export default function QuotationDetails() {
 
   const convertToInvoice = () => {
     if (!quotation) return;
-    
-    navigate('/invoices/new', { 
-      state: { 
-        convertFrom: 'quotation',
-        sourceData: quotation
-      }
+
+    navigate("/invoices/new", {
+      state: {
+        convertFrom: "quotation",
+        sourceData: quotation,
+      },
     });
   };
 
   const convertToProforma = () => {
     if (!quotation) return;
-    
-    navigate('/proforma/new', { 
-      state: { 
-        convertFrom: 'quotation',
-        sourceData: quotation
-      }
+
+    navigate("/proforma/new", {
+      state: {
+        convertFrom: "quotation",
+        sourceData: quotation,
+      },
     });
   };
 
@@ -149,7 +172,9 @@ export default function QuotationDetails() {
     return (
       <div className="max-w-2xl mx-auto text-center">
         <h1 className="text-2xl font-bold">Quotation Not Found</h1>
-        <p className="text-muted-foreground mb-4">The requested quotation could not be found.</p>
+        <p className="text-muted-foreground mb-4">
+          The requested quotation could not be found.
+        </p>
         <Button asChild>
           <Link to="/quotations">Back to Quotations</Link>
         </Button>
@@ -172,9 +197,12 @@ export default function QuotationDetails() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">{quotation.quoteNumber}</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              {quotation.quoteNumber}
+            </h1>
             <p className="text-muted-foreground">
-              {quotation.customer.name} • Created {formatDate(quotation.issueDate)}
+              {quotation.customer.name} • Created{" "}
+              {formatDate(quotation.issueDate)}
             </p>
           </div>
         </div>
@@ -187,31 +215,34 @@ export default function QuotationDetails() {
             <Download className="mr-2 h-4 w-4" />
             PDF
           </Button>
-          {quotation.status === 'accepted' && (
+          {quotation.status === "accepted" && (
             <>
               <Button variant="outline" onClick={convertToProforma}>
                 Convert to Proforma
               </Button>
-              <Button onClick={convertToInvoice}>
-                Convert to Invoice
-              </Button>
+              <Button onClick={convertToInvoice}>Convert to Invoice</Button>
             </>
           )}
         </div>
       </div>
 
       {/* Status Banner */}
-      {expired && quotation.status !== 'accepted' && quotation.status !== 'rejected' && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <div className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-red-600" />
-            <span className="font-medium text-red-800">This quotation has expired</span>
+      {expired &&
+        quotation.status !== "accepted" &&
+        quotation.status !== "rejected" && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex items-center gap-2">
+              <Clock className="h-5 w-5 text-red-600" />
+              <span className="font-medium text-red-800">
+                This quotation has expired
+              </span>
+            </div>
+            <p className="text-sm text-red-700 mt-1">
+              Valid until {formatDate(quotation.validUntil)}. Consider extending
+              the validity or creating a new quotation.
+            </p>
           </div>
-          <p className="text-sm text-red-700 mt-1">
-            Valid until {formatDate(quotation.validUntil)}. Consider extending the validity or creating a new quotation.
-          </p>
-        </div>
-      )}
+        )}
 
       {/* Main Content */}
       <Tabs defaultValue="details" className="space-y-6">
@@ -231,7 +262,9 @@ export default function QuotationDetails() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium">Quote Number</label>
-                    <p className="text-sm text-muted-foreground font-mono">{quotation.quoteNumber}</p>
+                    <p className="text-sm text-muted-foreground font-mono">
+                      {quotation.quoteNumber}
+                    </p>
                   </div>
                   <div>
                     <label className="text-sm font-medium">Status</label>
@@ -247,11 +280,15 @@ export default function QuotationDetails() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium">Issue Date</label>
-                    <p className="text-sm text-muted-foreground">{formatDate(quotation.issueDate)}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {formatDate(quotation.issueDate)}
+                    </p>
                   </div>
                   <div>
                     <label className="text-sm font-medium">Valid Until</label>
-                    <p className={`text-sm ${expired ? 'text-red-600 font-medium' : 'text-muted-foreground'}`}>
+                    <p
+                      className={`text-sm ${expired ? "text-red-600 font-medium" : "text-muted-foreground"}`}
+                    >
                       {formatDate(quotation.validUntil)}
                     </p>
                   </div>
@@ -260,7 +297,9 @@ export default function QuotationDetails() {
                 {quotation.notes && (
                   <div>
                     <label className="text-sm font-medium">Notes</label>
-                    <p className="text-sm text-muted-foreground">{quotation.notes}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {quotation.notes}
+                    </p>
                   </div>
                 )}
               </CardContent>
@@ -274,23 +313,31 @@ export default function QuotationDetails() {
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-sm">Subtotal:</span>
-                    <span className="font-medium">{formatCurrency(quotation.subtotal)}</span>
+                    <span className="font-medium">
+                      {formatCurrency(quotation.subtotal)}
+                    </span>
                   </div>
                   {quotation.discountAmount > 0 && (
                     <div className="flex justify-between">
                       <span className="text-sm">Discount:</span>
-                      <span className="font-medium">-{formatCurrency(quotation.discountAmount)}</span>
+                      <span className="font-medium">
+                        -{formatCurrency(quotation.discountAmount)}
+                      </span>
                     </div>
                   )}
                   {quotation.vatAmount > 0 && (
                     <div className="flex justify-between">
                       <span className="text-sm">VAT:</span>
-                      <span className="font-medium">{formatCurrency(quotation.vatAmount)}</span>
+                      <span className="font-medium">
+                        {formatCurrency(quotation.vatAmount)}
+                      </span>
                     </div>
                   )}
                   <div className="flex justify-between border-t pt-2">
                     <span className="font-medium">Total:</span>
-                    <span className="font-bold text-lg">{formatCurrency(quotation.total)}</span>
+                    <span className="font-bold text-lg">
+                      {formatCurrency(quotation.total)}
+                    </span>
                   </div>
                 </div>
               </CardContent>
@@ -324,13 +371,17 @@ export default function QuotationDetails() {
                       <TableRow key={item.id}>
                         <TableCell>
                           <div>
-                            <div className="font-medium">{item.product.name}</div>
+                            <div className="font-medium">
+                              {item.product.name}
+                            </div>
                             <div className="text-sm text-muted-foreground">
                               SKU: {item.product.sku}
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell>{item.quantity} {item.product.unit}</TableCell>
+                        <TableCell>
+                          {item.quantity} {item.product.unit}
+                        </TableCell>
                         <TableCell>{formatCurrency(item.unitPrice)}</TableCell>
                         <TableCell>{item.discount}%</TableCell>
                         <TableCell>{item.vatRate}%</TableCell>
@@ -357,20 +408,22 @@ export default function QuotationDetails() {
             <CardContent className="space-y-4">
               <div>
                 <label className="text-sm font-medium">Customer Name</label>
-                <p className="text-sm text-muted-foreground">{quotation.customer.name}</p>
+                <p className="text-sm text-muted-foreground">
+                  {quotation.customer.name}
+                </p>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium">Email</label>
                   <p className="text-sm text-muted-foreground">
-                    {quotation.customer.email || 'Not provided'}
+                    {quotation.customer.email || "Not provided"}
                   </p>
                 </div>
                 <div>
                   <label className="text-sm font-medium">Phone</label>
                   <p className="text-sm text-muted-foreground">
-                    {quotation.customer.phone || 'Not provided'}
+                    {quotation.customer.phone || "Not provided"}
                   </p>
                 </div>
               </div>
@@ -378,7 +431,7 @@ export default function QuotationDetails() {
               <div>
                 <label className="text-sm font-medium">Address</label>
                 <p className="text-sm text-muted-foreground">
-                  {quotation.customer.address || 'Not provided'}
+                  {quotation.customer.address || "Not provided"}
                 </p>
               </div>
 

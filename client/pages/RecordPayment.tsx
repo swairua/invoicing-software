@@ -1,18 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link, useSearchParams } from 'react-router-dom';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Textarea } from '../components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Textarea } from "../components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../components/ui/select';
-import { Badge } from '../components/ui/badge';
+} from "../components/ui/select";
+import { Badge } from "../components/ui/badge";
 import {
   ArrowLeft,
   Save,
@@ -24,17 +30,17 @@ import {
   Smartphone,
   Building,
   CheckCircle,
-  AlertTriangle
-} from 'lucide-react';
-import { Customer, Invoice, Payment } from '@shared/types';
-import { dataServiceFactory } from '../services/dataServiceFactory';
-import { useToast } from '../hooks/use-toast';
+  AlertTriangle,
+} from "lucide-react";
+import { Customer, Invoice, Payment } from "@shared/types";
+import { dataServiceFactory } from "../services/dataServiceFactory";
+import { useToast } from "../hooks/use-toast";
 
 interface PaymentFormData {
   customerId: string;
   invoiceId: string;
   amount: string;
-  method: 'cash' | 'mpesa' | 'bank' | 'cheque' | 'card';
+  method: "cash" | "mpesa" | "bank" | "cheque" | "card";
   reference: string;
   notes: string;
 }
@@ -48,16 +54,16 @@ export default function RecordPayment() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>([]);
 
-  const preselectedInvoiceId = searchParams.get('invoice');
-  const preselectedCustomerId = searchParams.get('customer');
+  const preselectedInvoiceId = searchParams.get("invoice");
+  const preselectedCustomerId = searchParams.get("customer");
 
   const [formData, setFormData] = useState<PaymentFormData>({
-    customerId: preselectedCustomerId || '',
-    invoiceId: preselectedInvoiceId || '',
-    amount: '',
-    method: 'mpesa',
-    reference: '',
-    notes: '',
+    customerId: preselectedCustomerId || "",
+    invoiceId: preselectedInvoiceId || "",
+    amount: "",
+    method: "mpesa",
+    reference: "",
+    notes: "",
   });
 
   const dataService = dataServiceFactory.getDataService();
@@ -67,24 +73,26 @@ export default function RecordPayment() {
       try {
         const [customerData, invoiceData] = await Promise.all([
           dataService.getCustomers(),
-          dataService.getInvoices()
+          dataService.getInvoices(),
         ]);
         setCustomers(customerData);
         setInvoices(invoiceData);
 
         // If invoice is preselected, set the customer
         if (preselectedInvoiceId) {
-          const invoice = invoiceData.find(inv => inv.id === preselectedInvoiceId);
+          const invoice = invoiceData.find(
+            (inv) => inv.id === preselectedInvoiceId,
+          );
           if (invoice) {
-            setFormData(prev => ({
+            setFormData((prev) => ({
               ...prev,
               customerId: invoice.customerId,
-              amount: invoice.balance.toString()
+              amount: invoice.balance.toString(),
             }));
           }
         }
       } catch (error) {
-        console.error('Error loading data:', error);
+        console.error("Error loading data:", error);
         toast({
           title: "Error",
           description: "Failed to load data.",
@@ -98,8 +106,8 @@ export default function RecordPayment() {
 
   useEffect(() => {
     if (formData.customerId) {
-      const customerInvoices = invoices.filter(inv => 
-        inv.customerId === formData.customerId && inv.balance > 0
+      const customerInvoices = invoices.filter(
+        (inv) => inv.customerId === formData.customerId && inv.balance > 0,
       );
       setFilteredInvoices(customerInvoices);
     } else {
@@ -108,40 +116,52 @@ export default function RecordPayment() {
   }, [formData.customerId, invoices]);
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-KE', {
-      style: 'currency',
-      currency: 'KES',
+    return new Intl.NumberFormat("en-KE", {
+      style: "currency",
+      currency: "KES",
       minimumFractionDigits: 0,
     }).format(amount);
   };
 
   const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-KE', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
+    return new Intl.DateTimeFormat("en-KE", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     }).format(new Date(date));
   };
 
   const getMethodIcon = (method: string) => {
     switch (method) {
-      case 'cash': return Banknote;
-      case 'mpesa': return Smartphone;
-      case 'bank': return Building;
-      case 'cheque': return FileText;
-      case 'card': return CreditCard;
-      default: return Receipt;
+      case "cash":
+        return Banknote;
+      case "mpesa":
+        return Smartphone;
+      case "bank":
+        return Building;
+      case "cheque":
+        return FileText;
+      case "card":
+        return CreditCard;
+      default:
+        return Receipt;
     }
   };
 
   const getMethodColor = (method: string) => {
     switch (method) {
-      case 'cash': return 'bg-green-100 text-green-800';
-      case 'mpesa': return 'bg-blue-100 text-blue-800';
-      case 'bank': return 'bg-purple-100 text-purple-800';
-      case 'cheque': return 'bg-yellow-100 text-yellow-800';
-      case 'card': return 'bg-indigo-100 text-indigo-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "cash":
+        return "bg-green-100 text-green-800";
+      case "mpesa":
+        return "bg-blue-100 text-blue-800";
+      case "bank":
+        return "bg-purple-100 text-purple-800";
+      case "cheque":
+        return "bg-yellow-100 text-yellow-800";
+      case "card":
+        return "bg-indigo-100 text-indigo-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -152,28 +172,30 @@ export default function RecordPayment() {
     return `${methodPrefix}${timestamp}${random}`;
   };
 
-  const handleMethodChange = (method: 'cash' | 'mpesa' | 'bank' | 'cheque' | 'card') => {
-    setFormData(prev => ({
+  const handleMethodChange = (
+    method: "cash" | "mpesa" | "bank" | "cheque" | "card",
+  ) => {
+    setFormData((prev) => ({
       ...prev,
       method,
-      reference: prev.reference || generateReference()
+      reference: prev.reference || generateReference(),
     }));
   };
 
   const handleInvoiceSelect = (invoiceId: string) => {
-    const invoice = invoices.find(inv => inv.id === invoiceId);
+    const invoice = invoices.find((inv) => inv.id === invoiceId);
     if (invoice) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         invoiceId,
-        amount: invoice.balance.toString()
+        amount: invoice.balance.toString(),
       }));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.customerId || !formData.amount || !formData.reference) {
       toast({
         title: "Validation Error",
@@ -195,7 +217,7 @@ export default function RecordPayment() {
 
     // Validate against invoice balance if invoice is selected
     if (formData.invoiceId) {
-      const invoice = invoices.find(inv => inv.id === formData.invoiceId);
+      const invoice = invoices.find((inv) => inv.id === formData.invoiceId);
       if (invoice && amount > invoice.balance) {
         toast({
           title: "Amount Too High",
@@ -209,28 +231,28 @@ export default function RecordPayment() {
     setIsSubmitting(true);
 
     try {
-      const newPayment: Omit<Payment, 'id' | 'createdAt'> = {
+      const newPayment: Omit<Payment, "id" | "createdAt"> = {
         amount,
         method: formData.method,
         reference: formData.reference,
         notes: formData.notes || undefined,
         invoiceId: formData.invoiceId || undefined,
         customerId: formData.customerId,
-        companyId: '1',
-        createdBy: '1',
+        companyId: "1",
+        createdBy: "1",
       };
 
       // Here you would normally call a create payment API
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       toast({
         title: "Payment Recorded",
         description: `Payment of ${formatCurrency(amount)} has been recorded successfully.`,
       });
 
-      navigate('/payments');
+      navigate("/payments");
     } catch (error) {
-      console.error('Error recording payment:', error);
+      console.error("Error recording payment:", error);
       toast({
         title: "Error",
         description: "Failed to record payment. Please try again.",
@@ -241,8 +263,8 @@ export default function RecordPayment() {
     }
   };
 
-  const selectedCustomer = customers.find(c => c.id === formData.customerId);
-  const selectedInvoice = invoices.find(inv => inv.id === formData.invoiceId);
+  const selectedCustomer = customers.find((c) => c.id === formData.customerId);
+  const selectedInvoice = invoices.find((inv) => inv.id === formData.invoiceId);
   const MethodIcon = getMethodIcon(formData.method);
 
   return (
@@ -257,7 +279,9 @@ export default function RecordPayment() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Record Payment</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Record Payment
+            </h1>
             <p className="text-muted-foreground">
               Record a payment received from a customer
             </p>
@@ -299,16 +323,22 @@ export default function RecordPayment() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="customer">Customer *</Label>
-                <Select 
-                  value={formData.customerId} 
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, customerId: value, invoiceId: '' }))}
+                <Select
+                  value={formData.customerId}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      customerId: value,
+                      invoiceId: "",
+                    }))
+                  }
                   disabled={!!preselectedCustomerId}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a customer" />
                   </SelectTrigger>
                   <SelectContent>
-                    {customers.map(customer => (
+                    {customers.map((customer) => (
                       <SelectItem key={customer.id} value={customer.id}>
                         <div>
                           <div className="font-medium">{customer.name}</div>
@@ -324,8 +354,8 @@ export default function RecordPayment() {
 
               <div className="space-y-2">
                 <Label htmlFor="invoice">Invoice (Optional)</Label>
-                <Select 
-                  value={formData.invoiceId} 
+                <Select
+                  value={formData.invoiceId}
                   onValueChange={handleInvoiceSelect}
                   disabled={!formData.customerId || !!preselectedInvoiceId}
                 >
@@ -334,12 +364,15 @@ export default function RecordPayment() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">No specific invoice</SelectItem>
-                    {filteredInvoices.map(invoice => (
+                    {filteredInvoices.map((invoice) => (
                       <SelectItem key={invoice.id} value={invoice.id}>
                         <div>
-                          <div className="font-medium">{invoice.invoiceNumber}</div>
+                          <div className="font-medium">
+                            {invoice.invoiceNumber}
+                          </div>
                           <div className="text-xs text-muted-foreground">
-                            Due: {formatDate(invoice.dueDate)} • Balance: {formatCurrency(invoice.balance)}
+                            Due: {formatDate(invoice.dueDate)} • Balance:{" "}
+                            {formatCurrency(invoice.balance)}
                           </div>
                         </div>
                       </SelectItem>
@@ -347,7 +380,8 @@ export default function RecordPayment() {
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">
-                  Link this payment to a specific invoice, or leave blank for general payment
+                  Link this payment to a specific invoice, or leave blank for
+                  general payment
                 </p>
               </div>
 
@@ -355,21 +389,40 @@ export default function RecordPayment() {
                 <div className="p-3 bg-muted rounded-lg">
                   <h4 className="font-medium text-sm mb-2">Customer Summary</h4>
                   <div className="space-y-1 text-xs">
-                    <div>Outstanding Balance: {formatCurrency(selectedCustomer.balance)}</div>
-                    <div>Credit Limit: {formatCurrency(selectedCustomer.creditLimit)}</div>
-                    <div>Available Credit: {formatCurrency(selectedCustomer.creditLimit - selectedCustomer.balance)}</div>
+                    <div>
+                      Outstanding Balance:{" "}
+                      {formatCurrency(selectedCustomer.balance)}
+                    </div>
+                    <div>
+                      Credit Limit:{" "}
+                      {formatCurrency(selectedCustomer.creditLimit)}
+                    </div>
+                    <div>
+                      Available Credit:{" "}
+                      {formatCurrency(
+                        selectedCustomer.creditLimit - selectedCustomer.balance,
+                      )}
+                    </div>
                   </div>
                 </div>
               )}
 
               {selectedInvoice && (
                 <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <h4 className="font-medium text-sm mb-2 text-blue-800">Selected Invoice</h4>
+                  <h4 className="font-medium text-sm mb-2 text-blue-800">
+                    Selected Invoice
+                  </h4>
                   <div className="space-y-1 text-xs text-blue-700">
                     <div>Invoice: {selectedInvoice.invoiceNumber}</div>
-                    <div>Total Amount: {formatCurrency(selectedInvoice.total)}</div>
-                    <div>Amount Paid: {formatCurrency(selectedInvoice.amountPaid)}</div>
-                    <div className="font-medium">Outstanding: {formatCurrency(selectedInvoice.balance)}</div>
+                    <div>
+                      Total Amount: {formatCurrency(selectedInvoice.total)}
+                    </div>
+                    <div>
+                      Amount Paid: {formatCurrency(selectedInvoice.amountPaid)}
+                    </div>
+                    <div className="font-medium">
+                      Outstanding: {formatCurrency(selectedInvoice.balance)}
+                    </div>
                   </div>
                 </div>
               )}
@@ -394,34 +447,41 @@ export default function RecordPayment() {
                   id="amount"
                   type="number"
                   value={formData.amount}
-                  onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, amount: e.target.value }))
+                  }
                   placeholder="0.00"
                   min="0"
                   step="0.01"
                   required
                 />
-                {selectedInvoice && parseFloat(formData.amount) > selectedInvoice.balance && (
-                  <div className="flex items-center gap-2 text-orange-600">
-                    <AlertTriangle className="h-4 w-4" />
-                    <span className="text-xs">Amount exceeds invoice balance</span>
-                  </div>
-                )}
+                {selectedInvoice &&
+                  parseFloat(formData.amount) > selectedInvoice.balance && (
+                    <div className="flex items-center gap-2 text-orange-600">
+                      <AlertTriangle className="h-4 w-4" />
+                      <span className="text-xs">
+                        Amount exceeds invoice balance
+                      </span>
+                    </div>
+                  )}
               </div>
 
               <div className="space-y-2">
                 <Label>Payment Method *</Label>
                 <div className="grid grid-cols-2 gap-2">
                   {[
-                    { value: 'cash', label: 'Cash', icon: Banknote },
-                    { value: 'mpesa', label: 'M-Pesa', icon: Smartphone },
-                    { value: 'bank', label: 'Bank Transfer', icon: Building },
-                    { value: 'cheque', label: 'Cheque', icon: FileText },
-                    { value: 'card', label: 'Card Payment', icon: CreditCard },
+                    { value: "cash", label: "Cash", icon: Banknote },
+                    { value: "mpesa", label: "M-Pesa", icon: Smartphone },
+                    { value: "bank", label: "Bank Transfer", icon: Building },
+                    { value: "cheque", label: "Cheque", icon: FileText },
+                    { value: "card", label: "Card Payment", icon: CreditCard },
                   ].map(({ value, label, icon: Icon }) => (
                     <Button
                       key={value}
                       type="button"
-                      variant={formData.method === value ? 'default' : 'outline'}
+                      variant={
+                        formData.method === value ? "default" : "outline"
+                      }
                       onClick={() => handleMethodChange(value as any)}
                       className="justify-start h-12"
                     >
@@ -438,14 +498,24 @@ export default function RecordPayment() {
                   <Input
                     id="reference"
                     value={formData.reference}
-                    onChange={(e) => setFormData(prev => ({ ...prev, reference: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        reference: e.target.value,
+                      }))
+                    }
                     placeholder="Payment reference"
                     required
                   />
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => setFormData(prev => ({ ...prev, reference: generateReference() }))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        reference: generateReference(),
+                      }))
+                    }
                   >
                     Generate
                   </Button>
@@ -460,7 +530,9 @@ export default function RecordPayment() {
                 <Textarea
                   id="notes"
                   value={formData.notes}
-                  onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, notes: e.target.value }))
+                  }
                   placeholder="Additional notes about this payment..."
                   rows={3}
                 />
@@ -482,7 +554,9 @@ export default function RecordPayment() {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span>Amount:</span>
-                      <span className="font-bold text-lg">{formatCurrency(parseFloat(formData.amount))}</span>
+                      <span className="font-bold text-lg">
+                        {formatCurrency(parseFloat(formData.amount))}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span>Method:</span>
@@ -493,7 +567,9 @@ export default function RecordPayment() {
                     </div>
                     <div className="flex justify-between">
                       <span>Reference:</span>
-                      <span className="font-mono text-xs">{formData.reference}</span>
+                      <span className="font-mono text-xs">
+                        {formData.reference}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -505,12 +581,20 @@ export default function RecordPayment() {
                       <>
                         <div className="flex justify-between">
                           <span>Current Customer Balance:</span>
-                          <span>{formatCurrency(selectedCustomer.balance)}</span>
+                          <span>
+                            {formatCurrency(selectedCustomer.balance)}
+                          </span>
                         </div>
                         <div className="flex justify-between">
                           <span>After Payment:</span>
                           <span className="font-medium text-green-600">
-                            {formatCurrency(Math.max(0, selectedCustomer.balance - parseFloat(formData.amount)))}
+                            {formatCurrency(
+                              Math.max(
+                                0,
+                                selectedCustomer.balance -
+                                  parseFloat(formData.amount),
+                              ),
+                            )}
                           </span>
                         </div>
                       </>
@@ -524,13 +608,22 @@ export default function RecordPayment() {
                         <div className="flex justify-between">
                           <span>After Payment:</span>
                           <span className="font-medium text-green-600">
-                            {formatCurrency(Math.max(0, selectedInvoice.balance - parseFloat(formData.amount)))}
+                            {formatCurrency(
+                              Math.max(
+                                0,
+                                selectedInvoice.balance -
+                                  parseFloat(formData.amount),
+                              ),
+                            )}
                           </span>
                         </div>
-                        {parseFloat(formData.amount) >= selectedInvoice.balance && (
+                        {parseFloat(formData.amount) >=
+                          selectedInvoice.balance && (
                           <div className="flex items-center gap-2 text-green-600">
                             <CheckCircle className="h-4 w-4" />
-                            <span className="text-xs font-medium">Invoice will be marked as paid</span>
+                            <span className="text-xs font-medium">
+                              Invoice will be marked as paid
+                            </span>
                           </div>
                         )}
                       </>

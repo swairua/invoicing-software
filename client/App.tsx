@@ -39,7 +39,7 @@ const queryClient = new QueryClient();
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
-  
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -47,17 +47,17 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       </div>
     );
   }
-  
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  
+
   return <>{children}</>;
 }
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
-  
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -65,29 +65,35 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
       </div>
     );
   }
-  
+
   if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
   }
-  
+
   return <>{children}</>;
 }
 
 const AppRoutes = () => (
   <Routes>
     {/* Public Routes */}
-    <Route path="/login" element={
-      <PublicRoute>
-        <Login />
-      </PublicRoute>
-    } />
-    
+    <Route
+      path="/login"
+      element={
+        <PublicRoute>
+          <Login />
+        </PublicRoute>
+      }
+    />
+
     {/* Protected Routes */}
-    <Route path="/" element={
-      <ProtectedRoute>
-        <Layout />
-      </ProtectedRoute>
-    }>
+    <Route
+      path="/"
+      element={
+        <ProtectedRoute>
+          <Layout />
+        </ProtectedRoute>
+      }
+    >
       <Route index element={<Navigate to="/dashboard" replace />} />
       <Route path="dashboard" element={<Dashboard />} />
       <Route path="customers" element={<Customers />} />
@@ -117,7 +123,7 @@ const AppRoutes = () => (
       <Route path="templates" element={<Templates />} />
       <Route path="units" element={<UnitsOfMeasure />} />
     </Route>
-    
+
     {/* Catch-all redirect */}
     <Route path="*" element={<Navigate to="/login" replace />} />
   </Routes>

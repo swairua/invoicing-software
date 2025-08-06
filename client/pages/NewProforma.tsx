@@ -1,17 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation, Link, useSearchParams } from 'react-router-dom';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Textarea } from '../components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import React, { useState, useEffect } from "react";
+import {
+  useNavigate,
+  useLocation,
+  Link,
+  useSearchParams,
+} from "react-router-dom";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Textarea } from "../components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../components/ui/select';
+} from "../components/ui/select";
 import {
   Table,
   TableBody,
@@ -19,8 +30,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../components/ui/table';
-import { Badge } from '../components/ui/badge';
+} from "../components/ui/table";
+import { Badge } from "../components/ui/badge";
 import {
   ArrowLeft,
   Save,
@@ -32,11 +43,11 @@ import {
   Package,
   Calculator,
   Calendar,
-  Send
-} from 'lucide-react';
-import { Customer, Product } from '@shared/types';
-import { dataServiceFactory } from '../services/dataServiceFactory';
-import { useToast } from '../hooks/use-toast';
+  Send,
+} from "lucide-react";
+import { Customer, Product } from "@shared/types";
+import { dataServiceFactory } from "../services/dataServiceFactory";
+import { useToast } from "../hooks/use-toast";
 
 interface ProformaFormData {
   customerId: string;
@@ -61,17 +72,23 @@ export default function NewProforma() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [productSearch, setProductSearch] = useState('');
+  const [productSearch, setProductSearch] = useState("");
 
   const duplicateData = location.state?.duplicateFrom;
   const convertData = location.state?.sourceData;
-  const preselectedCustomerId = searchParams.get('customer');
+  const preselectedCustomerId = searchParams.get("customer");
 
   const [formData, setFormData] = useState<ProformaFormData>({
-    customerId: preselectedCustomerId || duplicateData?.customerId || convertData?.customerId || '',
-    issueDate: new Date().toISOString().split('T')[0],
-    validUntil: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 15 days from now
-    notes: duplicateData?.notes || convertData?.notes || '',
+    customerId:
+      preselectedCustomerId ||
+      duplicateData?.customerId ||
+      convertData?.customerId ||
+      "",
+    issueDate: new Date().toISOString().split("T")[0],
+    validUntil: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split("T")[0], // 15 days from now
+    notes: duplicateData?.notes || convertData?.notes || "",
   });
 
   const [items, setItems] = useState<ProformaItemFormData[]>(
@@ -79,15 +96,15 @@ export default function NewProforma() {
       productId: item.productId,
       quantity: item.quantity.toString(),
       unitPrice: item.unitPrice.toString(),
-      discount: item.discount.toString()
-    })) || []
+      discount: item.discount.toString(),
+    })) || [],
   );
 
   const [newItem, setNewItem] = useState<ProformaItemFormData>({
-    productId: '',
-    quantity: '1',
-    unitPrice: '',
-    discount: '0'
+    productId: "",
+    quantity: "1",
+    unitPrice: "",
+    discount: "0",
   });
 
   const dataService = dataServiceFactory.getDataService();
@@ -97,13 +114,13 @@ export default function NewProforma() {
       try {
         const [customerData, productData] = await Promise.all([
           dataService.getCustomers(),
-          dataService.getProducts()
+          dataService.getProducts(),
         ]);
         setCustomers(customerData);
         setProducts(productData);
         setFilteredProducts(productData);
       } catch (error) {
-        console.error('Error loading data:', error);
+        console.error("Error loading data:", error);
         toast({
           title: "Error",
           description: "Failed to load customers and products.",
@@ -117,9 +134,10 @@ export default function NewProforma() {
 
   useEffect(() => {
     if (productSearch) {
-      const filtered = products.filter(product =>
-        product.name.toLowerCase().includes(productSearch.toLowerCase()) ||
-        product.sku.toLowerCase().includes(productSearch.toLowerCase())
+      const filtered = products.filter(
+        (product) =>
+          product.name.toLowerCase().includes(productSearch.toLowerCase()) ||
+          product.sku.toLowerCase().includes(productSearch.toLowerCase()),
       );
       setFilteredProducts(filtered);
     } else {
@@ -128,9 +146,9 @@ export default function NewProforma() {
   }, [productSearch, products]);
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-KE', {
-      style: 'currency',
-      currency: 'KES',
+    return new Intl.NumberFormat("en-KE", {
+      style: "currency",
+      currency: "KES",
       minimumFractionDigits: 0,
     }).format(amount);
   };
@@ -139,15 +157,15 @@ export default function NewProforma() {
     const quantity = parseFloat(item.quantity) || 0;
     const unitPrice = parseFloat(item.unitPrice) || 0;
     const discount = parseFloat(item.discount) || 0;
-    
+
     const subtotal = quantity * unitPrice;
     const discountAmount = (subtotal * discount) / 100;
     const afterDiscount = subtotal - discountAmount;
-    
-    const product = products.find(p => p.id === item.productId);
-    const vatRate = product?.taxable ? (product.taxRate || 16) : 0;
+
+    const product = products.find((p) => p.id === item.productId);
+    const vatRate = product?.taxable ? product.taxRate || 16 : 0;
     const vatAmount = (afterDiscount * vatRate) / 100;
-    
+
     return afterDiscount + vatAmount;
   };
 
@@ -156,20 +174,20 @@ export default function NewProforma() {
     let discountAmount = 0;
     let vatAmount = 0;
 
-    items.forEach(item => {
+    items.forEach((item) => {
       const quantity = parseFloat(item.quantity) || 0;
       const unitPrice = parseFloat(item.unitPrice) || 0;
       const discount = parseFloat(item.discount) || 0;
-      
+
       const itemSubtotal = quantity * unitPrice;
       subtotal += itemSubtotal;
-      
+
       const itemDiscountAmount = (itemSubtotal * discount) / 100;
       discountAmount += itemDiscountAmount;
-      
+
       const afterDiscount = itemSubtotal - itemDiscountAmount;
-      const product = products.find(p => p.id === item.productId);
-      const vatRate = product?.taxable ? (product.taxRate || 16) : 0;
+      const product = products.find((p) => p.id === item.productId);
+      const vatRate = product?.taxable ? product.taxRate || 16 : 0;
       const itemVatAmount = (afterDiscount * vatRate) / 100;
       vatAmount += itemVatAmount;
     });
@@ -180,7 +198,7 @@ export default function NewProforma() {
       subtotal,
       discountAmount,
       vatAmount,
-      total
+      total,
     };
   };
 
@@ -188,46 +206,54 @@ export default function NewProforma() {
     if (!newItem.productId || !newItem.quantity || !newItem.unitPrice) {
       toast({
         title: "Validation Error",
-        description: "Please select a product and enter quantity and unit price.",
+        description:
+          "Please select a product and enter quantity and unit price.",
         variant: "destructive",
       });
       return;
     }
 
-    setItems(prev => [...prev, { ...newItem }]);
+    setItems((prev) => [...prev, { ...newItem }]);
     setNewItem({
-      productId: '',
-      quantity: '1',
-      unitPrice: '',
-      discount: '0'
+      productId: "",
+      quantity: "1",
+      unitPrice: "",
+      discount: "0",
     });
-    setProductSearch('');
+    setProductSearch("");
   };
 
   const removeItem = (index: number) => {
-    setItems(prev => prev.filter((_, i) => i !== index));
+    setItems((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const updateItem = (index: number, field: keyof ProformaItemFormData, value: string) => {
-    setItems(prev => prev.map((item, i) =>
-      i === index ? { ...item, [field]: value } : item
-    ));
+  const updateItem = (
+    index: number,
+    field: keyof ProformaItemFormData,
+    value: string,
+  ) => {
+    setItems((prev) =>
+      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
+    );
   };
 
   const handleProductSelect = (productId: string) => {
-    const product = products.find(p => p.id === productId);
+    const product = products.find((p) => p.id === productId);
     if (product) {
-      setNewItem(prev => ({
+      setNewItem((prev) => ({
         ...prev,
         productId,
-        unitPrice: product.sellingPrice.toString()
+        unitPrice: product.sellingPrice.toString(),
       }));
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent, sendImmediately: boolean = false) => {
+  const handleSubmit = async (
+    e: React.FormEvent,
+    sendImmediately: boolean = false,
+  ) => {
     e.preventDefault();
-    
+
     if (!formData.customerId) {
       toast({
         title: "Validation Error",
@@ -261,7 +287,7 @@ export default function NewProforma() {
 
     try {
       // Here you would normally call a create proforma API
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       toast({
         title: "Proforma Created",
@@ -275,9 +301,9 @@ export default function NewProforma() {
         });
       }
 
-      navigate('/proforma');
+      navigate("/proforma");
     } catch (error) {
-      console.error('Error creating proforma:', error);
+      console.error("Error creating proforma:", error);
       toast({
         title: "Error",
         description: "Failed to create proforma. Please try again.",
@@ -289,7 +315,7 @@ export default function NewProforma() {
   };
 
   const totals = calculateTotals();
-  const selectedCustomer = customers.find(c => c.id === formData.customerId);
+  const selectedCustomer = customers.find((c) => c.id === formData.customerId);
 
   return (
     <div className="space-y-6">
@@ -304,15 +330,18 @@ export default function NewProforma() {
           </Button>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              {duplicateData ? 'Duplicate Proforma' : convertData ? 'Convert to Proforma' : 'New Proforma Invoice'}
+              {duplicateData
+                ? "Duplicate Proforma"
+                : convertData
+                  ? "Convert to Proforma"
+                  : "New Proforma Invoice"}
             </h1>
             <p className="text-muted-foreground">
-              {convertData 
-                ? `Convert ${convertData.quoteNumber || 'quotation'} to proforma invoice`
-                : duplicateData 
-                ? 'Create a copy of an existing proforma'
-                : 'Create a new proforma invoice for your customer'
-              }
+              {convertData
+                ? `Convert ${convertData.quoteNumber || "quotation"} to proforma invoice`
+                : duplicateData
+                  ? "Create a copy of an existing proforma"
+                  : "Create a new proforma invoice for your customer"}
             </p>
           </div>
         </div>
@@ -320,15 +349,18 @@ export default function NewProforma() {
           <Button variant="outline" asChild>
             <Link to="/proforma">Cancel</Link>
           </Button>
-          <Button 
-            variant="outline" 
-            onClick={(e) => handleSubmit(e, false)} 
+          <Button
+            variant="outline"
+            onClick={(e) => handleSubmit(e, false)}
             disabled={isSubmitting}
           >
             <Save className="mr-2 h-4 w-4" />
             Save Draft
           </Button>
-          <Button onClick={(e) => handleSubmit(e, true)} disabled={isSubmitting}>
+          <Button
+            onClick={(e) => handleSubmit(e, true)}
+            disabled={isSubmitting}
+          >
             {isSubmitting ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
@@ -357,21 +389,25 @@ export default function NewProforma() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="customer">Customer *</Label>
-                <Select 
-                  value={formData.customerId} 
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, customerId: value }))}
+                <Select
+                  value={formData.customerId}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({ ...prev, customerId: value }))
+                  }
                   disabled={!!convertData}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a customer" />
                   </SelectTrigger>
                   <SelectContent>
-                    {customers.map(customer => (
+                    {customers.map((customer) => (
                       <SelectItem key={customer.id} value={customer.id}>
                         <div>
                           <div className="font-medium">{customer.name}</div>
                           <div className="text-xs text-muted-foreground">
-                            {customer.email || customer.phone || 'No contact info'}
+                            {customer.email ||
+                              customer.phone ||
+                              "No contact info"}
                           </div>
                         </div>
                       </SelectItem>
@@ -384,9 +420,12 @@ export default function NewProforma() {
                 <div className="p-3 bg-muted rounded-lg">
                   <h4 className="font-medium text-sm mb-2">Customer Details</h4>
                   <div className="space-y-1 text-xs">
-                    <div>Email: {selectedCustomer.email || 'Not provided'}</div>
-                    <div>Phone: {selectedCustomer.phone || 'Not provided'}</div>
-                    <div>Credit Limit: {formatCurrency(selectedCustomer.creditLimit)}</div>
+                    <div>Email: {selectedCustomer.email || "Not provided"}</div>
+                    <div>Phone: {selectedCustomer.phone || "Not provided"}</div>
+                    <div>
+                      Credit Limit:{" "}
+                      {formatCurrency(selectedCustomer.creditLimit)}
+                    </div>
                   </div>
                 </div>
               )}
@@ -408,7 +447,12 @@ export default function NewProforma() {
                     id="issueDate"
                     type="date"
                     value={formData.issueDate}
-                    onChange={(e) => setFormData(prev => ({ ...prev, issueDate: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        issueDate: e.target.value,
+                      }))
+                    }
                   />
                 </div>
                 <div className="space-y-2">
@@ -417,7 +461,12 @@ export default function NewProforma() {
                     id="validUntil"
                     type="date"
                     value={formData.validUntil}
-                    onChange={(e) => setFormData(prev => ({ ...prev, validUntil: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        validUntil: e.target.value,
+                      }))
+                    }
                   />
                 </div>
               </div>
@@ -427,7 +476,9 @@ export default function NewProforma() {
                 <Textarea
                   id="notes"
                   value={formData.notes}
-                  onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, notes: e.target.value }))
+                  }
                   placeholder="Additional notes for this proforma..."
                   rows={3}
                 />
@@ -464,17 +515,21 @@ export default function NewProforma() {
                         className="pl-10"
                       />
                     </div>
-                    <Select value={newItem.productId} onValueChange={handleProductSelect}>
+                    <Select
+                      value={newItem.productId}
+                      onValueChange={handleProductSelect}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select product" />
                       </SelectTrigger>
                       <SelectContent className="max-h-[200px]">
-                        {filteredProducts.slice(0, 20).map(product => (
+                        {filteredProducts.slice(0, 20).map((product) => (
                           <SelectItem key={product.id} value={product.id}>
                             <div>
                               <div className="font-medium">{product.name}</div>
                               <div className="text-xs text-muted-foreground">
-                                {product.sku} • {formatCurrency(product.sellingPrice)}
+                                {product.sku} •{" "}
+                                {formatCurrency(product.sellingPrice)}
                               </div>
                             </div>
                           </SelectItem>
@@ -488,7 +543,12 @@ export default function NewProforma() {
                   <Input
                     type="number"
                     value={newItem.quantity}
-                    onChange={(e) => setNewItem(prev => ({ ...prev, quantity: e.target.value }))}
+                    onChange={(e) =>
+                      setNewItem((prev) => ({
+                        ...prev,
+                        quantity: e.target.value,
+                      }))
+                    }
                     placeholder="1"
                     min="1"
                     step="0.01"
@@ -499,7 +559,12 @@ export default function NewProforma() {
                   <Input
                     type="number"
                     value={newItem.unitPrice}
-                    onChange={(e) => setNewItem(prev => ({ ...prev, unitPrice: e.target.value }))}
+                    onChange={(e) =>
+                      setNewItem((prev) => ({
+                        ...prev,
+                        unitPrice: e.target.value,
+                      }))
+                    }
                     placeholder="0.00"
                     min="0"
                     step="0.01"
@@ -510,7 +575,12 @@ export default function NewProforma() {
                   <Input
                     type="number"
                     value={newItem.discount}
-                    onChange={(e) => setNewItem(prev => ({ ...prev, discount: e.target.value }))}
+                    onChange={(e) =>
+                      setNewItem((prev) => ({
+                        ...prev,
+                        discount: e.target.value,
+                      }))
+                    }
                     placeholder="0"
                     min="0"
                     max="100"
@@ -543,9 +613,11 @@ export default function NewProforma() {
                   </TableHeader>
                   <TableBody>
                     {items.map((item, index) => {
-                      const product = products.find(p => p.id === item.productId);
+                      const product = products.find(
+                        (p) => p.id === item.productId,
+                      );
                       const itemTotal = calculateItemTotal(item);
-                      
+
                       return (
                         <TableRow key={index}>
                           <TableCell>
@@ -554,7 +626,10 @@ export default function NewProforma() {
                               <div className="text-sm text-muted-foreground">
                                 SKU: {product?.sku}
                                 {product?.taxable && (
-                                  <Badge variant="outline" className="ml-2 text-xs">
+                                  <Badge
+                                    variant="outline"
+                                    className="ml-2 text-xs"
+                                  >
                                     VAT {product.taxRate || 16}%
                                   </Badge>
                                 )}
@@ -565,7 +640,9 @@ export default function NewProforma() {
                             <Input
                               type="number"
                               value={item.quantity}
-                              onChange={(e) => updateItem(index, 'quantity', e.target.value)}
+                              onChange={(e) =>
+                                updateItem(index, "quantity", e.target.value)
+                              }
                               className="w-20"
                               min="1"
                               step="0.01"
@@ -575,7 +652,9 @@ export default function NewProforma() {
                             <Input
                               type="number"
                               value={item.unitPrice}
-                              onChange={(e) => updateItem(index, 'unitPrice', e.target.value)}
+                              onChange={(e) =>
+                                updateItem(index, "unitPrice", e.target.value)
+                              }
                               className="w-24"
                               min="0"
                               step="0.01"
@@ -586,13 +665,17 @@ export default function NewProforma() {
                               <Input
                                 type="number"
                                 value={item.discount}
-                                onChange={(e) => updateItem(index, 'discount', e.target.value)}
+                                onChange={(e) =>
+                                  updateItem(index, "discount", e.target.value)
+                                }
                                 className="w-16"
                                 min="0"
                                 max="100"
                                 step="0.01"
                               />
-                              <span className="text-sm text-muted-foreground">%</span>
+                              <span className="text-sm text-muted-foreground">
+                                %
+                              </span>
                             </div>
                           </TableCell>
                           <TableCell className="font-medium">
@@ -639,23 +722,31 @@ export default function NewProforma() {
               <div className="space-y-3 max-w-md ml-auto">
                 <div className="flex justify-between">
                   <span className="text-sm">Subtotal:</span>
-                  <span className="font-medium">{formatCurrency(totals.subtotal)}</span>
+                  <span className="font-medium">
+                    {formatCurrency(totals.subtotal)}
+                  </span>
                 </div>
                 {totals.discountAmount > 0 && (
                   <div className="flex justify-between">
                     <span className="text-sm">Discount:</span>
-                    <span className="font-medium">-{formatCurrency(totals.discountAmount)}</span>
+                    <span className="font-medium">
+                      -{formatCurrency(totals.discountAmount)}
+                    </span>
                   </div>
                 )}
                 {totals.vatAmount > 0 && (
                   <div className="flex justify-between">
                     <span className="text-sm">VAT:</span>
-                    <span className="font-medium">{formatCurrency(totals.vatAmount)}</span>
+                    <span className="font-medium">
+                      {formatCurrency(totals.vatAmount)}
+                    </span>
                   </div>
                 )}
                 <div className="flex justify-between border-t pt-3">
                   <span className="font-medium">Total:</span>
-                  <span className="font-bold text-lg">{formatCurrency(totals.total)}</span>
+                  <span className="font-bold text-lg">
+                    {formatCurrency(totals.total)}
+                  </span>
                 </div>
               </div>
             </CardContent>

@@ -1,9 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Button } from '../components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import React, { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { Button } from "../components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -11,7 +22,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../components/ui/table';
+} from "../components/ui/table";
 import {
   ArrowLeft,
   Edit,
@@ -23,11 +34,11 @@ import {
   Clock,
   User,
   Calendar,
-  RefreshCw
-} from 'lucide-react';
-import { ProformaInvoice } from '@shared/types';
-import { dataServiceFactory } from '../services/dataServiceFactory';
-import { useToast } from '../hooks/use-toast';
+  RefreshCw,
+} from "lucide-react";
+import { ProformaInvoice } from "@shared/types";
+import { dataServiceFactory } from "../services/dataServiceFactory";
+import { useToast } from "../hooks/use-toast";
 
 export default function ProformaDetails() {
   const { id } = useParams<{ id: string }>();
@@ -43,21 +54,21 @@ export default function ProformaDetails() {
       try {
         setLoading(true);
         const proformas = await dataService.getProformas();
-        const foundProforma = proformas.find(p => p.id === id);
-        
+        const foundProforma = proformas.find((p) => p.id === id);
+
         if (!foundProforma) {
           toast({
             title: "Proforma Not Found",
             description: "The requested proforma invoice could not be found.",
             variant: "destructive",
           });
-          navigate('/proforma');
+          navigate("/proforma");
           return;
         }
 
         setProforma(foundProforma);
       } catch (error) {
-        console.error('Error loading proforma:', error);
+        console.error("Error loading proforma:", error);
         toast({
           title: "Error",
           description: "Failed to load proforma details.",
@@ -74,38 +85,48 @@ export default function ProformaDetails() {
   }, [id, dataService, navigate, toast]);
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-KE', {
-      style: 'currency',
-      currency: 'KES',
+    return new Intl.NumberFormat("en-KE", {
+      style: "currency",
+      currency: "KES",
       minimumFractionDigits: 0,
     }).format(amount);
   };
 
   const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-KE', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
+    return new Intl.DateTimeFormat("en-KE", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     }).format(new Date(date));
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'converted': return 'success';
-      case 'sent': return 'default';
-      case 'draft': return 'secondary';
-      case 'expired': return 'destructive';
-      default: return 'secondary';
+      case "converted":
+        return "success";
+      case "sent":
+        return "default";
+      case "draft":
+        return "secondary";
+      case "expired":
+        return "destructive";
+      default:
+        return "secondary";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'converted': return CheckCircle;
-      case 'sent': return Send;
-      case 'draft': return Edit;
-      case 'expired': return Clock;
-      default: return FileText;
+      case "converted":
+        return CheckCircle;
+      case "sent":
+        return Send;
+      case "draft":
+        return Edit;
+      case "expired":
+        return Clock;
+      default:
+        return FileText;
     }
   };
 
@@ -115,12 +136,12 @@ export default function ProformaDetails() {
 
   const convertToInvoice = () => {
     if (!proforma) return;
-    
-    navigate('/invoices/new', { 
-      state: { 
-        convertFrom: 'proforma',
-        sourceData: proforma
-      }
+
+    navigate("/invoices/new", {
+      state: {
+        convertFrom: "proforma",
+        sourceData: proforma,
+      },
     });
   };
 
@@ -136,7 +157,9 @@ export default function ProformaDetails() {
     return (
       <div className="max-w-2xl mx-auto text-center">
         <h1 className="text-2xl font-bold">Proforma Not Found</h1>
-        <p className="text-muted-foreground mb-4">The requested proforma invoice could not be found.</p>
+        <p className="text-muted-foreground mb-4">
+          The requested proforma invoice could not be found.
+        </p>
         <Button asChild>
           <Link to="/proforma">Back to Proforma Invoices</Link>
         </Button>
@@ -159,9 +182,12 @@ export default function ProformaDetails() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">{proforma.proformaNumber}</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              {proforma.proformaNumber}
+            </h1>
             <p className="text-muted-foreground">
-              {proforma.customer.name} • Created {formatDate(proforma.issueDate)}
+              {proforma.customer.name} • Created{" "}
+              {formatDate(proforma.issueDate)}
             </p>
           </div>
         </div>
@@ -174,7 +200,7 @@ export default function ProformaDetails() {
             <Download className="mr-2 h-4 w-4" />
             PDF
           </Button>
-          {proforma.status === 'sent' && !expired && (
+          {proforma.status === "sent" && !expired && (
             <Button onClick={convertToInvoice}>
               <RefreshCw className="mr-2 h-4 w-4" />
               Convert to Invoice
@@ -184,14 +210,17 @@ export default function ProformaDetails() {
       </div>
 
       {/* Status Banner */}
-      {expired && proforma.status !== 'converted' && (
+      {expired && proforma.status !== "converted" && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="flex items-center gap-2">
             <Clock className="h-5 w-5 text-red-600" />
-            <span className="font-medium text-red-800">This proforma has expired</span>
+            <span className="font-medium text-red-800">
+              This proforma has expired
+            </span>
           </div>
           <p className="text-sm text-red-700 mt-1">
-            Valid until {formatDate(proforma.validUntil)}. Consider creating a new proforma or converting to invoice.
+            Valid until {formatDate(proforma.validUntil)}. Consider creating a
+            new proforma or converting to invoice.
           </p>
         </div>
       )}
@@ -213,8 +242,12 @@ export default function ProformaDetails() {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium">Proforma Number</label>
-                    <p className="text-sm text-muted-foreground font-mono">{proforma.proformaNumber}</p>
+                    <label className="text-sm font-medium">
+                      Proforma Number
+                    </label>
+                    <p className="text-sm text-muted-foreground font-mono">
+                      {proforma.proformaNumber}
+                    </p>
                   </div>
                   <div>
                     <label className="text-sm font-medium">Status</label>
@@ -230,11 +263,15 @@ export default function ProformaDetails() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium">Issue Date</label>
-                    <p className="text-sm text-muted-foreground">{formatDate(proforma.issueDate)}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {formatDate(proforma.issueDate)}
+                    </p>
                   </div>
                   <div>
                     <label className="text-sm font-medium">Valid Until</label>
-                    <p className={`text-sm ${expired ? 'text-red-600 font-medium' : 'text-muted-foreground'}`}>
+                    <p
+                      className={`text-sm ${expired ? "text-red-600 font-medium" : "text-muted-foreground"}`}
+                    >
                       {formatDate(proforma.validUntil)}
                     </p>
                   </div>
@@ -243,7 +280,9 @@ export default function ProformaDetails() {
                 {proforma.notes && (
                   <div>
                     <label className="text-sm font-medium">Notes</label>
-                    <p className="text-sm text-muted-foreground">{proforma.notes}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {proforma.notes}
+                    </p>
                   </div>
                 )}
               </CardContent>
@@ -257,23 +296,31 @@ export default function ProformaDetails() {
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-sm">Subtotal:</span>
-                    <span className="font-medium">{formatCurrency(proforma.subtotal)}</span>
+                    <span className="font-medium">
+                      {formatCurrency(proforma.subtotal)}
+                    </span>
                   </div>
                   {proforma.discountAmount > 0 && (
                     <div className="flex justify-between">
                       <span className="text-sm">Discount:</span>
-                      <span className="font-medium">-{formatCurrency(proforma.discountAmount)}</span>
+                      <span className="font-medium">
+                        -{formatCurrency(proforma.discountAmount)}
+                      </span>
                     </div>
                   )}
                   {proforma.vatAmount > 0 && (
                     <div className="flex justify-between">
                       <span className="text-sm">VAT:</span>
-                      <span className="font-medium">{formatCurrency(proforma.vatAmount)}</span>
+                      <span className="font-medium">
+                        {formatCurrency(proforma.vatAmount)}
+                      </span>
                     </div>
                   )}
                   <div className="flex justify-between border-t pt-2">
                     <span className="font-medium">Total:</span>
-                    <span className="font-bold text-lg">{formatCurrency(proforma.total)}</span>
+                    <span className="font-bold text-lg">
+                      {formatCurrency(proforma.total)}
+                    </span>
                   </div>
                 </div>
               </CardContent>
@@ -307,13 +354,17 @@ export default function ProformaDetails() {
                       <TableRow key={item.id}>
                         <TableCell>
                           <div>
-                            <div className="font-medium">{item.product.name}</div>
+                            <div className="font-medium">
+                              {item.product.name}
+                            </div>
                             <div className="text-sm text-muted-foreground">
                               SKU: {item.product.sku}
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell>{item.quantity} {item.product.unit}</TableCell>
+                        <TableCell>
+                          {item.quantity} {item.product.unit}
+                        </TableCell>
                         <TableCell>{formatCurrency(item.unitPrice)}</TableCell>
                         <TableCell>{item.discount}%</TableCell>
                         <TableCell>{item.vatRate}%</TableCell>
@@ -340,20 +391,22 @@ export default function ProformaDetails() {
             <CardContent className="space-y-4">
               <div>
                 <label className="text-sm font-medium">Customer Name</label>
-                <p className="text-sm text-muted-foreground">{proforma.customer.name}</p>
+                <p className="text-sm text-muted-foreground">
+                  {proforma.customer.name}
+                </p>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium">Email</label>
                   <p className="text-sm text-muted-foreground">
-                    {proforma.customer.email || 'Not provided'}
+                    {proforma.customer.email || "Not provided"}
                   </p>
                 </div>
                 <div>
                   <label className="text-sm font-medium">Phone</label>
                   <p className="text-sm text-muted-foreground">
-                    {proforma.customer.phone || 'Not provided'}
+                    {proforma.customer.phone || "Not provided"}
                   </p>
                 </div>
               </div>
@@ -361,7 +414,7 @@ export default function ProformaDetails() {
               <div>
                 <label className="text-sm font-medium">Address</label>
                 <p className="text-sm text-muted-foreground">
-                  {proforma.customer.address || 'Not provided'}
+                  {proforma.customer.address || "Not provided"}
                 </p>
               </div>
 

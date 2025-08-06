@@ -1,20 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Textarea } from '../components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Textarea } from "../components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../components/ui/select';
-import { Switch } from '../components/ui/switch';
-import { Badge } from '../components/ui/badge';
+} from "../components/ui/select";
+import { Switch } from "../components/ui/switch";
+import { Badge } from "../components/ui/badge";
 import {
   ArrowLeft,
   Save,
@@ -29,12 +40,12 @@ import {
   Barcode,
   Weight,
   Ruler,
-  MapPin
-} from 'lucide-react';
-import { Product, ProductDimensions, ProductVariant } from '@shared/types';
-import { UnitConverter } from '@shared/units';
-import { dataServiceFactory } from '../services/dataServiceFactory';
-import { useToast } from '../hooks/use-toast';
+  MapPin,
+} from "lucide-react";
+import { Product, ProductDimensions, ProductVariant } from "@shared/types";
+import { UnitConverter } from "@shared/units";
+import { dataServiceFactory } from "../services/dataServiceFactory";
+import { useToast } from "../hooks/use-toast";
 
 interface ProductFormData {
   name: string;
@@ -65,7 +76,7 @@ interface ProductFormData {
   allowBackorders: boolean;
   hasVariants: boolean;
   notes: string;
-  status: 'active' | 'inactive' | 'discontinued' | 'out_of_stock';
+  status: "active" | "inactive" | "discontinued" | "out_of_stock";
 }
 
 interface VariantFormData {
@@ -86,79 +97,88 @@ export default function NewProduct() {
   const duplicateData = location.state?.duplicateFrom;
 
   const [formData, setFormData] = useState<ProductFormData>({
-    name: duplicateData?.name || '',
-    description: duplicateData?.description || '',
-    sku: duplicateData?.sku || '',
-    barcode: duplicateData?.barcode || '',
-    category: duplicateData?.category || '',
-    subcategory: duplicateData?.subcategory || '',
-    brand: duplicateData?.brand || '',
-    supplier: duplicateData?.supplier || '',
-    unit: duplicateData?.unit || 'piece',
-    weight: duplicateData?.weight?.toString() || '',
-    dimensions: duplicateData?.dimensions || { length: 0, width: 0, height: 0, unit: 'cm' },
-    purchasePrice: duplicateData?.purchasePrice?.toString() || '',
-    sellingPrice: duplicateData?.sellingPrice?.toString() || '',
-    wholesalePrice: duplicateData?.wholesalePrice?.toString() || '',
-    retailPrice: duplicateData?.retailPrice?.toString() || '',
-    minStock: duplicateData?.minStock?.toString() || '',
-    maxStock: duplicateData?.maxStock?.toString() || '',
-    currentStock: duplicateData?.currentStock?.toString() || '',
-    reorderLevel: duplicateData?.reorderLevel?.toString() || '',
-    location: duplicateData?.location || '',
-    binLocation: duplicateData?.binLocation || '',
-    tags: duplicateData?.tags?.join(', ') || '',
+    name: duplicateData?.name || "",
+    description: duplicateData?.description || "",
+    sku: duplicateData?.sku || "",
+    barcode: duplicateData?.barcode || "",
+    category: duplicateData?.category || "",
+    subcategory: duplicateData?.subcategory || "",
+    brand: duplicateData?.brand || "",
+    supplier: duplicateData?.supplier || "",
+    unit: duplicateData?.unit || "piece",
+    weight: duplicateData?.weight?.toString() || "",
+    dimensions: duplicateData?.dimensions || {
+      length: 0,
+      width: 0,
+      height: 0,
+      unit: "cm",
+    },
+    purchasePrice: duplicateData?.purchasePrice?.toString() || "",
+    sellingPrice: duplicateData?.sellingPrice?.toString() || "",
+    wholesalePrice: duplicateData?.wholesalePrice?.toString() || "",
+    retailPrice: duplicateData?.retailPrice?.toString() || "",
+    minStock: duplicateData?.minStock?.toString() || "",
+    maxStock: duplicateData?.maxStock?.toString() || "",
+    currentStock: duplicateData?.currentStock?.toString() || "",
+    reorderLevel: duplicateData?.reorderLevel?.toString() || "",
+    location: duplicateData?.location || "",
+    binLocation: duplicateData?.binLocation || "",
+    tags: duplicateData?.tags?.join(", ") || "",
     taxable: duplicateData?.taxable ?? true,
-    taxRate: duplicateData?.taxRate?.toString() || '16',
+    taxRate: duplicateData?.taxRate?.toString() || "16",
     trackInventory: duplicateData?.trackInventory ?? true,
     allowBackorders: duplicateData?.allowBackorders ?? false,
     hasVariants: duplicateData?.hasVariants ?? false,
-    notes: duplicateData?.notes || '',
-    status: duplicateData?.status || 'active',
+    notes: duplicateData?.notes || "",
+    status: duplicateData?.status || "active",
   });
 
   const [variants, setVariants] = useState<VariantFormData[]>(
     duplicateData?.variants?.map((v: any) => ({
       name: v.name,
       sku: v.sku,
-      attributes: Object.entries(v.attributes).map(([key, value]) => ({ key, value: value as string })),
-      price: v.price?.toString() || '',
-      stock: v.stock?.toString() || '',
-      isActive: v.isActive
-    })) || []
+      attributes: Object.entries(v.attributes).map(([key, value]) => ({
+        key,
+        value: value as string,
+      })),
+      price: v.price?.toString() || "",
+      stock: v.stock?.toString() || "",
+      isActive: v.isActive,
+    })) || [],
   );
 
   const [newVariant, setNewVariant] = useState<VariantFormData>({
-    name: '',
-    sku: '',
-    attributes: [{ key: '', value: '' }],
-    price: '',
-    stock: '',
-    isActive: true
+    name: "",
+    sku: "",
+    attributes: [{ key: "", value: "" }],
+    price: "",
+    stock: "",
+    isActive: true,
   });
 
   const dataService = dataServiceFactory.getDataService();
 
   const categories = [
-    'Medical Supplies',
-    'Furniture',
-    'Electronics',
-    'Office Supplies',
-    'Cleaning Supplies',
-    'Food & Beverages',
-    'Automotive',
-    'Construction',
-    'Clothing & Textiles',
-    'Tools & Equipment'
+    "Medical Supplies",
+    "Furniture",
+    "Electronics",
+    "Office Supplies",
+    "Cleaning Supplies",
+    "Food & Beverages",
+    "Automotive",
+    "Construction",
+    "Clothing & Textiles",
+    "Tools & Equipment",
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name || !formData.sku || !formData.category) {
       toast({
         title: "Validation Error",
-        description: "Please fill in all required fields (Name, SKU, Category).",
+        description:
+          "Please fill in all required fields (Name, SKU, Category).",
         variant: "destructive",
       });
       return;
@@ -176,7 +196,7 @@ export default function NewProduct() {
     setIsSubmitting(true);
 
     try {
-      const newProduct: Omit<Product, 'id' | 'createdAt' | 'updatedAt'> = {
+      const newProduct: Omit<Product, "id" | "createdAt" | "updatedAt"> = {
         name: formData.name,
         description: formData.description,
         sku: formData.sku,
@@ -190,9 +210,13 @@ export default function NewProduct() {
         dimensions: formData.dimensions,
         purchasePrice: parseFloat(formData.purchasePrice) || 0,
         sellingPrice: parseFloat(formData.sellingPrice) || 0,
-        markup: formData.purchasePrice && formData.sellingPrice 
-          ? ((parseFloat(formData.sellingPrice) - parseFloat(formData.purchasePrice)) / parseFloat(formData.purchasePrice)) * 100
-          : 0,
+        markup:
+          formData.purchasePrice && formData.sellingPrice
+            ? ((parseFloat(formData.sellingPrice) -
+                parseFloat(formData.purchasePrice)) /
+                parseFloat(formData.purchasePrice)) *
+              100
+            : 0,
         costPrice: parseFloat(formData.purchasePrice) || 0,
         wholesalePrice: parseFloat(formData.wholesalePrice) || undefined,
         retailPrice: parseFloat(formData.retailPrice) || undefined,
@@ -203,44 +227,52 @@ export default function NewProduct() {
         reorderLevel: parseInt(formData.reorderLevel) || undefined,
         location: formData.location,
         binLocation: formData.binLocation,
-        tags: formData.tags.split(',').map(t => t.trim()).filter(t => t),
+        tags: formData.tags
+          .split(",")
+          .map((t) => t.trim())
+          .filter((t) => t),
         taxable: formData.taxable,
         taxRate: parseFloat(formData.taxRate) || undefined,
         trackInventory: formData.trackInventory,
         allowBackorders: formData.allowBackorders,
         hasVariants: formData.hasVariants,
-        variants: formData.hasVariants ? variants.map(v => ({
-          id: Date.now().toString() + Math.random(),
-          name: v.name,
-          sku: v.sku,
-          attributes: v.attributes.reduce((acc, attr) => {
-            if (attr.key && attr.value) {
-              acc[attr.key] = attr.value;
-            }
-            return acc;
-          }, {} as Record<string, string>),
-          price: parseFloat(v.price) || undefined,
-          stock: parseInt(v.stock) || undefined,
-          isActive: v.isActive
-        })) : [],
+        variants: formData.hasVariants
+          ? variants.map((v) => ({
+              id: Date.now().toString() + Math.random(),
+              name: v.name,
+              sku: v.sku,
+              attributes: v.attributes.reduce(
+                (acc, attr) => {
+                  if (attr.key && attr.value) {
+                    acc[attr.key] = attr.value;
+                  }
+                  return acc;
+                },
+                {} as Record<string, string>,
+              ),
+              price: parseFloat(v.price) || undefined,
+              stock: parseInt(v.stock) || undefined,
+              isActive: v.isActive,
+            }))
+          : [],
         notes: formData.notes,
         isActive: true,
         status: formData.status,
-        companyId: '1',
+        companyId: "1",
       };
 
       // Here you would normally call a create API
       // For now, we'll simulate success
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       toast({
         title: "Product Created",
         description: `Product "${formData.name}" has been created successfully.`,
       });
 
-      navigate('/products');
+      navigate("/products");
     } catch (error) {
-      console.error('Error creating product:', error);
+      console.error("Error creating product:", error);
       toast({
         title: "Error",
         description: "Failed to create product. Please try again.",
@@ -261,51 +293,62 @@ export default function NewProduct() {
       return;
     }
 
-    setVariants(prev => [...prev, { ...newVariant }]);
+    setVariants((prev) => [...prev, { ...newVariant }]);
     setNewVariant({
-      name: '',
-      sku: '',
-      attributes: [{ key: '', value: '' }],
-      price: '',
-      stock: '',
-      isActive: true
+      name: "",
+      sku: "",
+      attributes: [{ key: "", value: "" }],
+      price: "",
+      stock: "",
+      isActive: true,
     });
   };
 
   const removeVariant = (index: number) => {
-    setVariants(prev => prev.filter((_, i) => i !== index));
+    setVariants((prev) => prev.filter((_, i) => i !== index));
   };
 
   const addAttributeField = () => {
-    setNewVariant(prev => ({
+    setNewVariant((prev) => ({
       ...prev,
-      attributes: [...prev.attributes, { key: '', value: '' }]
+      attributes: [...prev.attributes, { key: "", value: "" }],
     }));
   };
 
-  const updateAttribute = (index: number, field: 'key' | 'value', value: string) => {
-    setNewVariant(prev => ({
+  const updateAttribute = (
+    index: number,
+    field: "key" | "value",
+    value: string,
+  ) => {
+    setNewVariant((prev) => ({
       ...prev,
       attributes: prev.attributes.map((attr, i) =>
-        i === index ? { ...attr, [field]: value } : attr
-      )
+        i === index ? { ...attr, [field]: value } : attr,
+      ),
     }));
   };
 
   const removeAttribute = (index: number) => {
-    setNewVariant(prev => ({
+    setNewVariant((prev) => ({
       ...prev,
-      attributes: prev.attributes.filter((_, i) => i !== index)
+      attributes: prev.attributes.filter((_, i) => i !== index),
     }));
   };
 
   const generateSKU = () => {
     if (formData.category && formData.name) {
-      const categoryCode = formData.category.split(' ').map(word => word.substring(0, 2).toUpperCase()).join('');
-      const nameCode = formData.name.split(' ').slice(0, 2).map(word => word.substring(0, 2).toUpperCase()).join('');
+      const categoryCode = formData.category
+        .split(" ")
+        .map((word) => word.substring(0, 2).toUpperCase())
+        .join("");
+      const nameCode = formData.name
+        .split(" ")
+        .slice(0, 2)
+        .map((word) => word.substring(0, 2).toUpperCase())
+        .join("");
       const timestamp = Date.now().toString().slice(-4);
       const sku = `${categoryCode}-${nameCode}-${timestamp}`;
-      setFormData(prev => ({ ...prev, sku }));
+      setFormData((prev) => ({ ...prev, sku }));
     }
   };
 
@@ -322,10 +365,12 @@ export default function NewProduct() {
           </Button>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              {duplicateData ? 'Duplicate Product' : 'New Product'}
+              {duplicateData ? "Duplicate Product" : "New Product"}
             </h1>
             <p className="text-muted-foreground">
-              {duplicateData ? 'Create a copy of an existing product' : 'Add a new product to your catalog'}
+              {duplicateData
+                ? "Create a copy of an existing product"
+                : "Add a new product to your catalog"}
             </p>
           </div>
         </div>
@@ -378,7 +423,12 @@ export default function NewProduct() {
                     <Input
                       id="name"
                       value={formData.name}
-                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          name: e.target.value,
+                        }))
+                      }
                       placeholder="Enter product name"
                       required
                     />
@@ -389,7 +439,12 @@ export default function NewProduct() {
                     <Textarea
                       id="description"
                       value={formData.description}
-                      onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          description: e.target.value,
+                        }))
+                      }
                       placeholder="Product description"
                       rows={3}
                     />
@@ -402,11 +457,21 @@ export default function NewProduct() {
                         <Input
                           id="sku"
                           value={formData.sku}
-                          onChange={(e) => setFormData(prev => ({ ...prev, sku: e.target.value }))}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              sku: e.target.value,
+                            }))
+                          }
                           placeholder="e.g., PRD-001"
                           required
                         />
-                        <Button type="button" variant="outline" size="sm" onClick={generateSKU}>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={generateSKU}
+                        >
                           <Barcode className="h-4 w-4" />
                         </Button>
                       </div>
@@ -416,7 +481,12 @@ export default function NewProduct() {
                       <Input
                         id="barcode"
                         value={formData.barcode}
-                        onChange={(e) => setFormData(prev => ({ ...prev, barcode: e.target.value }))}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            barcode: e.target.value,
+                          }))
+                        }
                         placeholder="Barcode number"
                       />
                     </div>
@@ -425,12 +495,17 @@ export default function NewProduct() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="category">Category *</Label>
-                      <Select value={formData.category} onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}>
+                      <Select
+                        value={formData.category}
+                        onValueChange={(value) =>
+                          setFormData((prev) => ({ ...prev, category: value }))
+                        }
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                         <SelectContent>
-                          {categories.map(category => (
+                          {categories.map((category) => (
                             <SelectItem key={category} value={category}>
                               {category}
                             </SelectItem>
@@ -443,7 +518,12 @@ export default function NewProduct() {
                       <Input
                         id="subcategory"
                         value={formData.subcategory}
-                        onChange={(e) => setFormData(prev => ({ ...prev, subcategory: e.target.value }))}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            subcategory: e.target.value,
+                          }))
+                        }
                         placeholder="Subcategory"
                       />
                     </div>
@@ -455,31 +535,49 @@ export default function NewProduct() {
                       <Input
                         id="brand"
                         value={formData.brand}
-                        onChange={(e) => setFormData(prev => ({ ...prev, brand: e.target.value }))}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            brand: e.target.value,
+                          }))
+                        }
                         placeholder="Brand name"
                       />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="unit">Unit *</Label>
-                      <Select value={formData.unit} onValueChange={(value) => setFormData(prev => ({ ...prev, unit: value }))}>
+                      <Select
+                        value={formData.unit}
+                        onValueChange={(value) =>
+                          setFormData((prev) => ({ ...prev, unit: value }))
+                        }
+                      >
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="max-h-[200px]">
-                          <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">Common Units</div>
-                          {UnitConverter.getCommonUnits().quantity.map(unit => (
+                          <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">
+                            Common Units
+                          </div>
+                          {UnitConverter.getCommonUnits().quantity.map(
+                            (unit) => (
+                              <SelectItem key={unit.id} value={unit.id}>
+                                {unit.name} ({unit.symbol})
+                              </SelectItem>
+                            ),
+                          )}
+                          <div className="px-2 py-1 text-xs font-semibold text-muted-foreground border-t mt-2 pt-2">
+                            Weight/Mass
+                          </div>
+                          {UnitConverter.getCommonUnits().weight.map((unit) => (
                             <SelectItem key={unit.id} value={unit.id}>
                               {unit.name} ({unit.symbol})
                             </SelectItem>
                           ))}
-                          <div className="px-2 py-1 text-xs font-semibold text-muted-foreground border-t mt-2 pt-2">Weight/Mass</div>
-                          {UnitConverter.getCommonUnits().weight.map(unit => (
-                            <SelectItem key={unit.id} value={unit.id}>
-                              {unit.name} ({unit.symbol})
-                            </SelectItem>
-                          ))}
-                          <div className="px-2 py-1 text-xs font-semibold text-muted-foreground border-t mt-2 pt-2">Volume</div>
-                          {UnitConverter.getCommonUnits().volume.map(unit => (
+                          <div className="px-2 py-1 text-xs font-semibold text-muted-foreground border-t mt-2 pt-2">
+                            Volume
+                          </div>
+                          {UnitConverter.getCommonUnits().volume.map((unit) => (
                             <SelectItem key={unit.id} value={unit.id}>
                               {unit.name} ({unit.symbol})
                             </SelectItem>
@@ -508,7 +606,12 @@ export default function NewProduct() {
                       id="weight"
                       type="number"
                       value={formData.weight}
-                      onChange={(e) => setFormData(prev => ({ ...prev, weight: e.target.value }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          weight: e.target.value,
+                        }))
+                      }
                       placeholder="0.00"
                       min="0"
                       step="0.01"
@@ -522,28 +625,43 @@ export default function NewProduct() {
                         type="number"
                         placeholder="Length"
                         value={formData.dimensions.length}
-                        onChange={(e) => setFormData(prev => ({ 
-                          ...prev, 
-                          dimensions: { ...prev.dimensions, length: parseFloat(e.target.value) || 0 }
-                        }))}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            dimensions: {
+                              ...prev.dimensions,
+                              length: parseFloat(e.target.value) || 0,
+                            },
+                          }))
+                        }
                       />
                       <Input
                         type="number"
                         placeholder="Width"
                         value={formData.dimensions.width}
-                        onChange={(e) => setFormData(prev => ({ 
-                          ...prev, 
-                          dimensions: { ...prev.dimensions, width: parseFloat(e.target.value) || 0 }
-                        }))}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            dimensions: {
+                              ...prev.dimensions,
+                              width: parseFloat(e.target.value) || 0,
+                            },
+                          }))
+                        }
                       />
                       <Input
                         type="number"
                         placeholder="Height"
                         value={formData.dimensions.height}
-                        onChange={(e) => setFormData(prev => ({ 
-                          ...prev, 
-                          dimensions: { ...prev.dimensions, height: parseFloat(e.target.value) || 0 }
-                        }))}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            dimensions: {
+                              ...prev.dimensions,
+                              height: parseFloat(e.target.value) || 0,
+                            },
+                          }))
+                        }
                       />
                     </div>
                   </div>
@@ -554,7 +672,12 @@ export default function NewProduct() {
                       <Input
                         id="location"
                         value={formData.location}
-                        onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            location: e.target.value,
+                          }))
+                        }
                         placeholder="Warehouse A"
                       />
                     </div>
@@ -563,7 +686,12 @@ export default function NewProduct() {
                       <Input
                         id="binLocation"
                         value={formData.binLocation}
-                        onChange={(e) => setFormData(prev => ({ ...prev, binLocation: e.target.value }))}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            binLocation: e.target.value,
+                          }))
+                        }
                         placeholder="A-01-B"
                       />
                     </div>
@@ -574,7 +702,12 @@ export default function NewProduct() {
                     <Input
                       id="supplier"
                       value={formData.supplier}
-                      onChange={(e) => setFormData(prev => ({ ...prev, supplier: e.target.value }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          supplier: e.target.value,
+                        }))
+                      }
                       placeholder="Supplier name"
                     />
                   </div>
@@ -584,7 +717,12 @@ export default function NewProduct() {
                     <Input
                       id="tags"
                       value={formData.tags}
-                      onChange={(e) => setFormData(prev => ({ ...prev, tags: e.target.value }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          tags: e.target.value,
+                        }))
+                      }
                       placeholder="medical, protective, reusable"
                     />
                   </div>
@@ -610,12 +748,19 @@ export default function NewProduct() {
                     <h4 className="font-medium">Cost Information</h4>
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="purchasePrice">Purchase Price (KES) *</Label>
+                        <Label htmlFor="purchasePrice">
+                          Purchase Price (KES) *
+                        </Label>
                         <Input
                           id="purchasePrice"
                           type="number"
                           value={formData.purchasePrice}
-                          onChange={(e) => setFormData(prev => ({ ...prev, purchasePrice: e.target.value }))}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              purchasePrice: e.target.value,
+                            }))
+                          }
                           placeholder="0.00"
                           min="0"
                           step="0.01"
@@ -628,39 +773,58 @@ export default function NewProduct() {
                     <h4 className="font-medium">Selling Prices</h4>
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="sellingPrice">Selling Price (KES) *</Label>
+                        <Label htmlFor="sellingPrice">
+                          Selling Price (KES) *
+                        </Label>
                         <Input
                           id="sellingPrice"
                           type="number"
                           value={formData.sellingPrice}
-                          onChange={(e) => setFormData(prev => ({ ...prev, sellingPrice: e.target.value }))}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              sellingPrice: e.target.value,
+                            }))
+                          }
                           placeholder="0.00"
                           min="0"
                           step="0.01"
                           required
                         />
                       </div>
-                      
+
                       <div className="space-y-2">
-                        <Label htmlFor="wholesalePrice">Wholesale Price (KES)</Label>
+                        <Label htmlFor="wholesalePrice">
+                          Wholesale Price (KES)
+                        </Label>
                         <Input
                           id="wholesalePrice"
                           type="number"
                           value={formData.wholesalePrice}
-                          onChange={(e) => setFormData(prev => ({ ...prev, wholesalePrice: e.target.value }))}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              wholesalePrice: e.target.value,
+                            }))
+                          }
                           placeholder="0.00"
                           min="0"
                           step="0.01"
                         />
                       </div>
-                      
+
                       <div className="space-y-2">
                         <Label htmlFor="retailPrice">Retail Price (KES)</Label>
                         <Input
                           id="retailPrice"
                           type="number"
                           value={formData.retailPrice}
-                          onChange={(e) => setFormData(prev => ({ ...prev, retailPrice: e.target.value }))}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              retailPrice: e.target.value,
+                            }))
+                          }
                           placeholder="0.00"
                           min="0"
                           step="0.01"
@@ -678,10 +842,12 @@ export default function NewProduct() {
                       <Switch
                         id="taxable"
                         checked={formData.taxable}
-                        onCheckedChange={(checked) => setFormData(prev => ({ ...prev, taxable: checked }))}
+                        onCheckedChange={(checked) =>
+                          setFormData((prev) => ({ ...prev, taxable: checked }))
+                        }
                       />
                     </div>
-                    
+
                     {formData.taxable && (
                       <div className="space-y-2">
                         <Label htmlFor="taxRate">Tax Rate (%)</Label>
@@ -689,7 +855,12 @@ export default function NewProduct() {
                           id="taxRate"
                           type="number"
                           value={formData.taxRate}
-                          onChange={(e) => setFormData(prev => ({ ...prev, taxRate: e.target.value }))}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              taxRate: e.target.value,
+                            }))
+                          }
                           placeholder="16"
                           min="0"
                           max="100"
@@ -707,17 +878,29 @@ export default function NewProduct() {
                       <div>
                         <span className="text-muted-foreground">Markup:</span>
                         <span className="ml-2 font-medium">
-                          {parseFloat(formData.purchasePrice) > 0 
-                            ? (((parseFloat(formData.sellingPrice) - parseFloat(formData.purchasePrice)) / parseFloat(formData.purchasePrice)) * 100).toFixed(1)
-                            : 0}%
+                          {parseFloat(formData.purchasePrice) > 0
+                            ? (
+                                ((parseFloat(formData.sellingPrice) -
+                                  parseFloat(formData.purchasePrice)) /
+                                  parseFloat(formData.purchasePrice)) *
+                                100
+                              ).toFixed(1)
+                            : 0}
+                          %
                         </span>
                       </div>
                       <div>
                         <span className="text-muted-foreground">Margin:</span>
                         <span className="ml-2 font-medium">
-                          {parseFloat(formData.sellingPrice) > 0 
-                            ? (((parseFloat(formData.sellingPrice) - parseFloat(formData.purchasePrice)) / parseFloat(formData.sellingPrice)) * 100).toFixed(1)
-                            : 0}%
+                          {parseFloat(formData.sellingPrice) > 0
+                            ? (
+                                ((parseFloat(formData.sellingPrice) -
+                                  parseFloat(formData.purchasePrice)) /
+                                  parseFloat(formData.sellingPrice)) *
+                                100
+                              ).toFixed(1)
+                            : 0}
+                          %
                         </span>
                       </div>
                     </div>
@@ -749,43 +932,63 @@ export default function NewProduct() {
                           id="currentStock"
                           type="number"
                           value={formData.currentStock}
-                          onChange={(e) => setFormData(prev => ({ ...prev, currentStock: e.target.value }))}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              currentStock: e.target.value,
+                            }))
+                          }
                           placeholder="0"
                           min="0"
                         />
                       </div>
-                      
+
                       <div className="space-y-2">
                         <Label htmlFor="minStock">Minimum Stock</Label>
                         <Input
                           id="minStock"
                           type="number"
                           value={formData.minStock}
-                          onChange={(e) => setFormData(prev => ({ ...prev, minStock: e.target.value }))}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              minStock: e.target.value,
+                            }))
+                          }
                           placeholder="0"
                           min="0"
                         />
                       </div>
-                      
+
                       <div className="space-y-2">
                         <Label htmlFor="maxStock">Maximum Stock</Label>
                         <Input
                           id="maxStock"
                           type="number"
                           value={formData.maxStock}
-                          onChange={(e) => setFormData(prev => ({ ...prev, maxStock: e.target.value }))}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              maxStock: e.target.value,
+                            }))
+                          }
                           placeholder="0"
                           min="0"
                         />
                       </div>
-                      
+
                       <div className="space-y-2">
                         <Label htmlFor="reorderLevel">Reorder Level</Label>
                         <Input
                           id="reorderLevel"
                           type="number"
                           value={formData.reorderLevel}
-                          onChange={(e) => setFormData(prev => ({ ...prev, reorderLevel: e.target.value }))}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              reorderLevel: e.target.value,
+                            }))
+                          }
                           placeholder="0"
                           min="0"
                         />
@@ -801,16 +1004,28 @@ export default function NewProduct() {
                         <Switch
                           id="trackInventory"
                           checked={formData.trackInventory}
-                          onCheckedChange={(checked) => setFormData(prev => ({ ...prev, trackInventory: checked }))}
+                          onCheckedChange={(checked) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              trackInventory: checked,
+                            }))
+                          }
                         />
                       </div>
-                      
+
                       <div className="flex items-center justify-between">
-                        <Label htmlFor="allowBackorders">Allow Backorders</Label>
+                        <Label htmlFor="allowBackorders">
+                          Allow Backorders
+                        </Label>
                         <Switch
                           id="allowBackorders"
                           checked={formData.allowBackorders}
-                          onCheckedChange={(checked) => setFormData(prev => ({ ...prev, allowBackorders: checked }))}
+                          onCheckedChange={(checked) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              allowBackorders: checked,
+                            }))
+                          }
                         />
                       </div>
 
@@ -819,21 +1034,35 @@ export default function NewProduct() {
                         <Switch
                           id="hasVariants"
                           checked={formData.hasVariants}
-                          onCheckedChange={(checked) => setFormData(prev => ({ ...prev, hasVariants: checked }))}
+                          onCheckedChange={(checked) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              hasVariants: checked,
+                            }))
+                          }
                         />
                       </div>
 
                       <div className="space-y-2">
                         <Label htmlFor="status">Product Status</Label>
-                        <Select value={formData.status} onValueChange={(value: any) => setFormData(prev => ({ ...prev, status: value }))}>
+                        <Select
+                          value={formData.status}
+                          onValueChange={(value: any) =>
+                            setFormData((prev) => ({ ...prev, status: value }))
+                          }
+                        >
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="active">Active</SelectItem>
                             <SelectItem value="inactive">Inactive</SelectItem>
-                            <SelectItem value="discontinued">Discontinued</SelectItem>
-                            <SelectItem value="out_of_stock">Out of Stock</SelectItem>
+                            <SelectItem value="discontinued">
+                              Discontinued
+                            </SelectItem>
+                            <SelectItem value="out_of_stock">
+                              Out of Stock
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -861,7 +1090,8 @@ export default function NewProduct() {
                     <Tag className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-medium">No Variants Enabled</h3>
                     <p className="text-muted-foreground mb-4">
-                      Enable variants in the Inventory tab to configure product variations.
+                      Enable variants in the Inventory tab to configure product
+                      variations.
                     </p>
                   </div>
                 ) : (
@@ -872,26 +1102,41 @@ export default function NewProduct() {
                         <h4 className="font-medium">Configured Variants</h4>
                         <div className="space-y-2">
                           {variants.map((variant, index) => (
-                            <div key={index} className="flex items-center gap-4 p-4 border rounded-lg">
+                            <div
+                              key={index}
+                              className="flex items-center gap-4 p-4 border rounded-lg"
+                            >
                               <div className="flex-1">
-                                <div className="font-medium">{variant.name}</div>
-                                <div className="text-sm text-muted-foreground">SKU: {variant.sku}</div>
+                                <div className="font-medium">
+                                  {variant.name}
+                                </div>
+                                <div className="text-sm text-muted-foreground">
+                                  SKU: {variant.sku}
+                                </div>
                                 <div className="flex gap-1 mt-1">
-                                  {variant.attributes.map((attr, attrIndex) => (
-                                    attr.key && attr.value && (
-                                      <Badge key={attrIndex} variant="outline" className="text-xs">
-                                        {attr.key}: {attr.value}
-                                      </Badge>
-                                    )
-                                  ))}
+                                  {variant.attributes.map(
+                                    (attr, attrIndex) =>
+                                      attr.key &&
+                                      attr.value && (
+                                        <Badge
+                                          key={attrIndex}
+                                          variant="outline"
+                                          className="text-xs"
+                                        >
+                                          {attr.key}: {attr.value}
+                                        </Badge>
+                                      ),
+                                  )}
                                 </div>
                               </div>
                               <div className="text-right">
                                 <div className="text-sm font-medium">
-                                  {variant.price ? `KES ${parseFloat(variant.price).toLocaleString()}` : 'Same as parent'}
+                                  {variant.price
+                                    ? `KES ${parseFloat(variant.price).toLocaleString()}`
+                                    : "Same as parent"}
                                 </div>
                                 <div className="text-xs text-muted-foreground">
-                                  Stock: {variant.stock || 'N/A'}
+                                  Stock: {variant.stock || "N/A"}
                                 </div>
                               </div>
                               <Button
@@ -917,7 +1162,12 @@ export default function NewProduct() {
                             <Label>Variant Name</Label>
                             <Input
                               value={newVariant.name}
-                              onChange={(e) => setNewVariant(prev => ({ ...prev, name: e.target.value }))}
+                              onChange={(e) =>
+                                setNewVariant((prev) => ({
+                                  ...prev,
+                                  name: e.target.value,
+                                }))
+                              }
                               placeholder="e.g., Size Large"
                             />
                           </div>
@@ -925,7 +1175,12 @@ export default function NewProduct() {
                             <Label>Variant SKU</Label>
                             <Input
                               value={newVariant.sku}
-                              onChange={(e) => setNewVariant(prev => ({ ...prev, sku: e.target.value }))}
+                              onChange={(e) =>
+                                setNewVariant((prev) => ({
+                                  ...prev,
+                                  sku: e.target.value,
+                                }))
+                              }
                               placeholder="e.g., PRD-001-L"
                             />
                           </div>
@@ -938,12 +1193,20 @@ export default function NewProduct() {
                               <Input
                                 placeholder="Attribute name (e.g., Color)"
                                 value={attr.key}
-                                onChange={(e) => updateAttribute(index, 'key', e.target.value)}
+                                onChange={(e) =>
+                                  updateAttribute(index, "key", e.target.value)
+                                }
                               />
                               <Input
                                 placeholder="Attribute value (e.g., Red)"
                                 value={attr.value}
-                                onChange={(e) => updateAttribute(index, 'value', e.target.value)}
+                                onChange={(e) =>
+                                  updateAttribute(
+                                    index,
+                                    "value",
+                                    e.target.value,
+                                  )
+                                }
                               />
                               <Button
                                 type="button"
@@ -973,7 +1236,12 @@ export default function NewProduct() {
                             <Input
                               type="number"
                               value={newVariant.price}
-                              onChange={(e) => setNewVariant(prev => ({ ...prev, price: e.target.value }))}
+                              onChange={(e) =>
+                                setNewVariant((prev) => ({
+                                  ...prev,
+                                  price: e.target.value,
+                                }))
+                              }
                               placeholder="Leave empty to use parent price"
                               min="0"
                               step="0.01"
@@ -984,7 +1252,12 @@ export default function NewProduct() {
                             <Input
                               type="number"
                               value={newVariant.stock}
-                              onChange={(e) => setNewVariant(prev => ({ ...prev, stock: e.target.value }))}
+                              onChange={(e) =>
+                                setNewVariant((prev) => ({
+                                  ...prev,
+                                  stock: e.target.value,
+                                }))
+                              }
                               placeholder="0"
                               min="0"
                             />
@@ -995,7 +1268,12 @@ export default function NewProduct() {
                           <div className="flex items-center gap-2">
                             <Switch
                               checked={newVariant.isActive}
-                              onCheckedChange={(checked) => setNewVariant(prev => ({ ...prev, isActive: checked }))}
+                              onCheckedChange={(checked) =>
+                                setNewVariant((prev) => ({
+                                  ...prev,
+                                  isActive: checked,
+                                }))
+                              }
                             />
                             <Label>Active</Label>
                           </div>
@@ -1026,7 +1304,12 @@ export default function NewProduct() {
                   <Textarea
                     id="notes"
                     value={formData.notes}
-                    onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        notes: e.target.value,
+                      }))
+                    }
                     placeholder="Additional notes about this product..."
                     rows={4}
                   />
@@ -1036,7 +1319,9 @@ export default function NewProduct() {
                   <h4 className="font-medium mb-4">Product Images</h4>
                   <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center">
                     <ImageIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium">Upload Product Images</h3>
+                    <h3 className="text-lg font-medium">
+                      Upload Product Images
+                    </h3>
                     <p className="text-muted-foreground mb-4">
                       Drag and drop images here or click to browse
                     </p>
