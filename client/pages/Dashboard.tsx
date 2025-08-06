@@ -469,7 +469,7 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           </DialogTrigger>
-          <DialogContent className="max-w-4xl">
+          <DialogContent className="max-w-[95vw] sm:max-w-4xl">
             <DialogHeader>
               <DialogTitle>Outstanding Invoices</DialogTitle>
               <DialogDescription>
@@ -501,7 +501,7 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           </DialogTrigger>
-          <DialogContent className="max-w-4xl">
+          <DialogContent className="max-w-[95vw] sm:max-w-4xl">
             <DialogHeader>
               <DialogTitle>Low Stock Items</DialogTitle>
               <DialogDescription>
@@ -533,7 +533,7 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           </DialogTrigger>
-          <DialogContent className="max-w-4xl">
+          <DialogContent className="max-w-[95vw] sm:max-w-4xl">
             <DialogHeader>
               <DialogTitle>Recent Payments</DialogTitle>
               <DialogDescription>
