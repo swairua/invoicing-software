@@ -32,6 +32,8 @@ import NewInvoice from "./pages/NewInvoice";
 import RecordPayment from "./pages/RecordPayment";
 import QuotationDetails from "./pages/QuotationDetails";
 import NewQuotation from "./pages/NewQuotation";
+import ProformaDetails from "./pages/ProformaDetails";
+import NewProforma from "./pages/NewProforma";
 
 const queryClient = new QueryClient();
 
