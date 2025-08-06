@@ -1313,6 +1313,57 @@ class BusinessDataService {
     return this.isSimulating;
   }
 
+  // Credit Note methods
+  public getCreditNotes(): Promise<CreditNote[]> {
+    return Promise.resolve(this.creditNotes);
+  }
+
+  public getCreditNote(id: string): Promise<CreditNote> {
+    const creditNote = this.creditNotes.find(cn => cn.id === id);
+    if (!creditNote) {
+      throw new Error(`Credit note with id ${id} not found`);
+    }
+    return Promise.resolve(creditNote);
+  }
+
+  public createCreditNote(creditNoteData: Omit<CreditNote, 'id' | 'creditNumber' | 'createdAt' | 'updatedAt'>): Promise<CreditNote> {
+    const creditNote: CreditNote = {
+      ...creditNoteData,
+      id: (this.creditNotes.length + 1).toString(),
+      creditNumber: `CRN${String(this.creditNotes.length + 1).padStart(4, '0')}`,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    this.creditNotes.push(creditNote);
+    return Promise.resolve(creditNote);
+  }
+
+  public updateCreditNote(id: string, creditNoteData: Partial<CreditNote>): Promise<CreditNote> {
+    const index = this.creditNotes.findIndex(cn => cn.id === id);
+    if (index === -1) {
+      throw new Error(`Credit note with id ${id} not found`);
+    }
+
+    this.creditNotes[index] = {
+      ...this.creditNotes[index],
+      ...creditNoteData,
+      updatedAt: new Date(),
+    };
+
+    return Promise.resolve(this.creditNotes[index]);
+  }
+
+  public deleteCreditNote(id: string): Promise<void> {
+    const index = this.creditNotes.findIndex(cn => cn.id === id);
+    if (index === -1) {
+      throw new Error(`Credit note with id ${id} not found`);
+    }
+
+    this.creditNotes.splice(index, 1);
+    return Promise.resolve();
+  }
+
   // Tax Configuration methods
   public getTaxConfigurations(): any[] {
     if (this.taxConfigurations.length === 0) {
