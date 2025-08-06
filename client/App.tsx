@@ -85,8 +85,8 @@ const AppRoutes = () => (
       <Route path="customers/:id" element={<PlaceholderPage module="Customer Details" />} />
       <Route path="customers/new" element={<PlaceholderPage module="New Customer" />} />
       <Route path="products" element={<Products />} />
-      <Route path="products/:id" element={<PlaceholderPage module="Product Details" />} />
-      <Route path="products/new" element={<PlaceholderPage module="New Product" />} />
+      <Route path="products/:id" element={<ProductDetails />} />
+      <Route path="products/new" element={<NewProduct />} />
       <Route path="quotations" element={<Quotations />} />
       <Route path="quotations/:id" element={<PlaceholderPage module="Quotation Details" />} />
       <Route path="quotations/new" element={<PlaceholderPage module="New Quotation" />} />
