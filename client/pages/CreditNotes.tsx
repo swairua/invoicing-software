@@ -4,10 +4,30 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Search, Plus, MoreHorizontal, FileText, Eye, Trash2, AlertCircle } from "lucide-react";
+import {
+  Search,
+  Plus,
+  MoreHorizontal,
+  FileText,
+  Eye,
+  Trash2,
+  AlertCircle,
+} from "lucide-react";
 import { format } from "date-fns";
 import { CreditNote, Customer, Product } from "@shared/types";
 import { dataServiceFactory } from "@/services/dataServiceFactory";
@@ -30,7 +50,7 @@ export default function CreditNotes() {
         dataService.getCreditNotes(),
         dataService.getCustomers(),
       ]);
-      
+
       setCreditNotes(creditNotesData);
       setCustomers(customersData);
     } catch (error) {
@@ -53,7 +73,7 @@ export default function CreditNotes() {
     try {
       const dataService = dataServiceFactory.getDataService();
       await dataService.deleteCreditNote(id);
-      setCreditNotes(creditNotes.filter(cn => cn.id !== id));
+      setCreditNotes(creditNotes.filter((cn) => cn.id !== id));
       toast({
         title: "Success",
         description: "Credit note deleted successfully",
@@ -68,10 +88,15 @@ export default function CreditNotes() {
     }
   };
 
-  const filteredCreditNotes = creditNotes.filter(creditNote =>
-    creditNote.creditNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    creditNote.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    creditNote.reason.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredCreditNotes = creditNotes.filter(
+    (creditNote) =>
+      creditNote.creditNumber
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      creditNote.customer.name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      creditNote.reason.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const getStatusBadge = (status: string) => {
@@ -80,7 +105,7 @@ export default function CreditNotes() {
       issued: "default",
       applied: "secondary",
     } as const;
-    
+
     return (
       <Badge variant={variants[status as keyof typeof variants] || "outline"}>
         {status.toUpperCase()}
@@ -91,9 +116,9 @@ export default function CreditNotes() {
   const getTotalStats = () => {
     return {
       total: creditNotes.length,
-      draft: creditNotes.filter(cn => cn.status === 'draft').length,
-      issued: creditNotes.filter(cn => cn.status === 'issued').length,
-      applied: creditNotes.filter(cn => cn.status === 'applied').length,
+      draft: creditNotes.filter((cn) => cn.status === "draft").length,
+      issued: creditNotes.filter((cn) => cn.status === "issued").length,
+      applied: creditNotes.filter((cn) => cn.status === "applied").length,
       totalAmount: creditNotes.reduce((sum, cn) => sum + cn.total, 0),
     };
   };
@@ -129,7 +154,9 @@ export default function CreditNotes() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Credit Notes</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Credit Notes
+            </CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -169,7 +196,9 @@ export default function CreditNotes() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">KES {stats.totalAmount.toLocaleString()}</div>
+            <div className="text-2xl font-bold">
+              KES {stats.totalAmount.toLocaleString()}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -193,9 +222,13 @@ export default function CreditNotes() {
           {filteredCreditNotes.length === 0 ? (
             <div className="text-center py-8">
               <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No credit notes found</h3>
+              <h3 className="text-lg font-semibold mb-2">
+                No credit notes found
+              </h3>
               <p className="text-muted-foreground mb-4">
-                {searchTerm ? "No credit notes match your search." : "Get started by creating your first credit note."}
+                {searchTerm
+                  ? "No credit notes match your search."
+                  : "Get started by creating your first credit note."}
               </p>
               <Button asChild>
                 <Link to="/credit-notes/new">
@@ -235,7 +268,9 @@ export default function CreditNotes() {
                     <TableCell>
                       {format(new Date(creditNote.issueDate), "MMM dd, yyyy")}
                     </TableCell>
-                    <TableCell>KES {creditNote.total.toLocaleString()}</TableCell>
+                    <TableCell>
+                      KES {creditNote.total.toLocaleString()}
+                    </TableCell>
                     <TableCell>{getStatusBadge(creditNote.status)}</TableCell>
                     <TableCell>
                       <DropdownMenu>

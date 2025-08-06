@@ -4,25 +4,33 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { 
-  Activity, 
-  User, 
-  FileText, 
-  DollarSign, 
-  Package, 
-  Users, 
+import {
+  Activity,
+  User,
+  FileText,
+  DollarSign,
+  Package,
+  Users,
   Receipt,
   CreditCard,
   RefreshCw,
-  Clock
+  Clock,
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { dataServiceFactory } from "@/services/dataServiceFactory";
 
 export interface ActivityLogEntry {
   id: string;
-  type: 'invoice' | 'payment' | 'customer' | 'product' | 'quotation' | 'proforma' | 'credit_note' | 'system';
-  action: 'created' | 'updated' | 'deleted' | 'paid' | 'sent' | 'converted';
+  type:
+    | "invoice"
+    | "payment"
+    | "customer"
+    | "product"
+    | "quotation"
+    | "proforma"
+    | "credit_note"
+    | "system";
+  action: "created" | "updated" | "deleted" | "paid" | "sent" | "converted";
   title: string;
   description: string;
   user: string;
@@ -37,11 +45,11 @@ interface ActivityLogProps {
   className?: string;
 }
 
-export default function ActivityLog({ 
-  limit = 10, 
-  type, 
-  showHeader = true, 
-  className = "" 
+export default function ActivityLog({
+  limit = 10,
+  type,
+  showHeader = true,
+  className = "",
 }: ActivityLogProps) {
   const [activities, setActivities] = useState<ActivityLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,12 +63,14 @@ export default function ActivityLog({
       setLoading(true);
       const dataService = dataServiceFactory.getDataService();
       const activityData = await dataService.getActivityLog();
-      
+
       let filteredActivities = activityData;
       if (type) {
-        filteredActivities = activityData.filter(activity => activity.type === type);
+        filteredActivities = activityData.filter(
+          (activity) => activity.type === type,
+        );
       }
-      
+
       setActivities(filteredActivities.slice(0, limit));
     } catch (error) {
       console.error("Error loading activities:", error);
@@ -71,21 +81,21 @@ export default function ActivityLog({
 
   const getActivityIcon = (type: string) => {
     switch (type) {
-      case 'invoice':
+      case "invoice":
         return <FileText className="h-4 w-4" />;
-      case 'payment':
+      case "payment":
         return <CreditCard className="h-4 w-4" />;
-      case 'customer':
+      case "customer":
         return <Users className="h-4 w-4" />;
-      case 'product':
+      case "product":
         return <Package className="h-4 w-4" />;
-      case 'quotation':
+      case "quotation":
         return <Receipt className="h-4 w-4" />;
-      case 'proforma':
+      case "proforma":
         return <FileText className="h-4 w-4" />;
-      case 'credit_note':
+      case "credit_note":
         return <RefreshCw className="h-4 w-4" />;
-      case 'system':
+      case "system":
         return <Activity className="h-4 w-4" />;
       default:
         return <Activity className="h-4 w-4" />;
@@ -94,43 +104,43 @@ export default function ActivityLog({
 
   const getActivityColor = (type: string) => {
     switch (type) {
-      case 'invoice':
-        return 'text-blue-600';
-      case 'payment':
-        return 'text-green-600';
-      case 'customer':
-        return 'text-purple-600';
-      case 'product':
-        return 'text-orange-600';
-      case 'quotation':
-        return 'text-indigo-600';
-      case 'proforma':
-        return 'text-teal-600';
-      case 'credit_note':
-        return 'text-red-600';
-      case 'system':
-        return 'text-gray-600';
+      case "invoice":
+        return "text-blue-600";
+      case "payment":
+        return "text-green-600";
+      case "customer":
+        return "text-purple-600";
+      case "product":
+        return "text-orange-600";
+      case "quotation":
+        return "text-indigo-600";
+      case "proforma":
+        return "text-teal-600";
+      case "credit_note":
+        return "text-red-600";
+      case "system":
+        return "text-gray-600";
       default:
-        return 'text-gray-600';
+        return "text-gray-600";
     }
   };
 
   const getBadgeVariant = (action: string) => {
     switch (action) {
-      case 'created':
-        return 'default';
-      case 'updated':
-        return 'secondary';
-      case 'deleted':
-        return 'destructive';
-      case 'paid':
-        return 'default';
-      case 'sent':
-        return 'secondary';
-      case 'converted':
-        return 'outline';
+      case "created":
+        return "default";
+      case "updated":
+        return "secondary";
+      case "deleted":
+        return "destructive";
+      case "paid":
+        return "default";
+      case "sent":
+        return "secondary";
+      case "converted":
+        return "outline";
       default:
-        return 'outline';
+        return "outline";
     }
   };
 
@@ -179,7 +189,9 @@ export default function ActivityLog({
               activities.map((activity, index) => (
                 <div key={activity.id}>
                   <div className="flex items-start gap-3">
-                    <div className={`flex-shrink-0 p-2 rounded-full bg-muted ${getActivityColor(activity.type)}`}>
+                    <div
+                      className={`flex-shrink-0 p-2 rounded-full bg-muted ${getActivityColor(activity.type)}`}
+                    >
                       {getActivityIcon(activity.type)}
                     </div>
                     <div className="flex-1 min-w-0 space-y-2">
@@ -188,7 +200,10 @@ export default function ActivityLog({
                           {activity.title}
                         </p>
                         <div className="flex items-center gap-2">
-                          <Badge variant={getBadgeVariant(activity.action) as any} className="text-xs">
+                          <Badge
+                            variant={getBadgeVariant(activity.action) as any}
+                            className="text-xs"
+                          >
                             {activity.action}
                           </Badge>
                         </div>
@@ -202,7 +217,9 @@ export default function ActivityLog({
                         <span>•</span>
                         <Clock className="h-3 w-3" />
                         <span title={format(activity.timestamp, "PPP p")}>
-                          {formatDistanceToNow(activity.timestamp, { addSuffix: true })}
+                          {formatDistanceToNow(activity.timestamp, {
+                            addSuffix: true,
+                          })}
                         </span>
                       </div>
                     </div>
@@ -222,7 +239,9 @@ export default function ActivityLog({
 
 // Hook for adding activity logs
 export const useActivityLog = () => {
-  const logActivity = async (entry: Omit<ActivityLogEntry, 'id' | 'timestamp'>) => {
+  const logActivity = async (
+    entry: Omit<ActivityLogEntry, "id" | "timestamp">,
+  ) => {
     try {
       const dataService = dataServiceFactory.getDataService();
       await dataService.addActivityLog({

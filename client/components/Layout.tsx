@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { Link, useLocation, Outlet } from 'react-router-dom';
-import { useAuth } from '../hooks/use-auth';
-import { Button } from './ui/button';
-import { Avatar, AvatarFallback } from './ui/avatar';
-import { Badge } from './ui/badge';
+import React, { useState } from "react";
+import { Link, useLocation, Outlet } from "react-router-dom";
+import { useAuth } from "../hooks/use-auth";
+import { Button } from "./ui/button";
+import { Avatar, AvatarFallback } from "./ui/avatar";
+import { Badge } from "./ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,8 +11,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from './ui/dropdown-menu';
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from './ui/sheet';
+} from "./ui/dropdown-menu";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "./ui/sheet";
 import {
   Building2,
   LayoutDashboard,
@@ -29,22 +29,22 @@ import {
   LogOut,
   User,
   Bell,
-  ChevronDown
-} from 'lucide-react';
-import { cn } from '../lib/utils';
+  ChevronDown,
+} from "lucide-react";
+import { cn } from "../lib/utils";
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Customers', href: '/customers', icon: Users },
-  { name: 'Products', href: '/products', icon: Package },
-  { name: 'Quotations', href: '/quotations', icon: FileText },
-  { name: 'Proforma', href: '/proforma', icon: FileText },
-  { name: 'Invoices', href: '/invoices', icon: Receipt },
-  { name: 'Payments', href: '/payments', icon: CreditCard },
-  { name: 'Credit Notes', href: '/credit-notes', icon: RefreshCw },
-  { name: 'Reports', href: '/reports', icon: BarChart3 },
-  { name: 'Templates', href: '/templates', icon: Palette },
-  { name: 'Settings', href: '/settings', icon: Settings },
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Customers", href: "/customers", icon: Users },
+  { name: "Products", href: "/products", icon: Package },
+  { name: "Quotations", href: "/quotations", icon: FileText },
+  { name: "Proforma", href: "/proforma", icon: FileText },
+  { name: "Invoices", href: "/invoices", icon: Receipt },
+  { name: "Payments", href: "/payments", icon: CreditCard },
+  { name: "Credit Notes", href: "/credit-notes", icon: RefreshCw },
+  { name: "Reports", href: "/reports", icon: BarChart3 },
+  { name: "Templates", href: "/templates", icon: Palette },
+  { name: "Settings", href: "/settings", icon: Settings },
 ];
 
 function NavigationItems({ mobile = false }: { mobile?: boolean }) {
@@ -63,7 +63,7 @@ function NavigationItems({ mobile = false }: { mobile?: boolean }) {
               isActive
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted",
-              mobile && "text-base px-4 py-3 mx-2"
+              mobile && "text-base px-4 py-3 mx-2",
             )}
           >
             <item.icon className={cn("mr-3 h-4 w-4", mobile && "h-5 w-5")} />
@@ -91,7 +91,9 @@ export default function Layout() {
               </div>
               <div>
                 <h1 className="text-lg font-semibold">BusinessERP</h1>
-                <p className="text-xs text-muted-foreground">Management System</p>
+                <p className="text-xs text-muted-foreground">
+                  Management System
+                </p>
               </div>
             </div>
           </div>
@@ -139,7 +141,9 @@ export default function Layout() {
                 </div>
                 <div>
                   <h1 className="text-lg font-semibold">BusinessERP</h1>
-                  <p className="text-xs text-muted-foreground">Management System</p>
+                  <p className="text-xs text-muted-foreground">
+                    Management System
+                  </p>
                 </div>
               </div>
               <div className="flex-1 overflow-y-auto">
@@ -163,14 +167,20 @@ export default function Layout() {
               {/* Profile dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center space-x-3 text-sm">
+                  <Button
+                    variant="ghost"
+                    className="flex items-center space-x-3 text-sm"
+                  >
                     <Avatar className="h-8 w-8">
                       <AvatarFallback>
-                        {user?.firstName?.[0]}{user?.lastName?.[0]}
+                        {user?.firstName?.[0]}
+                        {user?.lastName?.[0]}
                       </AvatarFallback>
                     </Avatar>
                     <div className="hidden lg:block text-left">
-                      <p className="text-sm font-medium">{user?.firstName} {user?.lastName}</p>
+                      <p className="text-sm font-medium">
+                        {user?.firstName} {user?.lastName}
+                      </p>
                       <Badge variant="outline" className="text-xs">
                         {user?.role}
                       </Badge>
@@ -181,18 +191,26 @@ export default function Layout() {
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => window.location.href = '/settings'}>
+                  <DropdownMenuItem
+                    onClick={() => (window.location.href = "/settings")}
+                  >
                     <User className="mr-2 h-4 w-4" />
                     Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => window.location.href = '/settings'}>
+                  <DropdownMenuItem
+                    onClick={() => (window.location.href = "/settings")}
+                  >
                     <Settings className="mr-2 h-4 w-4" />
                     Settings
                   </DropdownMenuItem>
-                  {user?.role === 'admin' && (
+                  {user?.role === "admin" && (
                     <>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => window.location.href = '/settings/users'}>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          (window.location.href = "/settings/users")
+                        }
+                      >
                         <User className="mr-2 h-4 w-4" />
                         Manage Users
                       </DropdownMenuItem>
@@ -201,7 +219,7 @@ export default function Layout() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() => {
-                      if (confirm('Are you sure you want to sign out?')) {
+                      if (confirm("Are you sure you want to sign out?")) {
                         logout();
                       }
                     }}

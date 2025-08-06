@@ -3,12 +3,41 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Download, Edit, Check, X, FileText, Calendar, User, Receipt } from "lucide-react";
+import {
+  ArrowLeft,
+  Download,
+  Edit,
+  Check,
+  X,
+  FileText,
+  Calendar,
+  User,
+  Receipt,
+} from "lucide-react";
 import { format } from "date-fns";
 import { CreditNote } from "@shared/types";
 import { dataServiceFactory } from "@/services/dataServiceFactory";
@@ -20,7 +49,9 @@ export default function CreditNoteDetails() {
   const [creditNote, setCreditNote] = useState<CreditNote | null>(null);
   const [loading, setLoading] = useState(true);
   const [statusUpdateOpen, setStatusUpdateOpen] = useState(false);
-  const [newStatus, setNewStatus] = useState<'draft' | 'issued' | 'applied'>('draft');
+  const [newStatus, setNewStatus] = useState<"draft" | "issued" | "applied">(
+    "draft",
+  );
 
   useEffect(() => {
     if (id) {
@@ -55,15 +86,18 @@ export default function CreditNoteDetails() {
 
     try {
       const dataService = dataServiceFactory.getDataService();
-      const updatedCreditNote = await dataService.updateCreditNote(creditNote.id, {
-        ...creditNote,
-        status: newStatus,
-        updatedAt: new Date(),
-      });
-      
+      const updatedCreditNote = await dataService.updateCreditNote(
+        creditNote.id,
+        {
+          ...creditNote,
+          status: newStatus,
+          updatedAt: new Date(),
+        },
+      );
+
       setCreditNote(updatedCreditNote);
       setStatusUpdateOpen(false);
-      
+
       toast({
         title: "Success",
         description: `Credit note status updated to ${newStatus}`,
@@ -98,16 +132,16 @@ export default function CreditNoteDetails() {
   const getStatusBadge = (status: string) => {
     const variants = {
       draft: "outline",
-      issued: "default", 
+      issued: "default",
       applied: "secondary",
     } as const;
-    
+
     const colors = {
       draft: "text-gray-600",
       issued: "text-blue-600",
       applied: "text-green-600",
     } as const;
-    
+
     return (
       <Badge variant={variants[status as keyof typeof variants] || "outline"}>
         <span className={colors[status as keyof typeof colors]}>
@@ -142,8 +176,12 @@ export default function CreditNoteDetails() {
             Back to Credit Notes
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Credit Note {creditNote.creditNumber}</h1>
-            <p className="text-muted-foreground">Issued to {creditNote.customer.name}</p>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Credit Note {creditNote.creditNumber}
+            </h1>
+            <p className="text-muted-foreground">
+              Issued to {creditNote.customer.name}
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -165,7 +203,10 @@ export default function CreditNoteDetails() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="newStatus">New Status</Label>
-                  <Select value={newStatus} onValueChange={(value: any) => setNewStatus(value)}>
+                  <Select
+                    value={newStatus}
+                    onValueChange={(value: any) => setNewStatus(value)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -177,7 +218,10 @@ export default function CreditNoteDetails() {
                   </Select>
                 </div>
                 <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setStatusUpdateOpen(false)}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setStatusUpdateOpen(false)}
+                  >
                     <X className="h-4 w-4 mr-2" />
                     Cancel
                   </Button>
@@ -221,7 +265,9 @@ export default function CreditNoteDetails() {
                     <Calendar className="h-4 w-4" />
                     Issue Date
                   </div>
-                  <p className="font-medium">{format(new Date(creditNote.issueDate), "MMMM dd, yyyy")}</p>
+                  <p className="font-medium">
+                    {format(new Date(creditNote.issueDate), "MMMM dd, yyyy")}
+                  </p>
                 </div>
                 {creditNote.invoiceId && (
                   <div className="space-y-2">
@@ -230,7 +276,7 @@ export default function CreditNoteDetails() {
                       Related Invoice
                     </div>
                     <p className="font-medium">
-                      <Link 
+                      <Link
                         to={`/invoices/${creditNote.invoiceId}`}
                         className="text-primary hover:underline"
                       >
@@ -247,20 +293,24 @@ export default function CreditNoteDetails() {
                   <p className="font-medium">{creditNote.createdBy}</p>
                 </div>
               </div>
-              
+
               <Separator />
-              
+
               <div className="space-y-2">
                 <h4 className="font-medium">Reason for Credit Note</h4>
-                <p className="text-sm text-muted-foreground">{creditNote.reason}</p>
+                <p className="text-sm text-muted-foreground">
+                  {creditNote.reason}
+                </p>
               </div>
-              
+
               {creditNote.notes && (
                 <>
                   <Separator />
                   <div className="space-y-2">
                     <h4 className="font-medium">Additional Notes</h4>
-                    <p className="text-sm text-muted-foreground">{creditNote.notes}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {creditNote.notes}
+                    </p>
                   </div>
                 </>
               )}
@@ -289,13 +339,19 @@ export default function CreditNoteDetails() {
                       <TableCell>
                         <div>
                           <p className="font-medium">{item.product.name}</p>
-                          <p className="text-sm text-muted-foreground">SKU: {item.product.sku}</p>
+                          <p className="text-sm text-muted-foreground">
+                            SKU: {item.product.sku}
+                          </p>
                         </div>
                       </TableCell>
                       <TableCell>{item.quantity}</TableCell>
-                      <TableCell>KES {item.unitPrice.toLocaleString()}</TableCell>
+                      <TableCell>
+                        KES {item.unitPrice.toLocaleString()}
+                      </TableCell>
                       <TableCell>{item.vatRate}%</TableCell>
-                      <TableCell className="text-right">KES {item.total.toLocaleString()}</TableCell>
+                      <TableCell className="text-right">
+                        KES {item.total.toLocaleString()}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -314,17 +370,25 @@ export default function CreditNoteDetails() {
             <CardContent className="space-y-4">
               <div>
                 <h4 className="font-medium">{creditNote.customer.name}</h4>
-                <p className="text-sm text-muted-foreground">{creditNote.customer.email}</p>
-                <p className="text-sm text-muted-foreground">{creditNote.customer.phone}</p>
+                <p className="text-sm text-muted-foreground">
+                  {creditNote.customer.email}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {creditNote.customer.phone}
+                </p>
               </div>
               <Separator />
               <div>
                 <h5 className="font-medium mb-2">Address</h5>
-                <p className="text-sm text-muted-foreground">{creditNote.customer.address}</p>
+                <p className="text-sm text-muted-foreground">
+                  {creditNote.customer.address}
+                </p>
               </div>
               <div>
                 <h5 className="font-medium mb-2">KRA PIN</h5>
-                <p className="text-sm text-muted-foreground">{creditNote.customer.kraPin}</p>
+                <p className="text-sm text-muted-foreground">
+                  {creditNote.customer.kraPin}
+                </p>
               </div>
               <div className="pt-2">
                 <Button asChild variant="outline" className="w-full">

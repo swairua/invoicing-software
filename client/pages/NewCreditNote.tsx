@@ -5,12 +5,37 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Search, Plus, Trash2, ArrowLeft, Save } from "lucide-react";
-import { Customer, Product, Invoice, CreditNote, CreditNoteItem } from "@shared/types";
+import {
+  Customer,
+  Product,
+  Invoice,
+  CreditNote,
+  CreditNoteItem,
+} from "@shared/types";
 import { dataServiceFactory } from "@/services/dataServiceFactory";
 import { toast } from "@/hooks/use-toast";
 
@@ -44,7 +69,7 @@ export default function NewCreditNote() {
         dataService.getProducts(),
         dataService.getInvoices(),
       ]);
-      
+
       setCustomers(customersData);
       setProducts(productsData);
       setInvoices(invoicesData);
@@ -61,14 +86,20 @@ export default function NewCreditNote() {
   };
 
   const addProduct = (product: Product) => {
-    const existingItem = items.find(item => item.productId === product.id);
-    
+    const existingItem = items.find((item) => item.productId === product.id);
+
     if (existingItem) {
-      setItems(items.map(item =>
-        item.productId === product.id
-          ? { ...item, quantity: item.quantity + 1, total: (item.quantity + 1) * item.unitPrice }
-          : item
-      ));
+      setItems(
+        items.map((item) =>
+          item.productId === product.id
+            ? {
+                ...item,
+                quantity: item.quantity + 1,
+                total: (item.quantity + 1) * item.unitPrice,
+              }
+            : item,
+        ),
+      );
     } else {
       const newItem: CreditNoteItem = {
         id: Date.now().toString(),
@@ -84,32 +115,41 @@ export default function NewCreditNote() {
     setProductSearchOpen(false);
   };
 
-  const updateItem = (itemId: string, field: keyof CreditNoteItem, value: any) => {
-    setItems(items.map(item => {
-      if (item.id === itemId) {
-        const updatedItem = { ...item, [field]: value };
-        if (field === 'quantity' || field === 'unitPrice') {
-          updatedItem.total = updatedItem.quantity * updatedItem.unitPrice;
+  const updateItem = (
+    itemId: string,
+    field: keyof CreditNoteItem,
+    value: any,
+  ) => {
+    setItems(
+      items.map((item) => {
+        if (item.id === itemId) {
+          const updatedItem = { ...item, [field]: value };
+          if (field === "quantity" || field === "unitPrice") {
+            updatedItem.total = updatedItem.quantity * updatedItem.unitPrice;
+          }
+          return updatedItem;
         }
-        return updatedItem;
-      }
-      return item;
-    }));
+        return item;
+      }),
+    );
   };
 
   const removeItem = (itemId: string) => {
-    setItems(items.filter(item => item.id !== itemId));
+    setItems(items.filter((item) => item.id !== itemId));
   };
 
   const calculateTotals = () => {
     const subtotal = items.reduce((sum, item) => sum + item.total, 0);
-    const vatAmount = items.reduce((sum, item) => sum + (item.total * item.vatRate / 100), 0);
+    const vatAmount = items.reduce(
+      (sum, item) => sum + (item.total * item.vatRate) / 100,
+      0,
+    );
     const total = subtotal + vatAmount;
-    
+
     return { subtotal, vatAmount, total };
   };
 
-  const handleSubmit = async (status: 'draft' | 'issued') => {
+  const handleSubmit = async (status: "draft" | "issued") => {
     if (!selectedCustomerId) {
       toast({
         title: "Validation Error",
@@ -138,10 +178,13 @@ export default function NewCreditNote() {
     }
 
     try {
-      const customer = customers.find(c => c.id === selectedCustomerId)!;
+      const customer = customers.find((c) => c.id === selectedCustomerId)!;
       const { subtotal, vatAmount, total } = calculateTotals();
-      
-      const creditNote: Omit<CreditNote, 'id' | 'creditNumber' | 'createdAt' | 'updatedAt'> = {
+
+      const creditNote: Omit<
+        CreditNote,
+        "id" | "creditNumber" | "createdAt" | "updatedAt"
+      > = {
         customerId: selectedCustomerId,
         customer,
         invoiceId: selectedInvoiceId || undefined,
@@ -159,12 +202,12 @@ export default function NewCreditNote() {
 
       const dataService = dataServiceFactory.getDataService();
       const createdCreditNote = await dataService.createCreditNote(creditNote);
-      
+
       toast({
         title: "Success",
-        description: `Credit note ${status === 'draft' ? 'saved as draft' : 'created'} successfully`,
+        description: `Credit note ${status === "draft" ? "saved as draft" : "created"} successfully`,
       });
-      
+
       navigate(`/credit-notes/${createdCreditNote.id}`);
     } catch (error) {
       console.error("Error creating credit note:", error);
@@ -176,13 +219,15 @@ export default function NewCreditNote() {
     }
   };
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(productSearchTerm.toLowerCase()) ||
-    product.sku.toLowerCase().includes(productSearchTerm.toLowerCase())
+  const filteredProducts = products.filter(
+    (product) =>
+      product.name.toLowerCase().includes(productSearchTerm.toLowerCase()) ||
+      product.sku.toLowerCase().includes(productSearchTerm.toLowerCase()),
   );
 
-  const customerInvoices = invoices.filter(invoice => 
-    invoice.customerId === selectedCustomerId && invoice.status === 'paid'
+  const customerInvoices = invoices.filter(
+    (invoice) =>
+      invoice.customerId === selectedCustomerId && invoice.status === "paid",
   );
 
   const totals = calculateTotals();
@@ -204,7 +249,9 @@ export default function NewCreditNote() {
         </Button>
         <div>
           <h1 className="text-3xl font-bold tracking-tight">New Credit Note</h1>
-          <p className="text-muted-foreground">Create a new credit note for customer refunds</p>
+          <p className="text-muted-foreground">
+            Create a new credit note for customer refunds
+          </p>
         </div>
       </div>
 
@@ -220,7 +267,10 @@ export default function NewCreditNote() {
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="customer">Customer *</Label>
-                  <Select value={selectedCustomerId} onValueChange={setSelectedCustomerId}>
+                  <Select
+                    value={selectedCustomerId}
+                    onValueChange={setSelectedCustomerId}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select a customer" />
                     </SelectTrigger>
@@ -235,8 +285,8 @@ export default function NewCreditNote() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="invoice">Related Invoice (Optional)</Label>
-                  <Select 
-                    value={selectedInvoiceId} 
+                  <Select
+                    value={selectedInvoiceId}
                     onValueChange={setSelectedInvoiceId}
                     disabled={!selectedCustomerId}
                   >
@@ -247,7 +297,8 @@ export default function NewCreditNote() {
                       <SelectItem value="">No related invoice</SelectItem>
                       {customerInvoices.map((invoice) => (
                         <SelectItem key={invoice.id} value={invoice.id}>
-                          {invoice.invoiceNumber} - KES {invoice.total.toLocaleString()}
+                          {invoice.invoiceNumber} - KES{" "}
+                          {invoice.total.toLocaleString()}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -271,7 +322,10 @@ export default function NewCreditNote() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Items</CardTitle>
-              <Dialog open={productSearchOpen} onOpenChange={setProductSearchOpen}>
+              <Dialog
+                open={productSearchOpen}
+                onOpenChange={setProductSearchOpen}
+              >
                 <DialogTrigger asChild>
                   <Button size="sm">
                     <Plus className="h-4 w-4 mr-2" />
@@ -308,7 +362,9 @@ export default function NewCreditNote() {
                             <TableRow key={product.id}>
                               <TableCell>{product.name}</TableCell>
                               <TableCell>{product.sku}</TableCell>
-                              <TableCell>KES {product.sellingPrice?.toLocaleString()}</TableCell>
+                              <TableCell>
+                                KES {product.sellingPrice?.toLocaleString()}
+                              </TableCell>
                               <TableCell>{product.stock}</TableCell>
                               <TableCell>
                                 <Button
@@ -353,7 +409,13 @@ export default function NewCreditNote() {
                             type="number"
                             min="1"
                             value={item.quantity}
-                            onChange={(e) => updateItem(item.id, 'quantity', parseInt(e.target.value) || 1)}
+                            onChange={(e) =>
+                              updateItem(
+                                item.id,
+                                "quantity",
+                                parseInt(e.target.value) || 1,
+                              )
+                            }
                             className="w-20"
                           />
                         </TableCell>
@@ -363,14 +425,22 @@ export default function NewCreditNote() {
                             min="0"
                             step="0.01"
                             value={item.unitPrice}
-                            onChange={(e) => updateItem(item.id, 'unitPrice', parseFloat(e.target.value) || 0)}
+                            onChange={(e) =>
+                              updateItem(
+                                item.id,
+                                "unitPrice",
+                                parseFloat(e.target.value) || 0,
+                              )
+                            }
                             className="w-32"
                           />
                         </TableCell>
                         <TableCell>
                           <Select
                             value={item.vatRate.toString()}
-                            onValueChange={(value) => updateItem(item.id, 'vatRate', parseFloat(value))}
+                            onValueChange={(value) =>
+                              updateItem(item.id, "vatRate", parseFloat(value))
+                            }
                           >
                             <SelectTrigger className="w-20">
                               <SelectValue />
@@ -442,17 +512,17 @@ export default function NewCreditNote() {
           </Card>
 
           <div className="space-y-2">
-            <Button 
-              onClick={() => handleSubmit('draft')} 
-              variant="outline" 
+            <Button
+              onClick={() => handleSubmit("draft")}
+              variant="outline"
               className="w-full"
               disabled={items.length === 0}
             >
               <Save className="h-4 w-4 mr-2" />
               Save as Draft
             </Button>
-            <Button 
-              onClick={() => handleSubmit('issued')} 
+            <Button
+              onClick={() => handleSubmit("issued")}
               className="w-full"
               disabled={items.length === 0}
             >

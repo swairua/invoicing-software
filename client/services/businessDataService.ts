@@ -1320,18 +1320,23 @@ class BusinessDataService {
   }
 
   public getCreditNote(id: string): Promise<CreditNote> {
-    const creditNote = this.creditNotes.find(cn => cn.id === id);
+    const creditNote = this.creditNotes.find((cn) => cn.id === id);
     if (!creditNote) {
       throw new Error(`Credit note with id ${id} not found`);
     }
     return Promise.resolve(creditNote);
   }
 
-  public createCreditNote(creditNoteData: Omit<CreditNote, 'id' | 'creditNumber' | 'createdAt' | 'updatedAt'>): Promise<CreditNote> {
+  public createCreditNote(
+    creditNoteData: Omit<
+      CreditNote,
+      "id" | "creditNumber" | "createdAt" | "updatedAt"
+    >,
+  ): Promise<CreditNote> {
     const creditNote: CreditNote = {
       ...creditNoteData,
       id: (this.creditNotes.length + 1).toString(),
-      creditNumber: `CRN${String(this.creditNotes.length + 1).padStart(4, '0')}`,
+      creditNumber: `CRN${String(this.creditNotes.length + 1).padStart(4, "0")}`,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -1340,8 +1345,11 @@ class BusinessDataService {
     return Promise.resolve(creditNote);
   }
 
-  public updateCreditNote(id: string, creditNoteData: Partial<CreditNote>): Promise<CreditNote> {
-    const index = this.creditNotes.findIndex(cn => cn.id === id);
+  public updateCreditNote(
+    id: string,
+    creditNoteData: Partial<CreditNote>,
+  ): Promise<CreditNote> {
+    const index = this.creditNotes.findIndex((cn) => cn.id === id);
     if (index === -1) {
       throw new Error(`Credit note with id ${id} not found`);
     }
@@ -1356,7 +1364,7 @@ class BusinessDataService {
   }
 
   public deleteCreditNote(id: string): Promise<void> {
-    const index = this.creditNotes.findIndex(cn => cn.id === id);
+    const index = this.creditNotes.findIndex((cn) => cn.id === id);
     if (index === -1) {
       throw new Error(`Credit note with id ${id} not found`);
     }
@@ -1371,9 +1379,12 @@ class BusinessDataService {
     if (this.activityLog.length === 0) {
       this.initializeActivityLog();
     }
-    return Promise.resolve(this.activityLog.sort((a, b) =>
-      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-    ));
+    return Promise.resolve(
+      this.activityLog.sort(
+        (a, b) =>
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+      ),
+    );
   }
 
   public addActivityLog(entry: any): Promise<void> {
@@ -1390,7 +1401,8 @@ class BusinessDataService {
         type: "invoice",
         action: "created",
         title: "Invoice INV0001 created",
-        description: "New invoice created for Acme Corporation Ltd worth KES 125,000",
+        description:
+          "New invoice created for Acme Corporation Ltd worth KES 125,000",
         user: "John Doe",
         timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
       },
@@ -1435,7 +1447,8 @@ class BusinessDataService {
         type: "credit_note",
         action: "created",
         title: "Credit note issued",
-        description: "Credit note CRN0001 issued for returned items worth KES 15,000",
+        description:
+          "Credit note CRN0001 issued for returned items worth KES 15,000",
         user: "John Doe",
         timestamp: new Date(Date.now() - 1000 * 60 * 300), // 5 hours ago
       },
@@ -1479,7 +1492,7 @@ class BusinessDataService {
             unitPrice: 75000,
             vatRate: 16,
             total: 150000,
-          }
+          },
         ],
         subtotal: 150000,
         vatAmount: 24000,
@@ -1507,7 +1520,7 @@ class BusinessDataService {
             unitPrice: 35000,
             vatRate: 16,
             total: 35000,
-          }
+          },
         ],
         subtotal: 35000,
         vatAmount: 5600,
@@ -1520,7 +1533,7 @@ class BusinessDataService {
         createdBy: "Jane Smith",
         createdAt: new Date("2024-01-20"),
         updatedAt: new Date("2024-01-20"),
-      }
+      },
     ];
 
     this.creditNotes = mockCreditNotes;
@@ -1530,8 +1543,8 @@ class BusinessDataService {
   public getTaxConfigurations(): any[] {
     if (this.taxConfigurations.length === 0) {
       this.initializeTaxConfigurations();
-    this.initializeCreditNotes();
-  }
+      this.initializeCreditNotes();
+    }
     return [...this.taxConfigurations];
   }
 
