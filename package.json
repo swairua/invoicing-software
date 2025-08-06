@@ -22,7 +22,8 @@
     "format.fix": "prettier --write .",
     "typecheck": "tsc",
     "check-env": "node scripts/check-env.js",
-    "deploy-check": "npm run typecheck && npm run build && npm run check-env",
+    "deploy-check": "npm run build:production && npm run check-env",
+    "deploy-check-strict": "npm run typecheck && npm run build && npm run check-env",
     "postinstall": "npm run build"
   },
   "dependencies": {
