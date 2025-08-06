@@ -646,7 +646,7 @@ export default function TaxSettings() {
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Tax Configuration</DialogTitle>
             <DialogDescription>
