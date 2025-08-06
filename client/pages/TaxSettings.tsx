@@ -157,7 +157,10 @@ export default function TaxSettings() {
 
     try {
       const dataService = dataServiceFactory.getDataService();
-      const result = await dataService.updateTaxConfiguration(editingTax.id, formData);
+      const result = await dataService.updateTaxConfiguration(
+        editingTax.id,
+        formData,
+      );
 
       if (result.success) {
         await loadTaxConfigurations();
@@ -224,7 +227,10 @@ export default function TaxSettings() {
   const handleToggleStatus = async (id: string, currentStatus: boolean) => {
     try {
       const dataService = dataServiceFactory.getDataService();
-      const result = await dataService.toggleTaxConfigurationStatus(id, !currentStatus);
+      const result = await dataService.toggleTaxConfigurationStatus(
+        id,
+        !currentStatus,
+      );
 
       if (result.success) {
         await loadTaxConfigurations();
