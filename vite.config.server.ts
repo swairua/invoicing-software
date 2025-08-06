@@ -44,7 +44,7 @@ export default defineConfig({
       ],
       output: {
         format: "es",
-        entryFileNames: "[name].mjs",
+        entryFileNames: "production.mjs",
       },
     },
     minify: false, // Keep readable for debugging
