@@ -431,7 +431,7 @@ export default function UserManagement() {
               Add User
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent>
             <DialogHeader>
               <DialogTitle>Create New User</DialogTitle>
               <DialogDescription>
