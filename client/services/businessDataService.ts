@@ -1143,6 +1143,136 @@ class BusinessDataService {
   public isSimulationRunning(): boolean {
     return this.isSimulating;
   }
+
+  // Tax Configuration methods
+  public getTaxConfigurations(): any[] {
+    if (this.taxConfigurations.length === 0) {
+      this.initializeTaxConfigurations();
+    }
+    return [...this.taxConfigurations];
+  }
+
+  private initializeTaxConfigurations() {
+    this.taxConfigurations = [
+      {
+        id: '1',
+        name: 'VAT Standard Rate',
+        code: 'VAT-16',
+        taxType: 'vat',
+        rate: 16,
+        calculationMethod: 'exclusive',
+        description: 'Standard VAT rate for most goods and services',
+        isDefault: true,
+        isActive: true,
+        effectiveStatus: true,
+        applicableFrom: '2024-01-01',
+        companyId: '1'
+      },
+      {
+        id: '2',
+        name: 'VAT Zero Rate',
+        code: 'VAT-0',
+        taxType: 'vat',
+        rate: 0,
+        calculationMethod: 'exclusive',
+        description: 'Zero VAT rate for exempt goods (medical supplies, etc.)',
+        isDefault: false,
+        isActive: true,
+        effectiveStatus: true,
+        applicableFrom: '2024-01-01',
+        companyId: '1'
+      },
+      {
+        id: '3',
+        name: 'Withholding Tax',
+        code: 'WHT-5',
+        taxType: 'custom',
+        rate: 5,
+        calculationMethod: 'exclusive',
+        description: 'Withholding tax for professional services',
+        isDefault: false,
+        isActive: true,
+        effectiveStatus: true,
+        applicableFrom: '2024-01-01',
+        companyId: '1'
+      }
+    ];
+  }
+
+  public createTaxConfiguration(taxConfig: any): Promise<any> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const newConfig = {
+          ...taxConfig,
+          id: Date.now().toString(),
+          companyId: '1'
+        };
+        this.taxConfigurations.push(newConfig);
+        resolve({ success: true, data: newConfig });
+      }, 500);
+    });
+  }
+
+  public updateTaxConfiguration(id: string, taxConfig: any): Promise<any> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const index = this.taxConfigurations.findIndex(tc => tc.id === id);
+        if (index >= 0) {
+          this.taxConfigurations[index] = { ...this.taxConfigurations[index], ...taxConfig };
+          resolve({ success: true, data: this.taxConfigurations[index] });
+        } else {
+          resolve({ success: false, error: 'Tax configuration not found' });
+        }
+      }, 500);
+    });
+  }
+
+  public deleteTaxConfiguration(id: string): Promise<any> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const index = this.taxConfigurations.findIndex(tc => tc.id === id);
+        if (index >= 0) {
+          this.taxConfigurations.splice(index, 1);
+          resolve({ success: true });
+        } else {
+          resolve({ success: false, error: 'Tax configuration not found' });
+        }
+      }, 500);
+    });
+  }
+
+  public toggleTaxConfigurationStatus(id: string, isActive: boolean): Promise<any> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const config = this.taxConfigurations.find(tc => tc.id === id);
+        if (config) {
+          config.isActive = isActive;
+          config.effectiveStatus = isActive;
+          resolve({ success: true, data: config });
+        } else {
+          resolve({ success: false, error: 'Tax configuration not found' });
+        }
+      }, 500);
+    });
+  }
+
+  public setDefaultTaxConfiguration(id: string): Promise<any> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // Remove default from all configurations
+        this.taxConfigurations.forEach(tc => tc.isDefault = false);
+
+        // Set the specified one as default
+        const config = this.taxConfigurations.find(tc => tc.id === id);
+        if (config) {
+          config.isDefault = true;
+          resolve({ success: true, data: config });
+        } else {
+          resolve({ success: false, error: 'Tax configuration not found' });
+        }
+      }, 500);
+    });
+  }
 }
 
 export default BusinessDataService;
