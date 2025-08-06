@@ -102,7 +102,7 @@ const AppRoutes = () => (
       <Route path="invoices/:id" element={<InvoiceDetails />} />
       <Route path="invoices/new" element={<NewInvoice />} />
       <Route path="payments" element={<Payments />} />
-      <Route path="payments/new" element={<PlaceholderPage module="Record Payment" />} />
+      <Route path="payments/new" element={<RecordPayment />} />
       <Route path="reports" element={<Reports />} />
       <Route path="reports/sales" element={<Reports />} />
       <Route path="reports/stock" element={<Reports />} />
