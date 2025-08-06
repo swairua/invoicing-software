@@ -232,6 +232,7 @@ export interface ProformaInvoice {
   subtotal: number;
   vatAmount: number;
   discountAmount: number;
+  additionalTaxAmount?: number; // Sum of all line item taxes
   total: number;
   status: ProformaStatus;
   validUntil: Date;
