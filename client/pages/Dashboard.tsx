@@ -800,74 +800,10 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Enhanced Recent Activities */}
-        <Card className="col-span-3">
-          <CardHeader>
-            <CardTitle>Recent Activities</CardTitle>
-            <CardDescription>
-              Latest activities in your business
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {mockMetrics.recentActivities.slice(0, 6).map((activity) => (
-                <div
-                  key={activity.id}
-                  className="flex items-start space-x-3 p-3 rounded-lg hover:bg-accent/5 transition-colors cursor-pointer"
-                >
-                  <div className={`${getActivityColor(activity.type)} mt-1`}>
-                    {getActivityIcon(activity.type)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground">
-                      {activity.description}
-                    </p>
-                    <div className="flex items-center space-x-2 mt-1">
-                      <p className="text-xs text-muted-foreground">
-                        {activity.timestamp.toLocaleTimeString()}
-                      </p>
-                      {activity.amount && (
-                        <span className="text-xs font-medium text-green-600">
-                          {formatCurrency(activity.amount)}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Badge
-                      variant="outline"
-                      className={`text-xs ${getActivityColor(activity.type)}`}
-                    >
-                      {activity.type}
-                    </Badge>
-                    <Badge
-                      variant={
-                        activity.status === "completed"
-                          ? "default"
-                          : activity.status === "warning"
-                            ? "destructive"
-                            : activity.status === "sent"
-                              ? "secondary"
-                              : "outline"
-                      }
-                      className="text-xs"
-                    >
-                      {activity.status}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <Button
-              variant="outline"
-              className="w-full mt-4"
-              onClick={() => navigate("/reports")}
-            >
-              <Clock className="mr-2 h-4 w-4" />
-              View All Activities
-            </Button>
-          </CardContent>
-        </Card>
+        {/* Live Activity Log */}
+        <div className="col-span-3">
+          <ActivityLog limit={8} showHeader={true} className="h-full" />
+        </div>
       </div>
 
       {/* Enhanced Top Products with Drill-down */}
