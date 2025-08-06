@@ -71,6 +71,7 @@ export default function NewQuotation() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [productSearch, setProductSearch] = useState("");
 
