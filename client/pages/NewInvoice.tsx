@@ -45,7 +45,8 @@ import {
   Calendar,
   Send,
 } from "lucide-react";
-import { Customer, Product, Invoice, InvoiceItem } from "@shared/types";
+import { Customer, Product, Invoice, InvoiceItem, LineItemTax } from "@shared/types";
+import { getAvailableTaxes, calculateLineItemTaxes, updateLineItemTaxAmounts } from "@shared/taxUtils";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import TemplateSelector from "../components/TemplateSelector";
 import { useToast } from "../hooks/use-toast";
