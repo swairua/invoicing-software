@@ -19,6 +19,7 @@ class BusinessDataService {
   private creditNotes: CreditNote[] = [];
   private stockMovements: StockMovement[] = [];
   private suppliers: Supplier[] = [];
+  private taxConfigurations: any[] = [];
   
   // Simulation state
   private isSimulating = false;
