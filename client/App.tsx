@@ -27,6 +27,8 @@ import ProductDetails from "./pages/ProductDetails";
 import NewProduct from "./pages/NewProduct";
 import CustomerDetails from "./pages/CustomerDetails";
 import NewCustomer from "./pages/NewCustomer";
+import InvoiceDetails from "./pages/InvoiceDetails";
+import NewInvoice from "./pages/NewInvoice";
 
 const queryClient = new QueryClient();
 
