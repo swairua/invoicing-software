@@ -423,7 +423,7 @@ export default function Payments() {
               Record Payment
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-[95vw] sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-[95vw] sm:max-w-[600px]">
             <DialogHeader>
               <DialogTitle>Record New Payment</DialogTitle>
               <DialogDescription>
