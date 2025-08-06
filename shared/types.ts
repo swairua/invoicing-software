@@ -367,6 +367,7 @@ export interface CreditNote {
   items: CreditNoteItem[];
   subtotal: number;
   vatAmount: number;
+  additionalTaxAmount?: number; // Sum of all line item taxes
   total: number;
   reason: string;
   status: 'draft' | 'issued' | 'applied';
