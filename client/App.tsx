@@ -29,6 +29,7 @@ import CustomerDetails from "./pages/CustomerDetails";
 import NewCustomer from "./pages/NewCustomer";
 import InvoiceDetails from "./pages/InvoiceDetails";
 import NewInvoice from "./pages/NewInvoice";
+import RecordPayment from "./pages/RecordPayment";
 
 const queryClient = new QueryClient();
 
