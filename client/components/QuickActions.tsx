@@ -330,7 +330,7 @@ export default function QuickActions() {
           'Proforma Invoice': '/proforma',
           'Delivery Note': '/deliveries',
           'Packing List': '/packing-lists',
-          'Credit Note': '/credit-notes',
+          'Credit Note': '/credit-notes/new',
           'Purchase Order': '/purchase-orders',
           'Payment Receipt': '/payments',
         };
