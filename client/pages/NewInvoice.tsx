@@ -174,6 +174,7 @@ export default function NewInvoice() {
     let subtotal = 0;
     let discountAmount = 0;
     let vatAmount = 0;
+    let additionalTaxAmount = 0;
 
     items.forEach((item) => {
       const quantity = parseFloat(item.quantity) || 0;
@@ -191,14 +192,23 @@ export default function NewInvoice() {
       const vatRate = product?.taxable ? product.taxRate || 16 : 0;
       const itemVatAmount = (afterDiscount * vatRate) / 100;
       vatAmount += itemVatAmount;
+
+      // Calculate additional line item taxes
+      if (item.lineItemTaxes && item.lineItemTaxes.length > 0) {
+        const itemTaxAmount = item.lineItemTaxes.reduce((taxSum, tax) => {
+          return taxSum + (afterDiscount * (tax.rate / 100));
+        }, 0);
+        additionalTaxAmount += itemTaxAmount;
+      }
     });
 
-    const total = subtotal - discountAmount + vatAmount;
+    const total = subtotal - discountAmount + vatAmount + additionalTaxAmount;
 
     return {
       subtotal,
       discountAmount,
       vatAmount,
+      additionalTaxAmount,
       total,
     };
   };
