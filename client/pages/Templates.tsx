@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -22,6 +22,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -41,6 +42,7 @@ import {
   TabsTrigger,
 } from "../components/ui/tabs";
 import { Switch } from "../components/ui/switch";
+import { Separator } from "../components/ui/separator";
 import {
   Plus,
   FileText,
@@ -56,180 +58,81 @@ import {
   Check,
   Star,
   Download,
+  Search,
+  Filter,
+  Upload,
+  Save,
+  X,
 } from "lucide-react";
 import { DocumentTemplate, DocumentType, TemplateDesign } from "@shared/types";
 import { useToast } from "../hooks/use-toast";
+import TemplateManager from "../services/templateManager";
 import PDFService from "../services/pdfService";
 
-// Mock templates data
-const mockTemplates: DocumentTemplate[] = [
-  {
-    id: "1",
-    name: "Standard Invoice",
-    description: "Classic professional invoice template",
-    type: "invoice",
-    isActive: true,
-    isDefault: true,
-    design: {
-      layout: "standard",
-      colors: {
-        primary: "#2563eb",
-        secondary: "#64748b",
-        accent: "#059669",
-        text: "#1f2937",
-      },
-      fonts: {
-        heading: "helvetica",
-        body: "helvetica",
-        size: { heading: 16, body: 10, small: 8 },
-      },
-      spacing: {
-        margins: 20,
-        lineHeight: 1.5,
-        sectionGap: 15,
-      },
-      header: {
-        showLogo: true,
-        logoPosition: "left",
-        showCompanyInfo: true,
-      },
-      footer: {
-        showTerms: true,
-        showSignature: true,
-        showPageNumbers: true,
-      },
-      table: {
-        headerBackgroundColor: "#f8fafc",
-        alternateRowColor: "#f1f5f9",
-        borderStyle: "light",
-      },
-    },
-    companyId: "1",
-    createdBy: "1",
-    createdAt: new Date("2024-01-01"),
-    updatedAt: new Date("2024-01-01"),
-  },
-  {
-    id: "2",
-    name: "Modern Quotation",
-    description: "Modern colorful quotation template",
-    type: "quotation",
-    isActive: true,
-    isDefault: true,
-    design: {
-      layout: "modern",
-      colors: {
-        primary: "#7c3aed",
-        secondary: "#64748b",
-        accent: "#f59e0b",
-        text: "#374151",
-      },
-      fonts: {
-        heading: "helvetica",
-        body: "helvetica",
-        size: { heading: 18, body: 11, small: 9 },
-      },
-      spacing: {
-        margins: 25,
-        lineHeight: 1.6,
-        sectionGap: 20,
-      },
-      header: {
-        showLogo: true,
-        logoPosition: "center",
-        showCompanyInfo: true,
-        backgroundColor: "#faf5ff",
-      },
-      footer: {
-        showTerms: true,
-        showSignature: false,
-        showPageNumbers: true,
-      },
-      table: {
-        headerBackgroundColor: "#7c3aed",
-        borderStyle: "medium",
-      },
-    },
-    companyId: "1",
-    createdBy: "1",
-    createdAt: new Date("2024-01-02"),
-    updatedAt: new Date("2024-01-02"),
-  },
-  {
-    id: "3",
-    name: "Minimal Receipt",
-    description: "Clean minimal receipt template",
-    type: "receipt",
-    isActive: false,
-    isDefault: false,
-    design: {
-      layout: "minimal",
-      colors: {
-        primary: "#000000",
-        secondary: "#6b7280",
-        accent: "#10b981",
-        text: "#111827",
-      },
-      fonts: {
-        heading: "helvetica",
-        body: "helvetica",
-        size: { heading: 14, body: 9, small: 7 },
-      },
-      spacing: {
-        margins: 15,
-        lineHeight: 1.4,
-        sectionGap: 10,
-      },
-      header: {
-        showLogo: false,
-        logoPosition: "left",
-        showCompanyInfo: true,
-      },
-      footer: {
-        showTerms: false,
-        showSignature: false,
-        showPageNumbers: false,
-      },
-      table: {
-        headerBackgroundColor: "#f9fafb",
-        borderStyle: "none",
-      },
-    },
-    companyId: "1",
-    createdBy: "1",
-    createdAt: new Date("2024-01-03"),
-    updatedAt: new Date("2024-01-03"),
-  },
+const DOCUMENT_TYPES: { value: DocumentType; label: string; description: string }[] = [
+  { value: 'invoice', label: 'Invoice', description: 'Customer billing documents' },
+  { value: 'quotation', label: 'Quotation', description: 'Price quotations and estimates' },
+  { value: 'proforma', label: 'Proforma Invoice', description: 'Preliminary billing documents' },
+  { value: 'receipt', label: 'Receipt', description: 'Payment acknowledgment documents' },
+  { value: 'packing_list', label: 'Packing List', description: 'Item listing for shipments' },
+  { value: 'delivery_note', label: 'Delivery Note', description: 'Delivery confirmation documents' },
+  { value: 'purchase_order', label: 'Purchase Order', description: 'Supplier ordering documents' },
+  { value: 'credit_note', label: 'Credit Note', description: 'Customer credit adjustments' },
+  { value: 'debit_note', label: 'Debit Note', description: 'Customer debit adjustments' },
+  { value: 'statement', label: 'Statement', description: 'Account statements' },
+  { value: 'goods_received_note', label: 'Goods Received Note', description: 'Inventory receipt tracking' },
+  { value: 'material_transfer_note', label: 'Material Transfer Note', description: 'Internal transfers' },
 ];
 
-interface TemplateFormData {
-  name: string;
-  description: string;
-  type: DocumentType;
-  design: TemplateDesign;
-}
+const LAYOUT_OPTIONS = [
+  { value: 'standard', label: 'Standard', description: 'Classic business layout' },
+  { value: 'modern', label: 'Modern', description: 'Contemporary design with colors' },
+  { value: 'minimal', label: 'Minimal', description: 'Clean and simple layout' },
+  { value: 'corporate', label: 'Corporate', description: 'Professional corporate style' },
+];
+
+const FONT_OPTIONS = [
+  { value: 'helvetica', label: 'Helvetica' },
+  { value: 'times', label: 'Times Roman' },
+  { value: 'courier', label: 'Courier' },
+];
+
+const BORDER_STYLES = [
+  { value: 'none', label: 'None' },
+  { value: 'light', label: 'Light' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'heavy', label: 'Heavy' },
+];
+
+const COLOR_PRESETS = [
+  { name: 'Blue Professional', colors: { primary: '#2563eb', secondary: '#64748b', accent: '#059669', text: '#1f2937' } },
+  { name: 'Purple Modern', colors: { primary: '#7c3aed', secondary: '#64748b', accent: '#f59e0b', text: '#374151' } },
+  { name: 'Green Corporate', colors: { primary: '#059669', secondary: '#64748b', accent: '#10b981', text: '#1f2937' } },
+  { name: 'Red Statement', colors: { primary: '#dc2626', secondary: '#64748b', accent: '#f87171', text: '#1f2937' } },
+  { name: 'Gray Minimal', colors: { primary: '#374151', secondary: '#6b7280', accent: '#9ca3af', text: '#111827' } },
+];
 
 export default function Templates() {
-  const [templates, setTemplates] = useState<DocumentTemplate[]>(mockTemplates);
-  const [selectedTemplate, setSelectedTemplate] =
-    useState<DocumentTemplate | null>(null);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [formData, setFormData] = useState<TemplateFormData>({
-    name: "",
-    description: "",
-    type: "invoice",
+  const { toast } = useToast();
+  const [templates, setTemplates] = useState<DocumentTemplate[]>([]);
+  const [filteredTemplates, setFilteredTemplates] = useState<DocumentTemplate[]>([]);
+  const [selectedType, setSelectedType] = useState<DocumentType | 'all'>('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<DocumentTemplate | null>(null);
+  const [previewTemplate, setPreviewTemplate] = useState<DocumentTemplate | null>(null);
+
+  // Form state for creating/editing templates
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    type: 'invoice' as DocumentType,
     design: {
-      layout: "standard",
-      colors: {
-        primary: "#2563eb",
-        secondary: "#64748b",
-        accent: "#059669",
-        text: "#1f2937",
-      },
+      layout: 'standard',
+      colors: COLOR_PRESETS[0].colors,
       fonts: {
-        heading: "helvetica",
-        body: "helvetica",
+        heading: 'helvetica',
+        body: 'helvetica',
         size: { heading: 16, body: 10, small: 8 },
       },
       spacing: {
@@ -239,7 +142,7 @@ export default function Templates() {
       },
       header: {
         showLogo: true,
-        logoPosition: "left",
+        logoPosition: 'left' as const,
         showCompanyInfo: true,
       },
       footer: {
@@ -248,207 +151,246 @@ export default function Templates() {
         showPageNumbers: true,
       },
       table: {
-        headerBackgroundColor: "#f8fafc",
-        borderStyle: "light",
+        headerBackgroundColor: '#f8fafc',
+        alternateRowColor: '#f1f5f9',
+        borderStyle: 'light' as const,
       },
-    },
+    } as TemplateDesign,
   });
-  const { toast } = useToast();
 
-  const documentTypes: {
-    value: DocumentType;
-    label: string;
-    icon: string;
-    description: string;
-  }[] = [
-    {
-      value: "invoice",
-      label: "Invoice",
-      icon: "🧾",
-      description: "Customer billing documents",
-    },
-    {
-      value: "quotation",
-      label: "Quotation",
-      icon: "💼",
-      description: "Price quotes for customers",
-    },
-    {
-      value: "proforma",
-      label: "Proforma Invoice",
-      icon: "📋",
-      description: "Preliminary invoices",
-    },
-    {
-      value: "receipt",
-      label: "Receipt",
-      icon: "🧾",
-      description: "Payment acknowledgments",
-    },
-    {
-      value: "packing_list",
-      label: "Packing List",
-      icon: "📦",
-      description: "Item packaging details",
-    },
-    {
-      value: "delivery_note",
-      label: "Delivery Note",
-      icon: "🚚",
-      description: "Delivery confirmations",
-    },
-    {
-      value: "purchase_order",
-      label: "Purchase Order",
-      icon: "🛒",
-      description: "Supplier orders",
-    },
-    {
-      value: "credit_note",
-      label: "Credit Note",
-      icon: "↩️",
-      description: "Customer credit documents",
-    },
-    {
-      value: "debit_note",
-      label: "Debit Note",
-      icon: "↪️",
-      description: "Customer debit documents",
-    },
-    {
-      value: "statement",
-      label: "Statement",
-      icon: "📊",
-      description: "Account statements",
-    },
-    {
-      value: "goods_received_note",
-      label: "Goods Received Note",
-      icon: "📥",
-      description: "Inventory receipts",
-    },
-    {
-      value: "material_transfer_note",
-      label: "Material Transfer Note",
-      icon: "🔄",
-      description: "Internal transfers",
-    },
-  ];
+  useEffect(() => {
+    loadTemplates();
+  }, []);
 
-  const layoutOptions = [
-    { value: "standard", label: "Standard" },
-    { value: "modern", label: "Modern" },
-    { value: "minimal", label: "Minimal" },
-    { value: "corporate", label: "Corporate" },
-  ];
+  useEffect(() => {
+    filterTemplates();
+  }, [templates, selectedType, searchTerm]);
 
-  const handleCreateTemplate = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const newTemplate: DocumentTemplate = {
-      id: Date.now().toString(),
-      ...formData,
-      isActive: false,
-      isDefault: false,
-      companyId: "1",
-      createdBy: "1",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    setTemplates((prev) => [newTemplate, ...prev]);
-    setIsCreateDialogOpen(false);
-    resetForm();
-
-    toast({
-      title: "Template Created",
-      description: `Template "${formData.name}" has been created successfully.`,
-    });
+  const loadTemplates = () => {
+    const allTemplates = TemplateManager.getAllTemplates();
+    setTemplates(allTemplates);
   };
 
-  const handleActivateTemplate = (templateId: string, type: DocumentType) => {
-    setTemplates((prev) =>
-      prev.map((template) => {
-        if (template.type === type) {
-          return {
-            ...template,
-            isActive: template.id === templateId,
-            isDefault: template.id === templateId,
-          };
-        }
-        return template;
-      }),
-    );
+  const filterTemplates = () => {
+    let filtered = templates;
 
-    const templateName = templates.find((t) => t.id === templateId)?.name;
-    toast({
-      title: "Template Activated",
-      description: `"${templateName}" is now the active template for ${type}s.`,
-    });
+    if (selectedType !== 'all') {
+      filtered = filtered.filter(t => t.type === selectedType);
+    }
+
+    if (searchTerm) {
+      filtered = filtered.filter(t =>
+        t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        t.description?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    setFilteredTemplates(filtered);
   };
 
-  const handleDuplicateTemplate = (template: DocumentTemplate) => {
-    const duplicatedTemplate: DocumentTemplate = {
-      ...template,
-      id: Date.now().toString(),
-      name: `${template.name} (Copy)`,
-      isActive: false,
-      isDefault: false,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    setTemplates((prev) => [duplicatedTemplate, ...prev]);
-
-    toast({
-      title: "Template Duplicated",
-      description: `Template "${duplicatedTemplate.name}" has been created.`,
-    });
+  const handleCreateTemplate = () => {
+    try {
+      const template = TemplateManager.createTemplate(
+        formData.name,
+        formData.description,
+        formData.type,
+        formData.design
+      );
+      
+      loadTemplates();
+      setCreateDialogOpen(false);
+      resetForm();
+      
+      toast({
+        title: "Success",
+        description: `Template "${template.name}" created successfully`,
+      });
+    } catch (error) {
+      console.error('Error creating template:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create template",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleDeleteTemplate = (templateId: string) => {
-    const template = templates.find((t) => t.id === templateId);
-    if (template?.isDefault) {
+  const handleUpdateTemplate = () => {
+    if (!editingTemplate) return;
+
+    try {
+      TemplateManager.updateTemplate(editingTemplate.id, {
+        name: formData.name,
+        description: formData.description,
+        design: formData.design,
+      });
+      
+      loadTemplates();
+      setEditingTemplate(null);
+      resetForm();
+      
+      toast({
+        title: "Success",
+        description: `Template "${formData.name}" updated successfully`,
+      });
+    } catch (error) {
+      console.error('Error updating template:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update template",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteTemplate = (template: DocumentTemplate) => {
+    if (template.isDefault) {
       toast({
         title: "Cannot Delete",
-        description: "Default templates cannot be deleted.",
+        description: "Default templates cannot be deleted",
         variant: "destructive",
       });
       return;
     }
 
-    setTemplates((prev) => prev.filter((t) => t.id !== templateId));
+    if (window.confirm(`Are you sure you want to delete "${template.name}"?`)) {
+      try {
+        TemplateManager.deleteTemplate(template.id);
+        loadTemplates();
+        
+        toast({
+          title: "Success",
+          description: `Template "${template.name}" deleted successfully`,
+        });
+      } catch (error) {
+        console.error('Error deleting template:', error);
+        toast({
+          title: "Error",
+          description: "Failed to delete template",
+          variant: "destructive",
+        });
+      }
+    }
+  };
 
-    toast({
-      title: "Template Deleted",
-      description: "Template has been deleted successfully.",
-    });
+  const handleDuplicateTemplate = (template: DocumentTemplate) => {
+    try {
+      const duplicate = TemplateManager.duplicateTemplate(template.id);
+      if (duplicate) {
+        loadTemplates();
+        toast({
+          title: "Success",
+          description: `Template duplicated as "${duplicate.name}"`,
+        });
+      }
+    } catch (error) {
+      console.error('Error duplicating template:', error);
+      toast({
+        title: "Error",
+        description: "Failed to duplicate template",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSetActiveTemplate = (template: DocumentTemplate) => {
+    try {
+      TemplateManager.setActiveTemplate(template.type, template.id);
+      loadTemplates();
+      
+      toast({
+        title: "Success",
+        description: `"${template.name}" is now the active template for ${template.type}`,
+      });
+    } catch (error) {
+      console.error('Error setting active template:', error);
+      toast({
+        title: "Error",
+        description: "Failed to set active template",
+        variant: "destructive",
+      });
+    }
   };
 
   const handlePreviewTemplate = (template: DocumentTemplate) => {
-    // Generate a sample PDF with the template
-    toast({
-      title: "Preview Generated",
-      description: "Sample PDF has been generated for preview.",
-    });
+    setPreviewTemplate(template);
+  };
+
+  const handleDownloadTemplate = async (template: DocumentTemplate) => {
+    try {
+      // Generate a sample PDF using the template
+      const mockData = generateMockDocumentData(template.type);
+      await PDFService.generateDocument(template.type, mockData, template);
+      
+      toast({
+        title: "Success",
+        description: "Template preview downloaded successfully",
+      });
+    } catch (error) {
+      console.error('Error downloading template:', error);
+      toast({
+        title: "Error",
+        description: "Failed to download template preview",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const generateMockDocumentData = (type: DocumentType) => {
+    // Generate sample data based on document type for preview
+    const baseData = {
+      id: 'SAMPLE',
+      customer: {
+        name: 'Sample Customer Ltd',
+        email: 'customer@example.com',
+        address: '123 Business Street, City, Country',
+        phone: '+1 234 567 8900',
+      },
+      items: [
+        {
+          name: 'Sample Product 1',
+          quantity: 2,
+          unitPrice: 100,
+          total: 200,
+        },
+        {
+          name: 'Sample Product 2',
+          quantity: 1,
+          unitPrice: 50,
+          total: 50,
+        },
+      ],
+      subtotal: 250,
+      vatAmount: 40,
+      total: 290,
+      date: new Date(),
+    };
+
+    switch (type) {
+      case 'invoice':
+        return { ...baseData, invoiceNumber: 'INV-SAMPLE' };
+      case 'quotation':
+        return { ...baseData, quotationNumber: 'QUO-SAMPLE' };
+      case 'proforma':
+        return { ...baseData, proformaNumber: 'PRO-SAMPLE' };
+      case 'credit_note':
+        return { ...baseData, creditNumber: 'CRN-SAMPLE', reason: 'Sample credit note reason' };
+      default:
+        return baseData;
+    }
   };
 
   const resetForm = () => {
     setFormData({
-      name: "",
-      description: "",
-      type: "invoice",
+      name: '',
+      description: '',
+      type: 'invoice' as DocumentType,
       design: {
-        layout: "standard",
-        colors: {
-          primary: "#2563eb",
-          secondary: "#64748b",
-          accent: "#059669",
-          text: "#1f2937",
-        },
+        layout: 'standard',
+        colors: COLOR_PRESETS[0].colors,
         fonts: {
-          heading: "helvetica",
-          body: "helvetica",
+          heading: 'helvetica',
+          body: 'helvetica',
           size: { heading: 16, body: 10, small: 8 },
         },
         spacing: {
@@ -458,7 +400,7 @@ export default function Templates() {
         },
         header: {
           showLogo: true,
-          logoPosition: "left",
+          logoPosition: 'left' as const,
           showCompanyInfo: true,
         },
         footer: {
@@ -467,564 +409,769 @@ export default function Templates() {
           showPageNumbers: true,
         },
         table: {
-          headerBackgroundColor: "#f8fafc",
-          borderStyle: "light",
+          headerBackgroundColor: '#f8fafc',
+          alternateRowColor: '#f1f5f9',
+          borderStyle: 'light' as const,
         },
-      },
+      } as TemplateDesign,
     });
   };
 
-  const getTypeIcon = (type: DocumentType) => {
-    const docType = documentTypes.find((dt) => dt.value === type);
-    return docType?.icon || "📄";
+  const startEdit = (template: DocumentTemplate) => {
+    setFormData({
+      name: template.name,
+      description: template.description || '',
+      type: template.type,
+      design: template.design,
+    });
+    setEditingTemplate(template);
   };
 
-  const groupedTemplates = documentTypes.reduce(
-    (acc, docType) => {
-      acc[docType.value] = templates.filter((t) => t.type === docType.value);
-      return acc;
-    },
-    {} as Record<DocumentType, DocumentTemplate[]>,
-  );
+  const templatesByType = DOCUMENT_TYPES.map(docType => ({
+    ...docType,
+    templates: filteredTemplates.filter(t => t.type === docType.value),
+    activeTemplate: templates.find(t => t.type === docType.value && t.isActive),
+  }));
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Document Templates
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight">Document Templates</h1>
           <p className="text-muted-foreground">
-            Manage and customize your document templates for different business
-            needs
+            Create and manage templates for all your business documents
           </p>
         </div>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
+            <Button onClick={() => { resetForm(); setCreateDialogOpen(true); }}>
+              <Plus className="h-4 w-4 mr-2" />
               Create Template
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-[95vw] sm:max-w-[800px]">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Create New Template</DialogTitle>
+              <DialogTitle>{editingTemplate ? 'Edit Template' : 'Create New Template'}</DialogTitle>
               <DialogDescription>
-                Design a new document template for your business documents
+                Design a custom template for your business documents
               </DialogDescription>
             </DialogHeader>
-            <form onSubmit={handleCreateTemplate} className="space-y-6">
-              <Tabs defaultValue="basic" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="basic">Basic Info</TabsTrigger>
-                  <TabsTrigger value="design">Design</TabsTrigger>
-                  <TabsTrigger value="layout">Layout</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="basic" className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Template Name *</Label>
-                      <Input
-                        id="name"
-                        value={formData.name}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            name: e.target.value,
-                          }))
-                        }
-                        placeholder="e.g., Standard Invoice"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="type">Document Type *</Label>
-                      <Select
-                        value={formData.type}
-                        onValueChange={(value: DocumentType) =>
-                          setFormData((prev) => ({ ...prev, type: value }))
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-[300px]">
-                          {documentTypes.map((type) => (
-                            <SelectItem key={type.value} value={type.value}>
-                              <div className="flex items-center space-x-2">
-                                <span>{type.icon}</span>
-                                <div>
-                                  <div className="font-medium">
-                                    {type.label}
-                                  </div>
-                                  <div className="text-xs text-muted-foreground">
-                                    {type.description}
-                                  </div>
-                                </div>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea
-                      id="description"
-                      value={formData.description}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          description: e.target.value,
-                        }))
-                      }
-                      placeholder="Brief description of this template"
-                    />
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="design" className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Layout Style</Label>
-                      <Select
-                        value={formData.design.layout}
-                        onValueChange={(value: any) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            design: { ...prev.design, layout: value },
-                          }))
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {layoutOptions.map((layout) => (
-                            <SelectItem key={layout.value} value={layout.value}>
-                              {layout.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Border Style</Label>
-                      <Select
-                        value={formData.design.table.borderStyle}
-                        onValueChange={(value: any) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            design: {
-                              ...prev.design,
-                              table: {
-                                ...prev.design.table,
-                                borderStyle: value,
-                              },
-                            },
-                          }))
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">None</SelectItem>
-                          <SelectItem value="light">Light</SelectItem>
-                          <SelectItem value="medium">Medium</SelectItem>
-                          <SelectItem value="heavy">Heavy</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <div className="space-y-2">
-                      <Label>Primary Color</Label>
-                      <Input
-                        type="color"
-                        value={formData.design.colors.primary}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            design: {
-                              ...prev.design,
-                              colors: {
-                                ...prev.design.colors,
-                                primary: e.target.value,
-                              },
-                            },
-                          }))
-                        }
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Secondary Color</Label>
-                      <Input
-                        type="color"
-                        value={formData.design.colors.secondary}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            design: {
-                              ...prev.design,
-                              colors: {
-                                ...prev.design.colors,
-                                secondary: e.target.value,
-                              },
-                            },
-                          }))
-                        }
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Accent Color</Label>
-                      <Input
-                        type="color"
-                        value={formData.design.colors.accent}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            design: {
-                              ...prev.design,
-                              colors: {
-                                ...prev.design.colors,
-                                accent: e.target.value,
-                              },
-                            },
-                          }))
-                        }
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Text Color</Label>
-                      <Input
-                        type="color"
-                        value={formData.design.colors.text}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            design: {
-                              ...prev.design,
-                              colors: {
-                                ...prev.design.colors,
-                                text: e.target.value,
-                              },
-                            },
-                          }))
-                        }
-                      />
-                    </div>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="layout" className="space-y-4">
-                  <div className="space-y-4">
-                    <div className="border rounded-lg p-4">
-                      <h4 className="font-medium mb-3">Header Options</h4>
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <Label>Show Logo</Label>
-                          <Switch
-                            checked={formData.design.header.showLogo}
-                            onCheckedChange={(checked) =>
-                              setFormData((prev) => ({
-                                ...prev,
-                                design: {
-                                  ...prev.design,
-                                  header: {
-                                    ...prev.design.header,
-                                    showLogo: checked,
-                                  },
-                                },
-                              }))
-                            }
-                          />
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <Label>Show Company Info</Label>
-                          <Switch
-                            checked={formData.design.header.showCompanyInfo}
-                            onCheckedChange={(checked) =>
-                              setFormData((prev) => ({
-                                ...prev,
-                                design: {
-                                  ...prev.design,
-                                  header: {
-                                    ...prev.design.header,
-                                    showCompanyInfo: checked,
-                                  },
-                                },
-                              }))
-                            }
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Logo Position</Label>
-                          <Select
-                            value={formData.design.header.logoPosition}
-                            onValueChange={(value: any) =>
-                              setFormData((prev) => ({
-                                ...prev,
-                                design: {
-                                  ...prev.design,
-                                  header: {
-                                    ...prev.design.header,
-                                    logoPosition: value,
-                                  },
-                                },
-                              }))
-                            }
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="left">Left</SelectItem>
-                              <SelectItem value="center">Center</SelectItem>
-                              <SelectItem value="right">Right</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="border rounded-lg p-4">
-                      <h4 className="font-medium mb-3">Footer Options</h4>
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <Label>Show Terms</Label>
-                          <Switch
-                            checked={formData.design.footer.showTerms}
-                            onCheckedChange={(checked) =>
-                              setFormData((prev) => ({
-                                ...prev,
-                                design: {
-                                  ...prev.design,
-                                  footer: {
-                                    ...prev.design.footer,
-                                    showTerms: checked,
-                                  },
-                                },
-                              }))
-                            }
-                          />
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <Label>Show Signature</Label>
-                          <Switch
-                            checked={formData.design.footer.showSignature}
-                            onCheckedChange={(checked) =>
-                              setFormData((prev) => ({
-                                ...prev,
-                                design: {
-                                  ...prev.design,
-                                  footer: {
-                                    ...prev.design.footer,
-                                    showSignature: checked,
-                                  },
-                                },
-                              }))
-                            }
-                          />
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <Label>Show Page Numbers</Label>
-                          <Switch
-                            checked={formData.design.footer.showPageNumbers}
-                            onCheckedChange={(checked) =>
-                              setFormData((prev) => ({
-                                ...prev,
-                                design: {
-                                  ...prev.design,
-                                  footer: {
-                                    ...prev.design.footer,
-                                    showPageNumbers: checked,
-                                  },
-                                },
-                              }))
-                            }
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </TabsContent>
-              </Tabs>
-
-              <div className="flex flex-col sm:flex-row justify-end gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setIsCreateDialogOpen(false);
-                    resetForm();
-                  }}
-                  className="w-full sm:w-auto"
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" className="w-full sm:w-auto">
-                  Create Template
-                </Button>
-              </div>
-            </form>
+            <TemplateDesigner
+              formData={formData}
+              setFormData={setFormData}
+              onSave={editingTemplate ? handleUpdateTemplate : handleCreateTemplate}
+              onCancel={() => {
+                setCreateDialogOpen(false);
+                setEditingTemplate(null);
+                resetForm();
+              }}
+            />
           </DialogContent>
         </Dialog>
       </div>
 
-      {/* Templates by Type */}
-      <div className="space-y-6">
-        {documentTypes.map((docType) => (
-          <Card key={docType.value}>
+      {/* Filters */}
+      <div className="flex items-center gap-4">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Input
+            placeholder="Search templates..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <Select value={selectedType} onValueChange={(value: any) => setSelectedType(value)}>
+          <SelectTrigger className="w-48">
+            <Filter className="h-4 w-4 mr-2" />
+            <SelectValue placeholder="Filter by type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Types</SelectItem>
+            {DOCUMENT_TYPES.map(type => (
+              <SelectItem key={type.value} value={type.value}>
+                {type.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Templates by Category */}
+      <div className="space-y-8">
+        {templatesByType.map((category) => (
+          <Card key={category.value}>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <span className="text-2xl">{docType.icon}</span>
-                {docType.label} Templates
-              </CardTitle>
-              <CardDescription>
-                {docType.description} - Manage templates for{" "}
-                {docType.label.toLowerCase()} documents
-              </CardDescription>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <FileText className="h-5 w-5 text-primary" />
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      {category.label}
+                      <Badge variant="outline">
+                        {category.templates.length} template{category.templates.length !== 1 ? 's' : ''}
+                      </Badge>
+                      {category.activeTemplate && (
+                        <Badge variant="default" className="text-xs">
+                          Active: {category.activeTemplate.name}
+                        </Badge>
+                      )}
+                    </CardTitle>
+                    <CardDescription>{category.description}</CardDescription>
+                  </div>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {groupedTemplates[docType.value]?.map((template) => (
-                  <div
-                    key={template.id}
-                    className="border rounded-lg p-4 space-y-3"
+              {category.templates.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>No templates found for {category.label.toLowerCase()}</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-4"
+                    onClick={() => {
+                      setFormData(prev => ({ ...prev, type: category.value }));
+                      setCreateDialogOpen(true);
+                    }}
                   >
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h4 className="font-medium flex items-center gap-2">
-                          {template.name}
-                          {template.isDefault && (
-                            <Badge variant="default" className="text-xs">
-                              <Star className="h-3 w-3 mr-1" />
-                              Active
-                            </Badge>
-                          )}
-                        </h4>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {template.description}
-                        </p>
-                      </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem
-                            onClick={() => handlePreviewTemplate(template)}
-                          >
-                            <Eye className="mr-2 h-4 w-4" />
-                            Preview
-                          </DropdownMenuItem>
-                          {!template.isDefault && (
-                            <DropdownMenuItem
-                              onClick={() =>
-                                handleActivateTemplate(
-                                  template.id,
-                                  template.type,
-                                )
-                              }
-                            >
-                              <Check className="mr-2 h-4 w-4" />
-                              Set as Active
-                            </DropdownMenuItem>
-                          )}
-                          <DropdownMenuItem
-                            onClick={() => handleDuplicateTemplate(template)}
-                          >
-                            <Copy className="mr-2 h-4 w-4" />
-                            Duplicate
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit
-                          </DropdownMenuItem>
-                          {!template.isDefault && (
-                            <DropdownMenuItem
-                              className="text-destructive"
-                              onClick={() => handleDeleteTemplate(template.id)}
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Layout className="h-3 w-3" />
-                      {template.design.layout}
-                      <Palette className="h-3 w-3 ml-2" />
-                      <div
-                        className="w-3 h-3 rounded-full border"
-                        style={{
-                          backgroundColor: template.design.colors.primary,
-                        }}
-                      />
-                    </div>
-
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="flex-1"
-                        onClick={() => handlePreviewTemplate(template)}
-                      >
-                        <Eye className="h-3 w-3 mr-1" />
-                        Preview
-                      </Button>
-                      {!template.isDefault && (
-                        <Button
-                          size="sm"
-                          className="flex-1"
-                          onClick={() =>
-                            handleActivateTemplate(template.id, template.type)
-                          }
-                        >
-                          <Check className="h-3 w-3 mr-1" />
-                          Activate
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-
-                {(!groupedTemplates[docType.value] ||
-                  groupedTemplates[docType.value].length === 0) && (
-                  <div className="col-span-full text-center py-8 text-muted-foreground">
-                    <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p>No templates found for {docType.label.toLowerCase()}</p>
-                    <Button
-                      variant="outline"
-                      className="mt-2"
-                      onClick={() => {
-                        setFormData((prev) => ({
-                          ...prev,
-                          type: docType.value,
-                        }));
-                        setIsCreateDialogOpen(true);
-                      }}
-                    >
-                      Create First Template
-                    </Button>
-                  </div>
-                )}
-              </div>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create {category.label} Template
+                  </Button>
+                </div>
+              ) : (
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {category.templates.map((template) => (
+                    <TemplateCard
+                      key={template.id}
+                      template={template}
+                      onEdit={() => startEdit(template)}
+                      onDelete={() => handleDeleteTemplate(template)}
+                      onDuplicate={() => handleDuplicateTemplate(template)}
+                      onSetActive={() => handleSetActiveTemplate(template)}
+                      onPreview={() => handlePreviewTemplate(template)}
+                      onDownload={() => handleDownloadTemplate(template)}
+                    />
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      {/* Edit Dialog */}
+      <Dialog open={!!editingTemplate} onOpenChange={(open) => !open && setEditingTemplate(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Template</DialogTitle>
+            <DialogDescription>
+              Modify the design and settings for this template
+            </DialogDescription>
+          </DialogHeader>
+          <TemplateDesigner
+            formData={formData}
+            setFormData={setFormData}
+            onSave={handleUpdateTemplate}
+            onCancel={() => setEditingTemplate(null)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Preview Dialog */}
+      <Dialog open={!!previewTemplate} onOpenChange={(open) => !open && setPreviewTemplate(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Template Preview</DialogTitle>
+            <DialogDescription>
+              Preview of "{previewTemplate?.name}" template
+            </DialogDescription>
+          </DialogHeader>
+          {previewTemplate && <TemplatePreview template={previewTemplate} />}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+// Template Card Component
+function TemplateCard({
+  template,
+  onEdit,
+  onDelete,
+  onDuplicate,
+  onSetActive,
+  onPreview,
+  onDownload,
+}: {
+  template: DocumentTemplate;
+  onEdit: () => void;
+  onDelete: () => void;
+  onDuplicate: () => void;
+  onSetActive: () => void;
+  onPreview: () => void;
+  onDownload: () => void;
+}) {
+  return (
+    <Card className="relative">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <h4 className="font-semibold flex items-center gap-2">
+              {template.name}
+              {template.isActive && (
+                <Badge variant="default" className="text-xs">
+                  <Star className="h-3 w-3 mr-1" />
+                  Active
+                </Badge>
+              )}
+              {template.isDefault && (
+                <Badge variant="outline" className="text-xs">
+                  Default
+                </Badge>
+              )}
+            </h4>
+            <p className="text-sm text-muted-foreground mt-1">
+              {template.description}
+            </p>
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem onClick={onPreview}>
+                <Eye className="h-4 w-4 mr-2" />
+                Preview
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onDownload}>
+                <Download className="h-4 w-4 mr-2" />
+                Download Sample
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={onEdit}>
+                <Edit className="h-4 w-4 mr-2" />
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onDuplicate}>
+                <Copy className="h-4 w-4 mr-2" />
+                Duplicate
+              </DropdownMenuItem>
+              {!template.isActive && (
+                <DropdownMenuItem onClick={onSetActive}>
+                  <Star className="h-4 w-4 mr-2" />
+                  Set as Active
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
+              {!template.isDefault && (
+                <DropdownMenuItem onClick={onDelete} className="text-destructive">
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Layout className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm capitalize">{template.design.layout} Layout</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Palette className="h-4 w-4 text-muted-foreground" />
+            <div className="flex gap-1">
+              <div
+                className="w-4 h-4 rounded-full border"
+                style={{ backgroundColor: template.design.colors.primary }}
+              />
+              <div
+                className="w-4 h-4 rounded-full border"
+                style={{ backgroundColor: template.design.colors.secondary }}
+              />
+              <div
+                className="w-4 h-4 rounded-full border"
+                style={{ backgroundColor: template.design.colors.accent }}
+              />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={onPreview}>
+              <Eye className="h-4 w-4 mr-2" />
+              Preview
+            </Button>
+            <Button size="sm" variant="outline" onClick={onEdit}>
+              <Edit className="h-4 w-4 mr-2" />
+              Edit
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// Template Designer Component
+function TemplateDesigner({
+  formData,
+  setFormData,
+  onSave,
+  onCancel,
+}: {
+  formData: any;
+  setFormData: (data: any) => void;
+  onSave: () => void;
+  onCancel: () => void;
+}) {
+  const updateDesign = (path: string, value: any) => {
+    setFormData((prev: any) => {
+      const newData = { ...prev };
+      const keys = path.split('.');
+      let current = newData.design;
+      
+      for (let i = 0; i < keys.length - 1; i++) {
+        current = current[keys[i]];
+      }
+      current[keys[keys.length - 1]] = value;
+      
+      return newData;
+    });
+  };
+
+  const applyColorPreset = (preset: typeof COLOR_PRESETS[0]) => {
+    updateDesign('colors', preset.colors);
+  };
+
+  return (
+    <div className="space-y-6">
+      <Tabs defaultValue="basic" className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="basic">Basic Info</TabsTrigger>
+          <TabsTrigger value="design">Design</TabsTrigger>
+          <TabsTrigger value="layout">Layout</TabsTrigger>
+          <TabsTrigger value="preview">Preview</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="basic" className="space-y-4">
+          <div className="grid gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Template Name *</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Enter template name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Describe this template"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="type">Document Type *</Label>
+              <Select
+                value={formData.type}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, type: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {DOCUMENT_TYPES.map(type => (
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="design" className="space-y-4">
+          <div className="grid gap-6">
+            <div className="space-y-4">
+              <h4 className="font-medium">Layout Style</h4>
+              <Select
+                value={formData.design.layout}
+                onValueChange={(value) => updateDesign('layout', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {LAYOUT_OPTIONS.map(layout => (
+                    <SelectItem key={layout.value} value={layout.value}>
+                      {layout.label} - {layout.description}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Separator />
+
+            <div className="space-y-4">
+              <h4 className="font-medium">Color Scheme</h4>
+              <div className="grid gap-3">
+                <div className="grid grid-cols-5 gap-2">
+                  {COLOR_PRESETS.map((preset, index) => (
+                    <Button
+                      key={index}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => applyColorPreset(preset)}
+                      className="h-auto p-2 flex flex-col items-center gap-1"
+                    >
+                      <div className="flex gap-1">
+                        {Object.values(preset.colors).map((color, i) => (
+                          <div
+                            key={i}
+                            className="w-3 h-3 rounded-full border"
+                            style={{ backgroundColor: color }}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-xs">{preset.name}</span>
+                    </Button>
+                  ))}
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Primary Color</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="color"
+                        value={formData.design.colors.primary}
+                        onChange={(e) => updateDesign('colors.primary', e.target.value)}
+                        className="w-12 h-10"
+                      />
+                      <Input
+                        value={formData.design.colors.primary}
+                        onChange={(e) => updateDesign('colors.primary', e.target.value)}
+                        placeholder="#000000"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Secondary Color</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="color"
+                        value={formData.design.colors.secondary}
+                        onChange={(e) => updateDesign('colors.secondary', e.target.value)}
+                        className="w-12 h-10"
+                      />
+                      <Input
+                        value={formData.design.colors.secondary}
+                        onChange={(e) => updateDesign('colors.secondary', e.target.value)}
+                        placeholder="#000000"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="space-y-4">
+              <h4 className="font-medium">Typography</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Heading Font</Label>
+                  <Select
+                    value={formData.design.fonts.heading}
+                    onValueChange={(value) => updateDesign('fonts.heading', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {FONT_OPTIONS.map(font => (
+                        <SelectItem key={font.value} value={font.value}>
+                          {font.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Body Font</Label>
+                  <Select
+                    value={formData.design.fonts.body}
+                    onValueChange={(value) => updateDesign('fonts.body', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {FONT_OPTIONS.map(font => (
+                        <SelectItem key={font.value} value={font.value}>
+                          {font.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="layout" className="space-y-4">
+          <div className="grid gap-6">
+            <div className="space-y-4">
+              <h4 className="font-medium">Header Settings</h4>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label>Show Logo</Label>
+                  <Switch
+                    checked={formData.design.header.showLogo}
+                    onCheckedChange={(checked) => updateDesign('header.showLogo', checked)}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label>Show Company Info</Label>
+                  <Switch
+                    checked={formData.design.header.showCompanyInfo}
+                    onCheckedChange={(checked) => updateDesign('header.showCompanyInfo', checked)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Logo Position</Label>
+                  <Select
+                    value={formData.design.header.logoPosition}
+                    onValueChange={(value) => updateDesign('header.logoPosition', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="left">Left</SelectItem>
+                      <SelectItem value="center">Center</SelectItem>
+                      <SelectItem value="right">Right</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="space-y-4">
+              <h4 className="font-medium">Footer Settings</h4>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label>Show Terms & Conditions</Label>
+                  <Switch
+                    checked={formData.design.footer.showTerms}
+                    onCheckedChange={(checked) => updateDesign('footer.showTerms', checked)}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label>Show Signature Area</Label>
+                  <Switch
+                    checked={formData.design.footer.showSignature}
+                    onCheckedChange={(checked) => updateDesign('footer.showSignature', checked)}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label>Show Page Numbers</Label>
+                  <Switch
+                    checked={formData.design.footer.showPageNumbers}
+                    onCheckedChange={(checked) => updateDesign('footer.showPageNumbers', checked)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="space-y-4">
+              <h4 className="font-medium">Table Style</h4>
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <Label>Border Style</Label>
+                  <Select
+                    value={formData.design.table.borderStyle}
+                    onValueChange={(value) => updateDesign('table.borderStyle', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {BORDER_STYLES.map(style => (
+                        <SelectItem key={style.value} value={style.value}>
+                          {style.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Header Background</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      type="color"
+                      value={formData.design.table.headerBackgroundColor}
+                      onChange={(e) => updateDesign('table.headerBackgroundColor', e.target.value)}
+                      className="w-12 h-10"
+                    />
+                    <Input
+                      value={formData.design.table.headerBackgroundColor}
+                      onChange={(e) => updateDesign('table.headerBackgroundColor', e.target.value)}
+                      placeholder="#f8fafc"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="preview" className="space-y-4">
+          <div className="border rounded-lg p-4 bg-muted/30">
+            <div className="text-center text-muted-foreground py-8">
+              <FileText className="h-12 w-12 mx-auto mb-4" />
+              <p>Template preview will be shown here</p>
+              <p className="text-sm">Full preview available after saving</p>
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
+
+      <DialogFooter>
+        <Button variant="outline" onClick={onCancel}>
+          <X className="h-4 w-4 mr-2" />
+          Cancel
+        </Button>
+        <Button onClick={onSave} disabled={!formData.name.trim()}>
+          <Save className="h-4 w-4 mr-2" />
+          Save Template
+        </Button>
+      </DialogFooter>
+    </div>
+  );
+}
+
+// Template Preview Component
+function TemplatePreview({ template }: { template: DocumentTemplate }) {
+  return (
+    <div className="space-y-4">
+      <div className="border rounded-lg p-6 bg-white">
+        <div 
+          className="space-y-4"
+          style={{ 
+            fontFamily: template.design.fonts.body,
+            color: template.design.colors.text,
+            lineHeight: template.design.spacing.lineHeight,
+          }}
+        >
+          {/* Header */}
+          <div 
+            className="flex items-center justify-between p-4 rounded"
+            style={{ 
+              backgroundColor: template.design.header.backgroundColor || 'transparent',
+            }}
+          >
+            {template.design.header.showLogo && (
+              <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
+                Logo
+              </div>
+            )}
+            {template.design.header.showCompanyInfo && (
+              <div className={template.design.header.logoPosition === 'center' ? 'text-center' : 'text-right'}>
+                <h3 
+                  style={{ 
+                    color: template.design.colors.primary,
+                    fontSize: template.design.fonts.size.heading,
+                    fontFamily: template.design.fonts.heading,
+                  }}
+                >
+                  Your Company Name
+                </h3>
+                <p>123 Business Street</p>
+                <p>City, Country</p>
+              </div>
+            )}
+          </div>
+
+          {/* Title */}
+          <div className="text-center py-4">
+            <h1 
+              style={{ 
+                color: template.design.colors.primary,
+                fontSize: template.design.fonts.size.heading + 4,
+                fontFamily: template.design.fonts.heading,
+              }}
+            >
+              {template.type.toUpperCase().replace('_', ' ')}
+            </h1>
+          </div>
+
+          {/* Sample Table */}
+          <div className="overflow-hidden rounded border">
+            <table className="w-full">
+              <thead>
+                <tr style={{ backgroundColor: template.design.table.headerBackgroundColor }}>
+                  <th className="text-left p-2 border-b">Item</th>
+                  <th className="text-right p-2 border-b">Qty</th>
+                  <th className="text-right p-2 border-b">Price</th>
+                  <th className="text-right p-2 border-b">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style={{ backgroundColor: template.design.table.alternateRowColor || 'transparent' }}>
+                  <td className="p-2 border-b">Sample Product 1</td>
+                  <td className="text-right p-2 border-b">2</td>
+                  <td className="text-right p-2 border-b">$100.00</td>
+                  <td className="text-right p-2 border-b">$200.00</td>
+                </tr>
+                <tr>
+                  <td className="p-2 border-b">Sample Product 2</td>
+                  <td className="text-right p-2 border-b">1</td>
+                  <td className="text-right p-2 border-b">$50.00</td>
+                  <td className="text-right p-2 border-b">$50.00</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Footer */}
+          {(template.design.footer.showTerms || template.design.footer.showSignature) && (
+            <div className="pt-8 space-y-4">
+              {template.design.footer.showTerms && (
+                <p className="text-sm text-muted-foreground">
+                  Terms and conditions apply. Please review our payment terms.
+                </p>
+              )}
+              {template.design.footer.showSignature && (
+                <div className="flex justify-between">
+                  <div>
+                    <div className="border-b border-gray-300 w-48 mb-2"></div>
+                    <p className="text-sm">Authorized Signature</p>
+                  </div>
+                  <div>
+                    <div className="border-b border-gray-300 w-48 mb-2"></div>
+                    <p className="text-sm">Date</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
