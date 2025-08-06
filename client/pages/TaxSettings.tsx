@@ -505,7 +505,7 @@ export default function TaxSettings() {
               Add Tax Configuration
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent>
             <DialogHeader>
               <DialogTitle>Create Tax Configuration</DialogTitle>
               <DialogDescription>
