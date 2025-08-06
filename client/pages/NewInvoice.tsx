@@ -49,6 +49,7 @@ import { Customer, Product, Invoice, InvoiceItem, LineItemTax } from "@shared/ty
 import { getAvailableTaxes, calculateLineItemTaxes, updateLineItemTaxAmounts } from "@shared/taxUtils";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import TemplateSelector from "../components/TemplateSelector";
+import LineItemTaxSelector from "../components/LineItemTaxSelector";
 import { useToast } from "../hooks/use-toast";
 
 interface InvoiceFormData {
