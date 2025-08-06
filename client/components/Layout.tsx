@@ -40,6 +40,7 @@ const navigation = [
   { name: 'Proforma', href: '/proforma', icon: FileText },
   { name: 'Invoices', href: '/invoices', icon: Receipt },
   { name: 'Payments', href: '/payments', icon: CreditCard },
+  { name: 'Credit Notes', href: '/credit-notes', icon: RefreshCw },
   { name: 'Reports', href: '/reports', icon: BarChart3 },
   { name: 'Templates', href: '/templates', icon: Palette },
   { name: 'Settings', href: '/settings', icon: Settings },
