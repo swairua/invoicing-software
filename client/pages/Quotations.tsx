@@ -1,10 +1,16 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { Avatar, AvatarFallback } from '../components/ui/avatar';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
+import { Avatar, AvatarFallback } from "../components/ui/avatar";
 import {
   Table,
   TableBody,
@@ -12,7 +18,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../components/ui/table';
+} from "../components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,7 +26,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../components/ui/dropdown-menu';
+} from "../components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -29,16 +35,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../components/ui/dialog';
+} from "../components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../components/ui/select';
-import { Label } from '../components/ui/label';
-import { Textarea } from '../components/ui/textarea';
+} from "../components/ui/select";
+import { Label } from "../components/ui/label";
+import { Textarea } from "../components/ui/textarea";
 import {
   Plus,
   Search,
@@ -58,11 +64,11 @@ import {
   Loader2,
   TrendingUp,
   DollarSign,
-} from 'lucide-react';
-import { Quotation, Customer, Product } from '@shared/types';
-import { useToast } from '../hooks/use-toast';
-import PDFService from '../services/pdfService';
-import dataService from '../services/dataServiceFactory';
+} from "lucide-react";
+import { Quotation, Customer, Product } from "@shared/types";
+import { useToast } from "../hooks/use-toast";
+import PDFService from "../services/pdfService";
+import dataService from "../services/dataServiceFactory";
 
 // Get data service instance (either mock or PostgreSQL)
 const businessData = dataService;
@@ -78,14 +84,14 @@ export default function Quotations() {
   const [quotations, setQuotations] = useState<Quotation[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
-    customerId: '',
-    validUntil: '',
-    notes: '',
-    items: [] as { productId: string; quantity: number; unitPrice: number }[]
+    customerId: "",
+    validUntil: "",
+    notes: "",
+    items: [] as { productId: string; quantity: number; unitPrice: number }[],
   });
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -113,49 +119,65 @@ export default function Quotations() {
     return () => clearInterval(refreshInterval);
   }, []);
 
-  const filteredQuotations = quotations.filter(quotation => {
-    const matchesSearch = quotation.quoteNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         quotation.customer.name.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = statusFilter === 'all' || quotation.status === statusFilter;
-    
+  const filteredQuotations = quotations.filter((quotation) => {
+    const matchesSearch =
+      quotation.quoteNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      quotation.customer.name.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus =
+      statusFilter === "all" || quotation.status === statusFilter;
+
     return matchesSearch && matchesStatus;
   });
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-KE', {
-      style: 'currency',
-      currency: 'KES',
+    return new Intl.NumberFormat("en-KE", {
+      style: "currency",
+      currency: "KES",
       minimumFractionDigits: 0,
     }).format(amount);
   };
 
   const getStatusVariant = (status: string) => {
     switch (status) {
-      case 'draft': return 'secondary';
-      case 'sent': return 'default';
-      case 'accepted': return 'default';
-      case 'rejected': return 'destructive';
-      case 'expired': return 'outline';
-      default: return 'secondary';
+      case "draft":
+        return "secondary";
+      case "sent":
+        return "default";
+      case "accepted":
+        return "default";
+      case "rejected":
+        return "destructive";
+      case "expired":
+        return "outline";
+      default:
+        return "secondary";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'draft': return <Edit className="h-3 w-3" />;
-      case 'sent': return <Send className="h-3 w-3" />;
-      case 'accepted': return <CheckCircle className="h-3 w-3" />;
-      case 'rejected': return <XCircle className="h-3 w-3" />;
-      case 'expired': return <Clock className="h-3 w-3" />;
-      default: return null;
+      case "draft":
+        return <Edit className="h-3 w-3" />;
+      case "sent":
+        return <Send className="h-3 w-3" />;
+      case "accepted":
+        return <CheckCircle className="h-3 w-3" />;
+      case "rejected":
+        return <XCircle className="h-3 w-3" />;
+      case "expired":
+        return <Clock className="h-3 w-3" />;
+      default:
+        return null;
     }
   };
 
   const isExpiringSoon = (validUntil: Date | string) => {
     const today = new Date();
     const validDate = safeDate(validUntil);
-    const diffDays = Math.ceil((validDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    const diffDays = Math.ceil(
+      (validDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
+    );
     return diffDays <= 7 && diffDays > 0;
   };
 
@@ -174,14 +196,17 @@ export default function Quotations() {
     setIsLoading(true);
     try {
       // Calculate totals
-      const subtotal = formData.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
+      const subtotal = formData.items.reduce(
+        (sum, item) => sum + item.unitPrice * item.quantity,
+        0,
+      );
       const vatAmount = subtotal * 0.16;
       const total = subtotal + vatAmount;
 
       // Generate quotation number
-      const quoteNumber = `QUO-2024-${String(quotations.length + 1).padStart(3, '0')}`;
+      const quoteNumber = `QUO-2024-${String(quotations.length + 1).padStart(3, "0")}`;
 
-      const customer = customers.find(c => c.id === formData.customerId);
+      const customer = customers.find((c) => c.id === formData.customerId);
 
       const newQuotation: Quotation = {
         id: Date.now().toString(),
@@ -189,7 +214,7 @@ export default function Quotations() {
         customerId: formData.customerId,
         customer: customer!,
         items: formData.items.map((item, index) => {
-          const product = products.find(p => p.id === item.productId);
+          const product = products.find((p) => p.id === item.productId);
           return {
             id: `item-${index}`,
             productId: item.productId,
@@ -198,19 +223,22 @@ export default function Quotations() {
             unitPrice: item.unitPrice,
             discount: 0,
             vatRate: product?.taxable ? 16 : 0,
-            total: item.unitPrice * item.quantity * (1 + (product?.taxable ? 0.16 : 0))
+            total:
+              item.unitPrice *
+              item.quantity *
+              (1 + (product?.taxable ? 0.16 : 0)),
           };
         }),
         subtotal,
         vatAmount,
         discountAmount: 0,
         total,
-        status: 'draft',
+        status: "draft",
         validUntil: new Date(formData.validUntil),
         issueDate: new Date(),
         notes: formData.notes,
-        companyId: '1',
-        createdBy: '1',
+        companyId: "1",
+        createdBy: "1",
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -222,17 +250,16 @@ export default function Quotations() {
 
       // Reset form
       setFormData({
-        customerId: '',
-        validUntil: '',
-        notes: '',
-        items: []
+        customerId: "",
+        validUntil: "",
+        notes: "",
+        items: [],
       });
 
       toast({
         title: "Quotation Created",
         description: `Quotation ${quoteNumber} created successfully for ${customer?.name}`,
       });
-
     } catch (error) {
       toast({
         title: "Error",
@@ -245,25 +272,25 @@ export default function Quotations() {
   };
 
   const addProduct = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      items: [...prev.items, { productId: '', quantity: 1, unitPrice: 0 }]
+      items: [...prev.items, { productId: "", quantity: 1, unitPrice: 0 }],
     }));
   };
 
   const removeProduct = (index: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      items: prev.items.filter((_, i) => i !== index)
+      items: prev.items.filter((_, i) => i !== index),
     }));
   };
 
   const updateProduct = (index: number, field: string, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       items: prev.items.map((item, i) =>
-        i === index ? { ...item, [field]: value } : item
-      )
+        i === index ? { ...item, [field]: value } : item,
+      ),
     }));
   };
 
@@ -302,15 +329,19 @@ export default function Quotations() {
   };
 
   const handleDownloadPDF = (quotationId: string) => {
-    const quotation = quotations.find(q => q.id === quotationId);
+    const quotation = quotations.find((q) => q.id === quotationId);
     if (quotation) {
       PDFService.generateQuotationPDF(quotation);
     }
   };
 
   const totalQuotations = quotations.length;
-  const acceptedQuotations = quotations.filter(q => q.status === 'accepted').length;
-  const pendingQuotations = quotations.filter(q => q.status === 'sent').length;
+  const acceptedQuotations = quotations.filter(
+    (q) => q.status === "accepted",
+  ).length;
+  const pendingQuotations = quotations.filter(
+    (q) => q.status === "sent",
+  ).length;
   const totalValue = quotations.reduce((sum, q) => sum + q.total, 0);
 
   return (
@@ -342,16 +373,23 @@ export default function Quotations() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="customer">Customer *</Label>
-                    <Select value={formData.customerId} onValueChange={(value) => setFormData(prev => ({ ...prev, customerId: value }))}>
+                    <Select
+                      value={formData.customerId}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({ ...prev, customerId: value }))
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select customer" />
                       </SelectTrigger>
                       <SelectContent>
-                        {customers.map(customer => (
+                        {customers.map((customer) => (
                           <SelectItem key={customer.id} value={customer.id}>
                             <div>
                               <div className="font-medium">{customer.name}</div>
-                              <div className="text-xs text-muted-foreground">{customer.email}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {customer.email}
+                              </div>
                             </div>
                           </SelectItem>
                         ))}
@@ -364,7 +402,12 @@ export default function Quotations() {
                       id="validUntil"
                       type="date"
                       value={formData.validUntil}
-                      onChange={(e) => setFormData(prev => ({ ...prev, validUntil: e.target.value }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          validUntil: e.target.value,
+                        }))
+                      }
                       required
                     />
                   </div>
@@ -374,7 +417,12 @@ export default function Quotations() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <Label className="text-base font-semibold">Products</Label>
-                    <Button type="button" variant="outline" size="sm" onClick={addProduct}>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={addProduct}
+                    >
                       <Plus className="h-4 w-4 mr-2" />
                       Add Product
                     </Button>
@@ -383,21 +431,32 @@ export default function Quotations() {
                   {formData.items.length > 0 && (
                     <div className="space-y-3 max-h-64 overflow-y-auto">
                       {formData.items.map((item, index) => {
-                        const product = products.find(p => p.id === item.productId);
+                        const product = products.find(
+                          (p) => p.id === item.productId,
+                        );
                         const lineTotal = item.unitPrice * item.quantity;
 
                         return (
-                          <div key={index} className="border rounded-lg p-4 space-y-3">
+                          <div
+                            key={index}
+                            className="border rounded-lg p-4 space-y-3"
+                          >
                             <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                               <div>
                                 <Label className="text-sm">Product</Label>
                                 <Select
                                   value={item.productId}
                                   onValueChange={(value) => {
-                                    const selectedProduct = products.find(p => p.id === value);
-                                    updateProduct(index, 'productId', value);
+                                    const selectedProduct = products.find(
+                                      (p) => p.id === value,
+                                    );
+                                    updateProduct(index, "productId", value);
                                     if (selectedProduct) {
-                                      updateProduct(index, 'unitPrice', selectedProduct.sellingPrice);
+                                      updateProduct(
+                                        index,
+                                        "unitPrice",
+                                        selectedProduct.sellingPrice,
+                                      );
                                     }
                                   }}
                                 >
@@ -405,12 +464,18 @@ export default function Quotations() {
                                     <SelectValue placeholder="Select product" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    {products.map(product => (
-                                      <SelectItem key={product.id} value={product.id}>
+                                    {products.map((product) => (
+                                      <SelectItem
+                                        key={product.id}
+                                        value={product.id}
+                                      >
                                         <div>
-                                          <div className="font-medium">{product.name}</div>
+                                          <div className="font-medium">
+                                            {product.name}
+                                          </div>
                                           <div className="text-xs text-muted-foreground">
-                                            KES {product.sellingPrice.toLocaleString()}
+                                            KES{" "}
+                                            {product.sellingPrice.toLocaleString()}
                                           </div>
                                         </div>
                                       </SelectItem>
@@ -424,7 +489,13 @@ export default function Quotations() {
                                   type="number"
                                   placeholder="1"
                                   value={item.quantity}
-                                  onChange={(e) => updateProduct(index, 'quantity', parseInt(e.target.value) || 1)}
+                                  onChange={(e) =>
+                                    updateProduct(
+                                      index,
+                                      "quantity",
+                                      parseInt(e.target.value) || 1,
+                                    )
+                                  }
                                   min="1"
                                 />
                               </div>
@@ -434,7 +505,13 @@ export default function Quotations() {
                                   type="number"
                                   placeholder="0.00"
                                   value={item.unitPrice}
-                                  onChange={(e) => updateProduct(index, 'unitPrice', parseFloat(e.target.value) || 0)}
+                                  onChange={(e) =>
+                                    updateProduct(
+                                      index,
+                                      "unitPrice",
+                                      parseFloat(e.target.value) || 0,
+                                    )
+                                  }
                                   min="0"
                                   step="0.01"
                                 />
@@ -467,8 +544,14 @@ export default function Quotations() {
                   {formData.items.length === 0 && (
                     <div className="text-center py-8 border-2 border-dashed rounded-lg">
                       <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                      <p className="text-muted-foreground mb-4">No products added yet</p>
-                      <Button type="button" variant="outline" onClick={addProduct}>
+                      <p className="text-muted-foreground mb-4">
+                        No products added yet
+                      </p>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={addProduct}
+                      >
                         <Plus className="h-4 w-4 mr-2" />
                         Add Your First Product
                       </Button>
@@ -481,7 +564,10 @@ export default function Quotations() {
                   <div className="border-t pt-4">
                     <div className="bg-muted/20 rounded-lg p-4 space-y-2">
                       {(() => {
-                        const subtotal = formData.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
+                        const subtotal = formData.items.reduce(
+                          (sum, item) => sum + item.unitPrice * item.quantity,
+                          0,
+                        );
                         const vatAmount = subtotal * 0.16;
                         const total = subtotal + vatAmount;
 
@@ -512,7 +598,12 @@ export default function Quotations() {
                     id="notes"
                     placeholder="Additional notes or terms"
                     value={formData.notes}
-                    onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        notes: e.target.value,
+                      }))
+                    }
                     rows={3}
                   />
                 </div>
@@ -528,10 +619,16 @@ export default function Quotations() {
                   </Button>
                   <Button
                     type="submit"
-                    disabled={isLoading || !formData.customerId || formData.items.length === 0}
+                    disabled={
+                      isLoading ||
+                      !formData.customerId ||
+                      formData.items.length === 0
+                    }
                     className="w-full sm:w-auto"
                   >
-                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {isLoading && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
                     Create Quotation
                   </Button>
                 </div>
@@ -545,7 +642,9 @@ export default function Quotations() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Quotations</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Quotations
+            </CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -562,20 +661,29 @@ export default function Quotations() {
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-success">{acceptedQuotations}</div>
+            <div className="text-2xl font-bold text-success">
+              {acceptedQuotations}
+            </div>
             <p className="text-xs text-muted-foreground">
-              {totalQuotations > 0 ? Math.round((acceptedQuotations / totalQuotations) * 100) : 0}% acceptance rate
+              {totalQuotations > 0
+                ? Math.round((acceptedQuotations / totalQuotations) * 100)
+                : 0}
+              % acceptance rate
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Response</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Pending Response
+            </CardTitle>
             <Send className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-warning">{pendingQuotations}</div>
+            <div className="text-2xl font-bold text-warning">
+              {pendingQuotations}
+            </div>
             <p className="text-xs text-muted-foreground">
               Awaiting customer response
             </p>
@@ -588,7 +696,9 @@ export default function Quotations() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalValue)}</div>
+            <div className="text-2xl font-bold">
+              {formatCurrency(totalValue)}
+            </div>
             <p className="text-xs text-muted-foreground">
               Combined quotation value
             </p>
@@ -659,26 +769,42 @@ export default function Quotations() {
                       <div className="flex items-center space-x-3">
                         <Avatar className="h-8 w-8">
                           <AvatarFallback className="text-xs">
-                            {quotation.customer.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
+                            {quotation.customer.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                              .substring(0, 2)}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <div className="font-medium">{quotation.customer.name}</div>
-                          <div className="text-sm text-muted-foreground">{quotation.customer.email}</div>
+                          <div className="font-medium">
+                            {quotation.customer.name}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {quotation.customer.email}
+                          </div>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>{safeDate(quotation.issueDate).toLocaleDateString()}</TableCell>
                     <TableCell>
-                      <div className={`text-sm ${isExpiringSoon(quotation.validUntil) ? 'text-warning font-medium' : ''}`}>
+                      {safeDate(quotation.issueDate).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <div
+                        className={`text-sm ${isExpiringSoon(quotation.validUntil) ? "text-warning font-medium" : ""}`}
+                      >
                         {safeDate(quotation.validUntil).toLocaleDateString()}
                       </div>
                       {isExpiringSoon(quotation.validUntil) && (
-                        <div className="text-xs text-warning">Expires soon!</div>
+                        <div className="text-xs text-warning">
+                          Expires soon!
+                        </div>
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="font-medium">{formatCurrency(quotation.total)}</div>
+                      <div className="font-medium">
+                        {formatCurrency(quotation.total)}
+                      </div>
                       {quotation.discountAmount > 0 && (
                         <div className="text-sm text-muted-foreground">
                           Discount: {formatCurrency(quotation.discountAmount)}
@@ -686,24 +812,29 @@ export default function Quotations() {
                       )}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={getStatusVariant(quotation.status)} className="capitalize">
+                      <Badge
+                        variant={getStatusVariant(quotation.status)}
+                        className="capitalize"
+                      >
                         {getStatusIcon(quotation.status)}
                         <span className="ml-1">{quotation.status}</span>
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {quotation.status === 'accepted' && (
+                      {quotation.status === "accepted" && (
                         <div className="flex space-x-1">
-                          <Button 
-                            size="sm" 
+                          <Button
+                            size="sm"
                             variant="outline"
-                            onClick={() => handleConvertToProforma(quotation.id)}
+                            onClick={() =>
+                              handleConvertToProforma(quotation.id)
+                            }
                             className="text-xs"
                           >
                             <ArrowRight className="h-3 w-3 mr-1" />
                             Proforma
                           </Button>
-                          <Button 
+                          <Button
                             size="sm"
                             onClick={() => handleConvertToInvoice(quotation.id)}
                             className="text-xs"
@@ -736,7 +867,9 @@ export default function Quotations() {
                             Duplicate
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => handleDownloadPDF(quotation.id)}>
+                          <DropdownMenuItem
+                            onClick={() => handleDownloadPDF(quotation.id)}
+                          >
                             <Download className="mr-2 h-4 w-4" />
                             Download PDF
                           </DropdownMenuItem>
@@ -763,9 +896,9 @@ export default function Quotations() {
               <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium">No quotations found</h3>
               <p className="text-muted-foreground">
-                {searchTerm || statusFilter !== 'all' 
-                  ? 'Try adjusting your search terms or filters.' 
-                  : 'Get started by creating your first quotation.'}
+                {searchTerm || statusFilter !== "all"
+                  ? "Try adjusting your search terms or filters."
+                  : "Get started by creating your first quotation."}
               </p>
             </div>
           )}

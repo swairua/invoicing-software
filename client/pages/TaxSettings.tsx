@@ -1,8 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
+import React, { useState, useEffect } from "react";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
 import {
   Table,
   TableBody,
@@ -10,7 +16,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../components/ui/table';
+} from "../components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -18,23 +24,23 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../components/ui/dialog';
+} from "../components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../components/ui/select';
-import { Label } from '../components/ui/label';
-import { Textarea } from '../components/ui/textarea';
-import { Switch } from '../components/ui/switch';
+} from "../components/ui/select";
+import { Label } from "../components/ui/label";
+import { Textarea } from "../components/ui/textarea";
+import { Switch } from "../components/ui/switch";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../components/ui/dropdown-menu';
+} from "../components/ui/dropdown-menu";
 import {
   Plus,
   Edit,
@@ -46,16 +52,16 @@ import {
   XCircle,
   AlertTriangle,
   Loader2,
-} from 'lucide-react';
-import { useToast } from '../hooks/use-toast';
+} from "lucide-react";
+import { useToast } from "../hooks/use-toast";
 
 interface TaxConfiguration {
   id: string;
   name: string;
   code: string;
-  taxType: 'vat' | 'sales_tax' | 'gst' | 'custom';
+  taxType: "vat" | "sales_tax" | "gst" | "custom";
   rate: number;
-  calculationMethod: 'inclusive' | 'exclusive';
+  calculationMethod: "inclusive" | "exclusive";
   description?: string;
   isDefault: boolean;
   isActive: boolean;
@@ -67,22 +73,24 @@ interface TaxConfiguration {
 }
 
 export default function TaxSettings() {
-  const [taxConfigurations, setTaxConfigurations] = useState<TaxConfiguration[]>([]);
+  const [taxConfigurations, setTaxConfigurations] = useState<
+    TaxConfiguration[]
+  >([]);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingTax, setEditingTax] = useState<TaxConfiguration | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    code: '',
-    taxType: 'vat' as const,
+    name: "",
+    code: "",
+    taxType: "vat" as const,
     rate: 0,
-    calculationMethod: 'exclusive' as const,
-    description: '',
+    calculationMethod: "exclusive" as const,
+    description: "",
     isDefault: false,
     isActive: true,
-    applicableFrom: new Date().toISOString().split('T')[0],
-    applicableUntil: ''
+    applicableFrom: new Date().toISOString().split("T")[0],
+    applicableUntil: "",
   });
   const { toast } = useToast();
 
@@ -93,20 +101,20 @@ export default function TaxSettings() {
 
   const loadTaxConfigurations = async () => {
     try {
-      const response = await fetch('/api/taxes', {
+      const response = await fetch("/api/taxes", {
         headers: {
-          'x-company-id': '550e8400-e29b-41d4-a716-446655440000'
-        }
+          "x-company-id": "550e8400-e29b-41d4-a716-446655440000",
+        },
       });
       const result = await response.json();
-      
+
       if (result.success) {
         setTaxConfigurations(result.data);
       } else {
         throw new Error(result.error);
       }
     } catch (error) {
-      console.error('Error loading tax configurations:', error);
+      console.error("Error loading tax configurations:", error);
       toast({
         title: "Error",
         description: "Failed to load tax configurations",
@@ -120,13 +128,13 @@ export default function TaxSettings() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/taxes', {
-        method: 'POST',
+      const response = await fetch("/api/taxes", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'x-company-id': '550e8400-e29b-41d4-a716-446655440000'
+          "Content-Type": "application/json",
+          "x-company-id": "550e8400-e29b-41d4-a716-446655440000",
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
 
       const result = await response.json();
@@ -143,10 +151,13 @@ export default function TaxSettings() {
         throw new Error(result.error);
       }
     } catch (error) {
-      console.error('Error creating tax configuration:', error);
+      console.error("Error creating tax configuration:", error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to create tax configuration",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to create tax configuration",
         variant: "destructive",
       });
     } finally {
@@ -162,12 +173,12 @@ export default function TaxSettings() {
 
     try {
       const response = await fetch(`/api/taxes/${editingTax.id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
-          'x-company-id': '550e8400-e29b-41d4-a716-446655440000'
+          "Content-Type": "application/json",
+          "x-company-id": "550e8400-e29b-41d4-a716-446655440000",
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
 
       const result = await response.json();
@@ -185,10 +196,13 @@ export default function TaxSettings() {
         throw new Error(result.error);
       }
     } catch (error) {
-      console.error('Error updating tax configuration:', error);
+      console.error("Error updating tax configuration:", error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to update tax configuration",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to update tax configuration",
         variant: "destructive",
       });
     } finally {
@@ -197,16 +211,20 @@ export default function TaxSettings() {
   };
 
   const handleDeleteTax = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete "${name}"? This action cannot be undone.`)) {
+    if (
+      !confirm(
+        `Are you sure you want to delete "${name}"? This action cannot be undone.`,
+      )
+    ) {
       return;
     }
 
     try {
       const response = await fetch(`/api/taxes/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'x-company-id': '550e8400-e29b-41d4-a716-446655440000'
-        }
+          "x-company-id": "550e8400-e29b-41d4-a716-446655440000",
+        },
       });
 
       const result = await response.json();
@@ -221,10 +239,13 @@ export default function TaxSettings() {
         throw new Error(result.error);
       }
     } catch (error) {
-      console.error('Error deleting tax configuration:', error);
+      console.error("Error deleting tax configuration:", error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to delete tax configuration",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to delete tax configuration",
         variant: "destructive",
       });
     }
@@ -233,12 +254,12 @@ export default function TaxSettings() {
   const handleToggleStatus = async (id: string, currentStatus: boolean) => {
     try {
       const response = await fetch(`/api/taxes/${id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
-          'x-company-id': '550e8400-e29b-41d4-a716-446655440000'
+          "Content-Type": "application/json",
+          "x-company-id": "550e8400-e29b-41d4-a716-446655440000",
         },
-        body: JSON.stringify({ isActive: !currentStatus })
+        body: JSON.stringify({ isActive: !currentStatus }),
       });
 
       const result = await response.json();
@@ -247,13 +268,13 @@ export default function TaxSettings() {
         await loadTaxConfigurations();
         toast({
           title: "Status Updated",
-          description: `Tax configuration ${!currentStatus ? 'activated' : 'deactivated'} successfully`,
+          description: `Tax configuration ${!currentStatus ? "activated" : "deactivated"} successfully`,
         });
       } else {
         throw new Error(result.error);
       }
     } catch (error) {
-      console.error('Error updating status:', error);
+      console.error("Error updating status:", error);
       toast({
         title: "Error",
         description: "Failed to update status",
@@ -265,12 +286,12 @@ export default function TaxSettings() {
   const handleSetDefault = async (id: string, name: string) => {
     try {
       const response = await fetch(`/api/taxes/${id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
-          'x-company-id': '550e8400-e29b-41d4-a716-446655440000'
+          "Content-Type": "application/json",
+          "x-company-id": "550e8400-e29b-41d4-a716-446655440000",
         },
-        body: JSON.stringify({ isDefault: true })
+        body: JSON.stringify({ isDefault: true }),
       });
 
       const result = await response.json();
@@ -285,7 +306,7 @@ export default function TaxSettings() {
         throw new Error(result.error);
       }
     } catch (error) {
-      console.error('Error setting default:', error);
+      console.error("Error setting default:", error);
       toast({
         title: "Error",
         description: "Failed to set default tax configuration",
@@ -302,27 +323,27 @@ export default function TaxSettings() {
       taxType: tax.taxType,
       rate: tax.rate,
       calculationMethod: tax.calculationMethod,
-      description: tax.description || '',
+      description: tax.description || "",
       isDefault: tax.isDefault,
       isActive: tax.isActive,
       applicableFrom: tax.applicableFrom,
-      applicableUntil: tax.applicableUntil || ''
+      applicableUntil: tax.applicableUntil || "",
     });
     setIsEditDialogOpen(true);
   };
 
   const resetForm = () => {
     setFormData({
-      name: '',
-      code: '',
-      taxType: 'vat',
+      name: "",
+      code: "",
+      taxType: "vat",
       rate: 0,
-      calculationMethod: 'exclusive',
-      description: '',
+      calculationMethod: "exclusive",
+      description: "",
       isDefault: false,
       isActive: true,
-      applicableFrom: new Date().toISOString().split('T')[0],
-      applicableUntil: ''
+      applicableFrom: new Date().toISOString().split("T")[0],
+      applicableUntil: "",
     });
   };
 
@@ -336,7 +357,11 @@ export default function TaxSettings() {
     if (tax.isDefault) {
       return <Badge variant="default">Default</Badge>;
     }
-    return <Badge variant="outline" className="text-green-600">Active</Badge>;
+    return (
+      <Badge variant="outline" className="text-green-600">
+        Active
+      </Badge>
+    );
   };
 
   const getStatusIcon = (tax: TaxConfiguration) => {
@@ -349,7 +374,13 @@ export default function TaxSettings() {
     return <CheckCircle className="h-4 w-4 text-green-500" />;
   };
 
-  const TaxForm = ({ onSubmit, submitLabel }: { onSubmit: (e: React.FormEvent) => void; submitLabel: string }) => (
+  const TaxForm = ({
+    onSubmit,
+    submitLabel,
+  }: {
+    onSubmit: (e: React.FormEvent) => void;
+    submitLabel: string;
+  }) => (
     <form onSubmit={onSubmit} className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
@@ -357,7 +388,9 @@ export default function TaxSettings() {
           <Input
             id="name"
             value={formData.name}
-            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, name: e.target.value }))
+            }
             placeholder="e.g., Standard VAT"
             required
           />
@@ -367,7 +400,9 @@ export default function TaxSettings() {
           <Input
             id="code"
             value={formData.code}
-            onChange={(e) => setFormData(prev => ({ ...prev, code: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, code: e.target.value }))
+            }
             placeholder="e.g., VAT-STD"
             required
           />
@@ -377,7 +412,12 @@ export default function TaxSettings() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="taxType">Tax Type</Label>
-          <Select value={formData.taxType} onValueChange={(value: any) => setFormData(prev => ({ ...prev, taxType: value }))}>
+          <Select
+            value={formData.taxType}
+            onValueChange={(value: any) =>
+              setFormData((prev) => ({ ...prev, taxType: value }))
+            }
+          >
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -398,7 +438,12 @@ export default function TaxSettings() {
             max="100"
             step="0.01"
             value={formData.rate}
-            onChange={(e) => setFormData(prev => ({ ...prev, rate: parseFloat(e.target.value) || 0 }))}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                rate: parseFloat(e.target.value) || 0,
+              }))
+            }
             required
           />
         </div>
@@ -406,13 +451,22 @@ export default function TaxSettings() {
 
       <div className="space-y-2">
         <Label htmlFor="calculationMethod">Calculation Method</Label>
-        <Select value={formData.calculationMethod} onValueChange={(value: any) => setFormData(prev => ({ ...prev, calculationMethod: value }))}>
+        <Select
+          value={formData.calculationMethod}
+          onValueChange={(value: any) =>
+            setFormData((prev) => ({ ...prev, calculationMethod: value }))
+          }
+        >
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="exclusive">Exclusive (Tax added to subtotal)</SelectItem>
-            <SelectItem value="inclusive">Inclusive (Tax included in price)</SelectItem>
+            <SelectItem value="exclusive">
+              Exclusive (Tax added to subtotal)
+            </SelectItem>
+            <SelectItem value="inclusive">
+              Inclusive (Tax included in price)
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -424,7 +478,12 @@ export default function TaxSettings() {
             id="applicableFrom"
             type="date"
             value={formData.applicableFrom}
-            onChange={(e) => setFormData(prev => ({ ...prev, applicableFrom: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                applicableFrom: e.target.value,
+              }))
+            }
           />
         </div>
         <div className="space-y-2">
@@ -433,7 +492,12 @@ export default function TaxSettings() {
             id="applicableUntil"
             type="date"
             value={formData.applicableUntil}
-            onChange={(e) => setFormData(prev => ({ ...prev, applicableUntil: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                applicableUntil: e.target.value,
+              }))
+            }
           />
         </div>
       </div>
@@ -443,7 +507,9 @@ export default function TaxSettings() {
         <Textarea
           id="description"
           value={formData.description}
-          onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+          onChange={(e) =>
+            setFormData((prev) => ({ ...prev, description: e.target.value }))
+          }
           placeholder="Optional description of this tax configuration"
           rows={3}
         />
@@ -454,7 +520,9 @@ export default function TaxSettings() {
           <Switch
             id="isDefault"
             checked={formData.isDefault}
-            onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isDefault: checked }))}
+            onCheckedChange={(checked) =>
+              setFormData((prev) => ({ ...prev, isDefault: checked }))
+            }
           />
           <Label htmlFor="isDefault">Set as Default</Label>
         </div>
@@ -462,7 +530,9 @@ export default function TaxSettings() {
           <Switch
             id="isActive"
             checked={formData.isActive}
-            onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isActive: checked }))}
+            onCheckedChange={(checked) =>
+              setFormData((prev) => ({ ...prev, isActive: checked }))
+            }
           />
           <Label htmlFor="isActive">Active</Label>
         </div>
@@ -512,7 +582,10 @@ export default function TaxSettings() {
                 Add a new tax configuration for your products and services
               </DialogDescription>
             </DialogHeader>
-            <TaxForm onSubmit={handleCreateTax} submitLabel="Create Tax Configuration" />
+            <TaxForm
+              onSubmit={handleCreateTax}
+              submitLabel="Create Tax Configuration"
+            />
           </DialogContent>
         </Dialog>
       </div>
@@ -525,7 +598,8 @@ export default function TaxSettings() {
             Tax Configurations
           </CardTitle>
           <CardDescription>
-            Manage your business tax rates, calculation methods, and applicability periods
+            Manage your business tax rates, calculation methods, and
+            applicability periods
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -547,9 +621,13 @@ export default function TaxSettings() {
                     <TableCell>
                       <div>
                         <div className="font-medium">{tax.name}</div>
-                        <div className="text-sm text-muted-foreground">{tax.code}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {tax.code}
+                        </div>
                         {tax.description && (
-                          <div className="text-xs text-muted-foreground mt-1">{tax.description}</div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {tax.description}
+                          </div>
                         )}
                       </div>
                     </TableCell>
@@ -563,8 +641,16 @@ export default function TaxSettings() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={tax.calculationMethod === 'exclusive' ? 'default' : 'secondary'}>
-                        {tax.calculationMethod === 'exclusive' ? 'Exclusive' : 'Inclusive'}
+                      <Badge
+                        variant={
+                          tax.calculationMethod === "exclusive"
+                            ? "default"
+                            : "secondary"
+                        }
+                      >
+                        {tax.calculationMethod === "exclusive"
+                          ? "Exclusive"
+                          : "Inclusive"}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -575,9 +661,15 @@ export default function TaxSettings() {
                     </TableCell>
                     <TableCell>
                       <div className="text-sm">
-                        <div>From: {new Date(tax.applicableFrom).toLocaleDateString()}</div>
+                        <div>
+                          From:{" "}
+                          {new Date(tax.applicableFrom).toLocaleDateString()}
+                        </div>
                         {tax.applicableUntil && (
-                          <div>Until: {new Date(tax.applicableUntil).toLocaleDateString()}</div>
+                          <div>
+                            Until:{" "}
+                            {new Date(tax.applicableUntil).toLocaleDateString()}
+                          </div>
                         )}
                       </div>
                     </TableCell>
@@ -594,12 +686,18 @@ export default function TaxSettings() {
                             Edit
                           </DropdownMenuItem>
                           {!tax.isDefault && (
-                            <DropdownMenuItem onClick={() => handleSetDefault(tax.id, tax.name)}>
+                            <DropdownMenuItem
+                              onClick={() => handleSetDefault(tax.id, tax.name)}
+                            >
                               <CheckCircle className="mr-2 h-4 w-4" />
                               Set as Default
                             </DropdownMenuItem>
                           )}
-                          <DropdownMenuItem onClick={() => handleToggleStatus(tax.id, tax.isActive)}>
+                          <DropdownMenuItem
+                            onClick={() =>
+                              handleToggleStatus(tax.id, tax.isActive)
+                            }
+                          >
                             {tax.isActive ? (
                               <>
                                 <XCircle className="mr-2 h-4 w-4" />
@@ -653,7 +751,10 @@ export default function TaxSettings() {
               Update the tax configuration settings
             </DialogDescription>
           </DialogHeader>
-          <TaxForm onSubmit={handleUpdateTax} submitLabel="Update Tax Configuration" />
+          <TaxForm
+            onSubmit={handleUpdateTax}
+            submitLabel="Update Tax Configuration"
+          />
         </DialogContent>
       </Dialog>
     </div>

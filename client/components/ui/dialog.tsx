@@ -58,7 +58,7 @@ const DialogContent = React.forwardRef<
         // Improve focus management - focus the first input or button
         event.preventDefault();
         const firstFocusable = event.currentTarget.querySelector(
-          'input, button, select, textarea, [tabindex]:not([tabindex="-1"])'
+          'input, button, select, textarea, [tabindex]:not([tabindex="-1"])',
         ) as HTMLElement;
         if (firstFocusable) {
           firstFocusable.focus();
@@ -166,7 +166,7 @@ const DialogContentLarge = React.forwardRef<
         // Improve focus management - focus the first input or button
         event.preventDefault();
         const firstFocusable = event.currentTarget.querySelector(
-          'input, button, select, textarea, [tabindex]:not([tabindex="-1"])'
+          'input, button, select, textarea, [tabindex]:not([tabindex="-1"])',
         ) as HTMLElement;
         if (firstFocusable) {
           firstFocusable.focus();

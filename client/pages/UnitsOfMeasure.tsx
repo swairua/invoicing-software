@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Badge } from '../components/ui/badge';
+import React, { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Badge } from "../components/ui/badge";
 import {
   Table,
   TableBody,
@@ -11,14 +17,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../components/ui/table';
+} from "../components/ui/table";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../components/ui/select';
+} from "../components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -26,8 +32,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+} from "../components/ui/dialog";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import {
   Plus,
   Search,
@@ -43,9 +54,14 @@ import {
   ArrowRightLeft,
   Edit,
   Trash2,
-} from 'lucide-react';
-import { UnitConverter, UnitOfMeasure, UnitCategory, standardUnits } from '@shared/units';
-import { useToast } from '../hooks/use-toast';
+} from "lucide-react";
+import {
+  UnitConverter,
+  UnitOfMeasure,
+  UnitCategory,
+  standardUnits,
+} from "@shared/units";
+import { useToast } from "../hooks/use-toast";
 
 interface UnitFormData {
   name: string;
@@ -55,70 +71,94 @@ interface UnitFormData {
 }
 
 export default function UnitsOfMeasure() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [customUnits, setCustomUnits] = useState<UnitOfMeasure[]>([]);
   const [formData, setFormData] = useState<UnitFormData>({
-    name: '',
-    symbol: '',
-    category: 'quantity',
-    description: '',
+    name: "",
+    symbol: "",
+    category: "quantity",
+    description: "",
   });
-  const [convertFrom, setConvertFrom] = useState('');
-  const [convertTo, setConvertTo] = useState('');
-  const [convertValue, setConvertValue] = useState('');
+  const [convertFrom, setConvertFrom] = useState("");
+  const [convertTo, setConvertTo] = useState("");
+  const [convertValue, setConvertValue] = useState("");
   const [convertResult, setConvertResult] = useState<number | null>(null);
   const { toast } = useToast();
 
   const allUnits = [...standardUnits, ...customUnits];
   const categories = UnitConverter.getAllCategories();
 
-  const filteredUnits = allUnits.filter(unit => {
-    const matchesSearch = unit.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         unit.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         unit.id.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesCategory = categoryFilter === 'all' || unit.category === categoryFilter;
-    
+  const filteredUnits = allUnits.filter((unit) => {
+    const matchesSearch =
+      unit.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      unit.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      unit.id.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesCategory =
+      categoryFilter === "all" || unit.category === categoryFilter;
+
     return matchesSearch && matchesCategory;
   });
 
   const getCategoryIcon = (category: UnitCategory) => {
     switch (category) {
-      case 'length': return <Ruler className="h-4 w-4" />;
-      case 'weight': return <Weight className="h-4 w-4" />;
-      case 'volume': return <Droplets className="h-4 w-4" />;
-      case 'quantity': return <Package className="h-4 w-4" />;
-      case 'time': return <Clock className="h-4 w-4" />;
-      case 'temperature': return <Thermometer className="h-4 w-4" />;
-      case 'energy': return <Zap className="h-4 w-4" />;
-      case 'pressure': return <Activity className="h-4 w-4" />;
-      case 'area': return <Ruler className="h-4 w-4" />;
-      case 'digital': return <Calculator className="h-4 w-4" />;
-      default: return <Package className="h-4 w-4" />;
+      case "length":
+        return <Ruler className="h-4 w-4" />;
+      case "weight":
+        return <Weight className="h-4 w-4" />;
+      case "volume":
+        return <Droplets className="h-4 w-4" />;
+      case "quantity":
+        return <Package className="h-4 w-4" />;
+      case "time":
+        return <Clock className="h-4 w-4" />;
+      case "temperature":
+        return <Thermometer className="h-4 w-4" />;
+      case "energy":
+        return <Zap className="h-4 w-4" />;
+      case "pressure":
+        return <Activity className="h-4 w-4" />;
+      case "area":
+        return <Ruler className="h-4 w-4" />;
+      case "digital":
+        return <Calculator className="h-4 w-4" />;
+      default:
+        return <Package className="h-4 w-4" />;
     }
   };
 
   const getCategoryColor = (category: UnitCategory) => {
     switch (category) {
-      case 'length': return 'bg-blue-100 text-blue-800';
-      case 'weight': return 'bg-green-100 text-green-800';
-      case 'volume': return 'bg-cyan-100 text-cyan-800';
-      case 'quantity': return 'bg-purple-100 text-purple-800';
-      case 'time': return 'bg-orange-100 text-orange-800';
-      case 'temperature': return 'bg-red-100 text-red-800';
-      case 'energy': return 'bg-yellow-100 text-yellow-800';
-      case 'pressure': return 'bg-pink-100 text-pink-800';
-      case 'area': return 'bg-indigo-100 text-indigo-800';
-      case 'digital': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "length":
+        return "bg-blue-100 text-blue-800";
+      case "weight":
+        return "bg-green-100 text-green-800";
+      case "volume":
+        return "bg-cyan-100 text-cyan-800";
+      case "quantity":
+        return "bg-purple-100 text-purple-800";
+      case "time":
+        return "bg-orange-100 text-orange-800";
+      case "temperature":
+        return "bg-red-100 text-red-800";
+      case "energy":
+        return "bg-yellow-100 text-yellow-800";
+      case "pressure":
+        return "bg-pink-100 text-pink-800";
+      case "area":
+        return "bg-indigo-100 text-indigo-800";
+      case "digital":
+        return "bg-gray-100 text-gray-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const handleCreateUnit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name || !formData.symbol || !formData.category) {
       toast({
         title: "Validation Error",
@@ -136,10 +176,10 @@ export default function UnitsOfMeasure() {
       description: formData.description,
     };
 
-    setCustomUnits(prev => [...prev, newUnit]);
+    setCustomUnits((prev) => [...prev, newUnit]);
     setIsCreateDialogOpen(false);
     resetForm();
-    
+
     toast({
       title: "Unit Created",
       description: `Custom unit "${formData.name}" has been created successfully.`,
@@ -147,7 +187,7 @@ export default function UnitsOfMeasure() {
   };
 
   const handleDeleteUnit = (unitId: string) => {
-    if (!unitId.startsWith('custom-')) {
+    if (!unitId.startsWith("custom-")) {
       toast({
         title: "Cannot Delete",
         description: "Standard units cannot be deleted.",
@@ -156,7 +196,7 @@ export default function UnitsOfMeasure() {
       return;
     }
 
-    setCustomUnits(prev => prev.filter(u => u.id !== unitId));
+    setCustomUnits((prev) => prev.filter((u) => u.id !== unitId));
     toast({
       title: "Unit Deleted",
       description: "Custom unit has been deleted successfully.",
@@ -175,7 +215,8 @@ export default function UnitsOfMeasure() {
     if (result === null) {
       toast({
         title: "Conversion Error",
-        description: "Cannot convert between these units. They must be in the same category.",
+        description:
+          "Cannot convert between these units. They must be in the same category.",
         variant: "destructive",
       });
     }
@@ -183,17 +224,17 @@ export default function UnitsOfMeasure() {
 
   const resetForm = () => {
     setFormData({
-      name: '',
-      symbol: '',
-      category: 'quantity',
-      description: '',
+      name: "",
+      symbol: "",
+      category: "quantity",
+      description: "",
     });
   };
 
   const getCategoryStats = () => {
-    return categories.map(category => ({
+    return categories.map((category) => ({
       category,
-      count: allUnits.filter(u => u.category === category).length,
+      count: allUnits.filter((u) => u.category === category).length,
     }));
   };
 
@@ -202,7 +243,9 @@ export default function UnitsOfMeasure() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Units of Measure</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Units of Measure
+          </h1>
           <p className="text-muted-foreground">
             Manage standard and custom units of measure for your products
           </p>
@@ -228,7 +271,9 @@ export default function UnitsOfMeasure() {
                   <Input
                     id="name"
                     value={formData.name}
-                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, name: e.target.value }))
+                    }
                     placeholder="e.g., Bundle"
                     required
                   />
@@ -238,21 +283,31 @@ export default function UnitsOfMeasure() {
                   <Input
                     id="symbol"
                     value={formData.symbol}
-                    onChange={(e) => setFormData(prev => ({ ...prev, symbol: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        symbol: e.target.value,
+                      }))
+                    }
                     placeholder="e.g., bnd"
                     required
                   />
                 </div>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="category">Category *</Label>
-                <Select value={formData.category} onValueChange={(value: UnitCategory) => setFormData(prev => ({ ...prev, category: value }))}>
+                <Select
+                  value={formData.category}
+                  onValueChange={(value: UnitCategory) =>
+                    setFormData((prev) => ({ ...prev, category: value }))
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {categories.map(category => (
+                    {categories.map((category) => (
                       <SelectItem key={category} value={category}>
                         <div className="flex items-center space-x-2">
                           {getCategoryIcon(category)}
@@ -263,21 +318,26 @@ export default function UnitsOfMeasure() {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="description">Description</Label>
                 <Input
                   id="description"
                   value={formData.description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
                   placeholder="Optional description"
                 />
               </div>
-              
+
               <div className="flex justify-end gap-2 pt-4">
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={() => {
                     setIsCreateDialogOpen(false);
                     resetForm();
@@ -285,9 +345,7 @@ export default function UnitsOfMeasure() {
                 >
                   Cancel
                 </Button>
-                <Button type="submit">
-                  Create Unit
-                </Button>
+                <Button type="submit">Create Unit</Button>
               </div>
             </form>
           </DialogContent>
@@ -299,14 +357,14 @@ export default function UnitsOfMeasure() {
         {getCategoryStats().map(({ category, count }) => (
           <Card key={category}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium capitalize">{category}</CardTitle>
+              <CardTitle className="text-sm font-medium capitalize">
+                {category}
+              </CardTitle>
               {getCategoryIcon(category)}
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{count}</div>
-              <p className="text-xs text-muted-foreground">
-                units available
-              </p>
+              <p className="text-xs text-muted-foreground">units available</p>
             </CardContent>
           </Card>
         ))}
@@ -334,13 +392,16 @@ export default function UnitsOfMeasure() {
                     className="pl-8"
                   />
                 </div>
-                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <Select
+                  value={categoryFilter}
+                  onValueChange={setCategoryFilter}
+                >
                   <SelectTrigger className="w-full sm:w-[180px]">
                     <SelectValue placeholder="All Categories" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Categories</SelectItem>
-                    {categories.map(category => (
+                    {categories.map((category) => (
                       <SelectItem key={category} value={category}>
                         <div className="flex items-center space-x-2">
                           {getCategoryIcon(category)}
@@ -371,8 +432,10 @@ export default function UnitsOfMeasure() {
                             <div className="font-medium">{unit.name}</div>
                             {unit.baseUnit && (
                               <div className="text-xs text-muted-foreground">
-                                Base: {UnitConverter.getUnitById(unit.baseUnit)?.name}
-                                {unit.conversionFactor && ` (×${unit.conversionFactor})`}
+                                Base:{" "}
+                                {UnitConverter.getUnitById(unit.baseUnit)?.name}
+                                {unit.conversionFactor &&
+                                  ` (×${unit.conversionFactor})`}
                               </div>
                             )}
                           </div>
@@ -383,26 +446,31 @@ export default function UnitsOfMeasure() {
                           </code>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline" className={getCategoryColor(unit.category)}>
+                          <Badge
+                            variant="outline"
+                            className={getCategoryColor(unit.category)}
+                          >
                             <div className="flex items-center space-x-1">
                               {getCategoryIcon(unit.category)}
-                              <span className="capitalize">{unit.category}</span>
+                              <span className="capitalize">
+                                {unit.category}
+                              </span>
                             </div>
                           </Badge>
                         </TableCell>
                         <TableCell>
                           <div className="max-w-[200px] truncate text-sm text-muted-foreground">
-                            {unit.description || '-'}
+                            {unit.description || "-"}
                           </div>
                         </TableCell>
                         <TableCell>
-                          {unit.id.startsWith('custom-') ? (
+                          {unit.id.startsWith("custom-") ? (
                             <div className="flex gap-1">
                               <Button variant="ghost" size="sm">
                                 <Edit className="h-3 w-3" />
                               </Button>
-                              <Button 
-                                variant="ghost" 
+                              <Button
+                                variant="ghost"
                                 size="sm"
                                 onClick={() => handleDeleteUnit(unit.id)}
                               >
@@ -426,9 +494,9 @@ export default function UnitsOfMeasure() {
                   <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium">No units found</h3>
                   <p className="text-muted-foreground">
-                    {searchTerm || categoryFilter !== 'all'
-                      ? 'Try adjusting your search terms or filters.'
-                      : 'Start by creating your first custom unit.'}
+                    {searchTerm || categoryFilter !== "all"
+                      ? "Try adjusting your search terms or filters."
+                      : "Start by creating your first custom unit."}
                   </p>
                 </div>
               )}
@@ -456,16 +524,18 @@ export default function UnitsOfMeasure() {
                     <SelectValue placeholder="Select unit" />
                   </SelectTrigger>
                   <SelectContent className="max-h-[200px]">
-                    {categories.map(category => (
+                    {categories.map((category) => (
                       <div key={category}>
                         <div className="px-2 py-1 text-xs font-semibold text-muted-foreground capitalize border-t mt-1 pt-1">
                           {category}
                         </div>
-                        {UnitConverter.getUnitsByCategory(category).map(unit => (
-                          <SelectItem key={unit.id} value={unit.id}>
-                            {unit.name} ({unit.symbol})
-                          </SelectItem>
-                        ))}
+                        {UnitConverter.getUnitsByCategory(category).map(
+                          (unit) => (
+                            <SelectItem key={unit.id} value={unit.id}>
+                              {unit.name} ({unit.symbol})
+                            </SelectItem>
+                          ),
+                        )}
                       </div>
                     ))}
                   </SelectContent>
@@ -489,24 +559,26 @@ export default function UnitsOfMeasure() {
                     <SelectValue placeholder="Select unit" />
                   </SelectTrigger>
                   <SelectContent className="max-h-[200px]">
-                    {categories.map(category => (
+                    {categories.map((category) => (
                       <div key={category}>
                         <div className="px-2 py-1 text-xs font-semibold text-muted-foreground capitalize border-t mt-1 pt-1">
                           {category}
                         </div>
-                        {UnitConverter.getUnitsByCategory(category).map(unit => (
-                          <SelectItem key={unit.id} value={unit.id}>
-                            {unit.name} ({unit.symbol})
-                          </SelectItem>
-                        ))}
+                        {UnitConverter.getUnitsByCategory(category).map(
+                          (unit) => (
+                            <SelectItem key={unit.id} value={unit.id}>
+                              {unit.name} ({unit.symbol})
+                            </SelectItem>
+                          ),
+                        )}
                       </div>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
-              <Button 
-                onClick={handleConversion} 
+              <Button
+                onClick={handleConversion}
                 className="w-full"
                 disabled={!convertFrom || !convertTo || !convertValue}
               >
@@ -517,7 +589,8 @@ export default function UnitsOfMeasure() {
                 <div className="p-4 bg-muted rounded-lg">
                   <div className="text-sm text-muted-foreground">Result:</div>
                   <div className="text-lg font-bold">
-                    {convertResult.toLocaleString()} {UnitConverter.getUnitById(convertTo)?.symbol}
+                    {convertResult.toLocaleString()}{" "}
+                    {UnitConverter.getUnitById(convertTo)?.symbol}
                   </div>
                 </div>
               )}

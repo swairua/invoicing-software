@@ -1,10 +1,16 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { Avatar, AvatarFallback } from '../components/ui/avatar';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
+import { Avatar, AvatarFallback } from "../components/ui/avatar";
 import {
   Table,
   TableBody,
@@ -12,7 +18,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../components/ui/table';
+} from "../components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,7 +26,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../components/ui/dropdown-menu';
+} from "../components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -28,9 +34,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../components/ui/dialog';
-import { Label } from '../components/ui/label';
-import { Textarea } from '../components/ui/textarea';
+} from "../components/ui/dialog";
+import { Label } from "../components/ui/label";
+import { Textarea } from "../components/ui/textarea";
 import {
   Plus,
   Search,
@@ -43,88 +49,94 @@ import {
   Phone,
   MapPin,
   CreditCard,
-} from 'lucide-react';
-import { Customer } from '@shared/types';
+} from "lucide-react";
+import { Customer } from "@shared/types";
 
 // Mock customer data
 const mockCustomers: Customer[] = [
   {
-    id: '1',
-    name: 'Acme Corporation Ltd',
-    email: 'contact@acme.com',
-    phone: '+254700123456',
-    kraPin: 'P051234567A',
-    address: '123 Business Ave, Nairobi',
+    id: "1",
+    name: "Acme Corporation Ltd",
+    email: "contact@acme.com",
+    phone: "+254700123456",
+    kraPin: "P051234567A",
+    address: "123 Business Ave, Nairobi",
     creditLimit: 500000,
     balance: 125000,
     isActive: true,
-    companyId: '1',
-    createdAt: new Date('2024-01-15'),
-    updatedAt: new Date('2024-01-20'),
+    companyId: "1",
+    createdAt: new Date("2024-01-15"),
+    updatedAt: new Date("2024-01-20"),
   },
   {
-    id: '2',
-    name: 'Tech Solutions Kenya',
-    email: 'info@techsolutions.co.ke',
-    phone: '+254722987654',
-    kraPin: 'P051234568B',
-    address: '456 Innovation Hub, Nairobi',
+    id: "2",
+    name: "Tech Solutions Kenya",
+    email: "info@techsolutions.co.ke",
+    phone: "+254722987654",
+    kraPin: "P051234568B",
+    address: "456 Innovation Hub, Nairobi",
     creditLimit: 300000,
     balance: 45000,
     isActive: true,
-    companyId: '1',
-    createdAt: new Date('2024-01-10'),
-    updatedAt: new Date('2024-01-18'),
+    companyId: "1",
+    createdAt: new Date("2024-01-10"),
+    updatedAt: new Date("2024-01-18"),
   },
   {
-    id: '3',
-    name: 'Global Trading Co.',
-    email: 'trading@global.com',
-    phone: '+254733456789',
-    kraPin: 'P051234569C',
-    address: '789 Trade Center, Mombasa',
+    id: "3",
+    name: "Global Trading Co.",
+    email: "trading@global.com",
+    phone: "+254733456789",
+    kraPin: "P051234569C",
+    address: "789 Trade Center, Mombasa",
     creditLimit: 1000000,
     balance: 0,
     isActive: true,
-    companyId: '1',
-    createdAt: new Date('2024-01-05'),
-    updatedAt: new Date('2024-01-22'),
+    companyId: "1",
+    createdAt: new Date("2024-01-05"),
+    updatedAt: new Date("2024-01-22"),
   },
   {
-    id: '4',
-    name: 'Local Retail Store',
-    email: 'shop@local.com',
-    phone: '+254744567890',
-    kraPin: '',
-    address: '321 Market Street, Kisumu',
+    id: "4",
+    name: "Local Retail Store",
+    email: "shop@local.com",
+    phone: "+254744567890",
+    kraPin: "",
+    address: "321 Market Street, Kisumu",
     creditLimit: 100000,
     balance: 75000,
     isActive: false,
-    companyId: '1',
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-15'),
+    companyId: "1",
+    createdAt: new Date("2024-01-01"),
+    updatedAt: new Date("2024-01-15"),
   },
 ];
 
 export default function Customers() {
   const [customers, setCustomers] = useState<Customer[]>(mockCustomers);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-  const filteredCustomers = customers.filter(customer =>
-    customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.kraPin?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredCustomers = customers.filter(
+    (customer) =>
+      customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.kraPin?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const getCustomerInitials = (name: string) => {
-    return name.split(' ').map(word => word[0]).join('').substring(0, 2).toUpperCase();
+    return name
+      .split(" ")
+      .map((word) => word[0])
+      .join("")
+      .substring(0, 2)
+      .toUpperCase();
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-KE', {
-      style: 'currency',
-      currency: 'KES',
+    return new Intl.NumberFormat("en-KE", {
+      style: "currency",
+      currency: "KES",
       minimumFractionDigits: 0,
     }).format(amount);
   };
@@ -173,7 +185,11 @@ export default function Customers() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="contact@company.com" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="contact@company.com"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone</Label>
@@ -186,15 +202,22 @@ export default function Customers() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="creditLimit">Credit Limit (KES)</Label>
-                <Input id="creditLimit" type="number" placeholder="500000" min="0" />
+                <Input
+                  id="creditLimit"
+                  type="number"
+                  placeholder="500000"
+                  min="0"
+                />
               </div>
               <div className="flex justify-end gap-2 pt-4">
-                <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsCreateDialogOpen(false)}
+                >
                   Cancel
                 </Button>
-                <Button type="submit">
-                  Create Customer
-                </Button>
+                <Button type="submit">Create Customer</Button>
               </div>
             </form>
           </DialogContent>
@@ -205,44 +228,54 @@ export default function Customers() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Customers</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Customers
+            </CardTitle>
             <User className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{customers.length}</div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-success font-medium">+2</span> from last month
+              <span className="text-success font-medium">+2</span> from last
+              month
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Customers</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Active Customers
+            </CardTitle>
             <User className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {customers.filter(c => c.isActive).length}
+              {customers.filter((c) => c.isActive).length}
             </div>
             <p className="text-xs text-muted-foreground">
-              {Math.round((customers.filter(c => c.isActive).length / customers.length) * 100)}% of total
+              {Math.round(
+                (customers.filter((c) => c.isActive).length /
+                  customers.length) *
+                  100,
+              )}
+              % of total
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Outstanding Balance</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Outstanding Balance
+            </CardTitle>
             <CreditCard className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
               {formatCurrency(customers.reduce((sum, c) => sum + c.balance, 0))}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Total receivables
-            </p>
+            <p className="text-xs text-muted-foreground">Total receivables</p>
           </CardContent>
         </Card>
 
@@ -253,7 +286,9 @@ export default function Customers() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(customers.reduce((sum, c) => sum + c.creditLimit, 0))}
+              {formatCurrency(
+                customers.reduce((sum, c) => sum + c.creditLimit, 0),
+              )}
             </div>
             <p className="text-xs text-muted-foreground">
               Total credit extended
@@ -313,7 +348,8 @@ export default function Customers() {
                           <div className="font-medium">{customer.name}</div>
                           <div className="text-sm text-muted-foreground flex items-center">
                             <MapPin className="h-3 w-3 mr-1" />
-                            {customer.address?.split(',')[1]?.trim() || 'No location'}
+                            {customer.address?.split(",")[1]?.trim() ||
+                              "No location"}
                           </div>
                         </div>
                       </div>
@@ -344,7 +380,9 @@ export default function Customers() {
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className={`font-medium ${customer.balance > 0 ? 'text-warning' : 'text-muted-foreground'}`}>
+                      <div
+                        className={`font-medium ${customer.balance > 0 ? "text-warning" : "text-muted-foreground"}`}
+                      >
                         {formatCurrency(customer.balance)}
                       </div>
                     </TableCell>
@@ -354,8 +392,10 @@ export default function Customers() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={customer.isActive ? 'default' : 'secondary'}>
-                        {customer.isActive ? 'Active' : 'Inactive'}
+                      <Badge
+                        variant={customer.isActive ? "default" : "secondary"}
+                      >
+                        {customer.isActive ? "Active" : "Inactive"}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -396,7 +436,9 @@ export default function Customers() {
               <User className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium">No customers found</h3>
               <p className="text-muted-foreground">
-                {searchTerm ? 'Try adjusting your search terms.' : 'Get started by adding your first customer.'}
+                {searchTerm
+                  ? "Try adjusting your search terms."
+                  : "Get started by adding your first customer."}
               </p>
             </div>
           )}

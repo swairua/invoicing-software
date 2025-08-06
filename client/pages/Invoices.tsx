@@ -1,10 +1,16 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { Avatar, AvatarFallback } from '../components/ui/avatar';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
+import { Avatar, AvatarFallback } from "../components/ui/avatar";
 import {
   Table,
   TableBody,
@@ -12,7 +18,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../components/ui/table';
+} from "../components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,7 +26,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../components/ui/dropdown-menu';
+} from "../components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -29,17 +35,17 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../components/ui/dialog';
+} from "../components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../components/ui/select';
-import { Label } from '../components/ui/label';
-import { Textarea } from '../components/ui/textarea';
-import { Progress } from '../components/ui/progress';
+} from "../components/ui/select";
+import { Label } from "../components/ui/label";
+import { Textarea } from "../components/ui/textarea";
+import { Progress } from "../components/ui/progress";
 import {
   Plus,
   Search,
@@ -59,11 +65,11 @@ import {
   Copy,
   Package,
   Loader2,
-} from 'lucide-react';
-import { Invoice, Customer, Product } from '@shared/types';
-import PDFService from '../services/pdfService';
-import dataService from '../services/dataServiceFactory';
-import { useToast } from '../hooks/use-toast';
+} from "lucide-react";
+import { Invoice, Customer, Product } from "@shared/types";
+import PDFService from "../services/pdfService";
+import dataService from "../services/dataServiceFactory";
+import { useToast } from "../hooks/use-toast";
 
 // Get data service instance (PostgreSQL or mock)
 const businessData = dataService;
@@ -79,14 +85,14 @@ export default function Invoices() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
-    customerId: '',
-    dueDate: '',
-    notes: '',
-    items: [] as { productId: string; quantity: number; unitPrice: number; }[]
+    customerId: "",
+    dueDate: "",
+    notes: "",
+    items: [] as { productId: string; quantity: number; unitPrice: number }[],
   });
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -96,25 +102,25 @@ export default function Invoices() {
     const loadData = async () => {
       try {
         // Load data with individual error handling for better resilience
-        const invoicesPromise = businessData.getInvoices().catch(error => {
-          console.error('Failed to load invoices:', error);
+        const invoicesPromise = businessData.getInvoices().catch((error) => {
+          console.error("Failed to load invoices:", error);
           return [];
         });
 
-        const customersPromise = businessData.getCustomers().catch(error => {
-          console.error('Failed to load customers:', error);
+        const customersPromise = businessData.getCustomers().catch((error) => {
+          console.error("Failed to load customers:", error);
           return [];
         });
 
-        const productsPromise = businessData.getProducts().catch(error => {
-          console.error('Failed to load products:', error);
+        const productsPromise = businessData.getProducts().catch((error) => {
+          console.error("Failed to load products:", error);
           return [];
         });
 
         const [invoicesData, customersData, productsData] = await Promise.all([
           invoicesPromise,
           customersPromise,
-          productsPromise
+          productsPromise,
         ]);
 
         setInvoices(invoicesData);
@@ -122,7 +128,11 @@ export default function Invoices() {
         setProducts(productsData);
 
         // Only show error if all data sources failed
-        if (!invoicesData.length && !customersData.length && !productsData.length) {
+        if (
+          !invoicesData.length &&
+          !customersData.length &&
+          !productsData.length
+        ) {
           toast({
             title: "Data Loading Issue",
             description: "Some data may not be available. Using fallback data.",
@@ -130,7 +140,7 @@ export default function Invoices() {
           });
         }
       } catch (error) {
-        console.error('Error loading data:', error);
+        console.error("Error loading data:", error);
         toast({
           title: "Error",
           description: "Failed to load data. Using fallback data.",
@@ -152,21 +162,27 @@ export default function Invoices() {
     const refreshInterval = setInterval(async () => {
       try {
         // Silently refresh data with individual error handling
-        const invoicesPromise = businessData.getInvoices().catch(() => invoices);
-        const customersPromise = businessData.getCustomers().catch(() => customers);
-        const productsPromise = businessData.getProducts().catch(() => products);
+        const invoicesPromise = businessData
+          .getInvoices()
+          .catch(() => invoices);
+        const customersPromise = businessData
+          .getCustomers()
+          .catch(() => customers);
+        const productsPromise = businessData
+          .getProducts()
+          .catch(() => products);
 
         const [invoicesData, customersData, productsData] = await Promise.all([
           invoicesPromise,
           customersPromise,
-          productsPromise
+          productsPromise,
         ]);
 
         setInvoices(invoicesData);
         setCustomers(customersData);
         setProducts(productsData);
       } catch (error) {
-        console.error('Error refreshing data:', error);
+        console.error("Error refreshing data:", error);
         // Don't show toast for refresh errors to avoid spam
       }
     }, 30000); // Refresh every 30 seconds
@@ -174,60 +190,81 @@ export default function Invoices() {
     return () => clearInterval(refreshInterval);
   }, [invoices, customers, products]);
 
-  const filteredInvoices = invoices.filter(invoice => {
-    const matchesSearch = invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         invoice.customer.name.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = statusFilter === 'all' || invoice.status === statusFilter;
-    
+  const filteredInvoices = invoices.filter((invoice) => {
+    const matchesSearch =
+      invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      invoice.customer.name.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus =
+      statusFilter === "all" || invoice.status === statusFilter;
+
     return matchesSearch && matchesStatus;
   });
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-KE', {
-      style: 'currency',
-      currency: 'KES',
+    return new Intl.NumberFormat("en-KE", {
+      style: "currency",
+      currency: "KES",
       minimumFractionDigits: 0,
     }).format(amount);
   };
 
   const getStatusVariant = (status: string) => {
     switch (status) {
-      case 'draft': return 'secondary';
-      case 'sent': return 'default';
-      case 'paid': return 'default';
-      case 'overdue': return 'destructive';
-      case 'cancelled': return 'outline';
-      default: return 'secondary';
+      case "draft":
+        return "secondary";
+      case "sent":
+        return "default";
+      case "paid":
+        return "default";
+      case "overdue":
+        return "destructive";
+      case "cancelled":
+        return "outline";
+      default:
+        return "secondary";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'draft': return <Edit className="h-3 w-3" />;
-      case 'sent': return <Send className="h-3 w-3" />;
-      case 'paid': return <CheckCircle className="h-3 w-3" />;
-      case 'overdue': return <AlertCircle className="h-3 w-3" />;
-      case 'cancelled': return <Clock className="h-3 w-3" />;
-      default: return null;
+      case "draft":
+        return <Edit className="h-3 w-3" />;
+      case "sent":
+        return <Send className="h-3 w-3" />;
+      case "paid":
+        return <CheckCircle className="h-3 w-3" />;
+      case "overdue":
+        return <AlertCircle className="h-3 w-3" />;
+      case "cancelled":
+        return <Clock className="h-3 w-3" />;
+      default:
+        return null;
     }
   };
 
   const getEtimsStatusVariant = (status?: string) => {
     switch (status) {
-      case 'accepted': return 'default';
-      case 'rejected': return 'destructive';
-      case 'pending': return 'secondary';
-      case 'submitted': return 'outline';
-      default: return 'secondary';
+      case "accepted":
+        return "default";
+      case "rejected":
+        return "destructive";
+      case "pending":
+        return "secondary";
+      case "submitted":
+        return "outline";
+      default:
+        return "secondary";
     }
   };
 
   const getDaysOverdue = (dueDate: Date | string, status: string) => {
-    if (status !== 'overdue') return 0;
+    if (status !== "overdue") return 0;
     const today = new Date();
     const dueDateObj = safeDate(dueDate);
-    return Math.floor((today.getTime() - dueDateObj.getTime()) / (1000 * 60 * 60 * 24));
+    return Math.floor(
+      (today.getTime() - dueDateObj.getTime()) / (1000 * 60 * 60 * 24),
+    );
   };
 
   const getPaymentProgress = (amountPaid: number, total: number) => {
@@ -235,25 +272,25 @@ export default function Invoices() {
   };
 
   const addProduct = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      items: [...prev.items, { productId: '', quantity: 1, unitPrice: 0 }]
+      items: [...prev.items, { productId: "", quantity: 1, unitPrice: 0 }],
     }));
   };
 
   const removeProduct = (index: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      items: prev.items.filter((_, i) => i !== index)
+      items: prev.items.filter((_, i) => i !== index),
     }));
   };
 
   const updateProduct = (index: number, field: string, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       items: prev.items.map((item, i) =>
-        i === index ? { ...item, [field]: value } : item
-      )
+        i === index ? { ...item, [field]: value } : item,
+      ),
     }));
   };
 
@@ -271,14 +308,14 @@ export default function Invoices() {
 
     setIsLoading(true);
     try {
-      const customer = customers.find(c => c.id === formData.customerId);
+      const customer = customers.find((c) => c.id === formData.customerId);
 
       // Create invoice via API
       const newInvoice = await businessData.createInvoice({
         customerId: formData.customerId,
         dueDate: formData.dueDate,
         notes: formData.notes,
-        items: formData.items
+        items: formData.items,
       });
 
       // Refresh invoices list
@@ -289,19 +326,18 @@ export default function Invoices() {
 
       // Reset form
       setFormData({
-        customerId: '',
-        dueDate: '',
-        notes: '',
-        items: []
+        customerId: "",
+        dueDate: "",
+        notes: "",
+        items: [],
       });
 
       toast({
         title: "Invoice Created",
         description: `Invoice ${newInvoice.invoiceNumber} created successfully for ${customer?.name}`,
       });
-
     } catch (error) {
-      console.error('Error creating invoice:', error);
+      console.error("Error creating invoice:", error);
       toast({
         title: "Error",
         description: "Failed to create invoice. Please try again.",
@@ -313,16 +349,26 @@ export default function Invoices() {
   };
 
   const handleRecordPayment = (invoiceId: string) => {
-    const invoice = invoices.find(i => i.id === invoiceId);
+    const invoice = invoices.find((i) => i.id === invoiceId);
     if (!invoice || invoice.balance <= 0) return;
 
     // For demo, process a random payment amount
-    const paymentAmount = Math.min(invoice.balance, Math.floor(Math.random() * invoice.balance) + 1000);
-    const paymentMethods = ['cash', 'mpesa', 'bank', 'cheque', 'card'] as const;
-    const method = paymentMethods[Math.floor(Math.random() * paymentMethods.length)];
-    const reference = 'PAY-' + Date.now();
+    const paymentAmount = Math.min(
+      invoice.balance,
+      Math.floor(Math.random() * invoice.balance) + 1000,
+    );
+    const paymentMethods = ["cash", "mpesa", "bank", "cheque", "card"] as const;
+    const method =
+      paymentMethods[Math.floor(Math.random() * paymentMethods.length)];
+    const reference = "PAY-" + Date.now();
 
-    const payment = businessData.processPayment(invoiceId, paymentAmount, method, reference, 'Manual payment recording');
+    const payment = businessData.processPayment(
+      invoiceId,
+      paymentAmount,
+      method,
+      reference,
+      "Manual payment recording",
+    );
 
     if (payment) {
       setInvoices(businessData.getInvoices());
@@ -340,19 +386,21 @@ export default function Invoices() {
   };
 
   const handleSendToETIMS = (invoiceId: string) => {
-    const invoice = invoices.find(inv => inv.id === invoiceId);
+    const invoice = invoices.find((inv) => inv.id === invoiceId);
     if (invoice) {
       // Update invoice ETIMS status
-      setInvoices(prev => prev.map(inv =>
-        inv.id === invoiceId
-          ? {
-              ...inv,
-              etimsStatus: 'submitted' as const,
-              etimsCode: `ETIMS-${Date.now()}`,
-              updatedAt: new Date()
-            }
-          : inv
-      ));
+      setInvoices((prev) =>
+        prev.map((inv) =>
+          inv.id === invoiceId
+            ? {
+                ...inv,
+                etimsStatus: "submitted" as const,
+                etimsCode: `ETIMS-${Date.now()}`,
+                updatedAt: new Date(),
+              }
+            : inv,
+        ),
+      );
 
       toast({
         title: "ETIMS Submission",
@@ -362,17 +410,17 @@ export default function Invoices() {
   };
 
   const handleDownloadPDF = (invoiceId: string) => {
-    const invoice = invoices.find(inv => inv.id === invoiceId);
+    const invoice = invoices.find((inv) => inv.id === invoiceId);
     if (invoice) {
       PDFService.generateInvoicePDF(invoice);
     }
   };
 
   const handleViewDetails = (invoiceId: string) => {
-    const invoice = invoices.find(inv => inv.id === invoiceId);
+    const invoice = invoices.find((inv) => inv.id === invoiceId);
     if (invoice) {
       // In a real app, this would navigate to the invoice details page
-      window.open(`/invoices/${invoiceId}`, '_blank');
+      window.open(`/invoices/${invoiceId}`, "_blank");
       toast({
         title: "Invoice Details",
         description: `Opening details for ${invoice.invoiceNumber}`,
@@ -381,7 +429,7 @@ export default function Invoices() {
   };
 
   const handleEditInvoice = (invoiceId: string) => {
-    const invoice = invoices.find(inv => inv.id === invoiceId);
+    const invoice = invoices.find((inv) => inv.id === invoiceId);
     if (invoice) {
       // In a real app, this would navigate to the edit form
       window.location.href = `/invoices/${invoiceId}/edit`;
@@ -393,22 +441,22 @@ export default function Invoices() {
   };
 
   const handleDuplicateInvoice = (invoiceId: string) => {
-    const invoice = invoices.find(inv => inv.id === invoiceId);
+    const invoice = invoices.find((inv) => inv.id === invoiceId);
     if (invoice) {
       // Create a duplicate invoice
       const duplicateInvoice = {
         ...invoice,
         id: Date.now().toString(),
         invoiceNumber: `${invoice.invoiceNumber}-COPY`,
-        status: 'draft' as const,
+        status: "draft" as const,
         amountPaid: 0,
         balance: invoice.total,
         issueDate: new Date(),
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
-      setInvoices(prev => [duplicateInvoice, ...prev]);
+      setInvoices((prev) => [duplicateInvoice, ...prev]);
       toast({
         title: "Invoice Duplicated",
         description: `Created ${duplicateInvoice.invoiceNumber} from ${invoice.invoiceNumber}`,
@@ -417,14 +465,16 @@ export default function Invoices() {
   };
 
   const handleSendToCustomer = (invoiceId: string) => {
-    const invoice = invoices.find(inv => inv.id === invoiceId);
+    const invoice = invoices.find((inv) => inv.id === invoiceId);
     if (invoice) {
       // Update invoice status to sent
-      setInvoices(prev => prev.map(inv =>
-        inv.id === invoiceId
-          ? { ...inv, status: 'sent' as const, updatedAt: new Date() }
-          : inv
-      ));
+      setInvoices((prev) =>
+        prev.map((inv) =>
+          inv.id === invoiceId
+            ? { ...inv, status: "sent" as const, updatedAt: new Date() }
+            : inv,
+        ),
+      );
 
       toast({
         title: "Invoice Sent",
@@ -434,10 +484,10 @@ export default function Invoices() {
   };
 
   const handleViewStatement = (invoiceId: string) => {
-    const invoice = invoices.find(inv => inv.id === invoiceId);
+    const invoice = invoices.find((inv) => inv.id === invoiceId);
     if (invoice) {
       // In a real app, this would generate/view customer statement
-      window.open(`/customers/${invoice.customerId}/statement`, '_blank');
+      window.open(`/customers/${invoice.customerId}/statement`, "_blank");
       toast({
         title: "Customer Statement",
         description: `Opening statement for ${invoice.customer.name}`,
@@ -446,15 +496,17 @@ export default function Invoices() {
   };
 
   const handleCancelInvoice = (invoiceId: string) => {
-    const invoice = invoices.find(inv => inv.id === invoiceId);
+    const invoice = invoices.find((inv) => inv.id === invoiceId);
     if (invoice) {
-      console.log('Cancelling invoice:', invoiceId);
+      console.log("Cancelling invoice:", invoiceId);
       // Update invoice status to cancelled
-      setInvoices(prev => prev.map(inv =>
-        inv.id === invoiceId
-          ? { ...inv, status: 'cancelled' as const, updatedAt: new Date() }
-          : inv
-      ));
+      setInvoices((prev) =>
+        prev.map((inv) =>
+          inv.id === invoiceId
+            ? { ...inv, status: "cancelled" as const, updatedAt: new Date() }
+            : inv,
+        ),
+      );
       toast({
         title: "Invoice Cancelled",
         description: `${invoice.invoiceNumber} has been cancelled`,
@@ -465,8 +517,8 @@ export default function Invoices() {
 
   // Calculate metrics
   const totalInvoices = invoices.length;
-  const paidInvoices = invoices.filter(i => i.status === 'paid').length;
-  const overdueInvoices = invoices.filter(i => i.status === 'overdue').length;
+  const paidInvoices = invoices.filter((i) => i.status === "paid").length;
+  const overdueInvoices = invoices.filter((i) => i.status === "overdue").length;
   const totalValue = invoices.reduce((sum, i) => sum + i.total, 0);
   const outstandingAmount = invoices.reduce((sum, i) => sum + i.balance, 0);
 
@@ -499,16 +551,23 @@ export default function Invoices() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="customer">Customer *</Label>
-                    <Select value={formData.customerId} onValueChange={(value) => setFormData(prev => ({ ...prev, customerId: value }))}>
+                    <Select
+                      value={formData.customerId}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({ ...prev, customerId: value }))
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select customer" />
                       </SelectTrigger>
                       <SelectContent>
-                        {customers.map(customer => (
+                        {customers.map((customer) => (
                           <SelectItem key={customer.id} value={customer.id}>
                             <div>
                               <div className="font-medium">{customer.name}</div>
-                              <div className="text-xs text-muted-foreground">{customer.email}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {customer.email}
+                              </div>
                             </div>
                           </SelectItem>
                         ))}
@@ -521,7 +580,12 @@ export default function Invoices() {
                       id="dueDate"
                       type="date"
                       value={formData.dueDate}
-                      onChange={(e) => setFormData(prev => ({ ...prev, dueDate: e.target.value }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          dueDate: e.target.value,
+                        }))
+                      }
                       required
                     />
                   </div>
@@ -531,7 +595,12 @@ export default function Invoices() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <Label className="text-base font-semibold">Products</Label>
-                    <Button type="button" variant="outline" size="sm" onClick={addProduct}>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={addProduct}
+                    >
                       <Plus className="h-4 w-4 mr-2" />
                       Add Product
                     </Button>
@@ -540,21 +609,32 @@ export default function Invoices() {
                   {formData.items.length > 0 && (
                     <div className="space-y-3 max-h-64 overflow-y-auto">
                       {formData.items.map((item, index) => {
-                        const product = products.find(p => p.id === item.productId);
+                        const product = products.find(
+                          (p) => p.id === item.productId,
+                        );
                         const lineTotal = item.unitPrice * item.quantity;
 
                         return (
-                          <div key={index} className="border rounded-lg p-4 space-y-3">
+                          <div
+                            key={index}
+                            className="border rounded-lg p-4 space-y-3"
+                          >
                             <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                               <div>
                                 <Label className="text-sm">Product</Label>
                                 <Select
                                   value={item.productId}
                                   onValueChange={(value) => {
-                                    const selectedProduct = products.find(p => p.id === value);
-                                    updateProduct(index, 'productId', value);
+                                    const selectedProduct = products.find(
+                                      (p) => p.id === value,
+                                    );
+                                    updateProduct(index, "productId", value);
                                     if (selectedProduct) {
-                                      updateProduct(index, 'unitPrice', selectedProduct.sellingPrice);
+                                      updateProduct(
+                                        index,
+                                        "unitPrice",
+                                        selectedProduct.sellingPrice,
+                                      );
                                     }
                                   }}
                                 >
@@ -562,12 +642,18 @@ export default function Invoices() {
                                     <SelectValue placeholder="Select product" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    {products.map(product => (
-                                      <SelectItem key={product.id} value={product.id}>
+                                    {products.map((product) => (
+                                      <SelectItem
+                                        key={product.id}
+                                        value={product.id}
+                                      >
                                         <div>
-                                          <div className="font-medium">{product.name}</div>
+                                          <div className="font-medium">
+                                            {product.name}
+                                          </div>
                                           <div className="text-xs text-muted-foreground">
-                                            KES {product.sellingPrice.toLocaleString()}
+                                            KES{" "}
+                                            {product.sellingPrice.toLocaleString()}
                                           </div>
                                         </div>
                                       </SelectItem>
@@ -581,7 +667,13 @@ export default function Invoices() {
                                   type="number"
                                   placeholder="1"
                                   value={item.quantity}
-                                  onChange={(e) => updateProduct(index, 'quantity', parseInt(e.target.value) || 1)}
+                                  onChange={(e) =>
+                                    updateProduct(
+                                      index,
+                                      "quantity",
+                                      parseInt(e.target.value) || 1,
+                                    )
+                                  }
                                   min="1"
                                 />
                               </div>
@@ -591,7 +683,13 @@ export default function Invoices() {
                                   type="number"
                                   placeholder="0.00"
                                   value={item.unitPrice}
-                                  onChange={(e) => updateProduct(index, 'unitPrice', parseFloat(e.target.value) || 0)}
+                                  onChange={(e) =>
+                                    updateProduct(
+                                      index,
+                                      "unitPrice",
+                                      parseFloat(e.target.value) || 0,
+                                    )
+                                  }
                                   min="0"
                                   step="0.01"
                                 />
@@ -624,8 +722,14 @@ export default function Invoices() {
                   {formData.items.length === 0 && (
                     <div className="text-center py-8 border-2 border-dashed rounded-lg">
                       <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                      <p className="text-muted-foreground mb-4">No products added yet</p>
-                      <Button type="button" variant="outline" onClick={addProduct}>
+                      <p className="text-muted-foreground mb-4">
+                        No products added yet
+                      </p>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={addProduct}
+                      >
                         <Plus className="h-4 w-4 mr-2" />
                         Add Your First Product
                       </Button>
@@ -638,7 +742,10 @@ export default function Invoices() {
                   <div className="border-t pt-4">
                     <div className="bg-muted/20 rounded-lg p-4 space-y-2">
                       {(() => {
-                        const subtotal = formData.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
+                        const subtotal = formData.items.reduce(
+                          (sum, item) => sum + item.unitPrice * item.quantity,
+                          0,
+                        );
                         const vatAmount = subtotal * 0.16;
                         const total = subtotal + vatAmount;
 
@@ -669,7 +776,12 @@ export default function Invoices() {
                     id="notes"
                     placeholder="Additional notes or terms"
                     value={formData.notes}
-                    onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        notes: e.target.value,
+                      }))
+                    }
                     rows={3}
                   />
                 </div>
@@ -685,10 +797,16 @@ export default function Invoices() {
                   </Button>
                   <Button
                     type="submit"
-                    disabled={isLoading || !formData.customerId || formData.items.length === 0}
+                    disabled={
+                      isLoading ||
+                      !formData.customerId ||
+                      formData.items.length === 0
+                    }
                     className="w-full sm:w-auto"
                   >
-                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {isLoading && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
                     Create Invoice
                   </Button>
                 </div>
@@ -702,7 +820,9 @@ export default function Invoices() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Invoices</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Invoices
+            </CardTitle>
             <Receipt className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -719,9 +839,14 @@ export default function Invoices() {
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-success">{paidInvoices}</div>
+            <div className="text-2xl font-bold text-success">
+              {paidInvoices}
+            </div>
             <p className="text-xs text-muted-foreground">
-              {totalInvoices > 0 ? Math.round((paidInvoices / totalInvoices) * 100) : 0}% paid
+              {totalInvoices > 0
+                ? Math.round((paidInvoices / totalInvoices) * 100)
+                : 0}
+              % paid
             </p>
           </CardContent>
         </Card>
@@ -732,10 +857,10 @@ export default function Invoices() {
             <AlertCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-destructive">{overdueInvoices}</div>
-            <p className="text-xs text-muted-foreground">
-              Require follow-up
-            </p>
+            <div className="text-2xl font-bold text-destructive">
+              {overdueInvoices}
+            </div>
+            <p className="text-xs text-muted-foreground">Require follow-up</p>
           </CardContent>
         </Card>
 
@@ -745,10 +870,10 @@ export default function Invoices() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalValue)}</div>
-            <p className="text-xs text-muted-foreground">
-              Total invoice value
-            </p>
+            <div className="text-2xl font-bold">
+              {formatCurrency(totalValue)}
+            </div>
+            <p className="text-xs text-muted-foreground">Total invoice value</p>
           </CardContent>
         </Card>
 
@@ -758,10 +883,10 @@ export default function Invoices() {
             <CreditCard className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-warning">{formatCurrency(outstandingAmount)}</div>
-            <p className="text-xs text-muted-foreground">
-              Amount due
-            </p>
+            <div className="text-2xl font-bold text-warning">
+              {formatCurrency(outstandingAmount)}
+            </div>
+            <p className="text-xs text-muted-foreground">Amount due</p>
           </CardContent>
         </Card>
       </div>
@@ -819,13 +944,21 @@ export default function Invoices() {
               </TableHeader>
               <TableBody>
                 {filteredInvoices.map((invoice) => {
-                  const paymentProgress = getPaymentProgress(invoice.amountPaid, invoice.total);
-                  const daysOverdue = getDaysOverdue(invoice.dueDate, invoice.status);
-                  
+                  const paymentProgress = getPaymentProgress(
+                    invoice.amountPaid,
+                    invoice.total,
+                  );
+                  const daysOverdue = getDaysOverdue(
+                    invoice.dueDate,
+                    invoice.status,
+                  );
+
                   return (
                     <TableRow key={invoice.id}>
                       <TableCell>
-                        <div className="font-medium">{invoice.invoiceNumber}</div>
+                        <div className="font-medium">
+                          {invoice.invoiceNumber}
+                        </div>
                         <div className="text-sm text-muted-foreground">
                           {invoice.items.length} item(s)
                         </div>
@@ -834,20 +967,32 @@ export default function Invoices() {
                         <div className="flex items-center space-x-3">
                           <Avatar className="h-8 w-8">
                             <AvatarFallback className="text-xs">
-                              {invoice.customer.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
+                              {invoice.customer.name
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")
+                                .substring(0, 2)}
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <div className="font-medium">{invoice.customer.name}</div>
-                            <div className="text-sm text-muted-foreground">{invoice.customer.email}</div>
+                            <div className="font-medium">
+                              {invoice.customer.name}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              {invoice.customer.email}
+                            </div>
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>{safeDate(invoice.issueDate).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      <div className={`text-sm ${invoice.status === 'overdue' ? 'text-destructive font-medium' : ''}`}>
-                        {safeDate(invoice.dueDate).toLocaleDateString()}
-                      </div>
+                      <TableCell>
+                        {safeDate(invoice.issueDate).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
+                        <div
+                          className={`text-sm ${invoice.status === "overdue" ? "text-destructive font-medium" : ""}`}
+                        >
+                          {safeDate(invoice.dueDate).toLocaleDateString()}
+                        </div>
                         {daysOverdue > 0 && (
                           <div className="text-xs text-destructive">
                             {daysOverdue} days overdue
@@ -855,7 +1000,9 @@ export default function Invoices() {
                         )}
                       </TableCell>
                       <TableCell>
-                        <div className="font-medium">{formatCurrency(invoice.total)}</div>
+                        <div className="font-medium">
+                          {formatCurrency(invoice.total)}
+                        </div>
                         {invoice.discountAmount > 0 && (
                           <div className="text-sm text-muted-foreground">
                             Discount: {formatCurrency(invoice.discountAmount)}
@@ -865,7 +1012,10 @@ export default function Invoices() {
                       <TableCell>
                         <div className="space-y-2">
                           <div className="flex items-center justify-between text-sm">
-                            <Badge variant={getStatusVariant(invoice.status)} className="capitalize">
+                            <Badge
+                              variant={getStatusVariant(invoice.status)}
+                              className="capitalize"
+                            >
                               {getStatusIcon(invoice.status)}
                               <span className="ml-1">{invoice.status}</span>
                             </Badge>
@@ -873,10 +1023,15 @@ export default function Invoices() {
                           {invoice.balance > 0 && (
                             <div className="space-y-1">
                               <div className="flex justify-between text-xs">
-                                <span>Paid: {formatCurrency(invoice.amountPaid)}</span>
+                                <span>
+                                  Paid: {formatCurrency(invoice.amountPaid)}
+                                </span>
                                 <span>{paymentProgress.toFixed(0)}%</span>
                               </div>
-                              <Progress value={paymentProgress} className="h-1" />
+                              <Progress
+                                value={paymentProgress}
+                                className="h-1"
+                              />
                               <div className="text-xs text-muted-foreground">
                                 Balance: {formatCurrency(invoice.balance)}
                               </div>
@@ -886,8 +1041,11 @@ export default function Invoices() {
                       </TableCell>
                       <TableCell>
                         <div className="space-y-1">
-                          <Badge variant={getEtimsStatusVariant(invoice.etimsStatus)} className="text-xs">
-                            {invoice.etimsStatus || 'Not submitted'}
+                          <Badge
+                            variant={getEtimsStatusVariant(invoice.etimsStatus)}
+                            className="text-xs"
+                          >
+                            {invoice.etimsStatus || "Not submitted"}
                           </Badge>
                           {invoice.etimsCode && (
                             <div className="text-xs text-muted-foreground font-mono">
@@ -899,8 +1057,8 @@ export default function Invoices() {
                       <TableCell>
                         <div className="flex space-x-1">
                           {invoice.balance > 0 && (
-                            <Button 
-                              size="sm" 
+                            <Button
+                              size="sm"
                               variant="outline"
                               onClick={() => handleRecordPayment(invoice.id)}
                               className="text-xs"
@@ -909,8 +1067,8 @@ export default function Invoices() {
                               Pay
                             </Button>
                           )}
-                          {invoice.etimsStatus === 'pending' && (
-                            <Button 
+                          {invoice.etimsStatus === "pending" && (
+                            <Button
                               size="sm"
                               variant="outline"
                               onClick={() => handleSendToETIMS(invoice.id)}
@@ -931,29 +1089,41 @@ export default function Invoices() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem onClick={() => handleViewDetails(invoice.id)}>
+                            <DropdownMenuItem
+                              onClick={() => handleViewDetails(invoice.id)}
+                            >
                               <Eye className="mr-2 h-4 w-4" />
                               View Details
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleEditInvoice(invoice.id)}>
+                            <DropdownMenuItem
+                              onClick={() => handleEditInvoice(invoice.id)}
+                            >
                               <Edit className="mr-2 h-4 w-4" />
                               Edit Invoice
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDuplicateInvoice(invoice.id)}>
+                            <DropdownMenuItem
+                              onClick={() => handleDuplicateInvoice(invoice.id)}
+                            >
                               <Copy className="mr-2 h-4 w-4" />
                               Duplicate
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => handleDownloadPDF(invoice.id)}>
+                            <DropdownMenuItem
+                              onClick={() => handleDownloadPDF(invoice.id)}
+                            >
                               <Download className="mr-2 h-4 w-4" />
                               Download PDF
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleSendToCustomer(invoice.id)}>
+                            <DropdownMenuItem
+                              onClick={() => handleSendToCustomer(invoice.id)}
+                            >
                               <Send className="mr-2 h-4 w-4" />
                               Send to Customer
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => handleViewStatement(invoice.id)}>
+                            <DropdownMenuItem
+                              onClick={() => handleViewStatement(invoice.id)}
+                            >
                               <FileText className="mr-2 h-4 w-4" />
                               View Statement
                             </DropdownMenuItem>
@@ -980,9 +1150,9 @@ export default function Invoices() {
               <Receipt className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium">No invoices found</h3>
               <p className="text-muted-foreground">
-                {searchTerm || statusFilter !== 'all' 
-                  ? 'Try adjusting your search terms or filters.' 
-                  : 'Get started by creating your first invoice.'}
+                {searchTerm || statusFilter !== "all"
+                  ? "Try adjusting your search terms or filters."
+                  : "Get started by creating your first invoice."}
               </p>
             </div>
           )}

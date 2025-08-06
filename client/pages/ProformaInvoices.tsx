@@ -1,10 +1,16 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { Avatar, AvatarFallback } from '../components/ui/avatar';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
+import { Avatar, AvatarFallback } from "../components/ui/avatar";
 import {
   Table,
   TableBody,
@@ -12,7 +18,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../components/ui/table';
+} from "../components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,7 +26,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../components/ui/dropdown-menu';
+} from "../components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -29,16 +35,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../components/ui/dialog';
+} from "../components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../components/ui/select';
-import { Label } from '../components/ui/label';
-import { Textarea } from '../components/ui/textarea';
+} from "../components/ui/select";
+import { Label } from "../components/ui/label";
+import { Textarea } from "../components/ui/textarea";
 import {
   Plus,
   Search,
@@ -55,11 +61,11 @@ import {
   CheckCircle,
   Package,
   Loader2,
-} from 'lucide-react';
-import { ProformaInvoice, Customer, Product } from '@shared/types';
-import PDFService from '../services/pdfService';
-import BusinessDataService from '../services/businessDataService';
-import { useToast } from '../hooks/use-toast';
+} from "lucide-react";
+import { ProformaInvoice, Customer, Product } from "@shared/types";
+import PDFService from "../services/pdfService";
+import BusinessDataService from "../services/businessDataService";
+import { useToast } from "../hooks/use-toast";
 
 // Get business data service instance
 const businessData = BusinessDataService.getInstance();
@@ -75,14 +81,14 @@ export default function ProformaInvoices() {
   const [proformas, setProformas] = useState<ProformaInvoice[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
-    customerId: '',
-    validUntil: '',
-    notes: '',
-    items: [] as { productId: string; quantity: number; unitPrice: number; }[]
+    customerId: "",
+    validUntil: "",
+    notes: "",
+    items: [] as { productId: string; quantity: number; unitPrice: number }[],
   });
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -105,70 +111,86 @@ export default function ProformaInvoices() {
     return () => clearInterval(refreshInterval);
   }, []);
 
-  const filteredProformas = proformas.filter(proforma => {
-    const matchesSearch = proforma.proformaNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         proforma.customer.name.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = statusFilter === 'all' || proforma.status === statusFilter;
-    
+  const filteredProformas = proformas.filter((proforma) => {
+    const matchesSearch =
+      proforma.proformaNumber
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      proforma.customer.name.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus =
+      statusFilter === "all" || proforma.status === statusFilter;
+
     return matchesSearch && matchesStatus;
   });
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-KE', {
-      style: 'currency',
-      currency: 'KES',
+    return new Intl.NumberFormat("en-KE", {
+      style: "currency",
+      currency: "KES",
       minimumFractionDigits: 0,
     }).format(amount);
   };
 
   const getStatusVariant = (status: string) => {
     switch (status) {
-      case 'draft': return 'secondary';
-      case 'sent': return 'default';
-      case 'converted': return 'default';
-      case 'expired': return 'outline';
-      default: return 'secondary';
+      case "draft":
+        return "secondary";
+      case "sent":
+        return "default";
+      case "converted":
+        return "default";
+      case "expired":
+        return "outline";
+      default:
+        return "secondary";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'draft': return <Edit className="h-3 w-3" />;
-      case 'sent': return <Send className="h-3 w-3" />;
-      case 'converted': return <CheckCircle className="h-3 w-3" />;
-      case 'expired': return <Clock className="h-3 w-3" />;
-      default: return null;
+      case "draft":
+        return <Edit className="h-3 w-3" />;
+      case "sent":
+        return <Send className="h-3 w-3" />;
+      case "converted":
+        return <CheckCircle className="h-3 w-3" />;
+      case "expired":
+        return <Clock className="h-3 w-3" />;
+      default:
+        return null;
     }
   };
 
   const isExpiringSoon = (validUntil: Date | string) => {
     const today = new Date();
     const validDate = safeDate(validUntil);
-    const diffDays = Math.ceil((validDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    const diffDays = Math.ceil(
+      (validDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
+    );
     return diffDays <= 7 && diffDays > 0;
   };
 
   const addProduct = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      items: [...prev.items, { productId: '', quantity: 1, unitPrice: 0 }]
+      items: [...prev.items, { productId: "", quantity: 1, unitPrice: 0 }],
     }));
   };
 
   const removeProduct = (index: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      items: prev.items.filter((_, i) => i !== index)
+      items: prev.items.filter((_, i) => i !== index),
     }));
   };
 
   const updateProduct = (index: number, field: string, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       items: prev.items.map((item, i) =>
-        i === index ? { ...item, [field]: value } : item
-      )
+        i === index ? { ...item, [field]: value } : item,
+      ),
     }));
   };
 
@@ -187,14 +209,17 @@ export default function ProformaInvoices() {
     setIsLoading(true);
     try {
       // Calculate totals
-      const subtotal = formData.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
+      const subtotal = formData.items.reduce(
+        (sum, item) => sum + item.unitPrice * item.quantity,
+        0,
+      );
       const vatAmount = subtotal * 0.16;
       const total = subtotal + vatAmount;
 
       // Generate proforma number
-      const proformaNumber = `PRO-2024-${String(proformas.length + 1).padStart(3, '0')}`;
+      const proformaNumber = `PRO-2024-${String(proformas.length + 1).padStart(3, "0")}`;
 
-      const customer = customers.find(c => c.id === formData.customerId);
+      const customer = customers.find((c) => c.id === formData.customerId);
 
       const newProforma = {
         id: Date.now().toString(),
@@ -202,7 +227,7 @@ export default function ProformaInvoices() {
         customerId: formData.customerId,
         customer: customer!,
         items: formData.items.map((item, index) => {
-          const product = products.find(p => p.id === item.productId);
+          const product = products.find((p) => p.id === item.productId);
           return {
             id: `item-${index}`,
             productId: item.productId,
@@ -211,39 +236,41 @@ export default function ProformaInvoices() {
             unitPrice: item.unitPrice,
             discount: 0,
             vatRate: product?.taxable ? 16 : 0,
-            total: item.unitPrice * item.quantity * (1 + (product?.taxable ? 0.16 : 0))
+            total:
+              item.unitPrice *
+              item.quantity *
+              (1 + (product?.taxable ? 0.16 : 0)),
           };
         }),
         subtotal,
         vatAmount,
         discountAmount: 0,
         total,
-        status: 'draft' as const,
+        status: "draft" as const,
         validUntil: new Date(formData.validUntil),
         issueDate: new Date(),
         notes: formData.notes,
-        companyId: '1',
-        createdBy: '1',
+        companyId: "1",
+        createdBy: "1",
         createdAt: new Date(),
         updatedAt: new Date(),
       };
 
-      setProformas(prev => [newProforma, ...prev]);
+      setProformas((prev) => [newProforma, ...prev]);
       setIsCreateDialogOpen(false);
 
       // Reset form
       setFormData({
-        customerId: '',
-        validUntil: '',
-        notes: '',
-        items: []
+        customerId: "",
+        validUntil: "",
+        notes: "",
+        items: [],
       });
 
       toast({
         title: "Proforma Created",
         description: `Proforma ${proformaNumber} created successfully for ${customer?.name}`,
       });
-
     } catch (error) {
       toast({
         title: "Error",
@@ -273,7 +300,7 @@ export default function ProformaInvoices() {
   };
 
   const handleDownloadPDF = (proformaId: string) => {
-    const proforma = proformas.find(p => p.id === proformaId);
+    const proforma = proformas.find((p) => p.id === proformaId);
     if (proforma) {
       PDFService.generateProformaPDF(proforma);
     }
@@ -281,17 +308,22 @@ export default function ProformaInvoices() {
 
   // Calculate metrics
   const totalProformas = proformas.length;
-  const sentProformas = proformas.filter(p => p.status === 'sent').length;
-  const convertedProformas = proformas.filter(p => p.status === 'converted').length;
+  const sentProformas = proformas.filter((p) => p.status === "sent").length;
+  const convertedProformas = proformas.filter(
+    (p) => p.status === "converted",
+  ).length;
   const totalValue = proformas.reduce((sum, p) => sum + p.total, 0);
-  const conversionRate = totalProformas > 0 ? (convertedProformas / totalProformas) * 100 : 0;
+  const conversionRate =
+    totalProformas > 0 ? (convertedProformas / totalProformas) * 100 : 0;
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Proforma Invoices</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Proforma Invoices
+          </h1>
           <p className="text-muted-foreground">
             Create advance invoices and convert them to formal invoices
           </p>
@@ -315,16 +347,23 @@ export default function ProformaInvoices() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="customer">Customer *</Label>
-                    <Select value={formData.customerId} onValueChange={(value) => setFormData(prev => ({ ...prev, customerId: value }))}>
+                    <Select
+                      value={formData.customerId}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({ ...prev, customerId: value }))
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select customer" />
                       </SelectTrigger>
                       <SelectContent>
-                        {customers.map(customer => (
+                        {customers.map((customer) => (
                           <SelectItem key={customer.id} value={customer.id}>
                             <div>
                               <div className="font-medium">{customer.name}</div>
-                              <div className="text-xs text-muted-foreground">{customer.email}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {customer.email}
+                              </div>
                             </div>
                           </SelectItem>
                         ))}
@@ -337,7 +376,12 @@ export default function ProformaInvoices() {
                       id="validUntil"
                       type="date"
                       value={formData.validUntil}
-                      onChange={(e) => setFormData(prev => ({ ...prev, validUntil: e.target.value }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          validUntil: e.target.value,
+                        }))
+                      }
                       required
                     />
                   </div>
@@ -347,7 +391,12 @@ export default function ProformaInvoices() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <Label className="text-base font-semibold">Products</Label>
-                    <Button type="button" variant="outline" size="sm" onClick={addProduct}>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={addProduct}
+                    >
                       <Plus className="h-4 w-4 mr-2" />
                       Add Product
                     </Button>
@@ -356,21 +405,32 @@ export default function ProformaInvoices() {
                   {formData.items.length > 0 && (
                     <div className="space-y-3 max-h-64 overflow-y-auto">
                       {formData.items.map((item, index) => {
-                        const product = products.find(p => p.id === item.productId);
+                        const product = products.find(
+                          (p) => p.id === item.productId,
+                        );
                         const lineTotal = item.unitPrice * item.quantity;
 
                         return (
-                          <div key={index} className="border rounded-lg p-4 space-y-3">
+                          <div
+                            key={index}
+                            className="border rounded-lg p-4 space-y-3"
+                          >
                             <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                               <div>
                                 <Label className="text-sm">Product</Label>
                                 <Select
                                   value={item.productId}
                                   onValueChange={(value) => {
-                                    const selectedProduct = products.find(p => p.id === value);
-                                    updateProduct(index, 'productId', value);
+                                    const selectedProduct = products.find(
+                                      (p) => p.id === value,
+                                    );
+                                    updateProduct(index, "productId", value);
                                     if (selectedProduct) {
-                                      updateProduct(index, 'unitPrice', selectedProduct.sellingPrice);
+                                      updateProduct(
+                                        index,
+                                        "unitPrice",
+                                        selectedProduct.sellingPrice,
+                                      );
                                     }
                                   }}
                                 >
@@ -378,12 +438,18 @@ export default function ProformaInvoices() {
                                     <SelectValue placeholder="Select product" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    {products.map(product => (
-                                      <SelectItem key={product.id} value={product.id}>
+                                    {products.map((product) => (
+                                      <SelectItem
+                                        key={product.id}
+                                        value={product.id}
+                                      >
                                         <div>
-                                          <div className="font-medium">{product.name}</div>
+                                          <div className="font-medium">
+                                            {product.name}
+                                          </div>
                                           <div className="text-xs text-muted-foreground">
-                                            KES {product.sellingPrice.toLocaleString()}
+                                            KES{" "}
+                                            {product.sellingPrice.toLocaleString()}
                                           </div>
                                         </div>
                                       </SelectItem>
@@ -397,7 +463,13 @@ export default function ProformaInvoices() {
                                   type="number"
                                   placeholder="1"
                                   value={item.quantity}
-                                  onChange={(e) => updateProduct(index, 'quantity', parseInt(e.target.value) || 1)}
+                                  onChange={(e) =>
+                                    updateProduct(
+                                      index,
+                                      "quantity",
+                                      parseInt(e.target.value) || 1,
+                                    )
+                                  }
                                   min="1"
                                 />
                               </div>
@@ -407,7 +479,13 @@ export default function ProformaInvoices() {
                                   type="number"
                                   placeholder="0.00"
                                   value={item.unitPrice}
-                                  onChange={(e) => updateProduct(index, 'unitPrice', parseFloat(e.target.value) || 0)}
+                                  onChange={(e) =>
+                                    updateProduct(
+                                      index,
+                                      "unitPrice",
+                                      parseFloat(e.target.value) || 0,
+                                    )
+                                  }
                                   min="0"
                                   step="0.01"
                                 />
@@ -440,8 +518,14 @@ export default function ProformaInvoices() {
                   {formData.items.length === 0 && (
                     <div className="text-center py-8 border-2 border-dashed rounded-lg">
                       <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                      <p className="text-muted-foreground mb-4">No products added yet</p>
-                      <Button type="button" variant="outline" onClick={addProduct}>
+                      <p className="text-muted-foreground mb-4">
+                        No products added yet
+                      </p>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={addProduct}
+                      >
                         <Plus className="h-4 w-4 mr-2" />
                         Add Your First Product
                       </Button>
@@ -454,7 +538,10 @@ export default function ProformaInvoices() {
                   <div className="border-t pt-4">
                     <div className="bg-muted/20 rounded-lg p-4 space-y-2">
                       {(() => {
-                        const subtotal = formData.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
+                        const subtotal = formData.items.reduce(
+                          (sum, item) => sum + item.unitPrice * item.quantity,
+                          0,
+                        );
                         const vatAmount = subtotal * 0.16;
                         const total = subtotal + vatAmount;
 
@@ -485,7 +572,12 @@ export default function ProformaInvoices() {
                     id="notes"
                     placeholder="Additional notes or terms"
                     value={formData.notes}
-                    onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        notes: e.target.value,
+                      }))
+                    }
                     rows={3}
                   />
                 </div>
@@ -501,10 +593,16 @@ export default function ProformaInvoices() {
                   </Button>
                   <Button
                     type="submit"
-                    disabled={isLoading || !formData.customerId || formData.items.length === 0}
+                    disabled={
+                      isLoading ||
+                      !formData.customerId ||
+                      formData.items.length === 0
+                    }
                     className="w-full sm:w-auto"
                   >
-                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {isLoading && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
                     Create Proforma
                   </Button>
                 </div>
@@ -518,7 +616,9 @@ export default function ProformaInvoices() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Proformas</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Proformas
+            </CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -548,7 +648,9 @@ export default function ProformaInvoices() {
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-success">{convertedProformas}</div>
+            <div className="text-2xl font-bold text-success">
+              {convertedProformas}
+            </div>
             <p className="text-xs text-muted-foreground">
               {conversionRate.toFixed(1)}% conversion rate
             </p>
@@ -561,10 +663,10 @@ export default function ProformaInvoices() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalValue)}</div>
-            <p className="text-xs text-muted-foreground">
-              Combined value
-            </p>
+            <div className="text-2xl font-bold">
+              {formatCurrency(totalValue)}
+            </div>
+            <p className="text-xs text-muted-foreground">Combined value</p>
           </CardContent>
         </Card>
 
@@ -575,11 +677,13 @@ export default function ProformaInvoices() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-warning">
-              {formatCurrency(proformas.filter(p => p.status === 'sent').reduce((sum, p) => sum + p.total, 0))}
+              {formatCurrency(
+                proformas
+                  .filter((p) => p.status === "sent")
+                  .reduce((sum, p) => sum + p.total, 0),
+              )}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Not yet converted
-            </p>
+            <p className="text-xs text-muted-foreground">Not yet converted</p>
           </CardContent>
         </Card>
       </div>
@@ -637,7 +741,9 @@ export default function ProformaInvoices() {
                 {filteredProformas.map((proforma) => (
                   <TableRow key={proforma.id}>
                     <TableCell>
-                      <div className="font-medium">{proforma.proformaNumber}</div>
+                      <div className="font-medium">
+                        {proforma.proformaNumber}
+                      </div>
                       <div className="text-sm text-muted-foreground">
                         {proforma.items.length} item(s)
                       </div>
@@ -646,26 +752,42 @@ export default function ProformaInvoices() {
                       <div className="flex items-center space-x-3">
                         <Avatar className="h-8 w-8">
                           <AvatarFallback className="text-xs">
-                            {proforma.customer.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
+                            {proforma.customer.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                              .substring(0, 2)}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <div className="font-medium">{proforma.customer.name}</div>
-                          <div className="text-sm text-muted-foreground">{proforma.customer.email}</div>
+                          <div className="font-medium">
+                            {proforma.customer.name}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {proforma.customer.email}
+                          </div>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>{safeDate(proforma.issueDate).toLocaleDateString()}</TableCell>
                     <TableCell>
-                      <div className={`text-sm ${isExpiringSoon(proforma.validUntil) ? 'text-warning font-medium' : ''}`}>
+                      {safeDate(proforma.issueDate).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <div
+                        className={`text-sm ${isExpiringSoon(proforma.validUntil) ? "text-warning font-medium" : ""}`}
+                      >
                         {safeDate(proforma.validUntil).toLocaleDateString()}
                       </div>
                       {isExpiringSoon(proforma.validUntil) && (
-                        <div className="text-xs text-warning">Expires soon!</div>
+                        <div className="text-xs text-warning">
+                          Expires soon!
+                        </div>
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="font-medium">{formatCurrency(proforma.total)}</div>
+                      <div className="font-medium">
+                        {formatCurrency(proforma.total)}
+                      </div>
                       {proforma.discountAmount > 0 && (
                         <div className="text-sm text-muted-foreground">
                           Discount: {formatCurrency(proforma.discountAmount)}
@@ -673,14 +795,17 @@ export default function ProformaInvoices() {
                       )}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={getStatusVariant(proforma.status)} className="capitalize">
+                      <Badge
+                        variant={getStatusVariant(proforma.status)}
+                        className="capitalize"
+                      >
                         {getStatusIcon(proforma.status)}
                         <span className="ml-1">{proforma.status}</span>
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {proforma.status === 'sent' && (
-                        <Button 
+                      {proforma.status === "sent" && (
+                        <Button
                           size="sm"
                           onClick={() => handleConvertToInvoice(proforma.id)}
                           className="text-xs"
@@ -689,7 +814,7 @@ export default function ProformaInvoices() {
                           Convert to Invoice
                         </Button>
                       )}
-                      {proforma.status === 'converted' && (
+                      {proforma.status === "converted" && (
                         <Badge variant="outline" className="text-xs">
                           Converted
                         </Badge>
@@ -717,7 +842,9 @@ export default function ProformaInvoices() {
                             Duplicate
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => handleDownloadPDF(proforma.id)}>
+                          <DropdownMenuItem
+                            onClick={() => handleDownloadPDF(proforma.id)}
+                          >
                             <Download className="mr-2 h-4 w-4" />
                             Download PDF
                           </DropdownMenuItem>
@@ -726,8 +853,12 @@ export default function ProformaInvoices() {
                             Send to Customer
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          {proforma.status === 'sent' && (
-                            <DropdownMenuItem onClick={() => handleConvertToInvoice(proforma.id)}>
+                          {proforma.status === "sent" && (
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleConvertToInvoice(proforma.id)
+                              }
+                            >
                               <ArrowRight className="mr-2 h-4 w-4" />
                               Convert to Invoice
                             </DropdownMenuItem>
@@ -749,11 +880,13 @@ export default function ProformaInvoices() {
           {filteredProformas.length === 0 && (
             <div className="text-center py-8">
               <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium">No proforma invoices found</h3>
+              <h3 className="text-lg font-medium">
+                No proforma invoices found
+              </h3>
               <p className="text-muted-foreground">
-                {searchTerm || statusFilter !== 'all' 
-                  ? 'Try adjusting your search terms or filters.' 
-                  : 'Get started by creating your first proforma invoice.'}
+                {searchTerm || statusFilter !== "all"
+                  ? "Try adjusting your search terms or filters."
+                  : "Get started by creating your first proforma invoice."}
               </p>
             </div>
           )}
