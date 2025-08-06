@@ -100,8 +100,8 @@ const AppRoutes = () => (
       <Route path="quotations/:id" element={<QuotationDetails />} />
       <Route path="quotations/new" element={<NewQuotation />} />
       <Route path="proforma" element={<ProformaInvoices />} />
-      <Route path="proforma/:id" element={<PlaceholderPage module="Proforma Details" />} />
-      <Route path="proforma/new" element={<PlaceholderPage module="New Proforma" />} />
+      <Route path="proforma/:id" element={<ProformaDetails />} />
+      <Route path="proforma/new" element={<NewProforma />} />
       <Route path="invoices" element={<Invoices />} />
       <Route path="invoices/:id" element={<InvoiceDetails />} />
       <Route path="invoices/new" element={<NewInvoice />} />
