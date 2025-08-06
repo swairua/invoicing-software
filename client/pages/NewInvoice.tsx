@@ -529,6 +529,13 @@ export default function NewInvoice() {
                 </div>
               </div>
 
+              {/* Template Selection */}
+              <TemplateSelector
+                documentType="invoice"
+                selectedTemplateId={selectedTemplateId}
+                onTemplateSelect={setSelectedTemplateId}
+              />
+
               <div className="space-y-2">
                 <Label htmlFor="notes">Notes</Label>
                 <Textarea
