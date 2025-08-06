@@ -258,6 +258,17 @@ export default function NewInvoice() {
     setItems((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const updateItemTaxes = (index: number, taxes: LineItemTax[]) => {
+    setItems((prev) => {
+      const updatedItems = [...prev];
+      updatedItems[index] = {
+        ...updatedItems[index],
+        lineItemTaxes: taxes,
+      };
+      return updatedItems;
+    });
+  };
+
   const updateItem = (
     index: number,
     field: keyof InvoiceItemFormData,
