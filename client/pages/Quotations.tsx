@@ -272,8 +272,13 @@ export default function Quotations() {
       };
 
       // Add to business data service
-      businessData.getQuotations().unshift(newQuotation);
-      setQuotations(businessData.getQuotations());
+      try {
+        // Note: This needs to be refactored to use a proper create method
+        const quotationsData = await businessData.getQuotations();
+        setQuotations([newQuotation, ...quotationsData]);
+      } catch (error) {
+        console.error('Failed to update quotations:', error);
+      }
       setIsCreateDialogOpen(false);
 
       // Reset form
