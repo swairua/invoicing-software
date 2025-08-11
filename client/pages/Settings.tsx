@@ -555,7 +555,7 @@ export default function Settings() {
                     Add Term
                   </Button>
                 </div>
-                {companySettings.invoiceSettings.terms?.map((term, index) => (
+                {(companySettings.invoiceSettings.terms || []).map((term, index) => (
                   <div key={index} className="flex space-x-2">
                     <Textarea
                       value={term}
