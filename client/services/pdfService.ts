@@ -362,7 +362,7 @@ export class PDFService {
 
     const headerColor = design?.table.headerBackgroundColor
       ? hexToRgb(design.table.headerBackgroundColor)
-      : [32, 33, 36]; // Very dark gray background for better contrast
+      : [0, 0, 0]; // Pure black background for headers
 
     autoTable(doc, {
       startY: 125,
@@ -397,27 +397,26 @@ export class PDFService {
       }
     });
 
-    // Total Amount - improved positioning and styling to match reference
+    // Total Amount - align text and value in one row
     const finalY = (doc as any).lastAutoTable.finalY + 20;
 
     // Create a bordered total section with proper spacing
     doc.setDrawColor(0, 0, 0);
     doc.setLineWidth(0.3);
-    doc.rect(125, finalY - 5, 70, 20);
+    doc.rect(125, finalY - 5, 70, 15);
 
     // Add subtle background for total section
     doc.setFillColor(248, 249, 250);
-    doc.rect(125, finalY - 5, 70, 20, 'F');
-    doc.rect(125, finalY - 5, 70, 20);
+    doc.rect(125, finalY - 5, 70, 15, 'F');
+    doc.rect(125, finalY - 5, 70, 15);
 
     doc.setTextColor(0, 0, 0);
-    doc.setFontSize(9);
+    doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
-    doc.text('Total Amount Inc. VAT (Kes)', 128, finalY + 2);
 
-    // Right-align the amount with proper spacing
-    doc.setFontSize(12);
-    doc.text(this.formatCurrency(invoice.total), 192, finalY + 9, { align: 'right' });
+    // Put text and value on the same line
+    doc.text('Total Amount Inc. VAT (Kes)', 128, finalY + 5);
+    doc.text(this.formatCurrency(invoice.total), 192, finalY + 5, { align: 'right' });
   }
 
   /**
