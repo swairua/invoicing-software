@@ -138,7 +138,7 @@ export default function ProformaInvoices() {
     return () => clearInterval(refreshInterval);
   }, []);
 
-  const filteredProformas = proformas.filter((proforma) => {
+  const filteredProformas = (proformas || []).filter((proforma) => {
     const matchesSearch =
       proforma.proformaNumber
         .toLowerCase()
