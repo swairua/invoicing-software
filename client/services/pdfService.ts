@@ -201,20 +201,36 @@ export class PDFService {
   private static addCompanyHeader(doc: jsPDF, pageWidth: number, design?: TemplateDesign): void {
     const settings = this.companySettings;
 
-    // Add logo if available - create a proper visual representation
+    // Add logo - create Medplus Africa shield logo with proper medical styling
     if (settings.branding?.logo && design?.header?.showLogo !== false) {
-      // Create a professional logo placeholder that represents Medplus
-      doc.setFillColor(41, 155, 199); // Blue color for shield
-      doc.triangle(20, 35, 32.5, 15, 45, 35, 'F'); // Shield shape
+      // Create the shield shape (blue and green gradient)
+      doc.setFillColor(52, 152, 219); // Light blue
 
-      doc.setFillColor(46, 204, 113); // Green color for cross
-      doc.rect(30, 22, 5, 16, 'F'); // Vertical part of cross
-      doc.rect(25, 26, 15, 5, 'F'); // Horizontal part of cross
+      // Draw shield outline
+      doc.moveTo(20, 25);
+      doc.lineTo(20, 35);
+      doc.curveTo(20, 40, 32.5, 42, 32.5, 42);
+      doc.curveTo(32.5, 42, 45, 40, 45, 35);
+      doc.lineTo(45, 25);
+      doc.lineTo(32.5, 15);
+      doc.lineTo(20, 25);
+      doc.fill();
 
-      // Add medical plus symbol in white
+      // Add green section
+      doc.setFillColor(46, 204, 113);
+      doc.moveTo(32.5, 15);
+      doc.lineTo(45, 25);
+      doc.lineTo(45, 35);
+      doc.curveTo(45, 40, 32.5, 42, 32.5, 42);
+      doc.lineTo(32.5, 15);
+      doc.fill();
+
+      // Add white medical cross
       doc.setFillColor(255, 255, 255);
-      doc.rect(31, 24, 3, 12, 'F');
-      doc.rect(26, 27, 13, 3, 'F');
+      // Vertical bar
+      doc.rect(30.5, 22, 4, 15, 'F');
+      // Horizontal bar
+      doc.rect(26, 27.5, 13, 4, 'F');
     } else {
       // Fallback: Simple company initial or default design
       doc.setFillColor(41, 128, 185);
@@ -334,7 +350,7 @@ export class PDFService {
 
     const headerColor = design?.table.headerBackgroundColor
       ? hexToRgb(design.table.headerBackgroundColor)
-      : [52, 73, 94]; // Darker blue-gray for better contrast
+      : [44, 62, 80]; // Dark blue-gray background for headers like in the PDF
 
     autoTable(doc, {
       startY: 125,
@@ -367,22 +383,22 @@ export class PDFService {
       }
     });
 
-    // Total Amount - fix positioning to prevent overlap
-    const finalY = (doc as any).lastAutoTable.finalY + 20;
+    // Total Amount - properly positioned with appropriate spacing and sizing
+    const finalY = (doc as any).lastAutoTable.finalY + 15;
 
-    // Create a clear, well-spaced total section
-    doc.setFillColor(248, 249, 250);
-    doc.rect(110, finalY - 5, 80, 16, 'F');
+    // Create a clean total section box matching the PDF style
     doc.setDrawColor(44, 62, 80);
-    doc.rect(110, finalY - 5, 80, 16);
+    doc.setLineWidth(0.5);
+    doc.rect(130, finalY - 3, 60, 18);
 
     doc.setTextColor(0, 0, 0);
-    doc.setFontSize(11);
+    doc.setFontSize(9);
     doc.setFont('helvetica', 'bold');
-    doc.text('Total Amount Inc. VAT (Kes)', 114, finalY + 2);
+    doc.text('Total Amount Inc. VAT (Kes)', 132, finalY + 3);
 
-    doc.setFontSize(12);
-    doc.text(this.formatCurrency(invoice.total), 186, finalY + 7, { align: 'right' });
+    // Use smaller font for the amount to prevent overlap
+    doc.setFontSize(11);
+    doc.text(this.formatCurrency(invoice.total), 187, finalY + 10, { align: 'right' });
   }
 
   /**
