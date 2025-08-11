@@ -199,26 +199,46 @@ export class PDFService {
    * Add company header with logo placeholder
    */
   private static addCompanyHeader(doc: jsPDF, pageWidth: number, design?: TemplateDesign): void {
-    // Logo placeholder (shield-like design similar to the document)
-    doc.setFillColor(41, 128, 185);
-    doc.circle(35, 25, 12, 'F');
-    
-    doc.setFillColor(46, 204, 113);
-    doc.circle(45, 25, 8, 'F');
-    
-    doc.setFillColor(231, 76, 60);
-    doc.rect(25, 30, 25, 15, 'F');
-    
+    const settings = this.companySettings;
+
+    // Add logo if available
+    if (settings.branding?.logo && design?.header?.showLogo !== false) {
+      try {
+        // For web URLs, we'd need to load the image first
+        // For now, we'll show a placeholder that indicates logo should be here
+        doc.setFillColor(240, 240, 240);
+        doc.rect(20, 15, 25, 25, 'F');
+        doc.setTextColor(100, 100, 100);
+        doc.setFontSize(8);
+        doc.text('LOGO', 32.5, 27.5, { align: 'center' });
+      } catch (error) {
+        console.warn('Could not load logo:', error);
+      }
+    } else {
+      // Fallback: Simple company initial or default design
+      doc.setFillColor(41, 128, 185);
+      doc.circle(32.5, 27.5, 12, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text(settings.name.charAt(0), 32.5, 32, { align: 'center' });
+    }
+
     // Company name
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(18);
-    doc.setFont('helvetica', 'bold');
-    doc.text(this.companySettings.name.toUpperCase(), 60, 30);
-    
-    // Tagline or subtitle
+    doc.setTextColor(design?.colors?.primary ? this.hexToRgb(design.colors.primary) : [0, 0, 0]);
+    doc.setFontSize(design?.fonts?.size?.heading || 18);
+    doc.setFont(design?.fonts?.heading || 'helvetica', 'bold');
+    doc.text(settings.name.toUpperCase(), 50, 25);
+
+    // Business type or tagline
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text('BUSINESS MANAGEMENT SYSTEM', 60, 38);
+    doc.setTextColor(100, 100, 100);
+    doc.text('Your Medical & Laboratory Supplies Partner', 50, 32);
+
+    // PIN number (right-aligned)
+    doc.setFontSize(9);
+    doc.text(`PIN No: ${settings.tax.kraPin}`, pageWidth - 20, 25, { align: 'right' });
   }
 
   /**
