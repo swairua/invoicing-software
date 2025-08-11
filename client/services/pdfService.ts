@@ -445,7 +445,7 @@ export class PDFService {
         lineWidth: 0.5,
       },
       headStyles: {
-        fillColor: [0, 0, 0],
+        fillColor: this.hexToRgb(this.companySettings.branding.primaryColor),
         textColor: [255, 255, 255],
         fontStyle: 'bold',
         fontSize: 8,
@@ -514,7 +514,7 @@ export class PDFService {
         lineWidth: 0.5,
       },
       headStyles: {
-        fillColor: [0, 0, 0],
+        fillColor: this.hexToRgb(this.companySettings.branding.primaryColor),
         textColor: [255, 255, 255],
         fontStyle: 'bold',
         fontSize: 8,
