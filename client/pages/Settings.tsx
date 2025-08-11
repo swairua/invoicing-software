@@ -102,6 +102,16 @@ export default function Settings() {
     }));
   };
 
+  const handleBrandingChange = (field: string, value: string) => {
+    setCompanySettings(prev => ({
+      ...prev,
+      branding: {
+        ...prev.branding,
+        [field]: value
+      }
+    }));
+  };
+
   const handlePhoneChange = (index: number, value: string) => {
     const newPhones = [...(companySettings.contact.phone || [])];
     newPhones[index] = value;
