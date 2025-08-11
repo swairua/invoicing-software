@@ -179,51 +179,7 @@ export default function NewProforma() {
     };
   };
 
-  const addItem = () => {
-    if (!newItem.productId || !newItem.quantity || !newItem.unitPrice) {
-      toast({
-        title: "Validation Error",
-        description:
-          "Please select a product and enter quantity and unit price.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setItems((prev) => [...prev, { ...newItem }]);
-    setNewItem({
-      productId: "",
-      quantity: "1",
-      unitPrice: "",
-      discount: "0",
-    });
-    setProductSearch("");
-  };
-
-  const removeItem = (index: number) => {
-    setItems((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const updateItem = (
-    index: number,
-    field: keyof ProformaItemFormData,
-    value: string,
-  ) => {
-    setItems((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
-    );
-  };
-
-  const handleProductSelect = (productId: string) => {
-    const product = products.find((p) => p.id === productId);
-    if (product) {
-      setNewItem((prev) => ({
-        ...prev,
-        productId,
-        unitPrice: product.sellingPrice.toString(),
-      }));
-    }
-  };
+  // Item management functions handled by DynamicLineItems component
 
   const handleSubmit = async (
     e: React.FormEvent,
