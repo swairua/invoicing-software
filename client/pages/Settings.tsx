@@ -390,7 +390,7 @@ export default function Settings() {
                         onChange={(e) => handlePhoneChange(index, e.target.value)}
                         placeholder="+254 XXX XXX XXX"
                       />
-                      {companySettings.contact.phone.length > 1 && (
+                      {(companySettings.contact.phone || []).length > 1 && (
                         <Button 
                           variant="outline" 
                           size="sm"
