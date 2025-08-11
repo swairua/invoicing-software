@@ -147,7 +147,7 @@ export default function Quotations() {
     return () => clearInterval(refreshInterval);
   }, []);
 
-  const filteredQuotations = quotations.filter((quotation) => {
+  const filteredQuotations = (quotations || []).filter((quotation) => {
     const matchesSearch =
       quotation.quoteNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
       quotation.customer.name.toLowerCase().includes(searchTerm.toLowerCase());
