@@ -27,8 +27,8 @@ import {
   Ruler,
   ExternalLink,
   Percent,
-  Shield,
   Package,
+  RefreshCw,
 } from 'lucide-react';
 import { CompanySettings, defaultCompanySettings } from '@shared/company';
 import PDFService from '../services/pdfService';
