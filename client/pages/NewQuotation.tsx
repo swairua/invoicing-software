@@ -147,7 +147,7 @@ export default function NewQuotation() {
     let discountAmount = 0;
     let vatAmount = 0;
 
-    items.forEach((item) => {
+    items.filter(item => item.productId).forEach((item) => {
       const quantity = parseFloat(item.quantity) || 0;
       const unitPrice = parseFloat(item.unitPrice) || 0;
       const discount = parseFloat(item.discount) || 0;
@@ -175,51 +175,7 @@ export default function NewQuotation() {
     };
   };
 
-  const addItem = () => {
-    if (!newItem.productId || !newItem.quantity || !newItem.unitPrice) {
-      toast({
-        title: "Validation Error",
-        description:
-          "Please select a product and enter quantity and unit price.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setItems((prev) => [...prev, { ...newItem }]);
-    setNewItem({
-      productId: "",
-      quantity: "1",
-      unitPrice: "",
-      discount: "0",
-    });
-    setProductSearch("");
-  };
-
-  const removeItem = (index: number) => {
-    setItems((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const updateItem = (
-    index: number,
-    field: keyof QuotationItemFormData,
-    value: string,
-  ) => {
-    setItems((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
-    );
-  };
-
-  const handleProductSelect = (productId: string) => {
-    const product = products.find((p) => p.id === productId);
-    if (product) {
-      setNewItem((prev) => ({
-        ...prev,
-        productId,
-        unitPrice: product.sellingPrice.toString(),
-      }));
-    }
-  };
+  // Item management functions handled by DynamicLineItems component
 
   const handleSubmit = async (
     e: React.FormEvent,
@@ -236,7 +192,8 @@ export default function NewQuotation() {
       return;
     }
 
-    if (items.length === 0) {
+    const validItems = items.filter(item => item.productId);
+    if (validItems.length === 0) {
       toast({
         title: "Validation Error",
         description: "Please add at least one item to the quotation.",
