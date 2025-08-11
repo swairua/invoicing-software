@@ -309,10 +309,15 @@ export default function ProformaInvoices() {
     }
   };
 
-  const handleConvertToInvoice = (proformaId: string) => {
+  const handleConvertToInvoice = async (proformaId: string) => {
     const invoice = businessData.convertProformaToInvoice(proformaId);
     if (invoice) {
-      setProformas(businessData.getProformas());
+      try {
+        const proformasData = await businessData.getProformas();
+        setProformas(proformasData);
+      } catch (error) {
+        console.error('Failed to refresh proformas:', error);
+      }
       toast({
         title: "Conversion Successful",
         description: `Proforma converted to invoice ${invoice.invoiceNumber}`,
