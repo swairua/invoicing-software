@@ -88,10 +88,10 @@ export default function InvoiceDetails() {
 
     try {
       const activeTemplate = TemplateManager.getActiveTemplate("invoice");
-      await PDFService.generateDocument(
-        "invoice",
+      await PDFService.generateInvoicePDF(
         invoice,
-        activeTemplate || undefined,
+        true,
+        activeTemplate?.id
       );
 
       toast({
