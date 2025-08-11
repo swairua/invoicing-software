@@ -414,10 +414,10 @@ export default function Invoices() {
     }
   };
 
-  const handleDownloadPDF = (invoiceId: string) => {
+  const handleDownloadPDF = async (invoiceId: string) => {
     const invoice = invoices.find((inv) => inv.id === invoiceId);
     if (invoice) {
-      PDFService.generateInvoicePDF(invoice);
+      await PDFService.generateInvoicePDF(invoice);
     }
   };
 
