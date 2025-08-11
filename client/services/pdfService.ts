@@ -434,13 +434,15 @@ export class PDFService {
         lineWidth: 0.5,
       },
       headStyles: {
-        fillColor: [44, 62, 80],
+        fillColor: [32, 33, 36],
         textColor: [255, 255, 255],
         fontStyle: 'bold',
-        fontSize: 9,
+        fontSize: 8,
         halign: 'center',
         valign: 'middle',
-        minCellHeight: 15
+        minCellHeight: 18,
+        lineColor: [0, 0, 0],
+        lineWidth: 0.3
       },
       columnStyles: {
         0: { halign: 'center', cellWidth: 15 },
@@ -490,13 +492,15 @@ export class PDFService {
         lineWidth: 0.5,
       },
       headStyles: {
-        fillColor: [44, 62, 80],
+        fillColor: [32, 33, 36],
         textColor: [255, 255, 255],
         fontStyle: 'bold',
-        fontSize: 9,
+        fontSize: 8,
         halign: 'center',
         valign: 'middle',
-        minCellHeight: 15
+        minCellHeight: 18,
+        lineColor: [0, 0, 0],
+        lineWidth: 0.3
       },
       columnStyles: {
         0: { halign: 'center', cellWidth: 15 },
