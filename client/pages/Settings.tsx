@@ -103,18 +103,18 @@ export default function Settings() {
   };
 
   const handlePhoneChange = (index: number, value: string) => {
-    const newPhones = [...companySettings.contact.phone];
+    const newPhones = [...(companySettings.contact.phone || [])];
     newPhones[index] = value;
     handleContactChange('phone', newPhones);
   };
 
   const addPhoneNumber = () => {
-    const newPhones = [...companySettings.contact.phone, ''];
+    const newPhones = [...(companySettings.contact.phone || []), ''];
     handleContactChange('phone', newPhones);
   };
 
   const removePhoneNumber = (index: number) => {
-    const newPhones = companySettings.contact.phone.filter((_, i) => i !== index);
+    const newPhones = (companySettings.contact.phone || []).filter((_, i) => i !== index);
     handleContactChange('phone', newPhones);
   };
 
