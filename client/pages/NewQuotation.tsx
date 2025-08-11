@@ -116,18 +116,7 @@ export default function NewQuotation() {
     loadData();
   }, [dataService, toast]);
 
-  useEffect(() => {
-    if (productSearch) {
-      const filtered = products.filter(
-        (product) =>
-          product.name.toLowerCase().includes(productSearch.toLowerCase()) ||
-          product.sku.toLowerCase().includes(productSearch.toLowerCase()),
-      );
-      setFilteredProducts(filtered);
-    } else {
-      setFilteredProducts(products);
-    }
-  }, [productSearch, products]);
+  // Product filtering handled by DynamicLineItems component
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-KE", {
@@ -137,7 +126,7 @@ export default function NewQuotation() {
     }).format(amount);
   };
 
-  const calculateItemTotal = (item: QuotationItemFormData) => {
+  const calculateItemTotal = (item: LineItem) => {
     const quantity = parseFloat(item.quantity) || 0;
     const unitPrice = parseFloat(item.unitPrice) || 0;
     const discount = parseFloat(item.discount) || 0;
