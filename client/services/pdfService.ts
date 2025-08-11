@@ -362,35 +362,39 @@ export class PDFService {
 
     const headerColor = design?.table.headerBackgroundColor
       ? hexToRgb(design.table.headerBackgroundColor)
-      : this.hexToRgb(this.companySettings.branding.primaryColor); // Use company primary color
+      : [37, 99, 235]; // Force blue color for visibility
 
     autoTable(doc, {
       startY: 125,
-      head: [['Item\nNo.', 'Item Description', 'Qty', 'Unit\nPack', 'Unit Price\n(incl) Ksh', 'Vat', 'Total Price\n(incl) Ksh']],
+      head: [['#', 'ITEM DESCRIPTION', 'QTY', 'UNIT', 'UNIT PRICE (KSH)', 'VAT %', 'TOTAL (KSH)']],
       body: tableData,
-      theme: design?.table.borderStyle === 'none' ? 'plain' : 'grid',
+      theme: 'striped',
       styles: {
-        fontSize: design?.fonts.size.body || 9,
-        cellPadding: 4,
-        lineColor: [44, 62, 80],
+        fontSize: 9,
+        cellPadding: 5,
+        lineColor: [200, 200, 200],
         lineWidth: 0.5,
+        textColor: [50, 50, 50]
       },
       headStyles: {
         fillColor: headerColor,
         textColor: [255, 255, 255],
         fontStyle: 'bold',
-        fontSize: 8,
+        fontSize: 10,
         halign: 'center',
         valign: 'middle',
-        minCellHeight: 18,
-        lineColor: [0, 0, 0],
-        lineWidth: 0.3
+        minCellHeight: 22,
+        lineColor: [37, 99, 235],
+        lineWidth: 1
+      },
+      alternateRowStyles: {
+        fillColor: [245, 247, 250]
       },
       columnStyles: {
-        0: { halign: 'center', cellWidth: 15 },
-        1: { halign: 'left', cellWidth: 60 },
+        0: { halign: 'center', cellWidth: 12 },
+        1: { halign: 'left', cellWidth: 65 },
         2: { halign: 'center', cellWidth: 15 },
-        3: { halign: 'center', cellWidth: 20 },
+        3: { halign: 'center', cellWidth: 18 },
         4: { halign: 'right', cellWidth: 25 },
         5: { halign: 'center', cellWidth: 15 },
         6: { halign: 'right', cellWidth: 30 }
