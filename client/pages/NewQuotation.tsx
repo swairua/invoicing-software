@@ -36,11 +36,7 @@ import {
   ArrowLeft,
   Save,
   FileText,
-  Plus,
-  Trash2,
-  Search,
   User,
-  Package,
   Calculator,
   Calendar,
   Send,
@@ -48,6 +44,7 @@ import {
 import { Customer, Product, Quotation } from "@shared/types";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import TemplateSelector from "../components/TemplateSelector";
+import DynamicLineItems, { LineItem } from "../components/DynamicLineItems";
 import { useToast } from "../hooks/use-toast";
 
 interface QuotationFormData {
@@ -57,12 +54,7 @@ interface QuotationFormData {
   notes: string;
 }
 
-interface QuotationItemFormData {
-  productId: string;
-  quantity: string;
-  unitPrice: string;
-  discount: string;
-}
+// Using LineItem interface from DynamicLineItems component
 
 export default function NewQuotation() {
   const navigate = useNavigate();
@@ -73,8 +65,6 @@ export default function NewQuotation() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [productSearch, setProductSearch] = useState("");
 
   const duplicateData = location.state?.duplicateFrom;
   const preselectedCustomerId = searchParams.get("customer");
