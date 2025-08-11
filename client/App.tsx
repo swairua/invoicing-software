@@ -128,9 +128,9 @@ const AppRoutes = () => (
       <Route path="settings/users" element={<UserManagement />} />
       <Route path="templates" element={<Templates />} />
       <Route path="units" element={<UnitsOfMeasure />} />
-      <Route path="deliveries" element={<PlaceholderPage />} />
-      <Route path="packing-lists" element={<PlaceholderPage />} />
-      <Route path="purchase-orders" element={<PlaceholderPage />} />
+      <Route path="deliveries" element={<PlaceholderPage module="Delivery Management" />} />
+      <Route path="packing-lists" element={<PlaceholderPage module="Packing Lists" />} />
+      <Route path="purchase-orders" element={<PlaceholderPage module="Purchase Orders" />} />
     </Route>
 
     {/* Catch-all redirect */}
