@@ -270,9 +270,6 @@ export class PDFService {
     if (settings.contact.website) {
       doc.text(`Website: ${settings.contact.website}`, centerX, 68, { align: 'center' });
     }
-    
-    // PIN number (right-aligned)
-    doc.text(`PIN No: ${settings.tax.kraPin}`, pageWidth - 20, 50, { align: 'right' });
   }
 
   /**
