@@ -36,11 +36,7 @@ import {
   ArrowLeft,
   Save,
   FileText,
-  Plus,
-  Trash2,
-  Search,
   User,
-  Package,
   Calculator,
   Calendar,
   Send,
@@ -59,7 +55,7 @@ import {
 } from "@shared/taxUtils";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import TemplateSelector from "../components/TemplateSelector";
-import LineItemTaxSelector from "../components/LineItemTaxSelector";
+import DynamicLineItems, { LineItem } from "../components/DynamicLineItems";
 import { useToast } from "../hooks/use-toast";
 
 interface InvoiceFormData {
@@ -69,13 +65,7 @@ interface InvoiceFormData {
   notes: string;
 }
 
-interface InvoiceItemFormData {
-  productId: string;
-  quantity: string;
-  unitPrice: string;
-  discount: string;
-  lineItemTaxes?: LineItemTax[];
-}
+// Using LineItem interface from DynamicLineItems component
 
 export default function NewInvoice() {
   const navigate = useNavigate();
@@ -86,9 +76,7 @@ export default function NewInvoice() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
-  const [availableTaxes, setAvailableTaxes] = useState<LineItemTax[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [productSearch, setProductSearch] = useState("");
+  // Removed unnecessary state - handled by DynamicLineItems component
 
   const duplicateData = location.state?.duplicateFrom;
   const preselectedCustomerId = searchParams.get("customer");
@@ -102,22 +90,16 @@ export default function NewInvoice() {
     notes: duplicateData?.notes || "",
   });
 
-  const [items, setItems] = useState<InvoiceItemFormData[]>(
-    duplicateData?.items?.map((item: any) => ({
+  const [items, setItems] = useState<LineItem[]>(
+    duplicateData?.items?.map((item: any, index: number) => ({
+      id: `item-${index}`,
       productId: item.productId,
       quantity: item.quantity.toString(),
       unitPrice: item.unitPrice.toString(),
       discount: item.discount.toString(),
+      lineItemTaxes: item.lineItemTaxes || [],
     })) || [],
   );
-
-  const [newItem, setNewItem] = useState<InvoiceItemFormData>({
-    productId: "",
-    quantity: "1",
-    unitPrice: "",
-    discount: "0",
-    lineItemTaxes: [],
-  });
 
   const dataService = dataServiceFactory.getDataService();
 
@@ -130,7 +112,6 @@ export default function NewInvoice() {
         ]);
         setCustomers(customerData);
         setProducts(productData);
-        setFilteredProducts(productData);
       } catch (error) {
         console.error("Error loading data:", error);
         toast({
@@ -144,18 +125,7 @@ export default function NewInvoice() {
     loadData();
   }, [dataService, toast]);
 
-  useEffect(() => {
-    if (productSearch) {
-      const filtered = products.filter(
-        (product) =>
-          product.name.toLowerCase().includes(productSearch.toLowerCase()) ||
-          product.sku.toLowerCase().includes(productSearch.toLowerCase()),
-      );
-      setFilteredProducts(filtered);
-    } else {
-      setFilteredProducts(products);
-    }
-  }, [productSearch, products]);
+  // Product filtering is now handled by DynamicLineItems component
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-KE", {
@@ -165,7 +135,7 @@ export default function NewInvoice() {
     }).format(amount);
   };
 
-  const calculateItemTotal = (item: InvoiceItemFormData) => {
+  const calculateItemTotal = (item: LineItem) => {
     const quantity = parseFloat(item.quantity) || 0;
     const unitPrice = parseFloat(item.unitPrice) || 0;
     const discount = parseFloat(item.discount) || 0;
@@ -187,7 +157,7 @@ export default function NewInvoice() {
     let vatAmount = 0;
     let additionalTaxAmount = 0;
 
-    items.forEach((item) => {
+    items.filter(item => item.productId).forEach((item) => {
       const quantity = parseFloat(item.quantity) || 0;
       const unitPrice = parseFloat(item.unitPrice) || 0;
       const discount = parseFloat(item.discount) || 0;
@@ -224,81 +194,7 @@ export default function NewInvoice() {
     };
   };
 
-  const addItem = () => {
-    if (!newItem.productId || !newItem.quantity || !newItem.unitPrice) {
-      toast({
-        title: "Validation Error",
-        description:
-          "Please select a product and enter quantity and unit price.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Check if product already exists in items
-    const existingItemIndex = items.findIndex(
-      (item) => item.productId === newItem.productId,
-    );
-
-    if (existingItemIndex >= 0) {
-      // Update existing item quantity
-      const updatedItems = [...items];
-      const existingQty = parseFloat(updatedItems[existingItemIndex].quantity);
-      const newQty = parseFloat(newItem.quantity);
-      updatedItems[existingItemIndex].quantity = (
-        existingQty + newQty
-      ).toString();
-      setItems(updatedItems);
-    } else {
-      // Add new item
-      setItems((prev) => [...prev, { ...newItem }]);
-    }
-
-    // Reset form
-    setNewItem({
-      productId: "",
-      quantity: "1",
-      unitPrice: "",
-      discount: "0",
-    });
-    setProductSearch("");
-  };
-
-  const removeItem = (index: number) => {
-    setItems((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const updateItemTaxes = (index: number, taxes: LineItemTax[]) => {
-    setItems((prev) => {
-      const updatedItems = [...prev];
-      updatedItems[index] = {
-        ...updatedItems[index],
-        lineItemTaxes: taxes,
-      };
-      return updatedItems;
-    });
-  };
-
-  const updateItem = (
-    index: number,
-    field: keyof InvoiceItemFormData,
-    value: string,
-  ) => {
-    setItems((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
-    );
-  };
-
-  const handleProductSelect = (productId: string) => {
-    const product = products.find((p) => p.id === productId);
-    if (product) {
-      setNewItem((prev) => ({
-        ...prev,
-        productId,
-        unitPrice: product.sellingPrice.toString(),
-      }));
-    }
-  };
+  // Item management is now handled by DynamicLineItems component
 
   const handleSubmit = async (
     e: React.FormEvent,
@@ -315,7 +211,8 @@ export default function NewInvoice() {
       return;
     }
 
-    if (items.length === 0) {
+    const validItems = items.filter(item => item.productId);
+    if (validItems.length === 0) {
       toast({
         title: "Validation Error",
         description: "Please add at least one item to the invoice.",
@@ -340,7 +237,7 @@ export default function NewInvoice() {
     try {
       const customer = customers.find((c) => c.id === formData.customerId)!;
 
-      const invoiceItems: InvoiceItem[] = items.map((item, index) => {
+      const invoiceItems: InvoiceItem[] = validItems.map((item, index) => {
         const product = products.find((p) => p.id === item.productId)!;
         const quantity = parseFloat(item.quantity);
         const unitPrice = parseFloat(item.unitPrice);
@@ -590,248 +487,17 @@ export default function NewInvoice() {
           </Card>
         </div>
 
-        {/* Invoice Items */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Package className="h-5 w-5" />
-              Invoice Items
-            </CardTitle>
-            <CardDescription>
-              Add products and services to this invoice
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Add New Item */}
-            <div className="border rounded-lg p-4 space-y-4">
-              <h4 className="font-medium">Add Item</h4>
-              <div className="grid gap-4 md:grid-cols-5">
-                <div className="space-y-2">
-                  <Label>Product</Label>
-                  <div className="space-y-2">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Search products..."
-                        value={productSearch}
-                        onChange={(e) => setProductSearch(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
-                    <Select
-                      value={newItem.productId}
-                      onValueChange={handleProductSelect}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select product" />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-[200px]">
-                        {filteredProducts.slice(0, 20).map((product) => (
-                          <SelectItem key={product.id} value={product.id}>
-                            <div>
-                              <div className="font-medium">{product.name}</div>
-                              <div className="text-xs text-muted-foreground">
-                                {product.sku} •{" "}
-                                {formatCurrency(product.sellingPrice)}
-                              </div>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label>Quantity</Label>
-                  <Input
-                    type="number"
-                    value={newItem.quantity}
-                    onChange={(e) =>
-                      setNewItem((prev) => ({
-                        ...prev,
-                        quantity: e.target.value,
-                      }))
-                    }
-                    placeholder="1"
-                    min="1"
-                    step="0.01"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Unit Price (KES)</Label>
-                  <Input
-                    type="number"
-                    value={newItem.unitPrice}
-                    onChange={(e) =>
-                      setNewItem((prev) => ({
-                        ...prev,
-                        unitPrice: e.target.value,
-                      }))
-                    }
-                    placeholder="0.00"
-                    min="0"
-                    step="0.01"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Discount (%)</Label>
-                  <Input
-                    type="number"
-                    value={newItem.discount}
-                    onChange={(e) =>
-                      setNewItem((prev) => ({
-                        ...prev,
-                        discount: e.target.value,
-                      }))
-                    }
-                    placeholder="0"
-                    min="0"
-                    max="100"
-                    step="0.01"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>&nbsp;</Label>
-                  <Button type="button" onClick={addItem} className="w-full">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Item
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            {/* Current Items */}
-            {items.length > 0 ? (
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Product</TableHead>
-                      <TableHead>Quantity</TableHead>
-                      <TableHead>Unit Price</TableHead>
-                      <TableHead>Discount</TableHead>
-                      <TableHead>Additional Taxes</TableHead>
-                      <TableHead>Total</TableHead>
-                      <TableHead className="w-[50px]"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {items.map((item, index) => {
-                      const product = products.find(
-                        (p) => p.id === item.productId,
-                      );
-                      const itemTotal = calculateItemTotal(item);
-
-                      return (
-                        <TableRow key={index}>
-                          <TableCell>
-                            <div>
-                              <div className="font-medium">{product?.name}</div>
-                              <div className="text-sm text-muted-foreground">
-                                SKU: {product?.sku}
-                                {product?.taxable && (
-                                  <Badge
-                                    variant="outline"
-                                    className="ml-2 text-xs"
-                                  >
-                                    VAT {product.taxRate || 16}%
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Input
-                              type="number"
-                              value={item.quantity}
-                              onChange={(e) =>
-                                updateItem(index, "quantity", e.target.value)
-                              }
-                              className="w-20"
-                              min="1"
-                              step="0.01"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Input
-                              type="number"
-                              value={item.unitPrice}
-                              onChange={(e) =>
-                                updateItem(index, "unitPrice", e.target.value)
-                              }
-                              className="w-24"
-                              min="0"
-                              step="0.01"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-1">
-                              <Input
-                                type="number"
-                                value={item.discount}
-                                onChange={(e) =>
-                                  updateItem(index, "discount", e.target.value)
-                                }
-                                className="w-16"
-                                min="0"
-                                max="100"
-                                step="0.01"
-                              />
-                              <span className="text-sm text-muted-foreground">
-                                %
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <LineItemTaxSelector
-                              selectedTaxes={item.lineItemTaxes || []}
-                              availableTaxes={getAvailableTaxes()}
-                              onTaxesChange={(taxes) =>
-                                updateItemTaxes(index, taxes)
-                              }
-                              itemSubtotal={
-                                parseFloat(item.quantity) *
-                                  parseFloat(item.unitPrice) -
-                                (parseFloat(item.quantity) *
-                                  parseFloat(item.unitPrice) *
-                                  parseFloat(item.discount)) /
-                                  100
-                              }
-                            />
-                          </TableCell>
-                          <TableCell className="font-medium">
-                            {formatCurrency(itemTotal)}
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeItem(index)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
-            ) : (
-              <div className="text-center py-8 border-2 border-dashed border-muted-foreground/25 rounded-lg">
-                <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium">No Items Added</h3>
-                <p className="text-muted-foreground">
-                  Add products or services to get started with your invoice.
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        {/* Invoice Items - Using DynamicLineItems component */}
+        <DynamicLineItems
+          items={items}
+          products={products}
+          onItemsChange={setItems}
+          formatCurrency={formatCurrency}
+          calculateItemTotal={calculateItemTotal}
+        />
 
         {/* Invoice Summary */}
-        {items.length > 0 && (
+        {items.filter(item => item.productId).length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
