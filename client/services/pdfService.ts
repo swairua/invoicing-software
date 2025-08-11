@@ -362,7 +362,7 @@ export class PDFService {
 
     const headerColor = design?.table.headerBackgroundColor
       ? hexToRgb(design.table.headerBackgroundColor)
-      : [0, 0, 0]; // Pure black background for headers
+      : this.hexToRgb(this.companySettings.branding.primaryColor); // Use company primary color
 
     autoTable(doc, {
       startY: 125,
