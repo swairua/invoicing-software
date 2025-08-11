@@ -445,7 +445,7 @@ export class PDFService {
         lineWidth: 0.5,
       },
       headStyles: {
-        fillColor: [32, 33, 36],
+        fillColor: [0, 0, 0],
         textColor: [255, 255, 255],
         fontStyle: 'bold',
         fontSize: 8,
@@ -514,7 +514,7 @@ export class PDFService {
         lineWidth: 0.5,
       },
       headStyles: {
-        fillColor: [32, 33, 36],
+        fillColor: [0, 0, 0],
         textColor: [255, 255, 255],
         fontStyle: 'bold',
         fontSize: 8,
