@@ -327,10 +327,15 @@ export default function Quotations() {
     }));
   };
 
-  const handleConvertToProforma = (quotationId: string) => {
+  const handleConvertToProforma = async (quotationId: string) => {
     const proforma = businessData.convertQuotationToProforma(quotationId);
     if (proforma) {
-      setQuotations(businessData.getQuotations());
+      try {
+        const quotationsData = await businessData.getQuotations();
+        setQuotations(quotationsData);
+      } catch (error) {
+        console.error('Failed to refresh quotations:', error);
+      }
       toast({
         title: "Conversion Successful",
         description: `Quotation converted to proforma ${proforma.proformaNumber}`,
