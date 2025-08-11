@@ -7,6 +7,17 @@ export class PDFService {
   private static companySettings: CompanySettings = defaultCompanySettings;
   private static templates: Map<string, DocumentTemplate> = new Map();
   private static logoDataUrl: string | null = null;
+  private static initialized: boolean = false;
+
+  /**
+   * Initialize the service with logo loading
+   */
+  static async initialize(): Promise<void> {
+    if (!this.initialized) {
+      await this.updateCompanySettings(this.companySettings);
+      this.initialized = true;
+    }
+  }
 
   /**
    * Register a template for use
@@ -36,7 +47,9 @@ export class PDFService {
   /**
    * Generate Invoice PDF matching the document design
    */
-  static generateInvoicePDF(invoice: Invoice, download: boolean = true, templateId?: string): jsPDF {
+  static async generateInvoicePDF(invoice: Invoice, download: boolean = true, templateId?: string): Promise<jsPDF> {
+    // Ensure service is initialized with logo
+    await this.initialize();
     const template = templateId ? this.getTemplate(templateId) : this.getActiveTemplate('invoice');
     const design = template?.design;
 
