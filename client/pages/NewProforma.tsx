@@ -120,18 +120,7 @@ export default function NewProforma() {
     loadData();
   }, [dataService, toast]);
 
-  useEffect(() => {
-    if (productSearch) {
-      const filtered = products.filter(
-        (product) =>
-          product.name.toLowerCase().includes(productSearch.toLowerCase()) ||
-          product.sku.toLowerCase().includes(productSearch.toLowerCase()),
-      );
-      setFilteredProducts(filtered);
-    } else {
-      setFilteredProducts(products);
-    }
-  }, [productSearch, products]);
+  // Product filtering handled by DynamicLineItems component
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-KE", {
