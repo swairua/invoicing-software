@@ -206,7 +206,7 @@ export default function Settings() {
       updatedAt: new Date()
     };
 
-    PDFService.generateInvoicePDF(testInvoice);
+    await PDFService.generateInvoicePDF(testInvoice);
   };
 
   return (
