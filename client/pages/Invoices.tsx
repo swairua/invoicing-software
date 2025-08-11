@@ -348,7 +348,7 @@ export default function Invoices() {
     }
   };
 
-  const handleRecordPayment = (invoiceId: string) => {
+  const handleRecordPayment = async (invoiceId: string) => {
     const invoice = invoices.find((i) => i.id === invoiceId);
     if (!invoice || invoice.balance <= 0) return;
 
