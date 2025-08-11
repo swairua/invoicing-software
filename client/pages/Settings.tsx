@@ -830,26 +830,205 @@ export default function Settings() {
 
         {/* System Tab */}
         <TabsContent value="system" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <SettingsIcon className="mr-2 h-5 w-5" />
-                System Preferences
-              </CardTitle>
-              <CardDescription>
-                Configure system-wide settings
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8">
-                <SettingsIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium">System Settings</h3>
-                <p className="text-muted-foreground">
-                  Advanced system configuration coming soon
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* System Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <SettingsIcon className="mr-2 h-5 w-5" />
+                  System Information
+                </CardTitle>
+                <CardDescription>
+                  View system details and version information
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium">Version</span>
+                    <span className="text-sm text-muted-foreground">1.0.0</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium">Environment</span>
+                    <Badge variant="outline">Production</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium">Database</span>
+                    <span className="text-sm text-muted-foreground">PostgreSQL</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium">Last Backup</span>
+                    <span className="text-sm text-muted-foreground">2 hours ago</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium">Storage Used</span>
+                    <span className="text-sm text-muted-foreground">12.5 MB</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* System Preferences */}
+            <Card>
+              <CardHeader>
+                <CardTitle>System Preferences</CardTitle>
+                <CardDescription>
+                  Configure system-wide behavior and defaults
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>Auto-save drafts</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Automatically save form data as drafts
+                      </p>
+                    </div>
+                    <Switch defaultChecked />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>Email notifications</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Send email alerts for important events
+                      </p>
+                    </div>
+                    <Switch defaultChecked />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>Auto-backup</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Automatically backup data daily
+                      </p>
+                    </div>
+                    <Switch defaultChecked />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Default Currency</Label>
+                    <Select defaultValue="KES">
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="KES">KES - Kenyan Shilling</SelectItem>
+                        <SelectItem value="USD">USD - US Dollar</SelectItem>
+                        <SelectItem value="EUR">EUR - Euro</SelectItem>
+                        <SelectItem value="GBP">GBP - British Pound</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Date Format</Label>
+                    <Select defaultValue="DD/MM/YYYY">
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="DD/MM/YYYY">DD/MM/YYYY</SelectItem>
+                        <SelectItem value="MM/DD/YYYY">MM/DD/YYYY</SelectItem>
+                        <SelectItem value="YYYY-MM-DD">YYYY-MM-DD</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Security Settings */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Shield className="mr-2 h-5 w-5" />
+                  Security & Privacy
+                </CardTitle>
+                <CardDescription>
+                  Manage security settings and data privacy
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>Two-factor authentication</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Add extra security to your account
+                      </p>
+                    </div>
+                    <Switch />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>Session timeout</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Auto-logout after 30 minutes of inactivity
+                      </p>
+                    </div>
+                    <Switch defaultChecked />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Data retention</Label>
+                    <Select defaultValue="1year">
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="6months">6 months</SelectItem>
+                        <SelectItem value="1year">1 year</SelectItem>
+                        <SelectItem value="2years">2 years</SelectItem>
+                        <SelectItem value="5years">5 years</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* System Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle>System Maintenance</CardTitle>
+                <CardDescription>
+                  Perform system maintenance and administrative tasks
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Button variant="outline" className="w-full justify-start">
+                    <Download className="mr-2 h-4 w-4" />
+                    Export Data
+                  </Button>
+                  <Button variant="outline" className="w-full justify-start">
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Clear Cache
+                  </Button>
+                  <Button variant="outline" className="w-full justify-start">
+                    <FileText className="mr-2 h-4 w-4" />
+                    View System Logs
+                  </Button>
+                  <Button variant="outline" className="w-full justify-start">
+                    <Package className="mr-2 h-4 w-4" />
+                    Check for Updates
+                  </Button>
+                </div>
+
+                <div className="border-t pt-4">
+                  <div className="bg-warning/10 border border-warning/20 rounded-lg p-3">
+                    <p className="text-sm text-warning-foreground">
+                      ⚠️ <strong>Warning:</strong> Some system actions may temporarily affect performance.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
