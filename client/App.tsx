@@ -129,6 +129,7 @@ const AppRoutes = () => (
       <Route path="settings/users" element={<UserManagement />} />
       <Route path="templates" element={<Templates />} />
       <Route path="units" element={<UnitsOfMeasure />} />
+      <Route path="coming-soon-test" element={<ComingSoonTest />} />
       <Route path="deliveries" element={<PlaceholderPage module="Delivery Management" />} />
       <Route path="packing-lists" element={<PlaceholderPage module="Packing Lists" />} />
       <Route path="purchase-orders" element={<PlaceholderPage module="Purchase Orders" />} />
