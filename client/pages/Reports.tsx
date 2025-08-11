@@ -267,20 +267,21 @@ export default function Reports() {
             </Card>
           </div>
 
-          {/* Sales Chart Placeholder */}
+          {/* Sales Trend Chart */}
           <Card>
             <CardHeader>
               <CardTitle>Sales Trend</CardTitle>
               <CardDescription>Monthly sales performance over time</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-[300px] flex items-center justify-center border-2 border-dashed border-muted rounded-lg">
-                <div className="text-center text-muted-foreground">
-                  <LineChart className="h-12 w-12 mx-auto mb-2" />
-                  <p>Sales Trend Chart</p>
-                  <p className="text-sm">Integration with recharts coming soon</p>
-                </div>
-              </div>
+              <SimpleLineChart
+                data={mockSalesData.monthlySales.map(item => ({
+                  name: item.month,
+                  value: item.amount
+                }))}
+                color="#2563eb"
+                height={320}
+              />
             </CardContent>
           </Card>
 
