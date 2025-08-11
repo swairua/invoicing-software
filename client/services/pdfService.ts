@@ -225,7 +225,12 @@ export class PDFService {
     }
 
     // Company name
-    doc.setTextColor(design?.colors?.primary ? this.hexToRgb(design.colors.primary) : [0, 0, 0]);
+    if (design?.colors?.primary) {
+      const rgb = this.hexToRgb(design.colors.primary);
+      doc.setTextColor(rgb[0], rgb[1], rgb[2]);
+    } else {
+      doc.setTextColor(0, 0, 0);
+    }
     doc.setFontSize(design?.fonts?.size?.heading || 18);
     doc.setFont(design?.fonts?.heading || 'helvetica', 'bold');
     doc.text(settings.name.toUpperCase(), 50, 25);
