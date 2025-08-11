@@ -6,6 +6,7 @@ import { CompanySettings, defaultCompanySettings } from '@shared/company';
 export class PDFService {
   private static companySettings: CompanySettings = defaultCompanySettings;
   private static templates: Map<string, DocumentTemplate> = new Map();
+  private static logoDataUrl: string | null = null;
 
   /**
    * Register a template for use
@@ -202,35 +203,23 @@ export class PDFService {
     const settings = this.companySettings;
 
     // Add dynamic logo from company settings
-    if (settings.branding?.logo && design?.header?.showLogo !== false) {
+    if (this.logoDataUrl && design?.header?.showLogo !== false) {
       try {
-        // Try to add the actual logo image from company settings
-        // Note: This will work if the image is accessible and properly formatted
+        // Use the preloaded logo data URL
         const logoWidth = 25;
         const logoHeight = 25;
         const logoX = 20;
         const logoY = 15;
 
-        // Use the company logo URL directly
-        doc.addImage(settings.branding.logo, 'JPEG', logoX, logoY, logoWidth, logoHeight);
+        doc.addImage(this.logoDataUrl, 'JPEG', logoX, logoY, logoWidth, logoHeight);
       } catch (error) {
-        console.warn('Failed to load company logo, using text fallback:', error);
+        console.warn('Failed to add company logo to PDF, using text fallback:', error);
         // Fallback: Show company name initial in a circle
-        doc.setFillColor(41, 128, 185);
-        doc.circle(32.5, 27.5, 12, 'F');
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(14);
-        doc.setFont('helvetica', 'bold');
-        doc.text(settings.name.charAt(0), 32.5, 32, { align: 'center' });
+        this.addFallbackLogo(doc, settings);
       }
     } else {
       // Fallback: Simple company initial
-      doc.setFillColor(41, 128, 185);
-      doc.circle(32.5, 27.5, 12, 'F');
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
-      doc.text(settings.name.charAt(0), 32.5, 32, { align: 'center' });
+      this.addFallbackLogo(doc, settings);
     }
 
     // Company name
@@ -253,6 +242,18 @@ export class PDFService {
     // PIN number (right-aligned)
     doc.setFontSize(9);
     doc.text(`PIN No: ${settings.tax.kraPin}`, pageWidth - 20, 25, { align: 'right' });
+  }
+
+  /**
+   * Add fallback logo when dynamic logo is not available
+   */
+  private static addFallbackLogo(doc: jsPDF, settings: CompanySettings): void {
+    doc.setFillColor(41, 128, 185);
+    doc.circle(32.5, 27.5, 12, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text(settings.name.charAt(0), 32.5, 32, { align: 'center' });
   }
 
   /**
@@ -648,10 +649,37 @@ export class PDFService {
   }
 
   /**
-   * Update company settings
+   * Load logo image as data URL for PDF use
    */
-  static updateCompanySettings(settings: CompanySettings): void {
+  private static async loadLogoAsDataUrl(logoUrl: string): Promise<string | null> {
+    try {
+      const response = await fetch(logoUrl);
+      const blob = await response.blob();
+
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.warn('Failed to load logo image:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Update company settings and preload logo
+   */
+  static async updateCompanySettings(settings: CompanySettings): Promise<void> {
     this.companySettings = settings;
+
+    // Preload logo as data URL if available
+    if (settings.branding?.logo) {
+      this.logoDataUrl = await this.loadLogoAsDataUrl(settings.branding.logo);
+    } else {
+      this.logoDataUrl = null;
+    }
   }
 
   /**
