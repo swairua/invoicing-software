@@ -252,16 +252,31 @@ export default function Dashboard() {
 
   // Load metrics data
   useEffect(() => {
-    setLiveMetrics(businessData.getDashboardMetrics());
-    setIsSimulating(businessData.isSimulationRunning());
+    const loadMetrics = async () => {
+      try {
+        const metrics = await businessData.getDashboardMetrics();
+        setLiveMetrics(metrics);
+        setIsSimulating(businessData.isSimulationRunning());
+      } catch (error) {
+        console.error('Failed to load dashboard metrics:', error);
+      }
+    };
+    loadMetrics();
   }, []);
 
   // Refresh metrics periodically
   useEffect(() => {
-    const refreshInterval = setInterval(() => {
-      setLiveMetrics(businessData.getDashboardMetrics());
-      setIsSimulating(businessData.isSimulationRunning());
-    }, 3000); // Refresh every 3 seconds
+    const refreshMetrics = async () => {
+      try {
+        const metrics = await businessData.getDashboardMetrics();
+        setLiveMetrics(metrics);
+        setIsSimulating(businessData.isSimulationRunning());
+      } catch (error) {
+        console.error('Failed to refresh dashboard metrics:', error);
+      }
+    };
+
+    const refreshInterval = setInterval(refreshMetrics, 3000); // Refresh every 3 seconds
 
     return () => clearInterval(refreshInterval);
   }, []);
