@@ -36,17 +36,14 @@ import {
   ArrowLeft,
   Save,
   FileText,
-  Plus,
-  Trash2,
-  Search,
   User,
-  Package,
   Calculator,
   Calendar,
   Send,
 } from "lucide-react";
 import { Customer, Product } from "@shared/types";
 import { dataServiceFactory } from "../services/dataServiceFactory";
+import DynamicLineItems, { LineItem } from "../components/DynamicLineItems";
 import { useToast } from "../hooks/use-toast";
 
 interface ProformaFormData {
@@ -56,12 +53,7 @@ interface ProformaFormData {
   notes: string;
 }
 
-interface ProformaItemFormData {
-  productId: string;
-  quantity: string;
-  unitPrice: string;
-  discount: string;
-}
+// Using LineItem interface from DynamicLineItems component
 
 export default function NewProforma() {
   const navigate = useNavigate();
@@ -71,8 +63,7 @@ export default function NewProforma() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [productSearch, setProductSearch] = useState("");
+  // Product filtering handled by DynamicLineItems component
 
   const duplicateData = location.state?.duplicateFrom;
   const convertData = location.state?.sourceData;
@@ -91,12 +82,14 @@ export default function NewProforma() {
     notes: duplicateData?.notes || convertData?.notes || "",
   });
 
-  const [items, setItems] = useState<ProformaItemFormData[]>(
-    (duplicateData?.items || convertData?.items)?.map((item: any) => ({
+  const [items, setItems] = useState<LineItem[]>(
+    (duplicateData?.items || convertData?.items)?.map((item: any, index: number) => ({
+      id: `item-${index}`,
       productId: item.productId,
       quantity: item.quantity.toString(),
       unitPrice: item.unitPrice.toString(),
       discount: item.discount.toString(),
+      lineItemTaxes: item.lineItemTaxes || [],
     })) || [],
   );
 
