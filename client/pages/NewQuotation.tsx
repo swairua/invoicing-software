@@ -78,12 +78,14 @@ export default function NewQuotation() {
     notes: duplicateData?.notes || "",
   });
 
-  const [items, setItems] = useState<QuotationItemFormData[]>(
-    duplicateData?.items?.map((item: any) => ({
+  const [items, setItems] = useState<LineItem[]>(
+    duplicateData?.items?.map((item: any, index: number) => ({
+      id: `item-${index}`,
       productId: item.productId,
       quantity: item.quantity.toString(),
       unitPrice: item.unitPrice.toString(),
       discount: item.discount.toString(),
+      lineItemTaxes: item.lineItemTaxes || [],
     })) || [],
   );
 
@@ -100,7 +102,7 @@ export default function NewQuotation() {
         ]);
         setCustomers(customerData);
         setProducts(productData);
-        setFilteredProducts(productData);
+        // Product filtering handled by DynamicLineItems
       } catch (error) {
         console.error("Error loading data:", error);
         toast({
