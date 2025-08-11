@@ -146,7 +146,7 @@ export default function Settings() {
     handleInvoiceSettingsChange('terms', newTerms);
   };
 
-  const handleTestPDF = () => {
+  const handleTestPDF = async () => {
     // Generate a test invoice PDF with current settings
     const testInvoice = {
       id: 'test',
