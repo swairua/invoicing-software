@@ -455,15 +455,27 @@ export class PDFService {
       }
     });
 
-    // Total Amount - fix positioning to prevent overlap
-    const finalY = (doc as any).lastAutoTable.finalY + 15;
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
+    // Total Amount - improved positioning and styling to match reference
+    const finalY = (doc as any).lastAutoTable.finalY + 20;
 
-    // Create a bordered box for the total
-    doc.rect(120, finalY - 8, 70, 12);
-    doc.text('Total Amount Inc. VAT (Kes)', 125, finalY);
-    doc.text(this.formatCurrency(quotation.total), 185, finalY, { align: 'right' });
+    // Create a bordered total section with proper spacing
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.3);
+    doc.rect(125, finalY - 5, 70, 20);
+
+    // Add subtle background for total section
+    doc.setFillColor(248, 249, 250);
+    doc.rect(125, finalY - 5, 70, 20, 'F');
+    doc.rect(125, finalY - 5, 70, 20);
+
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Total Amount Inc. VAT (Kes)', 128, finalY + 2);
+
+    // Right-align the amount with proper spacing
+    doc.setFontSize(12);
+    doc.text(this.formatCurrency(quotation.total), 192, finalY + 9, { align: 'right' });
   }
 
   /**
@@ -513,15 +525,27 @@ export class PDFService {
       }
     });
 
-    // Total Amount - fix positioning to prevent overlap
-    const finalY = (doc as any).lastAutoTable.finalY + 15;
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
+    // Total Amount - improved positioning and styling to match reference
+    const finalY = (doc as any).lastAutoTable.finalY + 20;
 
-    // Create a bordered box for the total
-    doc.rect(120, finalY - 8, 70, 12);
-    doc.text('Total Amount Inc. VAT (Kes)', 125, finalY);
-    doc.text(this.formatCurrency(proforma.total), 185, finalY, { align: 'right' });
+    // Create a bordered total section with proper spacing
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.3);
+    doc.rect(125, finalY - 5, 70, 20);
+
+    // Add subtle background for total section
+    doc.setFillColor(248, 249, 250);
+    doc.rect(125, finalY - 5, 70, 20, 'F');
+    doc.rect(125, finalY - 5, 70, 20);
+
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Total Amount Inc. VAT (Kes)', 128, finalY + 2);
+
+    // Right-align the amount with proper spacing
+    doc.setFontSize(12);
+    doc.text(this.formatCurrency(proforma.total), 192, finalY + 9, { align: 'right' });
   }
 
   /**
