@@ -350,7 +350,7 @@ export class PDFService {
 
     const headerColor = design?.table.headerBackgroundColor
       ? hexToRgb(design.table.headerBackgroundColor)
-      : [44, 62, 80]; // Dark blue-gray background for headers like in the PDF
+      : [32, 33, 36]; // Very dark gray background for better contrast
 
     autoTable(doc, {
       startY: 125,
@@ -367,10 +367,12 @@ export class PDFService {
         fillColor: headerColor,
         textColor: [255, 255, 255],
         fontStyle: 'bold',
-        fontSize: 9,
+        fontSize: 8,
         halign: 'center',
         valign: 'middle',
-        minCellHeight: 15
+        minCellHeight: 18,
+        lineColor: [0, 0, 0],
+        lineWidth: 0.3
       },
       columnStyles: {
         0: { halign: 'center', cellWidth: 15 },
@@ -383,22 +385,27 @@ export class PDFService {
       }
     });
 
-    // Total Amount - properly positioned with appropriate spacing and sizing
-    const finalY = (doc as any).lastAutoTable.finalY + 15;
+    // Total Amount - improved positioning and styling to match reference
+    const finalY = (doc as any).lastAutoTable.finalY + 20;
 
-    // Create a clean total section box matching the PDF style
-    doc.setDrawColor(44, 62, 80);
-    doc.setLineWidth(0.5);
-    doc.rect(130, finalY - 3, 60, 18);
+    // Create a bordered total section with proper spacing
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.3);
+    doc.rect(125, finalY - 5, 70, 20);
+
+    // Add subtle background for total section
+    doc.setFillColor(248, 249, 250);
+    doc.rect(125, finalY - 5, 70, 20, 'F');
+    doc.rect(125, finalY - 5, 70, 20);
 
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(9);
     doc.setFont('helvetica', 'bold');
-    doc.text('Total Amount Inc. VAT (Kes)', 132, finalY + 3);
+    doc.text('Total Amount Inc. VAT (Kes)', 128, finalY + 2);
 
-    // Use smaller font for the amount to prevent overlap
-    doc.setFontSize(11);
-    doc.text(this.formatCurrency(invoice.total), 187, finalY + 10, { align: 'right' });
+    // Right-align the amount with proper spacing
+    doc.setFontSize(12);
+    doc.text(this.formatCurrency(invoice.total), 192, finalY + 9, { align: 'right' });
   }
 
   /**
