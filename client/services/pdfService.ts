@@ -201,19 +201,20 @@ export class PDFService {
   private static addCompanyHeader(doc: jsPDF, pageWidth: number, design?: TemplateDesign): void {
     const settings = this.companySettings;
 
-    // Add logo if available
+    // Add logo if available - create a proper visual representation
     if (settings.branding?.logo && design?.header?.showLogo !== false) {
-      try {
-        // For web URLs, we'd need to load the image first
-        // For now, we'll show a placeholder that indicates logo should be here
-        doc.setFillColor(240, 240, 240);
-        doc.rect(20, 15, 25, 25, 'F');
-        doc.setTextColor(100, 100, 100);
-        doc.setFontSize(8);
-        doc.text('LOGO', 32.5, 27.5, { align: 'center' });
-      } catch (error) {
-        console.warn('Could not load logo:', error);
-      }
+      // Create a professional logo placeholder that represents Medplus
+      doc.setFillColor(41, 155, 199); // Blue color for shield
+      doc.triangle(20, 35, 32.5, 15, 45, 35, 'F'); // Shield shape
+
+      doc.setFillColor(46, 204, 113); // Green color for cross
+      doc.rect(30, 22, 5, 16, 'F'); // Vertical part of cross
+      doc.rect(25, 26, 15, 5, 'F'); // Horizontal part of cross
+
+      // Add medical plus symbol in white
+      doc.setFillColor(255, 255, 255);
+      doc.rect(31, 24, 3, 12, 'F');
+      doc.rect(26, 27, 13, 3, 'F');
     } else {
       // Fallback: Simple company initial or default design
       doc.setFillColor(41, 128, 185);
