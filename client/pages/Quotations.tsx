@@ -371,10 +371,10 @@ export default function Quotations() {
     }
   };
 
-  const handleDownloadPDF = (quotationId: string) => {
+  const handleDownloadPDF = async (quotationId: string) => {
     const quotation = quotations.find((q) => q.id === quotationId);
     if (quotation) {
-      PDFService.generateQuotationPDF(quotation);
+      await PDFService.generateQuotationPDF(quotation);
     }
   };
 

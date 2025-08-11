@@ -331,10 +331,10 @@ export default function ProformaInvoices() {
     }
   };
 
-  const handleDownloadPDF = (proformaId: string) => {
+  const handleDownloadPDF = async (proformaId: string) => {
     const proforma = proformas.find((p) => p.id === proformaId);
     if (proforma) {
-      PDFService.generateProformaPDF(proforma);
+      await PDFService.generateProformaPDF(proforma);
     }
   };
 
