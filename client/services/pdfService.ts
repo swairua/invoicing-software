@@ -107,7 +107,9 @@ export class PDFService {
   /**
    * Generate Quotation PDF
    */
-  static generateQuotationPDF(quotation: Quotation, download: boolean = true): jsPDF {
+  static async generateQuotationPDF(quotation: Quotation, download: boolean = true): Promise<jsPDF> {
+    // Ensure service is initialized with logo
+    await this.initialize();
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
@@ -145,7 +147,9 @@ export class PDFService {
   /**
    * Generate Proforma Invoice PDF
    */
-  static generateProformaPDF(proforma: ProformaInvoice, download: boolean = true): jsPDF {
+  static async generateProformaPDF(proforma: ProformaInvoice, download: boolean = true): Promise<jsPDF> {
+    // Ensure service is initialized with logo
+    await this.initialize();
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
@@ -183,7 +187,9 @@ export class PDFService {
   /**
    * Generate Payment Receipt PDF
    */
-  static generatePaymentReceiptPDF(payment: Payment, download: boolean = true): jsPDF {
+  static async generatePaymentReceiptPDF(payment: Payment, download: boolean = true): Promise<jsPDF> {
+    // Ensure service is initialized with logo
+    await this.initialize();
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
