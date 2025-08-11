@@ -736,16 +736,93 @@ export default function Settings() {
                 User Management
               </CardTitle>
               <CardDescription>
-                Manage user accounts and permissions
+                Manage user accounts and permissions for your organization
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="text-center py-8">
-                <User className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium">User Management</h3>
-                <p className="text-muted-foreground">
-                  Advanced user management features coming soon
-                </p>
+            <CardContent className="space-y-6">
+              {/* Current User Info */}
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
+                    <User className="h-5 w-5 text-primary-foreground" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium">Simon Gichuki (You)</h4>
+                    <p className="text-sm text-muted-foreground">Administrator • simon@medplusafrica.com</p>
+                  </div>
+                  <Badge variant="default">Admin</Badge>
+                </div>
+              </div>
+
+              {/* User Roles & Permissions */}
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-4">
+                  <h4 className="font-medium">User Roles</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <p className="font-medium">Administrator</p>
+                        <p className="text-sm text-muted-foreground">Full system access</p>
+                      </div>
+                      <Badge variant="destructive">1 user</Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <p className="font-medium">Sales Manager</p>
+                        <p className="text-sm text-muted-foreground">Invoices, customers, quotations</p>
+                      </div>
+                      <Badge variant="outline">0 users</Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <p className="font-medium">Accountant</p>
+                        <p className="text-sm text-muted-foreground">Invoices, payments, reports</p>
+                      </div>
+                      <Badge variant="outline">0 users</Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <p className="font-medium">Viewer</p>
+                        <p className="text-sm text-muted-foreground">Read-only access</p>
+                      </div>
+                      <Badge variant="outline">0 users</Badge>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h4 className="font-medium">Quick Actions</h4>
+                  <div className="space-y-2">
+                    <Button className="w-full justify-start">
+                      <User className="mr-2 h-4 w-4" />
+                      Invite New User
+                    </Button>
+                    <Button variant="outline" className="w-full justify-start">
+                      <Settings className="mr-2 h-4 w-4" />
+                      Manage Permissions
+                    </Button>
+                    <Button variant="outline" className="w-full justify-start" disabled>
+                      <Upload className="mr-2 h-4 w-4" />
+                      Import Users (CSV)
+                    </Button>
+                  </div>
+
+                  <div className="mt-4 p-3 bg-info/10 border border-info/20 rounded-lg">
+                    <p className="text-sm text-info-foreground">
+                      💡 <strong>Tip:</strong> You can add team members and assign specific roles to control what they can access in the system.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Link to full user management */}
+              <div className="border-t pt-4">
+                <Button asChild>
+                  <a href="/settings/users">
+                    <User className="mr-2 h-4 w-4" />
+                    Open Full User Management
+                  </a>
+                </Button>
               </div>
             </CardContent>
           </Card>
