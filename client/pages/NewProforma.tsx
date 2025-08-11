@@ -93,12 +93,7 @@ export default function NewProforma() {
     })) || [],
   );
 
-  const [newItem, setNewItem] = useState<ProformaItemFormData>({
-    productId: "",
-    quantity: "1",
-    unitPrice: "",
-    discount: "0",
-  });
+  // Using DynamicLineItems component for item management
 
   const dataService = dataServiceFactory.getDataService();
 
