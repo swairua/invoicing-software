@@ -127,11 +127,22 @@ export default function Quotations() {
 
   // Refresh data periodically
   React.useEffect(() => {
-    const refreshInterval = setInterval(() => {
-      setQuotations(businessData.getQuotations());
-      setCustomers(businessData.getCustomers());
-      setProducts(businessData.getProducts());
-    }, 5000); // Refresh every 5 seconds
+    const refreshData = async () => {
+      try {
+        const [quotationsData, customersData, productsData] = await Promise.all([
+          businessData.getQuotations(),
+          businessData.getCustomers(),
+          businessData.getProducts(),
+        ]);
+        setQuotations(quotationsData);
+        setCustomers(customersData);
+        setProducts(productsData);
+      } catch (error) {
+        console.error('Failed to refresh data:', error);
+      }
+    };
+
+    const refreshInterval = setInterval(refreshData, 5000); // Refresh every 5 seconds
 
     return () => clearInterval(refreshInterval);
   }, []);
