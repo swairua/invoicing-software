@@ -103,8 +103,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const hasPermission = (permission: string): boolean => {
     if (!authState.user) return false;
-    
-    const userPermissions = ROLE_PERMISSIONS[authState.user.role] || [];
+
+    const userPermissions = ROLE_PERMISSIONS[authState.user.role as keyof typeof ROLE_PERMISSIONS] || [];
     return userPermissions.includes('*') || userPermissions.includes(permission);
   };
 
