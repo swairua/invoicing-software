@@ -349,10 +349,15 @@ export default function Quotations() {
     }
   };
 
-  const handleConvertToInvoice = (quotationId: string) => {
+  const handleConvertToInvoice = async (quotationId: string) => {
     const invoice = businessData.convertQuotationToInvoice(quotationId);
     if (invoice) {
-      setQuotations(businessData.getQuotations());
+      try {
+        const quotationsData = await businessData.getQuotations();
+        setQuotations(quotationsData);
+      } catch (error) {
+        console.error('Failed to refresh quotations:', error);
+      }
       toast({
         title: "Conversion Successful",
         description: `Quotation converted to invoice ${invoice.invoiceNumber}`,
