@@ -417,17 +417,23 @@ export class PDFService {
 
     autoTable(doc, {
       startY: 125,
-      head: [['Item No.', 'Item Description', 'Qty', 'Unit Pack', 'Unit Price (incl) Ksh', 'Vat', 'Total Price (incl) Ksh']],
+      head: [['Item\nNo.', 'Item Description', 'Qty', 'Unit\nPack', 'Unit Price\n(incl) Ksh', 'Vat', 'Total Price\n(incl) Ksh']],
       body: tableData,
       theme: 'grid',
       styles: {
-        fontSize: 8,
-        cellPadding: 3,
+        fontSize: 9,
+        cellPadding: 4,
+        lineColor: [44, 62, 80],
+        lineWidth: 0.5,
       },
       headStyles: {
-        fillColor: [128, 128, 128],
+        fillColor: [44, 62, 80],
         textColor: [255, 255, 255],
-        fontStyle: 'bold'
+        fontStyle: 'bold',
+        fontSize: 9,
+        halign: 'center',
+        valign: 'middle',
+        minCellHeight: 15
       },
       columnStyles: {
         0: { halign: 'center', cellWidth: 15 },
@@ -467,17 +473,23 @@ export class PDFService {
 
     autoTable(doc, {
       startY: 125,
-      head: [['Item No.', 'Item Description', 'Qty', 'Unit Pack', 'Unit Price (incl) Ksh', 'Vat', 'Total Price (incl) Ksh']],
+      head: [['Item\nNo.', 'Item Description', 'Qty', 'Unit\nPack', 'Unit Price\n(incl) Ksh', 'Vat', 'Total Price\n(incl) Ksh']],
       body: tableData,
       theme: 'grid',
       styles: {
-        fontSize: 8,
-        cellPadding: 3,
+        fontSize: 9,
+        cellPadding: 4,
+        lineColor: [44, 62, 80],
+        lineWidth: 0.5,
       },
       headStyles: {
-        fillColor: [128, 128, 128],
+        fillColor: [44, 62, 80],
         textColor: [255, 255, 255],
-        fontStyle: 'bold'
+        fontStyle: 'bold',
+        fontSize: 9,
+        halign: 'center',
+        valign: 'middle',
+        minCellHeight: 15
       },
       columnStyles: {
         0: { halign: 'center', cellWidth: 15 },
