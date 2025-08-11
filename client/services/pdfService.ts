@@ -371,14 +371,21 @@ export class PDFService {
     });
 
     // Total Amount - fix positioning to prevent overlap
-    const finalY = (doc as any).lastAutoTable.finalY + 15;
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
+    const finalY = (doc as any).lastAutoTable.finalY + 20;
 
-    // Create a bordered box for the total
-    doc.rect(120, finalY - 8, 70, 12);
-    doc.text('Total Amount Inc. VAT (Kes)', 125, finalY);
-    doc.text(this.formatCurrency(invoice.total), 185, finalY, { align: 'right' });
+    // Create a clear, well-spaced total section
+    doc.setFillColor(248, 249, 250);
+    doc.rect(110, finalY - 5, 80, 16, 'F');
+    doc.setDrawColor(44, 62, 80);
+    doc.rect(110, finalY - 5, 80, 16);
+
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Total Amount Inc. VAT (Kes)', 114, finalY + 2);
+
+    doc.setFontSize(12);
+    doc.text(this.formatCurrency(invoice.total), 186, finalY + 7, { align: 'right' });
   }
 
   /**
