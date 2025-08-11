@@ -106,7 +106,7 @@ export default function NewProforma() {
         ]);
         setCustomers(customerData);
         setProducts(productData);
-        setFilteredProducts(productData);
+        // Product filtering handled by DynamicLineItems
       } catch (error) {
         console.error("Error loading data:", error);
         toast({
@@ -141,7 +141,7 @@ export default function NewProforma() {
     }).format(amount);
   };
 
-  const calculateItemTotal = (item: ProformaItemFormData) => {
+  const calculateItemTotal = (item: LineItem) => {
     const quantity = parseFloat(item.quantity) || 0;
     const unitPrice = parseFloat(item.unitPrice) || 0;
     const discount = parseFloat(item.discount) || 0;
@@ -162,7 +162,7 @@ export default function NewProforma() {
     let discountAmount = 0;
     let vatAmount = 0;
 
-    items.forEach((item) => {
+    items.filter(item => item.productId).forEach((item) => {
       const quantity = parseFloat(item.quantity) || 0;
       const unitPrice = parseFloat(item.unitPrice) || 0;
       const discount = parseFloat(item.discount) || 0;
@@ -251,7 +251,8 @@ export default function NewProforma() {
       return;
     }
 
-    if (items.length === 0) {
+    const validItems = items.filter(item => item.productId);
+    if (validItems.length === 0) {
       toast({
         title: "Validation Error",
         description: "Please add at least one item to the proforma.",
