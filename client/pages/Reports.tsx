@@ -35,6 +35,7 @@ import {
   PieChart,
   LineChart,
 } from 'lucide-react';
+import { SimpleLineChart, SimpleBarChart } from '../components/SimpleChart';
 
 // Mock data for reports
 const mockSalesData = {
