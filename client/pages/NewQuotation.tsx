@@ -87,12 +87,7 @@ export default function NewQuotation() {
     })) || [],
   );
 
-  const [newItem, setNewItem] = useState<QuotationItemFormData>({
-    productId: "",
-    quantity: "1",
-    unitPrice: "",
-    discount: "0",
-  });
+  // Using DynamicLineItems component for item management
 
   const dataService = dataServiceFactory.getDataService();
 
