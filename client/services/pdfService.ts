@@ -1,7 +1,14 @@
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import { Invoice, Quotation, ProformaInvoice, Payment, DocumentTemplate, TemplateDesign } from '@shared/types';
-import { CompanySettings, defaultCompanySettings } from '@shared/company';
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import {
+  Invoice,
+  Quotation,
+  ProformaInvoice,
+  Payment,
+  DocumentTemplate,
+  TemplateDesign,
+} from "@shared/types";
+import { CompanySettings, defaultCompanySettings } from "@shared/company";
 
 export class PDFService {
   private static companySettings: CompanySettings = defaultCompanySettings;
@@ -23,7 +30,7 @@ export class PDFService {
    * Register a template for use
    */
   static registerTemplate(template: DocumentTemplate): void {
-    const key = `${template.type}_${template.isActive ? 'active' : template.id}`;
+    const key = `${template.type}_${template.isActive ? "active" : template.id}`;
     this.templates.set(key, template);
   }
 
@@ -47,10 +54,16 @@ export class PDFService {
   /**
    * Generate Invoice PDF matching the document design
    */
-  static async generateInvoicePDF(invoice: Invoice, download: boolean = true, templateId?: string): Promise<jsPDF> {
+  static async generateInvoicePDF(
+    invoice: Invoice,
+    download: boolean = true,
+    templateId?: string,
+  ): Promise<jsPDF> {
     // Ensure service is initialized with logo
     await this.initialize();
-    const template = templateId ? this.getTemplate(templateId) : this.getActiveTemplate('invoice');
+    const template = templateId
+      ? this.getTemplate(templateId)
+      : this.getActiveTemplate("invoice");
     const design = template?.design;
 
     const doc = new jsPDF();
@@ -70,11 +83,13 @@ export class PDFService {
 
     // Invoice Title and Number
     doc.setFontSize(design?.fonts.size.heading || 16);
-    doc.setFont(design?.fonts.heading || 'helvetica', 'bold');
+    doc.setFont(design?.fonts.heading || "helvetica", "bold");
     if (design?.colors.primary) {
       doc.setTextColor(design.colors.primary);
     }
-    doc.text(`INVOICE NO. ${invoice.invoiceNumber}`, pageWidth / 2, 80, { align: 'center' });
+    doc.text(`INVOICE NO. ${invoice.invoiceNumber}`, pageWidth / 2, 80, {
+      align: "center",
+    });
 
     // Reset text color
     if (design?.colors.text) {
@@ -107,7 +122,10 @@ export class PDFService {
   /**
    * Generate Quotation PDF
    */
-  static async generateQuotationPDF(quotation: Quotation, download: boolean = true): Promise<jsPDF> {
+  static async generateQuotationPDF(
+    quotation: Quotation,
+    download: boolean = true,
+  ): Promise<jsPDF> {
     // Ensure service is initialized with logo
     await this.initialize();
     const doc = new jsPDF();
@@ -122,8 +140,10 @@ export class PDFService {
 
     // Quotation Title and Number
     doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
-    doc.text(`QUOTATION NO. ${quotation.quoteNumber}`, pageWidth / 2, 80, { align: 'center' });
+    doc.setFont("helvetica", "bold");
+    doc.text(`QUOTATION NO. ${quotation.quoteNumber}`, pageWidth / 2, 80, {
+      align: "center",
+    });
 
     // Customer Information and Date
     this.addCustomerAndDateInfo(doc, quotation, pageWidth);
@@ -147,7 +167,10 @@ export class PDFService {
   /**
    * Generate Proforma Invoice PDF
    */
-  static async generateProformaPDF(proforma: ProformaInvoice, download: boolean = true): Promise<jsPDF> {
+  static async generateProformaPDF(
+    proforma: ProformaInvoice,
+    download: boolean = true,
+  ): Promise<jsPDF> {
     // Ensure service is initialized with logo
     await this.initialize();
     const doc = new jsPDF();
@@ -162,8 +185,13 @@ export class PDFService {
 
     // Proforma Title and Number
     doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
-    doc.text(`PROFORMA INVOICE NO. ${proforma.proformaNumber}`, pageWidth / 2, 80, { align: 'center' });
+    doc.setFont("helvetica", "bold");
+    doc.text(
+      `PROFORMA INVOICE NO. ${proforma.proformaNumber}`,
+      pageWidth / 2,
+      80,
+      { align: "center" },
+    );
 
     // Customer Information and Date
     this.addCustomerAndDateInfo(doc, proforma, pageWidth);
@@ -187,7 +215,10 @@ export class PDFService {
   /**
    * Generate Payment Receipt PDF
    */
-  static async generatePaymentReceiptPDF(payment: Payment, download: boolean = true): Promise<jsPDF> {
+  static async generatePaymentReceiptPDF(
+    payment: Payment,
+    download: boolean = true,
+  ): Promise<jsPDF> {
     // Ensure service is initialized with logo
     await this.initialize();
     const doc = new jsPDF();
@@ -202,8 +233,8 @@ export class PDFService {
 
     // Receipt Title
     doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
-    doc.text('PAYMENT RECEIPT', pageWidth / 2, 80, { align: 'center' });
+    doc.setFont("helvetica", "bold");
+    doc.text("PAYMENT RECEIPT", pageWidth / 2, 80, { align: "center" });
 
     // Payment Details
     this.addPaymentDetails(doc, payment, pageWidth);
@@ -218,7 +249,11 @@ export class PDFService {
   /**
    * Add company header with logo placeholder
    */
-  private static addCompanyHeader(doc: jsPDF, pageWidth: number, design?: TemplateDesign): void {
+  private static addCompanyHeader(
+    doc: jsPDF,
+    pageWidth: number,
+    design?: TemplateDesign,
+  ): void {
     const settings = this.companySettings;
 
     // Add dynamic logo from company settings
@@ -230,9 +265,19 @@ export class PDFService {
         const logoX = 20;
         const logoY = 15;
 
-        doc.addImage(this.logoDataUrl, 'JPEG', logoX, logoY, logoWidth, logoHeight);
+        doc.addImage(
+          this.logoDataUrl,
+          "JPEG",
+          logoX,
+          logoY,
+          logoWidth,
+          logoHeight,
+        );
       } catch (error) {
-        console.warn('Failed to add company logo to PDF, using text fallback:', error);
+        console.warn(
+          "Failed to add company logo to PDF, using text fallback:",
+          error,
+        );
         // Fallback: Show company name initial in a circle
         this.addFallbackLogo(doc, settings);
       }
@@ -249,18 +294,20 @@ export class PDFService {
       doc.setTextColor(0, 0, 0);
     }
     doc.setFontSize(design?.fonts?.size?.heading || 18);
-    doc.setFont(design?.fonts?.heading || 'helvetica', 'bold');
+    doc.setFont(design?.fonts?.heading || "helvetica", "bold");
     doc.text(settings.name.toUpperCase(), 50, 25);
 
     // Business type or tagline
     doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
+    doc.setFont("helvetica", "normal");
     doc.setTextColor(100, 100, 100);
-    doc.text('Your Medical & Laboratory Supplies Partner', 50, 32);
+    doc.text("Your Medical & Laboratory Supplies Partner", 50, 32);
 
     // PIN number (right-aligned)
     doc.setFontSize(9);
-    doc.text(`PIN No: ${settings.tax.kraPin}`, pageWidth - 20, 25, { align: 'right' });
+    doc.text(`PIN No: ${settings.tax.kraPin}`, pageWidth - 20, 25, {
+      align: "right",
+    });
   }
 
   /**
@@ -268,96 +315,116 @@ export class PDFService {
    */
   private static addFallbackLogo(doc: jsPDF, settings: CompanySettings): void {
     doc.setFillColor(41, 128, 185);
-    doc.circle(32.5, 27.5, 12, 'F');
+    doc.circle(32.5, 27.5, 12, "F");
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text(settings.name.charAt(0), 32.5, 32, { align: 'center' });
+    doc.setFont("helvetica", "bold");
+    doc.text(settings.name.charAt(0), 32.5, 32, { align: "center" });
   }
 
   /**
    * Add company information
    */
-  private static addCompanyInfo(doc: jsPDF, pageWidth: number, design?: TemplateDesign): void {
+  private static addCompanyInfo(
+    doc: jsPDF,
+    pageWidth: number,
+    design?: TemplateDesign,
+  ): void {
     const settings = this.companySettings;
     doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    
+    doc.setFont("helvetica", "normal");
+
     // Center-aligned company info
     const centerX = pageWidth / 2;
-    
-    doc.text(settings.address.line1, centerX, 50, { align: 'center' });
+
+    doc.text(settings.address.line1, centerX, 50, { align: "center" });
     if (settings.address.line2) {
-      doc.text(settings.address.line2, centerX, 55, { align: 'center' });
+      doc.text(settings.address.line2, centerX, 55, { align: "center" });
     }
-    
-    const contactLine = `Tel: ${settings.contact.phone.join(', ')}`;
-    doc.text(contactLine, centerX, 60, { align: 'center' });
-    
-    doc.text(`E-mail: ${settings.contact.email}`, centerX, 64, { align: 'center' });
+
+    const contactLine = `Tel: ${settings.contact.phone.join(", ")}`;
+    doc.text(contactLine, centerX, 60, { align: "center" });
+
+    doc.text(`E-mail: ${settings.contact.email}`, centerX, 64, {
+      align: "center",
+    });
     if (settings.contact.website) {
-      doc.text(`Website: ${settings.contact.website}`, centerX, 68, { align: 'center' });
+      doc.text(`Website: ${settings.contact.website}`, centerX, 68, {
+        align: "center",
+      });
     }
   }
 
   /**
    * Add customer and date information
    */
-  private static addCustomerAndDateInfo(doc: jsPDF, document: Invoice | Quotation | ProformaInvoice, pageWidth: number, design?: TemplateDesign): void {
+  private static addCustomerAndDateInfo(
+    doc: jsPDF,
+    document: Invoice | Quotation | ProformaInvoice,
+    pageWidth: number,
+    design?: TemplateDesign,
+  ): void {
     doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
+    doc.setFont("helvetica", "normal");
 
     // Customer info (left side)
-    doc.text('To:', 20, 95);
-    doc.setFont('helvetica', 'bold');
+    doc.text("To:", 20, 95);
+    doc.setFont("helvetica", "bold");
     doc.text(document.customer.name, 20, 102);
-    doc.setFont('helvetica', 'normal');
+    doc.setFont("helvetica", "normal");
 
     if (document.customer.address) {
-      const addressLines = document.customer.address.split(',');
+      const addressLines = document.customer.address.split(",");
       let yPos = 107;
-      addressLines.forEach(line => {
+      addressLines.forEach((line) => {
         doc.text(line.trim(), 20, yPos);
         yPos += 5;
       });
     }
 
     // Date and document info (right side)
-    const dateLabel = 'issueDate' in document ? 'Date:' : 'Date:';
-    const date = 'issueDate' in document ? document.issueDate : document.createdAt;
+    const dateLabel = "issueDate" in document ? "Date:" : "Date:";
+    const date =
+      "issueDate" in document ? document.issueDate : document.createdAt;
 
     doc.text(dateLabel, pageWidth - 80, 95);
-    doc.text(this.formatDate(date), pageWidth - 20, 95, { align: 'right' });
+    doc.text(this.formatDate(date), pageWidth - 20, 95, { align: "right" });
 
     // LPO number if available
-    if ('invoiceNumber' in document) {
-      doc.text('LPO NO.', pageWidth - 80, 102);
-      doc.text('N/A', pageWidth - 20, 102, { align: 'right' });
+    if ("invoiceNumber" in document) {
+      doc.text("LPO NO.", pageWidth - 80, 102);
+      doc.text("N/A", pageWidth - 20, 102, { align: "right" });
     }
   }
 
   /**
    * Add invoice items table
    */
-  private static addInvoiceItemsTable(doc: jsPDF, invoice: Invoice, design?: TemplateDesign): void {
+  private static addInvoiceItemsTable(
+    doc: jsPDF,
+    invoice: Invoice,
+    design?: TemplateDesign,
+  ): void {
     const tableData = invoice.items.map((item, index) => [
       index + 1,
       item.product.name,
       item.quantity,
-      item.product.unit || 'Piece',
+      item.product.unit || "Piece",
       this.formatCurrency(item.unitPrice),
       `${item.vatRate}%`,
-      this.formatCurrency(item.total)
+      this.formatCurrency(item.total),
     ]);
 
     // Convert hex to RGB for autoTable
     const hexToRgb = (hex: string): [number, number, number] => {
       const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-      return result ? [
-        parseInt(result[1], 16),
-        parseInt(result[2], 16),
-        parseInt(result[3], 16)
-      ] : [128, 128, 128];
+      return result
+        ? [
+            parseInt(result[1], 16),
+            parseInt(result[2], 16),
+            parseInt(result[3], 16),
+          ]
+        : [128, 128, 128];
     };
 
     const headerColor = design?.table.headerBackgroundColor
@@ -366,39 +433,49 @@ export class PDFService {
 
     autoTable(doc, {
       startY: 125,
-      head: [['#', 'ITEM DESCRIPTION', 'QTY', 'UNIT', 'UNIT PRICE (KSH)', 'VAT %', 'TOTAL (KSH)']],
+      head: [
+        [
+          "#",
+          "ITEM DESCRIPTION",
+          "QTY",
+          "UNIT",
+          "UNIT PRICE (KSH)",
+          "VAT %",
+          "TOTAL (KSH)",
+        ],
+      ],
       body: tableData,
-      theme: 'striped',
+      theme: "striped",
       styles: {
         fontSize: 9,
         cellPadding: 5,
         lineColor: [200, 200, 200],
         lineWidth: 0.5,
-        textColor: [50, 50, 50]
+        textColor: [50, 50, 50],
       },
       headStyles: {
         fillColor: headerColor,
         textColor: [255, 255, 255],
-        fontStyle: 'bold',
+        fontStyle: "bold",
         fontSize: 10,
-        halign: 'center',
-        valign: 'middle',
+        halign: "center",
+        valign: "middle",
         minCellHeight: 22,
         lineColor: [37, 99, 235],
-        lineWidth: 1
+        lineWidth: 1,
       },
       alternateRowStyles: {
-        fillColor: [245, 247, 250]
+        fillColor: [245, 247, 250],
       },
       columnStyles: {
-        0: { halign: 'center', cellWidth: 12 },
-        1: { halign: 'left', cellWidth: 65 },
-        2: { halign: 'center', cellWidth: 15 },
-        3: { halign: 'center', cellWidth: 18 },
-        4: { halign: 'right', cellWidth: 25 },
-        5: { halign: 'center', cellWidth: 15 },
-        6: { halign: 'right', cellWidth: 30 }
-      }
+        0: { halign: "center", cellWidth: 12 },
+        1: { halign: "left", cellWidth: 65 },
+        2: { halign: "center", cellWidth: 15 },
+        3: { halign: "center", cellWidth: 18 },
+        4: { halign: "right", cellWidth: 25 },
+        5: { halign: "center", cellWidth: 15 },
+        6: { halign: "right", cellWidth: 30 },
+      },
     });
 
     // Total Amount - align text and value in one row
@@ -411,16 +488,18 @@ export class PDFService {
 
     // Add subtle background for total section
     doc.setFillColor(248, 249, 250);
-    doc.rect(125, finalY - 5, 70, 15, 'F');
+    doc.rect(125, finalY - 5, 70, 15, "F");
     doc.rect(125, finalY - 5, 70, 15);
 
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont("helvetica", "bold");
 
     // Put text and value on the same line
-    doc.text('Total Amount Inc. VAT (Kes)', 128, finalY + 5);
-    doc.text(this.formatCurrency(invoice.total), 192, finalY + 5, { align: 'right' });
+    doc.text("Total Amount Inc. VAT (Kes)", 128, finalY + 5);
+    doc.text(this.formatCurrency(invoice.total), 192, finalY + 5, {
+      align: "right",
+    });
   }
 
   /**
@@ -431,47 +510,57 @@ export class PDFService {
       index + 1,
       item.product.name,
       item.quantity,
-      item.product.unit || 'Piece',
+      item.product.unit || "Piece",
       this.formatCurrency(item.unitPrice),
       `${item.vatRate}%`,
-      this.formatCurrency(item.total)
+      this.formatCurrency(item.total),
     ]);
 
     autoTable(doc, {
       startY: 125,
-      head: [['#', 'ITEM DESCRIPTION', 'QTY', 'UNIT', 'UNIT PRICE (KSH)', 'VAT %', 'TOTAL (KSH)']],
+      head: [
+        [
+          "#",
+          "ITEM DESCRIPTION",
+          "QTY",
+          "UNIT",
+          "UNIT PRICE (KSH)",
+          "VAT %",
+          "TOTAL (KSH)",
+        ],
+      ],
       body: tableData,
-      theme: 'striped',
+      theme: "striped",
       styles: {
         fontSize: 9,
         cellPadding: 5,
         lineColor: [200, 200, 200],
         lineWidth: 0.5,
-        textColor: [50, 50, 50]
+        textColor: [50, 50, 50],
       },
       headStyles: {
         fillColor: [37, 99, 235], // Force blue color for visibility
         textColor: [255, 255, 255],
-        fontStyle: 'bold',
+        fontStyle: "bold",
         fontSize: 10,
-        halign: 'center',
-        valign: 'middle',
+        halign: "center",
+        valign: "middle",
         minCellHeight: 22,
         lineColor: [37, 99, 235],
-        lineWidth: 1
+        lineWidth: 1,
       },
       alternateRowStyles: {
-        fillColor: [245, 247, 250]
+        fillColor: [245, 247, 250],
       },
       columnStyles: {
-        0: { halign: 'center', cellWidth: 12 },
-        1: { halign: 'left', cellWidth: 65 },
-        2: { halign: 'center', cellWidth: 15 },
-        3: { halign: 'center', cellWidth: 18 },
-        4: { halign: 'right', cellWidth: 25 },
-        5: { halign: 'center', cellWidth: 15 },
-        6: { halign: 'right', cellWidth: 30 }
-      }
+        0: { halign: "center", cellWidth: 12 },
+        1: { halign: "left", cellWidth: 65 },
+        2: { halign: "center", cellWidth: 15 },
+        3: { halign: "center", cellWidth: 18 },
+        4: { halign: "right", cellWidth: 25 },
+        5: { halign: "center", cellWidth: 15 },
+        6: { halign: "right", cellWidth: 30 },
+      },
     });
 
     // Total Amount - align text and value in one row
@@ -484,67 +573,82 @@ export class PDFService {
 
     // Add subtle background for total section
     doc.setFillColor(248, 249, 250);
-    doc.rect(125, finalY - 5, 70, 15, 'F');
+    doc.rect(125, finalY - 5, 70, 15, "F");
     doc.rect(125, finalY - 5, 70, 15);
 
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont("helvetica", "bold");
 
     // Put text and value on the same line
-    doc.text('Total Amount Inc. VAT (Kes)', 128, finalY + 5);
-    doc.text(this.formatCurrency(quotation.total), 192, finalY + 5, { align: 'right' });
+    doc.text("Total Amount Inc. VAT (Kes)", 128, finalY + 5);
+    doc.text(this.formatCurrency(quotation.total), 192, finalY + 5, {
+      align: "right",
+    });
   }
 
   /**
    * Add proforma items table
    */
-  private static addProformaItemsTable(doc: jsPDF, proforma: ProformaInvoice): void {
+  private static addProformaItemsTable(
+    doc: jsPDF,
+    proforma: ProformaInvoice,
+  ): void {
     const tableData = proforma.items.map((item, index) => [
       index + 1,
       item.product.name,
       item.quantity,
-      item.product.unit || 'Piece',
+      item.product.unit || "Piece",
       this.formatCurrency(item.unitPrice),
       `${item.vatRate}%`,
-      this.formatCurrency(item.total)
+      this.formatCurrency(item.total),
     ]);
 
     autoTable(doc, {
       startY: 125,
-      head: [['#', 'ITEM DESCRIPTION', 'QTY', 'UNIT', 'UNIT PRICE (KSH)', 'VAT %', 'TOTAL (KSH)']],
+      head: [
+        [
+          "#",
+          "ITEM DESCRIPTION",
+          "QTY",
+          "UNIT",
+          "UNIT PRICE (KSH)",
+          "VAT %",
+          "TOTAL (KSH)",
+        ],
+      ],
       body: tableData,
-      theme: 'striped',
+      theme: "striped",
       styles: {
         fontSize: 9,
         cellPadding: 5,
         lineColor: [200, 200, 200],
         lineWidth: 0.5,
-        textColor: [50, 50, 50]
+        textColor: [50, 50, 50],
       },
       headStyles: {
         fillColor: [37, 99, 235], // Force blue color for visibility
         textColor: [255, 255, 255],
-        fontStyle: 'bold',
+        fontStyle: "bold",
         fontSize: 10,
-        halign: 'center',
-        valign: 'middle',
+        halign: "center",
+        valign: "middle",
         minCellHeight: 22,
         lineColor: [37, 99, 235],
-        lineWidth: 1
+        lineWidth: 1,
       },
       alternateRowStyles: {
-        fillColor: [245, 247, 250]
+        fillColor: [245, 247, 250],
       },
       columnStyles: {
-        0: { halign: 'center', cellWidth: 12 },
-        1: { halign: 'left', cellWidth: 65 },
-        2: { halign: 'center', cellWidth: 15 },
-        3: { halign: 'center', cellWidth: 18 },
-        4: { halign: 'right', cellWidth: 25 },
-        5: { halign: 'center', cellWidth: 15 },
-        6: { halign: 'right', cellWidth: 30 }
-      }
+        0: { halign: "center", cellWidth: 12 },
+        1: { halign: "left", cellWidth: 65 },
+        2: { halign: "center", cellWidth: 15 },
+        3: { halign: "center", cellWidth: 18 },
+        4: { halign: "right", cellWidth: 25 },
+        5: { halign: "center", cellWidth: 15 },
+        6: { halign: "right", cellWidth: 30 },
+      },
     });
 
     // Total Amount - align text and value in one row
@@ -557,45 +661,51 @@ export class PDFService {
 
     // Add subtle background for total section
     doc.setFillColor(248, 249, 250);
-    doc.rect(125, finalY - 5, 70, 15, 'F');
+    doc.rect(125, finalY - 5, 70, 15, "F");
     doc.rect(125, finalY - 5, 70, 15);
 
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont("helvetica", "bold");
 
     // Put text and value on the same line
-    doc.text('Total Amount Inc. VAT (Kes)', 128, finalY + 5);
-    doc.text(this.formatCurrency(proforma.total), 192, finalY + 5, { align: 'right' });
+    doc.text("Total Amount Inc. VAT (Kes)", 128, finalY + 5);
+    doc.text(this.formatCurrency(proforma.total), 192, finalY + 5, {
+      align: "right",
+    });
   }
 
   /**
    * Add payment details
    */
-  private static addPaymentDetails(doc: jsPDF, payment: Payment, pageWidth: number): void {
+  private static addPaymentDetails(
+    doc: jsPDF,
+    payment: Payment,
+    pageWidth: number,
+  ): void {
     doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
+    doc.setFont("helvetica", "normal");
 
     const details = [
-      ['Payment Reference:', payment.reference],
-      ['Amount:', this.formatCurrency(payment.amount)],
-      ['Payment Method:', payment.method.toUpperCase()],
-      ['Date:', this.formatDate(payment.createdAt)],
+      ["Payment Reference:", payment.reference],
+      ["Amount:", this.formatCurrency(payment.amount)],
+      ["Payment Method:", payment.method.toUpperCase()],
+      ["Date:", this.formatDate(payment.createdAt)],
     ];
 
     let yPos = 95;
     details.forEach(([label, value]) => {
       doc.text(label, 20, yPos);
-      doc.setFont('helvetica', 'bold');
+      doc.setFont("helvetica", "bold");
       doc.text(value, 80, yPos);
-      doc.setFont('helvetica', 'normal');
+      doc.setFont("helvetica", "normal");
       yPos += 10;
     });
 
     if (payment.notes) {
       yPos += 5;
-      doc.text('Notes:', 20, yPos);
-      doc.setFont('helvetica', 'bold');
+      doc.text("Notes:", 20, yPos);
+      doc.setFont("helvetica", "bold");
       doc.text(payment.notes, 80, yPos);
     }
   }
@@ -603,22 +713,27 @@ export class PDFService {
   /**
    * Add terms and conditions
    */
-  private static addTermsAndConditions(doc: jsPDF, pageWidth: number, pageHeight: number, design?: TemplateDesign): void {
+  private static addTermsAndConditions(
+    doc: jsPDF,
+    pageWidth: number,
+    pageHeight: number,
+    design?: TemplateDesign,
+  ): void {
     const terms = this.companySettings.invoiceSettings.terms;
     if (!terms || terms.length === 0) return;
 
     const startY = pageHeight - 80;
     doc.setFontSize(8);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Terms and regulations', 20, startY);
+    doc.setFont("helvetica", "bold");
+    doc.text("Terms and regulations", 20, startY);
 
-    doc.setFont('helvetica', 'normal');
+    doc.setFont("helvetica", "normal");
     let yPos = startY + 5;
-    
+
     terms.forEach((term, index) => {
       const termText = `${index + 1}) ${term}`;
       const lines = doc.splitTextToSize(termText, pageWidth - 40);
-      
+
       lines.forEach((line: string) => {
         if (yPos > pageHeight - 20) return; // Stop if too close to bottom
         doc.text(line, 20, yPos);
@@ -631,18 +746,23 @@ export class PDFService {
   /**
    * Add signature section
    */
-  private static addSignatureSection(doc: jsPDF, pageWidth: number, pageHeight: number, design?: TemplateDesign): void {
+  private static addSignatureSection(
+    doc: jsPDF,
+    pageWidth: number,
+    pageHeight: number,
+    design?: TemplateDesign,
+  ): void {
     const signatureY = pageHeight - 25;
-    
+
     doc.setFontSize(8);
-    doc.setFont('helvetica', 'normal');
-    
+    doc.setFont("helvetica", "normal");
+
     // Prepared by
-    doc.text('Prepared By:', 20, signatureY);
+    doc.text("Prepared By:", 20, signatureY);
     doc.line(45, signatureY, 90, signatureY);
-    
+
     // Checked by
-    doc.text('Checked By:', pageWidth - 90, signatureY);
+    doc.text("Checked By:", pageWidth - 90, signatureY);
     doc.line(pageWidth - 65, signatureY, pageWidth - 20, signatureY);
   }
 
@@ -650,17 +770,17 @@ export class PDFService {
    * Utility functions
    */
   private static formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('en-KE', {
+    return new Intl.NumberFormat("en-KE", {
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 2,
     }).format(amount);
   }
 
   private static formatDate(date: Date): string {
-    return new Intl.DateTimeFormat('en-GB', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
+    return new Intl.DateTimeFormat("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
     }).format(new Date(date));
   }
 
@@ -669,17 +789,21 @@ export class PDFService {
    */
   private static hexToRgb(hex: string): [number, number, number] {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? [
-      parseInt(result[1], 16),
-      parseInt(result[2], 16),
-      parseInt(result[3], 16)
-    ] : [0, 0, 0];
+    return result
+      ? [
+          parseInt(result[1], 16),
+          parseInt(result[2], 16),
+          parseInt(result[3], 16),
+        ]
+      : [0, 0, 0];
   }
 
   /**
    * Load logo image as data URL for PDF use
    */
-  private static async loadLogoAsDataUrl(logoUrl: string): Promise<string | null> {
+  private static async loadLogoAsDataUrl(
+    logoUrl: string,
+  ): Promise<string | null> {
     try {
       const response = await fetch(logoUrl);
       const blob = await response.blob();
@@ -691,7 +815,7 @@ export class PDFService {
         reader.readAsDataURL(blob);
       });
     } catch (error) {
-      console.warn('Failed to load logo image:', error);
+      console.warn("Failed to load logo image:", error);
       return null;
     }
   }

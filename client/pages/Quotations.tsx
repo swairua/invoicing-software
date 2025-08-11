@@ -100,16 +100,18 @@ export default function Quotations() {
   React.useEffect(() => {
     const loadData = async () => {
       try {
-        const [quotationsData, customersData, productsData] = await Promise.all([
-          businessData.getQuotations(),
-          businessData.getCustomers(),
-          businessData.getProducts(),
-        ]);
+        const [quotationsData, customersData, productsData] = await Promise.all(
+          [
+            businessData.getQuotations(),
+            businessData.getCustomers(),
+            businessData.getProducts(),
+          ],
+        );
         setQuotations(quotationsData);
         setCustomers(customersData);
         setProducts(productsData);
       } catch (error) {
-        console.error('Failed to load data:', error);
+        console.error("Failed to load data:", error);
         // Set empty arrays as fallbacks
         setQuotations([]);
         setCustomers([]);
@@ -129,16 +131,18 @@ export default function Quotations() {
   React.useEffect(() => {
     const refreshData = async () => {
       try {
-        const [quotationsData, customersData, productsData] = await Promise.all([
-          businessData.getQuotations(),
-          businessData.getCustomers(),
-          businessData.getProducts(),
-        ]);
+        const [quotationsData, customersData, productsData] = await Promise.all(
+          [
+            businessData.getQuotations(),
+            businessData.getCustomers(),
+            businessData.getProducts(),
+          ],
+        );
         setQuotations(quotationsData);
         setCustomers(customersData);
         setProducts(productsData);
       } catch (error) {
-        console.error('Failed to refresh data:', error);
+        console.error("Failed to refresh data:", error);
       }
     };
 
@@ -277,7 +281,7 @@ export default function Quotations() {
         const quotationsData = await businessData.getQuotations();
         setQuotations([newQuotation, ...quotationsData]);
       } catch (error) {
-        console.error('Failed to update quotations:', error);
+        console.error("Failed to update quotations:", error);
       }
       setIsCreateDialogOpen(false);
 
@@ -334,7 +338,7 @@ export default function Quotations() {
         const quotationsData = await businessData.getQuotations();
         setQuotations(quotationsData);
       } catch (error) {
-        console.error('Failed to refresh quotations:', error);
+        console.error("Failed to refresh quotations:", error);
       }
       toast({
         title: "Conversion Successful",
@@ -356,7 +360,7 @@ export default function Quotations() {
         const quotationsData = await businessData.getQuotations();
         setQuotations(quotationsData);
       } catch (error) {
-        console.error('Failed to refresh quotations:', error);
+        console.error("Failed to refresh quotations:", error);
       }
       toast({
         title: "Conversion Successful",

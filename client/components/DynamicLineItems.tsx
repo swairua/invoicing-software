@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
+import React, { useState, useEffect } from "react";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from './ui/select';
+} from "./ui/select";
 import {
   Table,
   TableBody,
@@ -16,14 +16,20 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from './ui/table';
-import { Badge } from './ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Plus, Trash2, Search, Package } from 'lucide-react';
-import { Product, LineItemTax } from '@shared/types';
-import LineItemTaxSelector from './LineItemTaxSelector';
-import { getAvailableTaxes } from '@shared/taxUtils';
-import { useToast } from '../hooks/use-toast';
+} from "./ui/table";
+import { Badge } from "./ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+import { Plus, Trash2, Search, Package } from "lucide-react";
+import { Product, LineItemTax } from "@shared/types";
+import LineItemTaxSelector from "./LineItemTaxSelector";
+import { getAvailableTaxes } from "@shared/taxUtils";
+import { useToast } from "../hooks/use-toast";
 
 export interface LineItem {
   id: string;
@@ -50,7 +56,7 @@ export default function DynamicLineItems({
   calculateItemTotal,
 }: DynamicLineItemsProps) {
   const { toast } = useToast();
-  const [productSearch, setProductSearch] = useState('');
+  const [productSearch, setProductSearch] = useState("");
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
 
   // Auto-generate new empty item when last item is filled
@@ -68,7 +74,7 @@ export default function DynamicLineItems({
       const filtered = products.filter(
         (product) =>
           product.name.toLowerCase().includes(productSearch.toLowerCase()) ||
-          product.sku.toLowerCase().includes(productSearch.toLowerCase())
+          product.sku.toLowerCase().includes(productSearch.toLowerCase()),
       );
       setFilteredProducts(filtered);
     } else {
@@ -79,31 +85,42 @@ export default function DynamicLineItems({
   const addNewEmptyItem = () => {
     const newItem: LineItem = {
       id: `item-${nextId}`,
-      productId: '',
-      quantity: '1',
-      unitPrice: '',
-      discount: '0',
+      productId: "",
+      quantity: "1",
+      unitPrice: "",
+      discount: "0",
       lineItemTaxes: [],
     };
     onItemsChange([...items, newItem]);
     setNextId(nextId + 1);
   };
 
-  const updateItem = (index: number, field: keyof LineItem, value: string | LineItemTax[]) => {
+  const updateItem = (
+    index: number,
+    field: keyof LineItem,
+    value: string | LineItemTax[],
+  ) => {
     const updatedItems = [...items];
-    if (field === 'lineItemTaxes') {
-      updatedItems[index] = { ...updatedItems[index], [field]: value as LineItemTax[] };
+    if (field === "lineItemTaxes") {
+      updatedItems[index] = {
+        ...updatedItems[index],
+        [field]: value as LineItemTax[],
+      };
     } else {
-      updatedItems[index] = { ...updatedItems[index], [field]: value as string };
+      updatedItems[index] = {
+        ...updatedItems[index],
+        [field]: value as string,
+      };
     }
     onItemsChange(updatedItems);
 
     // Auto-add new item if this is the last item and it has essential data
     const currentItem = updatedItems[index];
     const isLastItem = index === items.length - 1;
-    const hasEssentialData = currentItem.productId && currentItem.quantity && currentItem.unitPrice;
-    
-    if (isLastItem && hasEssentialData && field !== 'lineItemTaxes') {
+    const hasEssentialData =
+      currentItem.productId && currentItem.quantity && currentItem.unitPrice;
+
+    if (isLastItem && hasEssentialData && field !== "lineItemTaxes") {
       setTimeout(() => addNewEmptyItem(), 100);
     }
   };
@@ -114,9 +131,9 @@ export default function DynamicLineItems({
       onItemsChange(updatedItems);
     } else {
       toast({
-        title: 'Cannot Remove',
-        description: 'At least one item is required.',
-        variant: 'destructive',
+        title: "Cannot Remove",
+        description: "At least one item is required.",
+        variant: "destructive",
       });
     }
   };
@@ -124,8 +141,8 @@ export default function DynamicLineItems({
   const handleProductSelect = (index: number, productId: string) => {
     const product = products.find((p) => p.id === productId);
     if (product) {
-      updateItem(index, 'productId', productId);
-      updateItem(index, 'unitPrice', product.sellingPrice.toString());
+      updateItem(index, "productId", productId);
+      updateItem(index, "unitPrice", product.sellingPrice.toString());
     }
   };
 
@@ -149,7 +166,8 @@ export default function DynamicLineItems({
           Line Items
         </CardTitle>
         <CardDescription>
-          Add products and services. New item fields will appear automatically as you fill them out.
+          Add products and services. New item fields will appear automatically
+          as you fill them out.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -188,12 +206,17 @@ export default function DynamicLineItems({
                 const isEmptyItem = !item.productId;
 
                 return (
-                  <TableRow key={item.id} className={isEmptyItem ? 'bg-muted/20' : ''}>
+                  <TableRow
+                    key={item.id}
+                    className={isEmptyItem ? "bg-muted/20" : ""}
+                  >
                     <TableCell>
                       <div className="space-y-2">
                         <Select
                           value={item.productId}
-                          onValueChange={(value) => handleProductSelect(index, value)}
+                          onValueChange={(value) =>
+                            handleProductSelect(index, value)
+                          }
                         >
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="Select product" />
@@ -202,9 +225,12 @@ export default function DynamicLineItems({
                             {filteredProducts.slice(0, 30).map((product) => (
                               <SelectItem key={product.id} value={product.id}>
                                 <div>
-                                  <div className="font-medium">{product.name}</div>
+                                  <div className="font-medium">
+                                    {product.name}
+                                  </div>
                                   <div className="text-xs text-muted-foreground">
-                                    {product.sku} • {formatCurrency(product.sellingPrice)}
+                                    {product.sku} •{" "}
+                                    {formatCurrency(product.sellingPrice)}
                                   </div>
                                 </div>
                               </SelectItem>
@@ -227,7 +253,9 @@ export default function DynamicLineItems({
                       <Input
                         type="number"
                         value={item.quantity}
-                        onChange={(e) => updateItem(index, 'quantity', e.target.value)}
+                        onChange={(e) =>
+                          updateItem(index, "quantity", e.target.value)
+                        }
                         className="w-20"
                         min="0.01"
                         step="0.01"
@@ -238,7 +266,9 @@ export default function DynamicLineItems({
                       <Input
                         type="number"
                         value={item.unitPrice}
-                        onChange={(e) => updateItem(index, 'unitPrice', e.target.value)}
+                        onChange={(e) =>
+                          updateItem(index, "unitPrice", e.target.value)
+                        }
                         className="w-24"
                         min="0"
                         step="0.01"
@@ -249,7 +279,9 @@ export default function DynamicLineItems({
                       <Input
                         type="number"
                         value={item.discount}
-                        onChange={(e) => updateItem(index, 'discount', e.target.value)}
+                        onChange={(e) =>
+                          updateItem(index, "discount", e.target.value)
+                        }
                         className="w-16"
                         min="0"
                         max="100"
@@ -262,13 +294,15 @@ export default function DynamicLineItems({
                         <LineItemTaxSelector
                           selectedTaxes={item.lineItemTaxes || []}
                           availableTaxes={getAvailableTaxes()}
-                          onTaxesChange={(taxes) => updateItem(index, 'lineItemTaxes', taxes)}
+                          onTaxesChange={(taxes) =>
+                            updateItem(index, "lineItemTaxes", taxes)
+                          }
                           itemSubtotal={
-                            parseFloat(item.quantity || '0') *
-                              parseFloat(item.unitPrice || '0') -
-                            (parseFloat(item.quantity || '0') *
-                              parseFloat(item.unitPrice || '0') *
-                              parseFloat(item.discount || '0')) /
+                            parseFloat(item.quantity || "0") *
+                              parseFloat(item.unitPrice || "0") -
+                            (parseFloat(item.quantity || "0") *
+                              parseFloat(item.unitPrice || "0") *
+                              parseFloat(item.discount || "0")) /
                               100
                           }
                         />
@@ -317,7 +351,7 @@ export default function DynamicLineItems({
           </Button>
         </div>
 
-        {items.filter(item => item.productId).length === 0 && (
+        {items.filter((item) => item.productId).length === 0 && (
           <div className="text-center py-8 border-2 border-dashed border-muted-foreground/25 rounded-lg">
             <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-medium">No Items Added Yet</h3>

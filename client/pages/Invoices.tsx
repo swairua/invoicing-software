@@ -375,7 +375,7 @@ export default function Invoices() {
         const updatedInvoices = await businessData.getInvoices();
         setInvoices(updatedInvoices);
       } catch (error) {
-        console.error('Failed to refresh invoices:', error);
+        console.error("Failed to refresh invoices:", error);
       }
       toast({
         title: "Payment Recorded",

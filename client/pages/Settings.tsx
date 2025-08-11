@@ -1,19 +1,30 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Textarea } from '../components/ui/textarea';
-import { Badge } from '../components/ui/badge';
+import React, { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Textarea } from "../components/ui/textarea";
+import { Badge } from "../components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { Switch } from '../components/ui/switch';
+} from "../components/ui/select";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
+import { Switch } from "../components/ui/switch";
 import {
   Building2,
   Save,
@@ -29,12 +40,14 @@ import {
   Percent,
   Package,
   RefreshCw,
-} from 'lucide-react';
-import { CompanySettings, defaultCompanySettings } from '@shared/company';
-import PDFService from '../services/pdfService';
+} from "lucide-react";
+import { CompanySettings, defaultCompanySettings } from "@shared/company";
+import PDFService from "../services/pdfService";
 
 export default function Settings() {
-  const [companySettings, setCompanySettings] = useState<CompanySettings>(defaultCompanySettings);
+  const [companySettings, setCompanySettings] = useState<CompanySettings>(
+    defaultCompanySettings,
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSaveSettings = async () => {
@@ -42,168 +55,174 @@ export default function Settings() {
     try {
       // Update PDF service with new settings
       PDFService.updateCompanySettings(companySettings);
-      
+
       // In a real app, this would save to backend
-      console.log('Saving company settings:', companySettings);
-      
+      console.log("Saving company settings:", companySettings);
+
       // Show success message
       setTimeout(() => {
         setIsLoading(false);
-        alert('Settings saved successfully!');
+        alert("Settings saved successfully!");
       }, 1000);
     } catch (error) {
       setIsLoading(false);
-      alert('Failed to save settings');
+      alert("Failed to save settings");
     }
   };
 
   const handleCompanyInfoChange = (field: string, value: string) => {
-    setCompanySettings(prev => ({
+    setCompanySettings((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   const handleAddressChange = (field: string, value: string) => {
-    setCompanySettings(prev => ({
+    setCompanySettings((prev) => ({
       ...prev,
       address: {
         ...prev.address,
-        [field]: value
-      }
+        [field]: value,
+      },
     }));
   };
 
   const handleContactChange = (field: string, value: string | string[]) => {
-    setCompanySettings(prev => ({
+    setCompanySettings((prev) => ({
       ...prev,
       contact: {
         ...prev.contact,
-        [field]: value
-      }
+        [field]: value,
+      },
     }));
   };
 
   const handleTaxChange = (field: string, value: string) => {
-    setCompanySettings(prev => ({
+    setCompanySettings((prev) => ({
       ...prev,
       tax: {
         ...prev.tax,
-        [field]: value
-      }
+        [field]: value,
+      },
     }));
   };
 
   const handleInvoiceSettingsChange = (field: string, value: any) => {
-    setCompanySettings(prev => ({
+    setCompanySettings((prev) => ({
       ...prev,
       invoiceSettings: {
         ...prev.invoiceSettings,
-        [field]: value
-      }
+        [field]: value,
+      },
     }));
   };
 
   const handleBrandingChange = (field: string, value: string) => {
-    setCompanySettings(prev => ({
+    setCompanySettings((prev) => ({
       ...prev,
       branding: {
         ...prev.branding,
-        [field]: value
-      }
+        [field]: value,
+      },
     }));
   };
 
   const handlePhoneChange = (index: number, value: string) => {
     const newPhones = [...(companySettings.contact.phone || [])];
     newPhones[index] = value;
-    handleContactChange('phone', newPhones);
+    handleContactChange("phone", newPhones);
   };
 
   const addPhoneNumber = () => {
-    const newPhones = [...(companySettings.contact.phone || []), ''];
-    handleContactChange('phone', newPhones);
+    const newPhones = [...(companySettings.contact.phone || []), ""];
+    handleContactChange("phone", newPhones);
   };
 
   const removePhoneNumber = (index: number) => {
-    const newPhones = (companySettings.contact.phone || []).filter((_, i) => i !== index);
-    handleContactChange('phone', newPhones);
+    const newPhones = (companySettings.contact.phone || []).filter(
+      (_, i) => i !== index,
+    );
+    handleContactChange("phone", newPhones);
   };
 
   const handleTermChange = (index: number, value: string) => {
     const newTerms = [...(companySettings.invoiceSettings.terms || [])];
     newTerms[index] = value;
-    handleInvoiceSettingsChange('terms', newTerms);
+    handleInvoiceSettingsChange("terms", newTerms);
   };
 
   const addTerm = () => {
-    const newTerms = [...(companySettings.invoiceSettings.terms || []), ''];
-    handleInvoiceSettingsChange('terms', newTerms);
+    const newTerms = [...(companySettings.invoiceSettings.terms || []), ""];
+    handleInvoiceSettingsChange("terms", newTerms);
   };
 
   const removeTerm = (index: number) => {
-    const newTerms = companySettings.invoiceSettings.terms?.filter((_, i) => i !== index) || [];
-    handleInvoiceSettingsChange('terms', newTerms);
+    const newTerms =
+      companySettings.invoiceSettings.terms?.filter((_, i) => i !== index) ||
+      [];
+    handleInvoiceSettingsChange("terms", newTerms);
   };
 
   const handleTestPDF = async () => {
     // Generate a test invoice PDF with current settings
     const testInvoice = {
-      id: 'test',
-      invoiceNumber: 'TEST-001',
+      id: "test",
+      invoiceNumber: "TEST-001",
       customer: {
-        id: '1',
-        name: 'Test Customer Ltd',
-        email: 'test@customer.com',
-        address: 'Test Address, Nairobi, Kenya',
-        phone: '+254700000000',
-        kraPin: 'P051111111A',
+        id: "1",
+        name: "Test Customer Ltd",
+        email: "test@customer.com",
+        address: "Test Address, Nairobi, Kenya",
+        phone: "+254700000000",
+        kraPin: "P051111111A",
         creditLimit: 100000,
         balance: 0,
         isActive: true,
-        companyId: '1',
+        companyId: "1",
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       },
-      items: [{
-        id: '1',
-        productId: '1',
-        product: {
-          id: '1',
-          name: 'Test Product',
-          description: 'Test Description',
-          sku: 'TEST-001',
-          category: 'Test',
-          unit: 'piece',
-          purchasePrice: 800,
-          sellingPrice: 1000,
-          minStock: 10,
-          maxStock: 100,
-          currentStock: 50,
-          isActive: true,
-          companyId: '1',
-          createdAt: new Date(),
-          updatedAt: new Date()
+      items: [
+        {
+          id: "1",
+          productId: "1",
+          product: {
+            id: "1",
+            name: "Test Product",
+            description: "Test Description",
+            sku: "TEST-001",
+            category: "Test",
+            unit: "piece",
+            purchasePrice: 800,
+            sellingPrice: 1000,
+            minStock: 10,
+            maxStock: 100,
+            currentStock: 50,
+            isActive: true,
+            companyId: "1",
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+          quantity: 2,
+          unitPrice: 1000,
+          discount: 0,
+          vatRate: 16,
+          total: 2000,
         },
-        quantity: 2,
-        unitPrice: 1000,
-        discount: 0,
-        vatRate: 16,
-        total: 2000
-      }],
+      ],
       subtotal: 2000,
       vatAmount: 320,
       discountAmount: 0,
       total: 2320,
       amountPaid: 0,
       balance: 2320,
-      status: 'draft' as const,
+      status: "draft" as const,
       dueDate: new Date(),
       issueDate: new Date(),
-      companyId: '1',
-      createdBy: '1',
+      companyId: "1",
+      createdBy: "1",
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
 
     await PDFService.generateInvoicePDF(testInvoice);
@@ -226,7 +245,7 @@ export default function Settings() {
           </Button>
           <Button onClick={handleSaveSettings} disabled={isLoading}>
             <Save className="mr-2 h-4 w-4" />
-            {isLoading ? 'Saving...' : 'Save Settings'}
+            {isLoading ? "Saving..." : "Save Settings"}
           </Button>
         </div>
       </div>
@@ -252,7 +271,7 @@ export default function Settings() {
 
         <Card
           className="cursor-pointer hover:bg-accent/5 transition-colors"
-          onClick={() => window.location.href = '/units'}
+          onClick={() => (window.location.href = "/units")}
         >
           <CardContent className="pt-6">
             <div className="flex items-center space-x-4">
@@ -289,7 +308,7 @@ export default function Settings() {
 
         <Card
           className="cursor-pointer hover:bg-accent/5 transition-colors"
-          onClick={() => window.location.href = '/settings/taxes'}
+          onClick={() => (window.location.href = "/settings/taxes")}
         >
           <CardContent className="pt-6">
             <div className="flex items-center space-x-4">
@@ -337,7 +356,9 @@ export default function Settings() {
                   <Input
                     id="companyName"
                     value={companySettings.name}
-                    onChange={(e) => handleCompanyInfoChange('name', e.target.value)}
+                    onChange={(e) =>
+                      handleCompanyInfoChange("name", e.target.value)
+                    }
                     placeholder="Your Company Name"
                   />
                 </div>
@@ -347,7 +368,9 @@ export default function Settings() {
                   <Input
                     id="address1"
                     value={companySettings.address.line1}
-                    onChange={(e) => handleAddressChange('line1', e.target.value)}
+                    onChange={(e) =>
+                      handleAddressChange("line1", e.target.value)
+                    }
                     placeholder="P.O BOX 12345 - 00100, NAIROBI, KENYA"
                   />
                 </div>
@@ -356,8 +379,10 @@ export default function Settings() {
                   <Label htmlFor="address2">Address Line 2</Label>
                   <Input
                     id="address2"
-                    value={companySettings.address.line2 || ''}
-                    onChange={(e) => handleAddressChange('line2', e.target.value)}
+                    value={companySettings.address.line2 || ""}
+                    onChange={(e) =>
+                      handleAddressChange("line2", e.target.value)
+                    }
                     placeholder="Building, Street, District"
                   />
                 </div>
@@ -368,7 +393,9 @@ export default function Settings() {
                     <Input
                       id="city"
                       value={companySettings.address.city}
-                      onChange={(e) => handleAddressChange('city', e.target.value)}
+                      onChange={(e) =>
+                        handleAddressChange("city", e.target.value)
+                      }
                       placeholder="Nairobi"
                     />
                   </div>
@@ -377,7 +404,9 @@ export default function Settings() {
                     <Input
                       id="country"
                       value={companySettings.address.country}
-                      onChange={(e) => handleAddressChange('country', e.target.value)}
+                      onChange={(e) =>
+                        handleAddressChange("country", e.target.value)
+                      }
                       placeholder="Kenya"
                     />
                   </div>
@@ -400,12 +429,14 @@ export default function Settings() {
                     <div key={index} className="flex space-x-2">
                       <Input
                         value={phone}
-                        onChange={(e) => handlePhoneChange(index, e.target.value)}
+                        onChange={(e) =>
+                          handlePhoneChange(index, e.target.value)
+                        }
                         placeholder="+254 XXX XXX XXX"
                       />
                       {(companySettings.contact.phone || []).length > 1 && (
-                        <Button 
-                          variant="outline" 
+                        <Button
+                          variant="outline"
                           size="sm"
                           onClick={() => removePhoneNumber(index)}
                         >
@@ -425,7 +456,9 @@ export default function Settings() {
                     id="email"
                     type="email"
                     value={companySettings.contact.email}
-                    onChange={(e) => handleContactChange('email', e.target.value)}
+                    onChange={(e) =>
+                      handleContactChange("email", e.target.value)
+                    }
                     placeholder="sales@company.com"
                   />
                 </div>
@@ -434,8 +467,10 @@ export default function Settings() {
                   <Label htmlFor="website">Website</Label>
                   <Input
                     id="website"
-                    value={companySettings.contact.website || ''}
-                    onChange={(e) => handleContactChange('website', e.target.value)}
+                    value={companySettings.contact.website || ""}
+                    onChange={(e) =>
+                      handleContactChange("website", e.target.value)
+                    }
                     placeholder="www.company.com"
                   />
                 </div>
@@ -456,7 +491,7 @@ export default function Settings() {
                   <Input
                     id="kraPin"
                     value={companySettings.tax.kraPin}
-                    onChange={(e) => handleTaxChange('kraPin', e.target.value)}
+                    onChange={(e) => handleTaxChange("kraPin", e.target.value)}
                     placeholder="P051234567A"
                   />
                 </div>
@@ -465,8 +500,10 @@ export default function Settings() {
                   <Label htmlFor="vatNumber">VAT Number</Label>
                   <Input
                     id="vatNumber"
-                    value={companySettings.tax.vatNumber || ''}
-                    onChange={(e) => handleTaxChange('vatNumber', e.target.value)}
+                    value={companySettings.tax.vatNumber || ""}
+                    onChange={(e) =>
+                      handleTaxChange("vatNumber", e.target.value)
+                    }
                     placeholder="VAT123456789"
                   />
                 </div>
@@ -476,8 +513,10 @@ export default function Settings() {
                     <Label htmlFor="paybillNumber">Paybill Number</Label>
                     <Input
                       id="paybillNumber"
-                      value={companySettings.tax.paybillNumber || ''}
-                      onChange={(e) => handleTaxChange('paybillNumber', e.target.value)}
+                      value={companySettings.tax.paybillNumber || ""}
+                      onChange={(e) =>
+                        handleTaxChange("paybillNumber", e.target.value)
+                      }
                       placeholder="503030"
                     />
                   </div>
@@ -485,8 +524,10 @@ export default function Settings() {
                     <Label htmlFor="accountNumber">Account Number</Label>
                     <Input
                       id="accountNumber"
-                      value={companySettings.tax.accountNumber || ''}
-                      onChange={(e) => handleTaxChange('accountNumber', e.target.value)}
+                      value={companySettings.tax.accountNumber || ""}
+                      onChange={(e) =>
+                        handleTaxChange("accountNumber", e.target.value)
+                      }
                       placeholder="2047138798"
                     />
                   </div>
@@ -507,7 +548,8 @@ export default function Settings() {
                   Company Logo
                 </CardTitle>
                 <CardDescription>
-                  Manage your company logo that appears on invoices and documents
+                  Manage your company logo that appears on invoices and
+                  documents
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -522,12 +564,16 @@ export default function Settings() {
                           alt="Company Logo"
                           className="mx-auto max-h-24 w-auto object-contain"
                         />
-                        <p className="text-sm text-muted-foreground">Current logo</p>
+                        <p className="text-sm text-muted-foreground">
+                          Current logo
+                        </p>
                       </div>
                     ) : (
                       <div className="space-y-2">
                         <Building2 className="h-12 w-12 text-muted-foreground mx-auto" />
-                        <p className="text-sm text-muted-foreground">No logo uploaded</p>
+                        <p className="text-sm text-muted-foreground">
+                          No logo uploaded
+                        </p>
                       </div>
                     )}
                   </div>
@@ -538,8 +584,10 @@ export default function Settings() {
                   <Label htmlFor="logoUrl">Logo URL</Label>
                   <Input
                     id="logoUrl"
-                    value={companySettings.branding.logo || ''}
-                    onChange={(e) => handleBrandingChange('logo', e.target.value)}
+                    value={companySettings.branding.logo || ""}
+                    onChange={(e) =>
+                      handleBrandingChange("logo", e.target.value)
+                    }
                     placeholder="https://example.com/logo.png"
                   />
                   <p className="text-xs text-muted-foreground">
@@ -577,12 +625,16 @@ export default function Settings() {
                       type="color"
                       id="primaryColor"
                       value={companySettings.branding.primaryColor}
-                      onChange={(e) => handleBrandingChange('primaryColor', e.target.value)}
+                      onChange={(e) =>
+                        handleBrandingChange("primaryColor", e.target.value)
+                      }
                       className="w-12 h-10"
                     />
                     <Input
                       value={companySettings.branding.primaryColor}
-                      onChange={(e) => handleBrandingChange('primaryColor', e.target.value)}
+                      onChange={(e) =>
+                        handleBrandingChange("primaryColor", e.target.value)
+                      }
                       placeholder="#2563eb"
                     />
                   </div>
@@ -598,12 +650,16 @@ export default function Settings() {
                       type="color"
                       id="secondaryColor"
                       value={companySettings.branding.secondaryColor}
-                      onChange={(e) => handleBrandingChange('secondaryColor', e.target.value)}
+                      onChange={(e) =>
+                        handleBrandingChange("secondaryColor", e.target.value)
+                      }
                       className="w-12 h-10"
                     />
                     <Input
                       value={companySettings.branding.secondaryColor}
-                      onChange={(e) => handleBrandingChange('secondaryColor', e.target.value)}
+                      onChange={(e) =>
+                        handleBrandingChange("secondaryColor", e.target.value)
+                      }
                       placeholder="#10b981"
                     />
                   </div>
@@ -618,13 +674,18 @@ export default function Settings() {
                   <div className="border rounded-lg p-4 space-y-2">
                     <div
                       className="h-8 rounded flex items-center px-3 text-white font-medium"
-                      style={{ backgroundColor: companySettings.branding.primaryColor }}
+                      style={{
+                        backgroundColor: companySettings.branding.primaryColor,
+                      }}
                     >
                       Primary Color
                     </div>
                     <div
                       className="h-8 rounded flex items-center px-3 text-white font-medium"
-                      style={{ backgroundColor: companySettings.branding.secondaryColor }}
+                      style={{
+                        backgroundColor:
+                          companySettings.branding.secondaryColor,
+                      }}
                     >
                       Secondary Color
                     </div>
@@ -654,7 +715,9 @@ export default function Settings() {
                   <Input
                     id="invoicePrefix"
                     value={companySettings.invoiceSettings.prefix}
-                    onChange={(e) => handleInvoiceSettingsChange('prefix', e.target.value)}
+                    onChange={(e) =>
+                      handleInvoiceSettingsChange("prefix", e.target.value)
+                    }
                     placeholder="INV"
                   />
                 </div>
@@ -664,7 +727,12 @@ export default function Settings() {
                     id="startingNumber"
                     type="number"
                     value={companySettings.invoiceSettings.startingNumber}
-                    onChange={(e) => handleInvoiceSettingsChange('startingNumber', parseInt(e.target.value))}
+                    onChange={(e) =>
+                      handleInvoiceSettingsChange(
+                        "startingNumber",
+                        parseInt(e.target.value),
+                      )
+                    }
                     placeholder="1000"
                   />
                 </div>
@@ -677,14 +745,21 @@ export default function Settings() {
                     id="vatRate"
                     type="number"
                     value={companySettings.invoiceSettings.defaultVATRate}
-                    onChange={(e) => handleInvoiceSettingsChange('defaultVATRate', parseInt(e.target.value))}
+                    onChange={(e) =>
+                      handleInvoiceSettingsChange(
+                        "defaultVATRate",
+                        parseInt(e.target.value),
+                      )
+                    }
                     placeholder="16"
                   />
                 </div>
                 <div className="flex items-center space-x-2 pt-6">
                   <Switch
                     checked={companySettings.invoiceSettings.showVAT}
-                    onCheckedChange={(checked) => handleInvoiceSettingsChange('showVAT', checked)}
+                    onCheckedChange={(checked) =>
+                      handleInvoiceSettingsChange("showVAT", checked)
+                    }
                   />
                   <Label>Show VAT on documents</Label>
                 </div>
@@ -694,8 +769,10 @@ export default function Settings() {
                 <Label htmlFor="footer">Document Footer</Label>
                 <Textarea
                   id="footer"
-                  value={companySettings.invoiceSettings.footer || ''}
-                  onChange={(e) => handleInvoiceSettingsChange('footer', e.target.value)}
+                  value={companySettings.invoiceSettings.footer || ""}
+                  onChange={(e) =>
+                    handleInvoiceSettingsChange("footer", e.target.value)
+                  }
                   placeholder="Thank you for your business!"
                 />
               </div>
@@ -707,23 +784,27 @@ export default function Settings() {
                     Add Term
                   </Button>
                 </div>
-                {(companySettings.invoiceSettings.terms || []).map((term, index) => (
-                  <div key={index} className="flex space-x-2">
-                    <Textarea
-                      value={term}
-                      onChange={(e) => handleTermChange(index, e.target.value)}
-                      placeholder="Enter term or condition"
-                      className="min-h-[60px]"
-                    />
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => removeTerm(index)}
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                ))}
+                {(companySettings.invoiceSettings.terms || []).map(
+                  (term, index) => (
+                    <div key={index} className="flex space-x-2">
+                      <Textarea
+                        value={term}
+                        onChange={(e) =>
+                          handleTermChange(index, e.target.value)
+                        }
+                        placeholder="Enter term or condition"
+                        className="min-h-[60px]"
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeTerm(index)}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  ),
+                )}
               </div>
             </CardContent>
           </Card>
@@ -750,7 +831,9 @@ export default function Settings() {
                   </div>
                   <div>
                     <h4 className="font-medium">Simon Gichuki (You)</h4>
-                    <p className="text-sm text-muted-foreground">Administrator • simon@medplusafrica.com</p>
+                    <p className="text-sm text-muted-foreground">
+                      Administrator • simon@medplusafrica.com
+                    </p>
                   </div>
                   <Badge variant="default">Admin</Badge>
                 </div>
@@ -764,28 +847,36 @@ export default function Settings() {
                     <div className="flex items-center justify-between p-3 border rounded-lg">
                       <div>
                         <p className="font-medium">Administrator</p>
-                        <p className="text-sm text-muted-foreground">Full system access</p>
+                        <p className="text-sm text-muted-foreground">
+                          Full system access
+                        </p>
                       </div>
                       <Badge variant="destructive">1 user</Badge>
                     </div>
                     <div className="flex items-center justify-between p-3 border rounded-lg">
                       <div>
                         <p className="font-medium">Sales Manager</p>
-                        <p className="text-sm text-muted-foreground">Invoices, customers, quotations</p>
+                        <p className="text-sm text-muted-foreground">
+                          Invoices, customers, quotations
+                        </p>
                       </div>
                       <Badge variant="outline">0 users</Badge>
                     </div>
                     <div className="flex items-center justify-between p-3 border rounded-lg">
                       <div>
                         <p className="font-medium">Accountant</p>
-                        <p className="text-sm text-muted-foreground">Invoices, payments, reports</p>
+                        <p className="text-sm text-muted-foreground">
+                          Invoices, payments, reports
+                        </p>
                       </div>
                       <Badge variant="outline">0 users</Badge>
                     </div>
                     <div className="flex items-center justify-between p-3 border rounded-lg">
                       <div>
                         <p className="font-medium">Viewer</p>
-                        <p className="text-sm text-muted-foreground">Read-only access</p>
+                        <p className="text-sm text-muted-foreground">
+                          Read-only access
+                        </p>
                       </div>
                       <Badge variant="outline">0 users</Badge>
                     </div>
@@ -803,7 +894,11 @@ export default function Settings() {
                       <Settings className="mr-2 h-4 w-4" />
                       Manage Permissions
                     </Button>
-                    <Button variant="outline" className="w-full justify-start" disabled>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      disabled
+                    >
                       <Upload className="mr-2 h-4 w-4" />
                       Import Users (CSV)
                     </Button>
@@ -811,7 +906,9 @@ export default function Settings() {
 
                   <div className="mt-4 p-3 bg-info/10 border border-info/20 rounded-lg">
                     <p className="text-sm text-info-foreground">
-                      💡 <strong>Tip:</strong> You can add team members and assign specific roles to control what they can access in the system.
+                      💡 <strong>Tip:</strong> You can add team members and
+                      assign specific roles to control what they can access in
+                      the system.
                     </p>
                   </div>
                 </div>
@@ -856,15 +953,21 @@ export default function Settings() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm font-medium">Database</span>
-                    <span className="text-sm text-muted-foreground">PostgreSQL</span>
+                    <span className="text-sm text-muted-foreground">
+                      PostgreSQL
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm font-medium">Last Backup</span>
-                    <span className="text-sm text-muted-foreground">2 hours ago</span>
+                    <span className="text-sm text-muted-foreground">
+                      2 hours ago
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm font-medium">Storage Used</span>
-                    <span className="text-sm text-muted-foreground">12.5 MB</span>
+                    <span className="text-sm text-muted-foreground">
+                      12.5 MB
+                    </span>
                   </div>
                 </div>
               </CardContent>
@@ -917,7 +1020,9 @@ export default function Settings() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="KES">KES - Kenyan Shilling</SelectItem>
+                        <SelectItem value="KES">
+                          KES - Kenyan Shilling
+                        </SelectItem>
                         <SelectItem value="USD">USD - US Dollar</SelectItem>
                         <SelectItem value="EUR">EUR - Euro</SelectItem>
                         <SelectItem value="GBP">GBP - British Pound</SelectItem>
@@ -1024,7 +1129,8 @@ export default function Settings() {
                 <div className="border-t pt-4">
                   <div className="bg-warning/10 border border-warning/20 rounded-lg p-3">
                     <p className="text-sm text-warning-foreground">
-                      ⚠️ <strong>Warning:</strong> Some system actions may temporarily affect performance.
+                      ⚠️ <strong>Warning:</strong> Some system actions may
+                      temporarily affect performance.
                     </p>
                   </div>
                 </div>

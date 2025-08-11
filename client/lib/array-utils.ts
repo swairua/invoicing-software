@@ -14,7 +14,7 @@ export function ensureArray<T>(value: T[] | undefined | null): T[] {
  */
 export function safeFilter<T>(
   array: T[] | undefined | null,
-  predicate: (value: T, index: number, array: T[]) => boolean
+  predicate: (value: T, index: number, array: T[]) => boolean,
 ): T[] {
   return ensureArray(array).filter(predicate);
 }
@@ -24,7 +24,7 @@ export function safeFilter<T>(
  */
 export function safeMap<T, U>(
   array: T[] | undefined | null,
-  callback: (value: T, index: number, array: T[]) => U
+  callback: (value: T, index: number, array: T[]) => U,
 ): U[] {
   return ensureArray(array).map(callback);
 }

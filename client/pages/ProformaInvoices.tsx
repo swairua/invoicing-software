@@ -106,7 +106,7 @@ export default function ProformaInvoices() {
         setCustomers(customersData);
         setProducts(productsData);
       } catch (error) {
-        console.error('Failed to load data:', error);
+        console.error("Failed to load data:", error);
         // Set empty arrays as fallbacks
         setProformas([]);
         setCustomers([]);
@@ -129,7 +129,7 @@ export default function ProformaInvoices() {
         setCustomers(customersData);
         setProducts(productsData);
       } catch (error) {
-        console.error('Failed to refresh data:', error);
+        console.error("Failed to refresh data:", error);
       }
     };
 
@@ -316,7 +316,7 @@ export default function ProformaInvoices() {
         const proformasData = await businessData.getProformas();
         setProformas(proformasData);
       } catch (error) {
-        console.error('Failed to refresh proformas:', error);
+        console.error("Failed to refresh proformas:", error);
       }
       toast({
         title: "Conversion Successful",

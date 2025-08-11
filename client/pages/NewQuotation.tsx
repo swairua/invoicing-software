@@ -147,23 +147,25 @@ export default function NewQuotation() {
     let discountAmount = 0;
     let vatAmount = 0;
 
-    items.filter(item => item.productId).forEach((item) => {
-      const quantity = parseFloat(item.quantity) || 0;
-      const unitPrice = parseFloat(item.unitPrice) || 0;
-      const discount = parseFloat(item.discount) || 0;
+    items
+      .filter((item) => item.productId)
+      .forEach((item) => {
+        const quantity = parseFloat(item.quantity) || 0;
+        const unitPrice = parseFloat(item.unitPrice) || 0;
+        const discount = parseFloat(item.discount) || 0;
 
-      const itemSubtotal = quantity * unitPrice;
-      subtotal += itemSubtotal;
+        const itemSubtotal = quantity * unitPrice;
+        subtotal += itemSubtotal;
 
-      const itemDiscountAmount = (itemSubtotal * discount) / 100;
-      discountAmount += itemDiscountAmount;
+        const itemDiscountAmount = (itemSubtotal * discount) / 100;
+        discountAmount += itemDiscountAmount;
 
-      const afterDiscount = itemSubtotal - itemDiscountAmount;
-      const product = products.find((p) => p.id === item.productId);
-      const vatRate = product?.taxable ? product.taxRate || 16 : 0;
-      const itemVatAmount = (afterDiscount * vatRate) / 100;
-      vatAmount += itemVatAmount;
-    });
+        const afterDiscount = itemSubtotal - itemDiscountAmount;
+        const product = products.find((p) => p.id === item.productId);
+        const vatRate = product?.taxable ? product.taxRate || 16 : 0;
+        const itemVatAmount = (afterDiscount * vatRate) / 100;
+        vatAmount += itemVatAmount;
+      });
 
     const total = subtotal - discountAmount + vatAmount;
 
@@ -192,7 +194,7 @@ export default function NewQuotation() {
       return;
     }
 
-    const validItems = items.filter(item => item.productId);
+    const validItems = items.filter((item) => item.productId);
     if (validItems.length === 0) {
       toast({
         title: "Validation Error",
@@ -427,7 +429,7 @@ export default function NewQuotation() {
         />
 
         {/* Summary */}
-        {items.filter(item => item.productId).length > 0 && (
+        {items.filter((item) => item.productId).length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">

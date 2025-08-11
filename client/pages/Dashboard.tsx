@@ -258,7 +258,7 @@ export default function Dashboard() {
         setLiveMetrics(metrics);
         setIsSimulating(businessData.isSimulationRunning());
       } catch (error) {
-        console.error('Failed to load dashboard metrics:', error);
+        console.error("Failed to load dashboard metrics:", error);
       }
     };
     loadMetrics();
@@ -272,7 +272,7 @@ export default function Dashboard() {
         setLiveMetrics(metrics);
         setIsSimulating(businessData.isSimulationRunning());
       } catch (error) {
-        console.error('Failed to refresh dashboard metrics:', error);
+        console.error("Failed to refresh dashboard metrics:", error);
       }
     };
 

@@ -157,31 +157,33 @@ export default function NewInvoice() {
     let vatAmount = 0;
     let additionalTaxAmount = 0;
 
-    items.filter(item => item.productId).forEach((item) => {
-      const quantity = parseFloat(item.quantity) || 0;
-      const unitPrice = parseFloat(item.unitPrice) || 0;
-      const discount = parseFloat(item.discount) || 0;
+    items
+      .filter((item) => item.productId)
+      .forEach((item) => {
+        const quantity = parseFloat(item.quantity) || 0;
+        const unitPrice = parseFloat(item.unitPrice) || 0;
+        const discount = parseFloat(item.discount) || 0;
 
-      const itemSubtotal = quantity * unitPrice;
-      subtotal += itemSubtotal;
+        const itemSubtotal = quantity * unitPrice;
+        subtotal += itemSubtotal;
 
-      const itemDiscountAmount = (itemSubtotal * discount) / 100;
-      discountAmount += itemDiscountAmount;
+        const itemDiscountAmount = (itemSubtotal * discount) / 100;
+        discountAmount += itemDiscountAmount;
 
-      const afterDiscount = itemSubtotal - itemDiscountAmount;
-      const product = products.find((p) => p.id === item.productId);
-      const vatRate = product?.taxable ? product.taxRate || 16 : 0;
-      const itemVatAmount = (afterDiscount * vatRate) / 100;
-      vatAmount += itemVatAmount;
+        const afterDiscount = itemSubtotal - itemDiscountAmount;
+        const product = products.find((p) => p.id === item.productId);
+        const vatRate = product?.taxable ? product.taxRate || 16 : 0;
+        const itemVatAmount = (afterDiscount * vatRate) / 100;
+        vatAmount += itemVatAmount;
 
-      // Calculate additional line item taxes
-      if (item.lineItemTaxes && item.lineItemTaxes.length > 0) {
-        const itemTaxAmount = item.lineItemTaxes.reduce((taxSum, tax) => {
-          return taxSum + afterDiscount * (tax.rate / 100);
-        }, 0);
-        additionalTaxAmount += itemTaxAmount;
-      }
-    });
+        // Calculate additional line item taxes
+        if (item.lineItemTaxes && item.lineItemTaxes.length > 0) {
+          const itemTaxAmount = item.lineItemTaxes.reduce((taxSum, tax) => {
+            return taxSum + afterDiscount * (tax.rate / 100);
+          }, 0);
+          additionalTaxAmount += itemTaxAmount;
+        }
+      });
 
     const total = subtotal - discountAmount + vatAmount + additionalTaxAmount;
 
@@ -211,7 +213,7 @@ export default function NewInvoice() {
       return;
     }
 
-    const validItems = items.filter(item => item.productId);
+    const validItems = items.filter((item) => item.productId);
     if (validItems.length === 0) {
       toast({
         title: "Validation Error",
@@ -497,7 +499,7 @@ export default function NewInvoice() {
         />
 
         {/* Invoice Summary */}
-        {items.filter(item => item.productId).length > 0 && (
+        {items.filter((item) => item.productId).length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
