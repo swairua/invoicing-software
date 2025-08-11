@@ -201,38 +201,30 @@ export class PDFService {
   private static addCompanyHeader(doc: jsPDF, pageWidth: number, design?: TemplateDesign): void {
     const settings = this.companySettings;
 
-    // Add logo - create Medplus Africa shield logo with proper medical styling
+    // Add dynamic logo from company settings
     if (settings.branding?.logo && design?.header?.showLogo !== false) {
-      // Create the shield shape (blue and green gradient)
-      doc.setFillColor(52, 152, 219); // Light blue
+      try {
+        // Try to add the actual logo image from company settings
+        // Note: This will work if the image is accessible and properly formatted
+        const logoWidth = 25;
+        const logoHeight = 25;
+        const logoX = 20;
+        const logoY = 15;
 
-      // Draw shield outline
-      doc.moveTo(20, 25);
-      doc.lineTo(20, 35);
-      doc.curveTo(20, 40, 32.5, 42, 32.5, 42);
-      doc.curveTo(32.5, 42, 45, 40, 45, 35);
-      doc.lineTo(45, 25);
-      doc.lineTo(32.5, 15);
-      doc.lineTo(20, 25);
-      doc.fill();
-
-      // Add green section
-      doc.setFillColor(46, 204, 113);
-      doc.moveTo(32.5, 15);
-      doc.lineTo(45, 25);
-      doc.lineTo(45, 35);
-      doc.curveTo(45, 40, 32.5, 42, 32.5, 42);
-      doc.lineTo(32.5, 15);
-      doc.fill();
-
-      // Add white medical cross
-      doc.setFillColor(255, 255, 255);
-      // Vertical bar
-      doc.rect(30.5, 22, 4, 15, 'F');
-      // Horizontal bar
-      doc.rect(26, 27.5, 13, 4, 'F');
+        // Use the company logo URL directly
+        doc.addImage(settings.branding.logo, 'JPEG', logoX, logoY, logoWidth, logoHeight);
+      } catch (error) {
+        console.warn('Failed to load company logo, using text fallback:', error);
+        // Fallback: Show company name initial in a circle
+        doc.setFillColor(41, 128, 185);
+        doc.circle(32.5, 27.5, 12, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text(settings.name.charAt(0), 32.5, 32, { align: 'center' });
+      }
     } else {
-      // Fallback: Simple company initial or default design
+      // Fallback: Simple company initial
       doc.setFillColor(41, 128, 185);
       doc.circle(32.5, 27.5, 12, 'F');
       doc.setTextColor(255, 255, 255);
