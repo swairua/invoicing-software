@@ -95,18 +95,45 @@ export default function ProformaInvoices() {
 
   // Load initial data
   React.useEffect(() => {
-    setProformas(businessData.getProformas());
-    setCustomers(businessData.getCustomers());
-    setProducts(businessData.getProducts());
+    const loadData = async () => {
+      try {
+        const [proformasData, customersData, productsData] = await Promise.all([
+          businessData.getProformas(),
+          businessData.getCustomers(),
+          businessData.getProducts(),
+        ]);
+        setProformas(proformasData);
+        setCustomers(customersData);
+        setProducts(productsData);
+      } catch (error) {
+        console.error('Failed to load data:', error);
+        // Set empty arrays as fallbacks
+        setProformas([]);
+        setCustomers([]);
+        setProducts([]);
+      }
+    };
+    loadData();
   }, []);
 
   // Refresh data periodically
   React.useEffect(() => {
-    const refreshInterval = setInterval(() => {
-      setProformas(businessData.getProformas());
-      setCustomers(businessData.getCustomers());
-      setProducts(businessData.getProducts());
-    }, 5000);
+    const refreshData = async () => {
+      try {
+        const [proformasData, customersData, productsData] = await Promise.all([
+          businessData.getProformas(),
+          businessData.getCustomers(),
+          businessData.getProducts(),
+        ]);
+        setProformas(proformasData);
+        setCustomers(customersData);
+        setProducts(productsData);
+      } catch (error) {
+        console.error('Failed to refresh data:', error);
+      }
+    };
+
+    const refreshInterval = setInterval(refreshData, 5000);
 
     return () => clearInterval(refreshInterval);
   }, []);
