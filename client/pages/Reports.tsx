@@ -629,20 +629,21 @@ export default function Reports() {
             </Card>
           </div>
 
-          {/* VAT Chart Placeholder */}
+          {/* VAT Collection Chart */}
           <Card>
             <CardHeader>
               <CardTitle>VAT Collection Trend</CardTitle>
               <CardDescription>Monthly VAT collection over time</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-[300px] flex items-center justify-center border-2 border-dashed border-muted rounded-lg">
-                <div className="text-center text-muted-foreground">
-                  <BarChart3 className="h-12 w-12 mx-auto mb-2" />
-                  <p>VAT Collection Chart</p>
-                  <p className="text-sm">Integration with recharts coming soon</p>
-                </div>
-              </div>
+              <SimpleBarChart
+                data={mockTaxReport.vatByMonth.map(item => ({
+                  name: item.month,
+                  value: item.vat
+                }))}
+                color="#059669"
+                height={320}
+              />
             </CardContent>
           </Card>
 
