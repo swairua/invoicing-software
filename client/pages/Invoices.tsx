@@ -371,7 +371,12 @@ export default function Invoices() {
     );
 
     if (payment) {
-      setInvoices(businessData.getInvoices());
+      try {
+        const updatedInvoices = await businessData.getInvoices();
+        setInvoices(updatedInvoices);
+      } catch (error) {
+        console.error('Failed to refresh invoices:', error);
+      }
       toast({
         title: "Payment Recorded",
         description: `Payment of KES ${paymentAmount.toLocaleString()} recorded for ${invoice.invoiceNumber}`,
