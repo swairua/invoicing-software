@@ -494,6 +494,145 @@ export default function Settings() {
           </div>
         </TabsContent>
 
+        {/* Logo & Branding */}
+        <TabsContent value="branding" className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* Logo Settings */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Palette className="mr-2 h-5 w-5" />
+                  Company Logo
+                </CardTitle>
+                <CardDescription>
+                  Manage your company logo that appears on invoices and documents
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Current Logo Display */}
+                <div className="space-y-2">
+                  <Label>Current Logo</Label>
+                  <div className="border-2 border-dashed border-muted rounded-lg p-4 text-center">
+                    {companySettings.branding.logo ? (
+                      <div className="space-y-2">
+                        <img
+                          src={companySettings.branding.logo}
+                          alt="Company Logo"
+                          className="mx-auto max-h-24 w-auto object-contain"
+                        />
+                        <p className="text-sm text-muted-foreground">Current logo</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <Building2 className="h-12 w-12 text-muted-foreground mx-auto" />
+                        <p className="text-sm text-muted-foreground">No logo uploaded</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Logo URL Input */}
+                <div className="space-y-2">
+                  <Label htmlFor="logoUrl">Logo URL</Label>
+                  <Input
+                    id="logoUrl"
+                    value={companySettings.branding.logo || ''}
+                    onChange={(e) => handleBrandingChange('logo', e.target.value)}
+                    placeholder="https://example.com/logo.png"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Enter a URL to your logo image (PNG, JPG, or SVG)
+                  </p>
+                </div>
+
+                {/* Logo Upload Button */}
+                <div className="space-y-2">
+                  <Label>Upload Logo</Label>
+                  <Button variant="outline" className="w-full" disabled>
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload Logo File
+                  </Button>
+                  <p className="text-xs text-muted-foreground">
+                    File upload coming soon. For now, use a URL above.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Brand Colors */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Brand Colors</CardTitle>
+                <CardDescription>
+                  Customize the colors used in your documents and invoices
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="primaryColor">Primary Color</Label>
+                  <div className="flex space-x-2">
+                    <Input
+                      type="color"
+                      id="primaryColor"
+                      value={companySettings.branding.primaryColor}
+                      onChange={(e) => handleBrandingChange('primaryColor', e.target.value)}
+                      className="w-12 h-10"
+                    />
+                    <Input
+                      value={companySettings.branding.primaryColor}
+                      onChange={(e) => handleBrandingChange('primaryColor', e.target.value)}
+                      placeholder="#2563eb"
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Used for headers, accents, and primary elements
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="secondaryColor">Secondary Color</Label>
+                  <div className="flex space-x-2">
+                    <Input
+                      type="color"
+                      id="secondaryColor"
+                      value={companySettings.branding.secondaryColor}
+                      onChange={(e) => handleBrandingChange('secondaryColor', e.target.value)}
+                      className="w-12 h-10"
+                    />
+                    <Input
+                      value={companySettings.branding.secondaryColor}
+                      onChange={(e) => handleBrandingChange('secondaryColor', e.target.value)}
+                      placeholder="#10b981"
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Used for secondary elements and accents
+                  </p>
+                </div>
+
+                {/* Preview */}
+                <div className="space-y-2">
+                  <Label>Color Preview</Label>
+                  <div className="border rounded-lg p-4 space-y-2">
+                    <div
+                      className="h-8 rounded flex items-center px-3 text-white font-medium"
+                      style={{ backgroundColor: companySettings.branding.primaryColor }}
+                    >
+                      Primary Color
+                    </div>
+                    <div
+                      className="h-8 rounded flex items-center px-3 text-white font-medium"
+                      style={{ backgroundColor: companySettings.branding.secondaryColor }}
+                    >
+                      Secondary Color
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
         {/* Document Settings */}
         <TabsContent value="documents" className="space-y-6">
           <Card>
