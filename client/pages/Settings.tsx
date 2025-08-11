@@ -383,7 +383,7 @@ export default function Settings() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label>Phone Numbers</Label>
-                  {companySettings.contact.phone.map((phone, index) => (
+                  {(companySettings.contact.phone || []).map((phone, index) => (
                     <div key={index} className="flex space-x-2">
                       <Input
                         value={phone}
