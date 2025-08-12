@@ -45,7 +45,7 @@ router.get('/', async (req, res) => {
         creditLimit: 500000,
         balance: 125000,
         isActive: true,
-        companyId: companyId,
+        companyId: req.headers['x-company-id'] as string || '550e8400-e29b-41d4-a716-446655440000',
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -59,7 +59,7 @@ router.get('/', async (req, res) => {
         creditLimit: 300000,
         balance: 45000,
         isActive: true,
-        companyId: companyId,
+        companyId: req.headers['x-company-id'] as string || '550e8400-e29b-41d4-a716-446655440000',
         createdAt: new Date(),
         updatedAt: new Date()
       }
