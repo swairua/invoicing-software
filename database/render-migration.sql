@@ -534,11 +534,12 @@ VALUES (
 ) ON CONFLICT (id) DO NOTHING;
 
 -- Insert sample products
-INSERT INTO products (id, company_id, name, description, sku, unit, price, stock_quantity, category, tax_rate)
-VALUES 
+INSERT INTO products (id, company_id, category_id, name, description, sku, unit, selling_price, current_stock, category, tax_rate, purchase_price, cost_price, min_stock, reorder_level)
+VALUES
 (
     '00000000-0000-0000-0000-000000000003',
     '00000000-0000-0000-0000-000000000001',
+    '00000000-0000-0000-0000-000000000010',
     'Medical Syringes 10ml',
     'Disposable medical syringes with needle',
     'SYR-10ML-001',
@@ -546,11 +547,16 @@ VALUES
     25.00,
     1000,
     'Medical Supplies',
-    16.00
+    16.00,
+    20.00,
+    20.00,
+    100,
+    200
 ),
 (
     '00000000-0000-0000-0000-000000000004',
     '00000000-0000-0000-0000-000000000001',
+    '00000000-0000-0000-0000-000000000010',
     'Surgical Gloves Size M',
     'Latex-free surgical gloves medium size',
     'GLV-M-001',
@@ -558,11 +564,16 @@ VALUES
     150.00,
     500,
     'Medical Supplies',
-    16.00
+    16.00,
+    120.00,
+    120.00,
+    50,
+    100
 ),
 (
     '00000000-0000-0000-0000-000000000005',
     '00000000-0000-0000-0000-000000000001',
+    '00000000-0000-0000-0000-000000000011',
     'Digital Thermometer',
     'Digital thermometer with LCD display',
     'THERM-DIG-001',
@@ -570,7 +581,45 @@ VALUES
     320.00,
     200,
     'Medical Equipment',
-    16.00
+    16.00,
+    250.00,
+    250.00,
+    20,
+    50
+),
+(
+    '00000000-0000-0000-0000-000000000006',
+    '00000000-0000-0000-0000-000000000001',
+    '00000000-0000-0000-0000-000000000012',
+    'Blood Pressure Monitor',
+    'Digital blood pressure monitor with cuff',
+    'BPM-DIG-001',
+    'Piece',
+    850.00,
+    50,
+    'Medical Equipment',
+    16.00,
+    650.00,
+    650.00,
+    5,
+    10
+),
+(
+    '00000000-0000-0000-0000-000000000007',
+    '00000000-0000-0000-0000-000000000001',
+    '00000000-0000-0000-0000-000000000010',
+    'Sterile Gauze Pads',
+    'Sterile gauze pads 4x4 inches',
+    'GAU-4X4-001',
+    'Pack',
+    45.00,
+    800,
+    'Medical Supplies',
+    16.00,
+    35.00,
+    35.00,
+    100,
+    200
 )
 ON CONFLICT (id) DO NOTHING;
 
