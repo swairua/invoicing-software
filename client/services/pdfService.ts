@@ -438,34 +438,42 @@ export class PDFService {
   ): void {
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
+    doc.setTextColor(0, 0, 0);
 
-    // Customer info (left side)
-    doc.text("To:", 20, 95);
+    let startY = 115;
+
+    // Customer info section (left side)
+    doc.text("To:", 20, startY);
     doc.setFont("helvetica", "bold");
-    doc.text(document.customer.name, 20, 102);
+    doc.text(document.customer.name, 20, startY + 7);
     doc.setFont("helvetica", "normal");
 
     if (document.customer.address) {
       const addressLines = document.customer.address.split(",");
-      let yPos = 107;
+      let yPos = startY + 12;
       addressLines.forEach((line) => {
-        doc.text(line.trim(), 20, yPos);
-        yPos += 5;
+        if (line.trim()) {
+          doc.text(line.trim(), 20, yPos);
+          yPos += 5;
+        }
       });
     }
 
-    // Date and document info (right side)
+    // Date and document info (right side, properly aligned)
     const dateLabel = "issueDate" in document ? "Date:" : "Date:";
-    const date =
-      "issueDate" in document ? document.issueDate : document.createdAt;
+    const date = "issueDate" in document ? document.issueDate : document.createdAt;
 
-    doc.text(dateLabel, pageWidth - 80, 95);
-    doc.text(this.formatDate(date), pageWidth - 20, 95, { align: "right" });
+    // Right column starting position
+    const rightColumnX = pageWidth - 100;
+    const rightValueX = pageWidth - 20;
+
+    doc.text(dateLabel, rightColumnX, startY);
+    doc.text(this.formatDate(date), rightValueX, startY, { align: "right" });
 
     // LPO number if available
     if ("invoiceNumber" in document) {
-      doc.text("LPO NO.", pageWidth - 80, 102);
-      doc.text("N/A", pageWidth - 20, 102, { align: "right" });
+      doc.text("LPO NO.", rightColumnX, startY + 7);
+      doc.text("N/A", rightValueX, startY + 7, { align: "right" });
     }
   }
 
