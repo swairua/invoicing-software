@@ -5,10 +5,11 @@
  * Verifies database connection and schema
  */
 
-const { Pool } = require("pg");
+import pkg from "pg";
+const { Pool } = pkg;
 
 async function checkDatabase() {
-  console.log("🔍 Checking database status...\n");
+  console.log("�� Checking database status...\n");
 
   const databaseUrl = process.env.DATABASE_URL;
 
