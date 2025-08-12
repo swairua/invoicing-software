@@ -484,7 +484,7 @@ export default function Invoices() {
 
       toast({
         title: "Invoice Sent",
-        description: `Invoice ${invoice.invoiceNumber} sent to ${invoice.customer.name}`,
+        description: `Invoice ${invoice.invoiceNumber} sent to ${invoice.customer?.name || 'Unknown Customer'}`,
       });
     }
   };
