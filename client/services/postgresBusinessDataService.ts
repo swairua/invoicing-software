@@ -292,9 +292,10 @@ class PostgresBusinessDataService {
   public async getActivityLog(): Promise<any[]> {
     try {
       const response = await this.apiCall('/activity-log');
-      return response.data || [];
+      return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       console.error('Failed to fetch activity log:', error);
+      console.log('Using fallback activity data');
       // Return fallback activity data when API is unavailable
       return this.getFallbackActivityLog();
     }
