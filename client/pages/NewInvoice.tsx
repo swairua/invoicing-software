@@ -75,6 +75,8 @@ interface InvoiceItemFormData {
   unitPrice: string;
   discount: string;
   lineItemTaxes?: LineItemTax[];
+  vatEnabled?: boolean;
+  vatRate?: number;
 }
 
 export default function NewInvoice() {
