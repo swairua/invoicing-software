@@ -761,7 +761,7 @@ export default function Payments() {
                   <div className="flex items-center space-x-3">
                     <Avatar className="h-8 w-8">
                       <AvatarFallback className="text-xs">
-                        {invoice.customer.name
+                        {(invoice.customer?.name || 'Unknown Customer')
                           .split(" ")
                           .map((n) => n[0])
                           .join("")
