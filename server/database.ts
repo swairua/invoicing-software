@@ -1,23 +1,34 @@
-import { Pool, PoolClient } from 'pg';
+import { Pool, PoolClient } from "pg";
 
-// Database configuration
-const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:Sirgeorge.12@db.qvtgnxezqwwlhzdmtwhc.supabase.co:5432/postgres';
+// Database configuration - Force Neon connection
+const DATABASE_URL =
+  process.env.DATABASE_URL ||
+  "postgresql://neondb_owner:npg_smrD4peod8xL@ep-delicate-shape-aewuio49-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
 
 // Create connection pool
 const pool = new Pool({
   connectionString: DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  },
-  max: 20, // Maximum number of clients in the pool
-  idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
-  connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection could not be established
+  ssl:
+    DATABASE_URL &&
+    (DATABASE_URL.includes("neon.tech") ||
+      DATABASE_URL.includes("supabase.co") ||
+      DATABASE_URL.includes("render.com"))
+      ? {
+          rejectUnauthorized: false,
+        }
+      : false,
+  max: 10, // Connection pool size
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 20000,
+  acquireTimeoutMillis: 20000,
+  createTimeoutMillis: 20000,
+  application_name: "fusion-invoicing-neon",
 });
 
 // Database connection wrapper
 export class Database {
   private static instance: Database;
-  
+
   public static getInstance(): Database {
     if (!Database.instance) {
       Database.instance = new Database();
@@ -42,15 +53,17 @@ export class Database {
   }
 
   // Execute multiple queries in a transaction
-  async transaction(callback: (client: PoolClient) => Promise<any>): Promise<any> {
+  async transaction(
+    callback: (client: PoolClient) => Promise<any>,
+  ): Promise<any> {
     const client = await this.getClient();
     try {
-      await client.query('BEGIN');
+      await client.query("BEGIN");
       const result = await callback(client);
-      await client.query('COMMIT');
+      await client.query("COMMIT");
       return result;
     } catch (error) {
-      await client.query('ROLLBACK');
+      await client.query("ROLLBACK");
       throw error;
     } finally {
       client.release();
@@ -62,14 +75,56 @@ export class Database {
     await pool.end();
   }
 
-  // Test connection
+  // Test connection with fallback
   async testConnection(): Promise<boolean> {
+    const dbUrl = DATABASE_URL;
+
+    if (!dbUrl) {
+      console.log("❌ No DATABASE_URL configured");
+      return false;
+    }
+
+    // Log connection details (safely)
+    const urlParts = dbUrl.includes("@") ? dbUrl.split("@")[1] : "unknown";
+    console.log(`🔌 Connecting to: ${urlParts}`);
+    console.log("🗄️ Using LIVE DATABASE - No mock data");
+
     try {
-      const result = await this.query('SELECT NOW() as current_time');
-      console.log('✅ Database connection successful:', result.rows[0].current_time);
+      console.log("⏳ Testing database connection...");
+      const result = await this.query(
+        "SELECT NOW() as current_time, version() as version",
+      );
+      console.log("✅ LIVE DATABASE CONNECTION SUCCESSFUL!");
+      console.log("🕐 Server time:", result.rows[0].current_time);
+      console.log(
+        "🗄️ PostgreSQL version:",
+        result.rows[0].version.split(" ")[0],
+      );
+
+      // Test if we can query tables
+      try {
+        const companyTest = await this.query(
+          "SELECT COUNT(*) as count FROM companies",
+        );
+        console.log(
+          `✅ Database schema ready - Found ${companyTest.rows[0].count} companies`,
+        );
+
+        const tableCheck = await this.query(`
+          SELECT table_name FROM information_schema.tables
+          WHERE table_schema = 'public'
+          ORDER BY table_name
+        `);
+        console.log(`📋 Available tables: ${tableCheck.rows.length} total`);
+      } catch (schemaError) {
+        console.log("⚠️ Database schema not found - needs migration");
+        console.log("🔧 Run migration to create tables");
+      }
+
       return true;
-    } catch (error) {
-      console.error('❌ Database connection failed:', error);
+    } catch (error: any) {
+      console.error("❌ LIVE DATABASE CONNECTION FAILED:", error.message);
+      console.log("🔧 Check Neon connection string and permissions");
       return false;
     }
   }
@@ -100,18 +155,23 @@ export class BaseRepository {
   }
 
   // Helper method to build WHERE clauses
-  protected buildWhereClause(conditions: Record<string, any>): { where: string; params: any[] } {
-    const keys = Object.keys(conditions).filter(key => conditions[key] !== undefined);
+  protected buildWhereClause(conditions: Record<string, any>): {
+    where: string;
+    params: any[];
+  } {
+    const keys = Object.keys(conditions).filter(
+      (key) => conditions[key] !== undefined,
+    );
     if (keys.length === 0) {
-      return { where: '', params: [] };
+      return { where: "", params: [] };
     }
 
     const whereClauses = keys.map((key, index) => `${key} = $${index + 1}`);
-    const params = keys.map(key => conditions[key]);
+    const params = keys.map((key) => conditions[key]);
 
     return {
-      where: `WHERE ${whereClauses.join(' AND ')}`,
-      params
+      where: `WHERE ${whereClauses.join(" AND ")}`,
+      params,
     };
   }
 
@@ -124,40 +184,45 @@ export class BaseRepository {
   // Helper method to convert snake_case to camelCase
   protected toCamelCase(obj: any): any {
     if (Array.isArray(obj)) {
-      return obj.map(item => this.toCamelCase(item));
+      return obj.map((item) => this.toCamelCase(item));
     }
-    
-    if (obj !== null && typeof obj === 'object') {
+
+    if (obj !== null && typeof obj === "object") {
       const converted: any = {};
       for (const key in obj) {
         if (obj.hasOwnProperty(key)) {
-          const camelKey = key.replace(/_([a-z])/g, (match, letter) => letter.toUpperCase());
+          const camelKey = key.replace(/_([a-z])/g, (match, letter) =>
+            letter.toUpperCase(),
+          );
           converted[camelKey] = this.toCamelCase(obj[key]);
         }
       }
       return converted;
     }
-    
+
     return obj;
   }
 
   // Helper method to convert camelCase to snake_case
   protected toSnakeCase(obj: any): any {
     if (Array.isArray(obj)) {
-      return obj.map(item => this.toSnakeCase(item));
+      return obj.map((item) => this.toSnakeCase(item));
     }
-    
-    if (obj !== null && typeof obj === 'object') {
+
+    if (obj !== null && typeof obj === "object") {
       const converted: any = {};
       for (const key in obj) {
         if (obj.hasOwnProperty(key)) {
-          const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+          const snakeKey = key.replace(
+            /[A-Z]/g,
+            (letter) => `_${letter.toLowerCase()}`,
+          );
           converted[snakeKey] = this.toSnakeCase(obj[key]);
         }
       }
       return converted;
     }
-    
+
     return obj;
   }
 }
@@ -166,12 +231,12 @@ export class BaseRepository {
 export const DatabaseUtils = {
   // Generate UUID for new records
   generateId(): string {
-    return 'uuid_generate_v4()';
+    return "uuid_generate_v4()";
   },
 
   // Format date for PostgreSQL
   formatDate(date: Date): string {
-    return date.toISOString().split('T')[0];
+    return date.toISOString().split("T")[0];
   },
 
   // Format timestamp for PostgreSQL
@@ -185,14 +250,17 @@ export const DatabaseUtils = {
   },
 
   // Build INSERT query
-  buildInsertQuery(table: string, data: Record<string, any>): { query: string; values: any[] } {
+  buildInsertQuery(
+    table: string,
+    data: Record<string, any>,
+  ): { query: string; values: any[] } {
     const keys = Object.keys(data);
     const placeholders = keys.map((_, index) => `$${index + 1}`);
-    const values = keys.map(key => data[key]);
+    const values = keys.map((key) => data[key]);
 
     const query = `
-      INSERT INTO ${table} (${keys.join(', ')})
-      VALUES (${placeholders.join(', ')})
+      INSERT INTO ${table} (${keys.join(", ")})
+      VALUES (${placeholders.join(", ")})
       RETURNING *
     `;
 
@@ -200,14 +268,25 @@ export const DatabaseUtils = {
   },
 
   // Build UPDATE query
-  buildUpdateQuery(table: string, data: Record<string, any>, whereConditions: Record<string, any>): { query: string; values: any[] } {
+  buildUpdateQuery(
+    table: string,
+    data: Record<string, any>,
+    whereConditions: Record<string, any>,
+  ): { query: string; values: any[] } {
     const updateKeys = Object.keys(data);
     const whereKeys = Object.keys(whereConditions);
-    
-    const setClause = updateKeys.map((key, index) => `${key} = $${index + 1}`).join(', ');
-    const whereClause = whereKeys.map((key, index) => `${key} = $${updateKeys.length + index + 1}`).join(' AND ');
-    
-    const values = [...updateKeys.map(key => data[key]), ...whereKeys.map(key => whereConditions[key])];
+
+    const setClause = updateKeys
+      .map((key, index) => `${key} = $${index + 1}`)
+      .join(", ");
+    const whereClause = whereKeys
+      .map((key, index) => `${key} = $${updateKeys.length + index + 1}`)
+      .join(" AND ");
+
+    const values = [
+      ...updateKeys.map((key) => data[key]),
+      ...whereKeys.map((key) => whereConditions[key]),
+    ];
 
     const query = `
       UPDATE ${table}
@@ -217,5 +296,5 @@ export const DatabaseUtils = {
     `;
 
     return { query, values };
-  }
+  },
 };

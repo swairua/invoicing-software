@@ -9,6 +9,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./hooks/use-auth";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import Layout from "./components/Layout";
+import ErrorBoundary from "./components/ErrorBoundary";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Customers from "./pages/Customers";
@@ -24,6 +25,7 @@ import UserManagement from "./pages/UserManagement";
 import Templates from "./pages/Templates";
 import UnitsOfMeasure from "./pages/UnitsOfMeasure";
 import PlaceholderPage from "./pages/PlaceholderPage";
+import ComingSoonTest from "./pages/ComingSoonTest";
 import ProductDetails from "./pages/ProductDetails";
 import NewProduct from "./pages/NewProduct";
 import CustomerDetails from "./pages/CustomerDetails";
@@ -129,9 +131,19 @@ const AppRoutes = () => (
       <Route path="settings/users" element={<UserManagement />} />
       <Route path="templates" element={<Templates />} />
       <Route path="units" element={<UnitsOfMeasure />} />
-      <Route path="deliveries" element={<PlaceholderPage />} />
-      <Route path="packing-lists" element={<PlaceholderPage />} />
-      <Route path="purchase-orders" element={<PlaceholderPage />} />
+      <Route path="coming-soon-test" element={<ComingSoonTest />} />
+      <Route
+        path="deliveries"
+        element={<PlaceholderPage module="Delivery Management" />}
+      />
+      <Route
+        path="packing-lists"
+        element={<PlaceholderPage module="Packing Lists" />}
+      />
+      <Route
+        path="purchase-orders"
+        element={<PlaceholderPage module="Purchase Orders" />}
+      />
     </Route>
 
     {/* Catch-all redirect */}

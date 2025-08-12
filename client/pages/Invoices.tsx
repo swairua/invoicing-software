@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import {
@@ -82,6 +82,7 @@ const safeDate = (date: any): Date => {
 };
 
 export default function Invoices() {
+  const navigate = useNavigate();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -371,8 +372,17 @@ export default function Invoices() {
     );
 
     if (payment) {
+<<<<<<< HEAD
       const invoicesData = await businessData.getInvoices();
       setInvoices(Array.isArray(invoicesData) ? invoicesData : []);
+=======
+      try {
+        const updatedInvoices = await businessData.getInvoices();
+        setInvoices(updatedInvoices);
+      } catch (error) {
+        console.error("Failed to refresh invoices:", error);
+      }
+>>>>>>> origin/ai_main_ca8b34ce3d1a
       toast({
         title: "Payment Recorded",
         description: `Payment of KES ${paymentAmount.toLocaleString()} recorded for ${invoice.invoiceNumber}`,
@@ -410,10 +420,10 @@ export default function Invoices() {
     }
   };
 
-  const handleDownloadPDF = (invoiceId: string) => {
+  const handleDownloadPDF = async (invoiceId: string) => {
     const invoice = invoices.find((inv) => inv.id === invoiceId);
     if (invoice) {
-      PDFService.generateInvoicePDF(invoice);
+      await PDFService.generateInvoicePDF(invoice);
     }
   };
 
@@ -432,8 +442,8 @@ export default function Invoices() {
   const handleEditInvoice = (invoiceId: string) => {
     const invoice = invoices.find((inv) => inv.id === invoiceId);
     if (invoice) {
-      // In a real app, this would navigate to the edit form
-      window.location.href = `/invoices/${invoiceId}/edit`;
+      // Navigate to edit form using React Router
+      navigate(`/invoices/new?edit=${invoiceId}`);
       toast({
         title: "Edit Invoice",
         description: `Opening edit form for ${invoice.invoiceNumber}`,

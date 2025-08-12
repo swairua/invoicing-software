@@ -63,6 +63,7 @@ import {
 import { Invoice, Payment } from "@shared/types";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import TemplateManager from "../services/templateManager";
+import PDFService from "../services/pdfService";
 import { useToast } from "../hooks/use-toast";
 
 export default function InvoiceDetails() {
@@ -87,11 +88,7 @@ export default function InvoiceDetails() {
 
     try {
       const activeTemplate = TemplateManager.getActiveTemplate("invoice");
-      await PDFService.generateDocument(
-        "invoice",
-        invoice,
-        activeTemplate || undefined,
-      );
+      await PDFService.generateInvoicePDF(invoice, true, activeTemplate?.id);
 
       toast({
         title: "Success",

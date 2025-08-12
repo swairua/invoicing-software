@@ -100,6 +100,7 @@ export default function ProformaInvoices() {
         const [proformasData, customersData, productsData] = await Promise.all([
           businessData.getProformas(),
           businessData.getCustomers(),
+<<<<<<< HEAD
           businessData.getProducts()
         ]);
         setProformas(Array.isArray(proformasData) ? proformasData : []);
@@ -107,6 +108,19 @@ export default function ProformaInvoices() {
         setProducts(Array.isArray(productsData) ? productsData : []);
       } catch (error) {
         console.error('Error loading data:', error);
+=======
+          businessData.getProducts(),
+        ]);
+        setProformas(proformasData);
+        setCustomers(customersData);
+        setProducts(productsData);
+      } catch (error) {
+        console.error("Failed to load data:", error);
+        // Set empty arrays as fallbacks
+        setProformas([]);
+        setCustomers([]);
+        setProducts([]);
+>>>>>>> origin/ai_main_ca8b34ce3d1a
       }
     };
     loadData();
@@ -114,11 +128,16 @@ export default function ProformaInvoices() {
 
   // Refresh data periodically
   React.useEffect(() => {
+<<<<<<< HEAD
     const refreshInterval = setInterval(async () => {
+=======
+    const refreshData = async () => {
+>>>>>>> origin/ai_main_ca8b34ce3d1a
       try {
         const [proformasData, customersData, productsData] = await Promise.all([
           businessData.getProformas(),
           businessData.getCustomers(),
+<<<<<<< HEAD
           businessData.getProducts()
         ]);
         setProformas(Array.isArray(proformasData) ? proformasData : []);
@@ -128,11 +147,24 @@ export default function ProformaInvoices() {
         console.error('Error refreshing data:', error);
       }
     }, 5000);
+=======
+          businessData.getProducts(),
+        ]);
+        setProformas(proformasData);
+        setCustomers(customersData);
+        setProducts(productsData);
+      } catch (error) {
+        console.error("Failed to refresh data:", error);
+      }
+    };
+
+    const refreshInterval = setInterval(refreshData, 5000);
+>>>>>>> origin/ai_main_ca8b34ce3d1a
 
     return () => clearInterval(refreshInterval);
   }, []);
 
-  const filteredProformas = proformas.filter((proforma) => {
+  const filteredProformas = (proformas || []).filter((proforma) => {
     const matchesSearch =
       proforma.proformaNumber
         .toLowerCase()
@@ -303,10 +335,15 @@ export default function ProformaInvoices() {
     }
   };
 
-  const handleConvertToInvoice = (proformaId: string) => {
+  const handleConvertToInvoice = async (proformaId: string) => {
     const invoice = businessData.convertProformaToInvoice(proformaId);
     if (invoice) {
-      setProformas(businessData.getProformas());
+      try {
+        const proformasData = await businessData.getProformas();
+        setProformas(proformasData);
+      } catch (error) {
+        console.error("Failed to refresh proformas:", error);
+      }
       toast({
         title: "Conversion Successful",
         description: `Proforma converted to invoice ${invoice.invoiceNumber}`,
@@ -320,10 +357,10 @@ export default function ProformaInvoices() {
     }
   };
 
-  const handleDownloadPDF = (proformaId: string) => {
+  const handleDownloadPDF = async (proformaId: string) => {
     const proforma = proformas.find((p) => p.id === proformaId);
     if (proforma) {
-      PDFService.generateProformaPDF(proforma);
+      await PDFService.generateProformaPDF(proforma);
     }
   };
 

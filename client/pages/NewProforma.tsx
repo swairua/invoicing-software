@@ -36,17 +36,14 @@ import {
   ArrowLeft,
   Save,
   FileText,
-  Plus,
-  Trash2,
-  Search,
   User,
-  Package,
   Calculator,
   Calendar,
   Send,
 } from "lucide-react";
 import { Customer, Product } from "@shared/types";
 import { dataServiceFactory } from "../services/dataServiceFactory";
+import DynamicLineItems, { LineItem } from "../components/DynamicLineItems";
 import { useToast } from "../hooks/use-toast";
 
 interface ProformaFormData {
@@ -56,12 +53,7 @@ interface ProformaFormData {
   notes: string;
 }
 
-interface ProformaItemFormData {
-  productId: string;
-  quantity: string;
-  unitPrice: string;
-  discount: string;
-}
+// Using LineItem interface from DynamicLineItems component
 
 export default function NewProforma() {
   const navigate = useNavigate();
@@ -71,8 +63,7 @@ export default function NewProforma() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [productSearch, setProductSearch] = useState("");
+  // Product filtering handled by DynamicLineItems component
 
   const duplicateData = location.state?.duplicateFrom;
   const convertData = location.state?.sourceData;
@@ -91,21 +82,20 @@ export default function NewProforma() {
     notes: duplicateData?.notes || convertData?.notes || "",
   });
 
-  const [items, setItems] = useState<ProformaItemFormData[]>(
-    (duplicateData?.items || convertData?.items)?.map((item: any) => ({
-      productId: item.productId,
-      quantity: item.quantity.toString(),
-      unitPrice: item.unitPrice.toString(),
-      discount: item.discount.toString(),
-    })) || [],
+  const [items, setItems] = useState<LineItem[]>(
+    (duplicateData?.items || convertData?.items)?.map(
+      (item: any, index: number) => ({
+        id: `item-${index}`,
+        productId: item.productId,
+        quantity: item.quantity.toString(),
+        unitPrice: item.unitPrice.toString(),
+        discount: item.discount.toString(),
+        lineItemTaxes: item.lineItemTaxes || [],
+      }),
+    ) || [],
   );
 
-  const [newItem, setNewItem] = useState<ProformaItemFormData>({
-    productId: "",
-    quantity: "1",
-    unitPrice: "",
-    discount: "0",
-  });
+  // Using DynamicLineItems component for item management
 
   const dataService = dataServiceFactory.getDataService();
 
@@ -118,7 +108,7 @@ export default function NewProforma() {
         ]);
         setCustomers(customerData);
         setProducts(productData);
-        setFilteredProducts(productData);
+        // Product filtering handled by DynamicLineItems
       } catch (error) {
         console.error("Error loading data:", error);
         toast({
@@ -132,18 +122,7 @@ export default function NewProforma() {
     loadData();
   }, [dataService, toast]);
 
-  useEffect(() => {
-    if (productSearch) {
-      const filtered = products.filter(
-        (product) =>
-          product.name.toLowerCase().includes(productSearch.toLowerCase()) ||
-          product.sku.toLowerCase().includes(productSearch.toLowerCase()),
-      );
-      setFilteredProducts(filtered);
-    } else {
-      setFilteredProducts(products);
-    }
-  }, [productSearch, products]);
+  // Product filtering handled by DynamicLineItems component
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-KE", {
@@ -153,7 +132,7 @@ export default function NewProforma() {
     }).format(amount);
   };
 
-  const calculateItemTotal = (item: ProformaItemFormData) => {
+  const calculateItemTotal = (item: LineItem) => {
     const quantity = parseFloat(item.quantity) || 0;
     const unitPrice = parseFloat(item.unitPrice) || 0;
     const discount = parseFloat(item.discount) || 0;
@@ -174,23 +153,25 @@ export default function NewProforma() {
     let discountAmount = 0;
     let vatAmount = 0;
 
-    items.forEach((item) => {
-      const quantity = parseFloat(item.quantity) || 0;
-      const unitPrice = parseFloat(item.unitPrice) || 0;
-      const discount = parseFloat(item.discount) || 0;
+    items
+      .filter((item) => item.productId)
+      .forEach((item) => {
+        const quantity = parseFloat(item.quantity) || 0;
+        const unitPrice = parseFloat(item.unitPrice) || 0;
+        const discount = parseFloat(item.discount) || 0;
 
-      const itemSubtotal = quantity * unitPrice;
-      subtotal += itemSubtotal;
+        const itemSubtotal = quantity * unitPrice;
+        subtotal += itemSubtotal;
 
-      const itemDiscountAmount = (itemSubtotal * discount) / 100;
-      discountAmount += itemDiscountAmount;
+        const itemDiscountAmount = (itemSubtotal * discount) / 100;
+        discountAmount += itemDiscountAmount;
 
-      const afterDiscount = itemSubtotal - itemDiscountAmount;
-      const product = products.find((p) => p.id === item.productId);
-      const vatRate = product?.taxable ? product.taxRate || 16 : 0;
-      const itemVatAmount = (afterDiscount * vatRate) / 100;
-      vatAmount += itemVatAmount;
-    });
+        const afterDiscount = itemSubtotal - itemDiscountAmount;
+        const product = products.find((p) => p.id === item.productId);
+        const vatRate = product?.taxable ? product.taxRate || 16 : 0;
+        const itemVatAmount = (afterDiscount * vatRate) / 100;
+        vatAmount += itemVatAmount;
+      });
 
     const total = subtotal - discountAmount + vatAmount;
 
@@ -202,51 +183,7 @@ export default function NewProforma() {
     };
   };
 
-  const addItem = () => {
-    if (!newItem.productId || !newItem.quantity || !newItem.unitPrice) {
-      toast({
-        title: "Validation Error",
-        description:
-          "Please select a product and enter quantity and unit price.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setItems((prev) => [...prev, { ...newItem }]);
-    setNewItem({
-      productId: "",
-      quantity: "1",
-      unitPrice: "",
-      discount: "0",
-    });
-    setProductSearch("");
-  };
-
-  const removeItem = (index: number) => {
-    setItems((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const updateItem = (
-    index: number,
-    field: keyof ProformaItemFormData,
-    value: string,
-  ) => {
-    setItems((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
-    );
-  };
-
-  const handleProductSelect = (productId: string) => {
-    const product = products.find((p) => p.id === productId);
-    if (product) {
-      setNewItem((prev) => ({
-        ...prev,
-        productId,
-        unitPrice: product.sellingPrice.toString(),
-      }));
-    }
-  };
+  // Item management functions handled by DynamicLineItems component
 
   const handleSubmit = async (
     e: React.FormEvent,
@@ -263,7 +200,8 @@ export default function NewProforma() {
       return;
     }
 
-    if (items.length === 0) {
+    const validItems = items.filter((item) => item.productId);
+    if (validItems.length === 0) {
       toast({
         title: "Validation Error",
         description: "Please add at least one item to the proforma.",
@@ -487,230 +425,17 @@ export default function NewProforma() {
           </Card>
         </div>
 
-        {/* Items */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Package className="h-5 w-5" />
-              Proforma Items
-            </CardTitle>
-            <CardDescription>
-              Add products and services to this proforma invoice
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Add New Item */}
-            <div className="border rounded-lg p-4 space-y-4">
-              <h4 className="font-medium">Add Item</h4>
-              <div className="grid gap-4 md:grid-cols-5">
-                <div className="space-y-2">
-                  <Label>Product</Label>
-                  <div className="space-y-2">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Search products..."
-                        value={productSearch}
-                        onChange={(e) => setProductSearch(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
-                    <Select
-                      value={newItem.productId}
-                      onValueChange={handleProductSelect}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select product" />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-[200px]">
-                        {filteredProducts.slice(0, 20).map((product) => (
-                          <SelectItem key={product.id} value={product.id}>
-                            <div>
-                              <div className="font-medium">{product.name}</div>
-                              <div className="text-xs text-muted-foreground">
-                                {product.sku} •{" "}
-                                {formatCurrency(product.sellingPrice)}
-                              </div>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label>Quantity</Label>
-                  <Input
-                    type="number"
-                    value={newItem.quantity}
-                    onChange={(e) =>
-                      setNewItem((prev) => ({
-                        ...prev,
-                        quantity: e.target.value,
-                      }))
-                    }
-                    placeholder="1"
-                    min="1"
-                    step="0.01"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Unit Price (KES)</Label>
-                  <Input
-                    type="number"
-                    value={newItem.unitPrice}
-                    onChange={(e) =>
-                      setNewItem((prev) => ({
-                        ...prev,
-                        unitPrice: e.target.value,
-                      }))
-                    }
-                    placeholder="0.00"
-                    min="0"
-                    step="0.01"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Discount (%)</Label>
-                  <Input
-                    type="number"
-                    value={newItem.discount}
-                    onChange={(e) =>
-                      setNewItem((prev) => ({
-                        ...prev,
-                        discount: e.target.value,
-                      }))
-                    }
-                    placeholder="0"
-                    min="0"
-                    max="100"
-                    step="0.01"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>&nbsp;</Label>
-                  <Button type="button" onClick={addItem} className="w-full">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Item
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            {/* Current Items */}
-            {items.length > 0 ? (
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Product</TableHead>
-                      <TableHead>Quantity</TableHead>
-                      <TableHead>Unit Price</TableHead>
-                      <TableHead>Discount</TableHead>
-                      <TableHead>Total</TableHead>
-                      <TableHead className="w-[50px]"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {items.map((item, index) => {
-                      const product = products.find(
-                        (p) => p.id === item.productId,
-                      );
-                      const itemTotal = calculateItemTotal(item);
-
-                      return (
-                        <TableRow key={index}>
-                          <TableCell>
-                            <div>
-                              <div className="font-medium">{product?.name}</div>
-                              <div className="text-sm text-muted-foreground">
-                                SKU: {product?.sku}
-                                {product?.taxable && (
-                                  <Badge
-                                    variant="outline"
-                                    className="ml-2 text-xs"
-                                  >
-                                    VAT {product.taxRate || 16}%
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Input
-                              type="number"
-                              value={item.quantity}
-                              onChange={(e) =>
-                                updateItem(index, "quantity", e.target.value)
-                              }
-                              className="w-20"
-                              min="1"
-                              step="0.01"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Input
-                              type="number"
-                              value={item.unitPrice}
-                              onChange={(e) =>
-                                updateItem(index, "unitPrice", e.target.value)
-                              }
-                              className="w-24"
-                              min="0"
-                              step="0.01"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-1">
-                              <Input
-                                type="number"
-                                value={item.discount}
-                                onChange={(e) =>
-                                  updateItem(index, "discount", e.target.value)
-                                }
-                                className="w-16"
-                                min="0"
-                                max="100"
-                                step="0.01"
-                              />
-                              <span className="text-sm text-muted-foreground">
-                                %
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="font-medium">
-                            {formatCurrency(itemTotal)}
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeItem(index)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
-            ) : (
-              <div className="text-center py-8 border-2 border-dashed border-muted-foreground/25 rounded-lg">
-                <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium">No Items Added</h3>
-                <p className="text-muted-foreground">
-                  Add products or services to get started with your proforma.
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        {/* Items - Using DynamicLineItems component */}
+        <DynamicLineItems
+          items={items}
+          products={products}
+          onItemsChange={setItems}
+          formatCurrency={formatCurrency}
+          calculateItemTotal={calculateItemTotal}
+        />
 
         {/* Summary */}
-        {items.length > 0 && (
+        {items.filter((item) => item.productId).length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">

@@ -34,43 +34,45 @@ export interface CompanySettings {
   };
 }
 
-// Default company settings based on the document
+// Default company settings based on Medplus Africa Limited invoice
 export const defaultCompanySettings: CompanySettings = {
-  id: '1',
-  name: 'BusinessERP Limited',
+  id: "1",
+  name: "Medplus Africa Limited",
   address: {
-    line1: 'P.O BOX 12345 - 00100, NAIROBI, KENYA',
-    line2: 'Business Plaza, Central Business District',
-    city: 'Nairobi',
-    country: 'Kenya',
-    postalCode: '00100'
+    line1: "P.O BOX 45352 - 00100, NAIROBI, KENYA",
+    line2: "Siens Plaza 4th floor room 1 opposite kcb bank River road",
+    city: "Nairobi",
+    country: "Kenya",
+    postalCode: "00100",
   },
   contact: {
-    phone: ['+254 713 416 022', '+254 786 830 610'],
-    email: 'sales@businesserp.com',
-    website: 'www.businesserp.com'
+    phone: ["+254 713416022", "+254 786830610"],
+    email: "sales@medplusafrica.com",
+    website: "www.medplusafrica.com",
   },
   tax: {
-    kraPin: 'P052045925Z',
-    paybillNumber: '503030',
-    accountNumber: '2047138798'
+    kraPin: "P052045925Z",
+    paybillNumber: "303030",
+    accountNumber: "2047138798",
   },
   branding: {
-    primaryColor: '#2563eb',
-    secondaryColor: '#10b981'
+    logo: "https://cdn.builder.io/api/v1/image/assets%2F36ce27fc004b41f8b60187584af31eda%2F23d8ea5c29cb4749aafd5fc67fea1acc?format=webp&width=800",
+    primaryColor: "#2563eb",
+    secondaryColor: "#10b981",
   },
   invoiceSettings: {
-    prefix: 'INV',
-    startingNumber: 1000,
+    prefix: "INV",
+    startingNumber: 901,
     terms: [
-      'The company shall have general lien as well as particular lien on all goods for any unpaid A/C',
-      'Cash transactions of any kind are not acceptable, all payments should be made by cheque, MPESA, or Bank transfer only',
-      'Claims and queries must be lodged with us within 30 days of dispatch of goods, otherwise they will not be acceptable back',
-      'Where applicable, transport will be invoiced separately',
-      'The company will not be responsible for any loss or damage of goods in transit reflected by the customer or sent via customer carrier A/C'
+      "The company shall have general as well as particular lien on all goods for any unpaid A/C",
+      "Cash transactions of any kind are not acceptable. All payments should be made by cheque, MPESA, or Bank transfer only",
+      "Claims and queries must be lodged with us within 21 days of dispatch of goods, otherwise they will not be accepted back",
+      "Where applicable, transport will be invoiced separately",
+      "The company will not be responsible for any loss or damage of goods on transit collected by the customer or sent via customer's courier A/C",
+      "The VAT is inclusive where applicable",
     ],
-    footer: 'Thank you for your business!',
+    footer: "Your Medical & Laboratory Supplies Partner",
     showVAT: true,
-    defaultVATRate: 16
-  }
+    defaultVATRate: 16,
+  },
 };

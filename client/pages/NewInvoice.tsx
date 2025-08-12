@@ -36,11 +36,7 @@ import {
   ArrowLeft,
   Save,
   FileText,
-  Plus,
-  Trash2,
-  Search,
   User,
-  Package,
   Calculator,
   Calendar,
   Send,
@@ -59,8 +55,12 @@ import {
 } from "@shared/taxUtils";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import TemplateSelector from "../components/TemplateSelector";
+<<<<<<< HEAD
 import LineItemTaxSelector from "../components/LineItemTaxSelector";
 import LineItemVATSelector from "../components/LineItemVATSelector";
+=======
+import DynamicLineItems, { LineItem } from "../components/DynamicLineItems";
+>>>>>>> origin/ai_main_ca8b34ce3d1a
 import { useToast } from "../hooks/use-toast";
 
 interface InvoiceFormData {
@@ -70,6 +70,7 @@ interface InvoiceFormData {
   notes: string;
 }
 
+<<<<<<< HEAD
 interface InvoiceItemFormData {
   productId: string;
   quantity: string;
@@ -79,6 +80,9 @@ interface InvoiceItemFormData {
   vatEnabled?: boolean;
   vatRate?: number;
 }
+=======
+// Using LineItem interface from DynamicLineItems component
+>>>>>>> origin/ai_main_ca8b34ce3d1a
 
 export default function NewInvoice() {
   const navigate = useNavigate();
@@ -89,9 +93,7 @@ export default function NewInvoice() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
-  const [availableTaxes, setAvailableTaxes] = useState<LineItemTax[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [productSearch, setProductSearch] = useState("");
+  // Removed unnecessary state - handled by DynamicLineItems component
 
   const duplicateData = location.state?.duplicateFrom;
   const preselectedCustomerId = searchParams.get("customer");
@@ -105,13 +107,15 @@ export default function NewInvoice() {
     notes: duplicateData?.notes || "",
   });
 
-  const [items, setItems] = useState<InvoiceItemFormData[]>(
-    duplicateData?.items?.map((item: any) => ({
+  const [items, setItems] = useState<LineItem[]>(
+    duplicateData?.items?.map((item: any, index: number) => ({
+      id: `item-${index}`,
       productId: item.productId,
       quantity: item.quantity.toString(),
       unitPrice: item.unitPrice.toString(),
       discount: item.discount.toString(),
       lineItemTaxes: item.lineItemTaxes || [],
+<<<<<<< HEAD
       vatEnabled: item.vatRate > 0,
       vatRate: item.vatRate || 16,
     })) || [],
@@ -127,6 +131,11 @@ export default function NewInvoice() {
     vatRate: 16,
   });
 
+=======
+    })) || [],
+  );
+
+>>>>>>> origin/ai_main_ca8b34ce3d1a
   const dataService = dataServiceFactory.getDataService();
 
   useEffect(() => {
@@ -138,7 +147,6 @@ export default function NewInvoice() {
         ]);
         setCustomers(customerData);
         setProducts(productData);
-        setFilteredProducts(productData);
       } catch (error) {
         console.error("Error loading data:", error);
         toast({
@@ -152,18 +160,7 @@ export default function NewInvoice() {
     loadData();
   }, [dataService, toast]);
 
-  useEffect(() => {
-    if (productSearch) {
-      const filtered = products.filter(
-        (product) =>
-          product.name.toLowerCase().includes(productSearch.toLowerCase()) ||
-          product.sku.toLowerCase().includes(productSearch.toLowerCase()),
-      );
-      setFilteredProducts(filtered);
-    } else {
-      setFilteredProducts(products);
-    }
-  }, [productSearch, products]);
+  // Product filtering is now handled by DynamicLineItems component
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-KE", {
@@ -173,7 +170,7 @@ export default function NewInvoice() {
     }).format(amount);
   };
 
-  const calculateItemTotal = (item: InvoiceItemFormData) => {
+  const calculateItemTotal = (item: LineItem) => {
     const quantity = parseFloat(item.quantity) || 0;
     const unitPrice = parseFloat(item.unitPrice) || 0;
     const discount = parseFloat(item.discount) || 0;
@@ -195,31 +192,41 @@ export default function NewInvoice() {
     let vatAmount = 0;
     let additionalTaxAmount = 0;
 
-    items.forEach((item) => {
-      const quantity = parseFloat(item.quantity) || 0;
-      const unitPrice = parseFloat(item.unitPrice) || 0;
-      const discount = parseFloat(item.discount) || 0;
+    items
+      .filter((item) => item.productId)
+      .forEach((item) => {
+        const quantity = parseFloat(item.quantity) || 0;
+        const unitPrice = parseFloat(item.unitPrice) || 0;
+        const discount = parseFloat(item.discount) || 0;
 
-      const itemSubtotal = quantity * unitPrice;
-      subtotal += itemSubtotal;
+        const itemSubtotal = quantity * unitPrice;
+        subtotal += itemSubtotal;
 
-      const itemDiscountAmount = (itemSubtotal * discount) / 100;
-      discountAmount += itemDiscountAmount;
+        const itemDiscountAmount = (itemSubtotal * discount) / 100;
+        discountAmount += itemDiscountAmount;
 
+<<<<<<< HEAD
       const afterDiscount = itemSubtotal - itemDiscountAmount;
       // Use line item VAT settings instead of product defaults
       const vatRate = item.vatEnabled ? (item.vatRate || 16) : 0;
       const itemVatAmount = (afterDiscount * vatRate) / 100;
       vatAmount += itemVatAmount;
+=======
+        const afterDiscount = itemSubtotal - itemDiscountAmount;
+        const product = products.find((p) => p.id === item.productId);
+        const vatRate = product?.taxable ? product.taxRate || 16 : 0;
+        const itemVatAmount = (afterDiscount * vatRate) / 100;
+        vatAmount += itemVatAmount;
+>>>>>>> origin/ai_main_ca8b34ce3d1a
 
-      // Calculate additional line item taxes
-      if (item.lineItemTaxes && item.lineItemTaxes.length > 0) {
-        const itemTaxAmount = item.lineItemTaxes.reduce((taxSum, tax) => {
-          return taxSum + afterDiscount * (tax.rate / 100);
-        }, 0);
-        additionalTaxAmount += itemTaxAmount;
-      }
-    });
+        // Calculate additional line item taxes
+        if (item.lineItemTaxes && item.lineItemTaxes.length > 0) {
+          const itemTaxAmount = item.lineItemTaxes.reduce((taxSum, tax) => {
+            return taxSum + afterDiscount * (tax.rate / 100);
+          }, 0);
+          additionalTaxAmount += itemTaxAmount;
+        }
+      });
 
     const total = subtotal - discountAmount + vatAmount + additionalTaxAmount;
 
@@ -232,6 +239,7 @@ export default function NewInvoice() {
     };
   };
 
+<<<<<<< HEAD
   const addItem = () => {
     if (!newItem.productId || !newItem.quantity || !newItem.unitPrice) {
       toast({
@@ -324,6 +332,9 @@ export default function NewInvoice() {
       }));
     }
   };
+=======
+  // Item management is now handled by DynamicLineItems component
+>>>>>>> origin/ai_main_ca8b34ce3d1a
 
   const handleSubmit = async (
     e: React.FormEvent,
@@ -340,7 +351,8 @@ export default function NewInvoice() {
       return;
     }
 
-    if (items.length === 0) {
+    const validItems = items.filter((item) => item.productId);
+    if (validItems.length === 0) {
       toast({
         title: "Validation Error",
         description: "Please add at least one item to the invoice.",
@@ -365,7 +377,7 @@ export default function NewInvoice() {
     try {
       const customer = customers.find((c) => c.id === formData.customerId)!;
 
-      const invoiceItems: InvoiceItem[] = items.map((item, index) => {
+      const invoiceItems: InvoiceItem[] = validItems.map((item, index) => {
         const product = products.find((p) => p.id === item.productId)!;
         const quantity = parseFloat(item.quantity);
         const unitPrice = parseFloat(item.unitPrice);
@@ -616,6 +628,7 @@ export default function NewInvoice() {
           </Card>
         </div>
 
+<<<<<<< HEAD
         {/* Invoice Items */}
         <Card>
           <CardHeader>
@@ -897,9 +910,19 @@ export default function NewInvoice() {
             )}
           </CardContent>
         </Card>
+=======
+        {/* Invoice Items - Using DynamicLineItems component */}
+        <DynamicLineItems
+          items={items}
+          products={products}
+          onItemsChange={setItems}
+          formatCurrency={formatCurrency}
+          calculateItemTotal={calculateItemTotal}
+        />
+>>>>>>> origin/ai_main_ca8b34ce3d1a
 
         {/* Invoice Summary */}
-        {items.length > 0 && (
+        {items.filter((item) => item.productId).length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">

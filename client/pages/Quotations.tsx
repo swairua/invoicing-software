@@ -100,6 +100,7 @@ export default function Quotations() {
   React.useEffect(() => {
     const loadData = async () => {
       try {
+<<<<<<< HEAD
         const [quotationsData, customersData, productsData] = await Promise.all([
           businessData.getQuotations(),
           businessData.getCustomers(),
@@ -112,6 +113,27 @@ export default function Quotations() {
         console.error('Error loading data:', error);
       }
     };
+=======
+        const [quotationsData, customersData, productsData] = await Promise.all(
+          [
+            businessData.getQuotations(),
+            businessData.getCustomers(),
+            businessData.getProducts(),
+          ],
+        );
+        setQuotations(quotationsData);
+        setCustomers(customersData);
+        setProducts(productsData);
+      } catch (error) {
+        console.error("Failed to load data:", error);
+        // Set empty arrays as fallbacks
+        setQuotations([]);
+        setCustomers([]);
+        setProducts([]);
+      }
+    };
+
+>>>>>>> origin/ai_main_ca8b34ce3d1a
     loadData();
 
     // Start simulation if not already running (only for mock data)
@@ -122,6 +144,7 @@ export default function Quotations() {
 
   // Refresh data periodically
   React.useEffect(() => {
+<<<<<<< HEAD
     const refreshInterval = setInterval(async () => {
       try {
         const [quotationsData, customersData, productsData] = await Promise.all([
@@ -136,11 +159,31 @@ export default function Quotations() {
         console.error('Error refreshing data:', error);
       }
     }, 5000); // Refresh every 5 seconds
+=======
+    const refreshData = async () => {
+      try {
+        const [quotationsData, customersData, productsData] = await Promise.all(
+          [
+            businessData.getQuotations(),
+            businessData.getCustomers(),
+            businessData.getProducts(),
+          ],
+        );
+        setQuotations(quotationsData);
+        setCustomers(customersData);
+        setProducts(productsData);
+      } catch (error) {
+        console.error("Failed to refresh data:", error);
+      }
+    };
+
+    const refreshInterval = setInterval(refreshData, 5000); // Refresh every 5 seconds
+>>>>>>> origin/ai_main_ca8b34ce3d1a
 
     return () => clearInterval(refreshInterval);
   }, []);
 
-  const filteredQuotations = quotations.filter((quotation) => {
+  const filteredQuotations = (quotations || []).filter((quotation) => {
     const matchesSearch =
       quotation.quoteNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
       quotation.customer.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -265,8 +308,13 @@ export default function Quotations() {
       };
 
       // Add to business data service
-      businessData.getQuotations().unshift(newQuotation);
-      setQuotations(businessData.getQuotations());
+      try {
+        // Note: This needs to be refactored to use a proper create method
+        const quotationsData = await businessData.getQuotations();
+        setQuotations([newQuotation, ...quotationsData]);
+      } catch (error) {
+        console.error("Failed to update quotations:", error);
+      }
       setIsCreateDialogOpen(false);
 
       // Reset form
@@ -315,10 +363,15 @@ export default function Quotations() {
     }));
   };
 
-  const handleConvertToProforma = (quotationId: string) => {
+  const handleConvertToProforma = async (quotationId: string) => {
     const proforma = businessData.convertQuotationToProforma(quotationId);
     if (proforma) {
-      setQuotations(businessData.getQuotations());
+      try {
+        const quotationsData = await businessData.getQuotations();
+        setQuotations(quotationsData);
+      } catch (error) {
+        console.error("Failed to refresh quotations:", error);
+      }
       toast({
         title: "Conversion Successful",
         description: `Quotation converted to proforma ${proforma.proformaNumber}`,
@@ -332,10 +385,15 @@ export default function Quotations() {
     }
   };
 
-  const handleConvertToInvoice = (quotationId: string) => {
+  const handleConvertToInvoice = async (quotationId: string) => {
     const invoice = businessData.convertQuotationToInvoice(quotationId);
     if (invoice) {
-      setQuotations(businessData.getQuotations());
+      try {
+        const quotationsData = await businessData.getQuotations();
+        setQuotations(quotationsData);
+      } catch (error) {
+        console.error("Failed to refresh quotations:", error);
+      }
       toast({
         title: "Conversion Successful",
         description: `Quotation converted to invoice ${invoice.invoiceNumber}`,
@@ -349,10 +407,10 @@ export default function Quotations() {
     }
   };
 
-  const handleDownloadPDF = (quotationId: string) => {
+  const handleDownloadPDF = async (quotationId: string) => {
     const quotation = quotations.find((q) => q.id === quotationId);
     if (quotation) {
-      PDFService.generateQuotationPDF(quotation);
+      await PDFService.generateQuotationPDF(quotation);
     }
   };
 
