@@ -437,7 +437,7 @@ export class PDFService {
     // Customer info section (left side)
     doc.text("To:", 20, startY);
     doc.setFont("helvetica", "bold");
-    doc.text(document.customer.name, 20, startY + 7);
+    doc.text(document.customer?.name || 'Unknown Customer', 20, startY + 7);
     doc.setFont("helvetica", "normal");
 
     if (document.customer.address) {
