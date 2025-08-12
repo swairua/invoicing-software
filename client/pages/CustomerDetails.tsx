@@ -81,19 +81,21 @@ export default function CustomerDetails() {
 
         // Get customer-related data
         const allInvoices = await dataService.getInvoices();
-        const customerInvoices = allInvoices.filter(
-          (inv) => inv.customerId === id,
-        );
+        const customerInvoices = Array.isArray(allInvoices)
+          ? allInvoices.filter((inv) => inv.customerId === id)
+          : [];
         setInvoices(customerInvoices);
 
         const allQuotations = await dataService.getQuotations();
-        const customerQuotations = allQuotations.filter(
-          (q) => q.customerId === id,
-        );
+        const customerQuotations = Array.isArray(allQuotations)
+          ? allQuotations.filter((q) => q.customerId === id)
+          : [];
         setQuotations(customerQuotations);
 
         const allPayments = dataService.getPayments?.() || [];
-        const customerPayments = allPayments.filter((p) => p.customerId === id);
+        const customerPayments = Array.isArray(allPayments)
+          ? allPayments.filter((p) => p.customerId === id)
+          : [];
         setPayments(customerPayments);
       } catch (error) {
         console.error("Error loading customer:", error);
