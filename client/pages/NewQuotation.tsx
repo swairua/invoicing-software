@@ -188,8 +188,8 @@ export default function NewQuotation() {
       discountAmount += itemDiscountAmount;
 
       const afterDiscount = itemSubtotal - itemDiscountAmount;
-      const product = products.find((p) => p.id === item.productId);
-      const vatRate = product?.taxable ? product.taxRate || 16 : 0;
+      // Use line item VAT settings instead of product defaults
+      const vatRate = item.vatEnabled ? (item.vatRate || 16) : 0;
       const itemVatAmount = (afterDiscount * vatRate) / 100;
       vatAmount += itemVatAmount;
     });
