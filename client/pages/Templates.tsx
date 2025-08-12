@@ -289,7 +289,7 @@ export default function Templates() {
     if (searchTerm) {
       filtered = filtered.filter(
         (t) =>
-          t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          t.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           t.description?.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
