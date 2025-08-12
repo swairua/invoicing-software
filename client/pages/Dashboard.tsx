@@ -568,7 +568,7 @@ export default function Dashboard() {
                 <div className="text-2xl font-bold">
                   KES{" "}
                   {(
-                    liveMetrics?.totalRevenue || mockMetrics.totalRevenue
+                    liveMetrics?.totalRevenue || fallbackMetrics.totalRevenue
                   ).toLocaleString()}
                   {isSimulating && (
                     <Badge variant="secondary" className="ml-2 text-xs">
