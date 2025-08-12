@@ -352,7 +352,7 @@ export class PDFService {
     }
 
     // Contact information (centered)
-    const contactLine = `Tel: ${settings.contact.phone.join(", ")}`;
+    const contactLine = `Tel: ${settings?.contact?.phone?.join(", ") || 'Not Set'}`;
     doc.text(contactLine, centerX, yPos, { align: "center" });
     yPos += 4;
 
