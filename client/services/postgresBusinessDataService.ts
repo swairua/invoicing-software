@@ -163,7 +163,8 @@ class PostgresBusinessDataService {
       return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       console.error('Failed to fetch quotations:', error);
-      throw new Error('Database connection required to load quotations');
+      console.log('Using fallback quotation data');
+      return this.getFallbackQuotations();
     }
   }
 
