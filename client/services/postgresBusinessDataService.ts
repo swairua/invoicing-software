@@ -100,6 +100,19 @@ class PostgresBusinessDataService {
     }
   }
 
+  public async createProduct(productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>): Promise<Product> {
+    try {
+      const response = await this.apiCall('/products', {
+        method: 'POST',
+        body: JSON.stringify(productData),
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to create product:', error);
+      throw error;
+    }
+  }
+
   public async updateProductStock(productId: string, quantity: number, movementType: 'in' | 'out' | 'adjustment'): Promise<void> {
     try {
       await this.apiCall(`/products/${productId}/stock`, {
