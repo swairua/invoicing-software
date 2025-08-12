@@ -158,8 +158,15 @@ export default function StatementOfAccount() {
         let status: "paid" | "overdue" | "current" = "current";
         if (balance <= 0) {
           status = "paid";
-        } else if (invoice.dueDate && new Date(invoice.dueDate) < new Date()) {
-          status = "overdue";
+        } else if (invoice.dueDate) {
+          try {
+            const dueDate = typeof invoice.dueDate === 'string' ? new Date(invoice.dueDate) : invoice.dueDate;
+            if (dueDate instanceof Date && !isNaN(dueDate.getTime()) && dueDate < new Date()) {
+              status = "overdue";
+            }
+          } catch {
+            // If date parsing fails, keep as current
+          }
         }
 
         // Helper function to safely format dates
