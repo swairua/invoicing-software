@@ -6,9 +6,12 @@ const DATABASE_URL = process.env.DATABASE_URL;
 // Create connection pool
 const pool = new Pool({
   connectionString: DATABASE_URL,
-  ssl: DATABASE_URL && DATABASE_URL.includes('render.com') ? {
-    rejectUnauthorized: false
-  } : false,
+  ssl:
+    DATABASE_URL && DATABASE_URL.includes("render.com")
+      ? {
+          rejectUnauthorized: false,
+        }
+      : false,
   max: 5, // Conservative for free tier
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 15000,
@@ -16,7 +19,7 @@ const pool = new Pool({
   createTimeoutMillis: 15000,
   application_name: "fusion-invoicing-app",
   // Force IPv4 for better compatibility
-  options: DATABASE_URL && DATABASE_URL.includes('render.com') ? '' : undefined
+  options: DATABASE_URL && DATABASE_URL.includes("render.com") ? "" : undefined,
 });
 
 // Database connection wrapper
@@ -78,10 +81,12 @@ export class Database {
 
     try {
       console.log("🔌 Attempting database connection...");
-      const result = await this.query("SELECT NOW() as current_time, version() as version");
+      const result = await this.query(
+        "SELECT NOW() as current_time, version() as version",
+      );
       console.log("✅ Database connection successful!");
       console.log("🕐 Current time:", result.rows[0].current_time);
-      console.log("🗄️ Database version:", result.rows[0].version.split(' ')[0]);
+      console.log("🗄️ Database version:", result.rows[0].version.split(" ")[0]);
 
       // Test if we can query tables
       try {
