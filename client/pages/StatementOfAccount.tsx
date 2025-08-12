@@ -51,17 +51,18 @@ interface StatementFilter {
   aging: string;
 }
 
-interface StatementTransaction {
+interface StatementEntry {
   id: string;
   date: string;
-  name: string;
-  invoice: string;
-  dueDate: string;
-  originalAmount: number;
-  paidAmount: number;
+  type: "invoice" | "payment";
+  description: string;
+  reference: string;
+  debit: number; // Invoice amounts
+  credit: number; // Payment amounts
   balance: number;
-  status: "paid" | "overdue" | "current";
+  status?: "paid" | "overdue" | "current";
   invoiceData?: Invoice;
+  paymentData?: Payment;
 }
 
 interface AgingData {
@@ -72,7 +73,7 @@ interface AgingData {
 }
 
 export default function StatementOfAccount() {
-  const [transactions, setTransactions] = useState<StatementTransaction[]>([]);
+  const [statementEntries, setStatementEntries] = useState<StatementEntry[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -80,6 +81,7 @@ export default function StatementOfAccount() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [companySettings] = useState<CompanySettings>(defaultCompanySettings);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [filter, setFilter] = useState<StatementFilter>({
     customerId: "",
     startDate: "",
@@ -111,6 +113,7 @@ export default function StatementOfAccount() {
 
   useEffect(() => {
     loadInitialData();
+    loadCompanyLogo();
   }, []);
 
   useEffect(() => {
@@ -118,6 +121,17 @@ export default function StatementOfAccount() {
       generateStatementData();
     }
   }, [filter, invoices, payments]);
+
+  const loadCompanyLogo = async () => {
+    try {
+      // Try to load dynamic logo from company settings
+      if (companySettings?.logo) {
+        setLogoUrl(companySettings.logo);
+      }
+    } catch (error) {
+      console.warn('Could not load company logo:', error);
+    }
+  };
 
   const loadInitialData = async () => {
     try {
@@ -144,18 +158,45 @@ export default function StatementOfAccount() {
 
   const generateStatementData = () => {
     try {
-      // Filter invoices for selected customer
+      // Filter invoices and payments for selected customer
       const customerInvoices = invoices.filter(inv => inv.customerId === filter.customerId);
+      const customerPayments = payments.filter(p => {
+        // Check if payment has customerId or if it's linked to an invoice for this customer
+        return p.customerId === filter.customerId ||
+               customerInvoices.some(inv => inv.id === p.invoiceId);
+      });
 
-      // Calculate statement transactions from actual invoice data
-      const statementTransactions: StatementTransaction[] = customerInvoices.map(invoice => {
+      // Helper function to safely format dates
+      const formatDate = (date: any): string => {
+        if (!date) return new Date().toISOString().split('T')[0];
+
+        if (date instanceof Date) {
+          return date.toISOString().split('T')[0];
+        }
+
+        if (typeof date === 'string') {
+          try {
+            return new Date(date).toISOString().split('T')[0];
+          } catch {
+            return new Date().toISOString().split('T')[0];
+          }
+        }
+
+        return new Date().toISOString().split('T')[0];
+      };
+
+      // Create statement entries array with both invoices and payments
+      const entries: StatementEntry[] = [];
+
+      // Add invoice entries (debits)
+      customerInvoices.forEach(invoice => {
+        let status: "paid" | "overdue" | "current" = "current";
+
         // Calculate total payments for this invoice
-        const invoicePayments = payments.filter(p => p.invoiceId === invoice.id);
+        const invoicePayments = customerPayments.filter(p => p.invoiceId === invoice.id);
         const totalPaid = invoicePayments.reduce((sum, p) => sum + p.amount, 0);
         const balance = invoice.total - totalPaid;
 
-        // Determine status based on due date and balance
-        let status: "paid" | "overdue" | "current" = "current";
         if (balance <= 0) {
           status = "paid";
         } else if (invoice.dueDate) {
@@ -169,60 +210,74 @@ export default function StatementOfAccount() {
           }
         }
 
-        // Helper function to safely format dates
-        const formatDate = (date: any): string => {
-          if (!date) return new Date().toISOString().split('T')[0];
-
-          if (date instanceof Date) {
-            return date.toISOString().split('T')[0];
-          }
-
-          if (typeof date === 'string') {
-            try {
-              return new Date(date).toISOString().split('T')[0];
-            } catch {
-              return new Date().toISOString().split('T')[0];
-            }
-          }
-
-          return new Date().toISOString().split('T')[0];
-        };
-
-        return {
+        entries.push({
           id: invoice.id,
           date: formatDate(invoice.issueDate),
-          name: invoice.customer?.name || 'Unknown Customer',
-          invoice: invoice.invoiceNumber,
-          dueDate: formatDate(invoice.dueDate),
-          originalAmount: invoice.total,
-          paidAmount: totalPaid,
-          balance: balance,
+          type: "invoice",
+          description: `Invoice ${invoice.invoiceNumber}`,
+          reference: invoice.invoiceNumber,
+          debit: invoice.total,
+          credit: 0,
+          balance: 0, // Will be calculated after sorting
           status: status,
           invoiceData: invoice
-        };
+        });
+      });
+
+      // Add payment entries (credits)
+      customerPayments.forEach(payment => {
+        const linkedInvoice = customerInvoices.find(inv => inv.id === payment.invoiceId);
+        const description = linkedInvoice
+          ? `Payment for ${linkedInvoice.invoiceNumber}`
+          : `Payment - ${payment.method}`;
+
+        entries.push({
+          id: payment.id,
+          date: formatDate(payment.createdAt),
+          type: "payment",
+          description: description,
+          reference: payment.reference || payment.id,
+          debit: 0,
+          credit: payment.amount,
+          balance: 0, // Will be calculated after sorting
+          paymentData: payment
+        });
+      });
+
+      // Sort by date chronologically
+      entries.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+      // Calculate running balance
+      let runningBalance = 0;
+      entries.forEach(entry => {
+        runningBalance += entry.debit - entry.credit;
+        entry.balance = runningBalance;
       });
 
       // Apply filters
-      let filteredTransactions = [...statementTransactions];
+      let filteredEntries = [...entries];
 
       if (filter.startDate) {
-        filteredTransactions = filteredTransactions.filter(t => new Date(t.date) >= new Date(filter.startDate));
+        filteredEntries = filteredEntries.filter(e => new Date(e.date) >= new Date(filter.startDate));
       }
 
       if (filter.endDate) {
-        filteredTransactions = filteredTransactions.filter(t => new Date(t.date) <= new Date(filter.endDate));
+        filteredEntries = filteredEntries.filter(e => new Date(e.date) <= new Date(filter.endDate));
       }
 
       if (filter.status && filter.status !== 'all') {
-        filteredTransactions = filteredTransactions.filter(t => t.status === filter.status);
+        filteredEntries = filteredEntries.filter(e => {
+          if (e.type === 'payment') return filter.status === 'paid';
+          return e.status === filter.status;
+        });
       }
 
       if (filter.aging && filter.aging !== 'all') {
         const now = new Date();
-        filteredTransactions = filteredTransactions.filter(t => {
-          if (t.balance <= 0) return false;
+        filteredEntries = filteredEntries.filter(e => {
+          if (e.type === 'payment' || e.balance <= 0) return false;
 
-          const daysDiff = Math.floor((now.getTime() - new Date(t.dueDate).getTime()) / (1000 * 60 * 60 * 24));
+          const daysDiff = Math.floor((now.getTime() - new Date(e.date).getTime()) / (1000 * 60 * 60 * 24));
 
           switch (filter.aging) {
             case '0-30':
@@ -239,13 +294,13 @@ export default function StatementOfAccount() {
         });
       }
 
-      setTransactions(filteredTransactions);
+      setStatementEntries(filteredEntries);
       const customer = customers.find(c => c.id === filter.customerId);
       setSelectedCustomer(customer || null);
     } catch (err) {
       console.error('Failed to generate statement data:', err);
       setError('Failed to generate statement data');
-      setTransactions([]);
+      setStatementEntries([]);
     }
   };
 
@@ -261,33 +316,38 @@ export default function StatementOfAccount() {
     return new Date(dateString).toLocaleDateString('en-GB');
   };
 
-  const getTotalOriginalAmount = () => {
-    return transactions.reduce((sum, t) => sum + t.originalAmount, 0);
+  const getTotalDebits = () => {
+    return statementEntries.reduce((sum, e) => sum + e.debit, 0);
   };
 
-  const getTotalBalance = () => {
-    return transactions.reduce((sum, t) => sum + t.balance, 0);
+  const getTotalCredits = () => {
+    return statementEntries.reduce((sum, e) => sum + e.credit, 0);
+  };
+
+  const getFinalBalance = () => {
+    if (statementEntries.length === 0) return 0;
+    return statementEntries[statementEntries.length - 1].balance;
   };
 
   const getAgingData = (): AgingData => {
     const aging: AgingData = { "0-30": 0, "30-60": 0, "60-90": 0, "90-above": 0 };
-    
-    transactions.forEach(transaction => {
-      if (transaction.balance > 0) {
-        const daysDiff = Math.floor((new Date().getTime() - new Date(transaction.dueDate).getTime()) / (1000 * 60 * 60 * 24));
-        
+
+    statementEntries.forEach(entry => {
+      if (entry.type === 'invoice' && entry.balance > 0 && entry.invoiceData?.dueDate) {
+        const daysDiff = Math.floor((new Date().getTime() - new Date(entry.invoiceData.dueDate).getTime()) / (1000 * 60 * 60 * 24));
+
         if (daysDiff <= 30) {
-          aging["0-30"] += transaction.balance;
+          aging["0-30"] += entry.balance;
         } else if (daysDiff <= 60) {
-          aging["30-60"] += transaction.balance;
+          aging["30-60"] += entry.balance;
         } else if (daysDiff <= 90) {
-          aging["60-90"] += transaction.balance;
+          aging["60-90"] += entry.balance;
         } else {
-          aging["90-above"] += transaction.balance;
+          aging["90-above"] += entry.balance;
         }
       }
     });
-    
+
     return aging;
   };
 
@@ -418,9 +478,17 @@ export default function StatementOfAccount() {
             <div className="flex items-start justify-between mb-8">
               {/* LEFT: Logo */}
               <div className="flex items-center">
-                <div className="h-16 w-16 bg-primary rounded-lg flex items-center justify-center mr-4">
-                  <Building2 className="h-10 w-10 text-primary-foreground" />
-                </div>
+                {logoUrl ? (
+                  <img
+                    src={logoUrl}
+                    alt="Company Logo"
+                    className="h-16 w-16 object-contain mr-4"
+                  />
+                ) : (
+                  <div className="h-16 w-16 bg-primary rounded-lg flex items-center justify-center mr-4">
+                    <Building2 className="h-10 w-10 text-primary-foreground" />
+                  </div>
+                )}
               </div>
 
               {/* CENTER: Company Name and Details */}
@@ -464,53 +532,63 @@ export default function StatementOfAccount() {
                 <TableHeader>
                   <TableRow className="bg-green-600 hover:bg-green-600">
                     <TableHead className="text-white font-bold">DATE</TableHead>
-                    <TableHead className="text-white font-bold">NAME</TableHead>
-                    <TableHead className="text-white font-bold">INVOICE</TableHead>
-                    <TableHead className="text-white font-bold">DUE DATE</TableHead>
-                    <TableHead className="text-white font-bold text-right">ORIGINAL AMOUNT</TableHead>
-                    <TableHead className="text-white font-bold text-center">PAID AMOUNT</TableHead>
+                    <TableHead className="text-white font-bold">DESCRIPTION</TableHead>
+                    <TableHead className="text-white font-bold">REFERENCE</TableHead>
+                    <TableHead className="text-white font-bold text-right">DEBIT</TableHead>
+                    <TableHead className="text-white font-bold text-right">CREDIT</TableHead>
                     <TableHead className="text-white font-bold text-right">BALANCE</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {loading ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8">
+                      <TableCell colSpan={6} className="text-center py-8">
                         Loading statement data...
                       </TableCell>
                     </TableRow>
-                  ) : transactions.length === 0 ? (
+                  ) : statementEntries.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8">
+                      <TableCell colSpan={6} className="text-center py-8">
                         No transactions found for selected criteria
                       </TableCell>
                     </TableRow>
                   ) : (
-                    transactions.map((transaction) => (
-                      <TableRow key={transaction.id}>
-                        <TableCell>{formatDate(transaction.date)}</TableCell>
-                        <TableCell>{transaction.name}</TableCell>
-                        <TableCell className="font-mono">{transaction.invoice}</TableCell>
-                        <TableCell>{formatDate(transaction.dueDate)}</TableCell>
-                        <TableCell className="text-right font-medium">
-                          {formatCurrency(transaction.originalAmount)}
+                    statementEntries.map((entry) => (
+                      <TableRow key={`${entry.type}-${entry.id}`}>
+                        <TableCell>{formatDate(entry.date)}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center">
+                            {entry.type === 'invoice' ? (
+                              <FileText className="h-4 w-4 mr-2 text-blue-500" />
+                            ) : (
+                              <CreditCard className="h-4 w-4 mr-2 text-green-500" />
+                            )}
+                            {entry.description}
+                            {entry.status && (
+                              <span className="ml-2">{getStatusBadge(entry.status)}</span>
+                            )}
+                          </div>
                         </TableCell>
-                        <TableCell className="text-center">
-                          {transaction.status === 'paid' ? 'Paid' : getStatusBadge(transaction.status)}
+                        <TableCell className="font-mono">{entry.reference}</TableCell>
+                        <TableCell className="text-right font-medium">
+                          {entry.debit > 0 ? formatCurrency(entry.debit) : '-'}
                         </TableCell>
                         <TableCell className="text-right font-medium">
-                          {transaction.balance > 0 ? formatCurrency(transaction.balance) : '-'}
+                          {entry.credit > 0 ? formatCurrency(entry.credit) : '-'}
+                        </TableCell>
+                        <TableCell className="text-right font-medium">
+                          {formatCurrency(entry.balance)}
                         </TableCell>
                       </TableRow>
                     ))
                   )}
                   {/* Total Row */}
-                  {transactions.length > 0 && (
+                  {statementEntries.length > 0 && (
                     <TableRow className="font-bold border-t-2">
-                      <TableCell colSpan={4} className="text-right">TOTAL</TableCell>
-                      <TableCell className="text-right">{formatCurrency(getTotalOriginalAmount())}</TableCell>
-                      <TableCell></TableCell>
-                      <TableCell className="text-right">{formatCurrency(getTotalBalance())}</TableCell>
+                      <TableCell colSpan={3} className="text-right">TOTAL</TableCell>
+                      <TableCell className="text-right">{formatCurrency(getTotalDebits())}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(getTotalCredits())}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(getFinalBalance())}</TableCell>
                     </TableRow>
                   )}
                 </TableBody>
