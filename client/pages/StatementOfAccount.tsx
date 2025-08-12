@@ -36,6 +36,7 @@ import {
   Phone,
   Mail,
   Globe,
+  CreditCard,
 } from "lucide-react";
 import { getDataService } from "../services/dataServiceFactory";
 import { Customer, Invoice, Payment } from "@shared/types";
