@@ -532,7 +532,7 @@ export default function QuickActions() {
                           {invoice.invoiceNumber}
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          {invoice.customer.name} - KES{" "}
+                          {invoice.customer?.name || 'Unknown Customer'} - KES{" "}
                           {invoice.total.toLocaleString()}
                         </div>
                       </div>
