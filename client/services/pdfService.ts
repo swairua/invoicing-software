@@ -334,37 +334,41 @@ export class PDFService {
     design?: TemplateDesign,
   ): void {
     const settings = this.companySettings;
+    const centerX = pageWidth / 2;
+    let yPos = 65;
+
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
+    doc.setTextColor(0, 0, 0);
 
-    // Center-aligned company info
-    const centerX = pageWidth / 2;
+    // Company address (centered with proper spacing)
+    doc.text(settings.address.line1, centerX, yPos, { align: "center" });
+    yPos += 4;
 
-    doc.text(settings.address.line1, centerX, 50, { align: "center" });
     if (settings.address.line2) {
-      doc.text(settings.address.line2, centerX, 55, { align: "center" });
+      doc.text(settings.address.line2, centerX, yPos, { align: "center" });
+      yPos += 4;
     }
 
+    // Contact information (centered)
     const contactLine = `Tel: ${settings.contact.phone.join(", ")}`;
-    doc.text(contactLine, centerX, 60, { align: "center" });
+    doc.text(contactLine, centerX, yPos, { align: "center" });
+    yPos += 4;
 
-    doc.text(`E-mail: ${settings.contact.email}`, centerX, 64, {
-      align: "center",
-    });
+    doc.text(`E-mail: ${settings.contact.email}`, centerX, yPos, { align: "center" });
+    yPos += 4;
+
     if (settings.contact.website) {
-      doc.text(`Website: ${settings.contact.website}`, centerX, 68, {
-        align: "center",
-      });
+      doc.text(`Website: ${settings.contact.website}`, centerX, yPos, { align: "center" });
+      yPos += 4;
     }
 
-    // Add PIN number (top right corner for visibility)
-    if (settings.tax.kraPin) {
-      doc.setFontSize(8);
-      doc.setFont("helvetica", "bold");
-      doc.text(`PIN No.${settings.tax.kraPin}`, pageWidth - 20, 35, {
-        align: "right",
-      });
-    }
+    // Duplicate PIN number for emphasis (right aligned)
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    doc.text(`PIN No.${settings.tax.kraPin}`, pageWidth - 20, yPos, {
+      align: "right",
+    });
   }
 
   /**
