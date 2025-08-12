@@ -25,7 +25,8 @@
     "deploy-check": "npm run build:production && npm run check-env",
     "deploy-check-strict": "npm run typecheck && npm run build && npm run check-env",
     "postinstall": "npm run build",
-    "db:setup": "node scripts/deploy-render.js"
+    "db:setup": "node scripts/deploy-render.js",
+    "db:check": "node scripts/check-database.js"
   },
   "dependencies": {
     "@radix-ui/react-visually-hidden": "^1.2.3",
