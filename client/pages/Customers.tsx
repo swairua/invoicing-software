@@ -345,7 +345,7 @@ export default function Customers() {
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <div className="font-medium">{customer.name}</div>
+                          <div className="font-medium">{customer?.name || 'Unknown Customer'}</div>
                           <div className="text-sm text-muted-foreground flex items-center">
                             <MapPin className="h-3 w-3 mr-1" />
                             {customer.address?.split(",")[1]?.trim() ||
