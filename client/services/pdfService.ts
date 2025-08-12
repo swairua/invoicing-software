@@ -353,6 +353,15 @@ export class PDFService {
         align: "center",
       });
     }
+
+    // Add PIN number (top right corner for visibility)
+    if (settings.tax.kraPin) {
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "bold");
+      doc.text(`PIN No.${settings.tax.kraPin}`, pageWidth - 20, 35, {
+        align: "right",
+      });
+    }
   }
 
   /**
