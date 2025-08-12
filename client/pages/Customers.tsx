@@ -51,71 +51,35 @@ import {
   CreditCard,
 } from "lucide-react";
 import { Customer } from "@shared/types";
+import { getDataService } from "../services/dataServiceFactory";
 
-// Mock customer data
-const mockCustomers: Customer[] = [
-  {
-    id: "1",
-    name: "Acme Corporation Ltd",
-    email: "contact@acme.com",
-    phone: "+254700123456",
-    kraPin: "P051234567A",
-    address: "123 Business Ave, Nairobi",
-    creditLimit: 500000,
-    balance: 125000,
-    isActive: true,
-    companyId: "1",
-    createdAt: new Date("2024-01-15"),
-    updatedAt: new Date("2024-01-20"),
-  },
-  {
-    id: "2",
-    name: "Tech Solutions Kenya",
-    email: "info@techsolutions.co.ke",
-    phone: "+254722987654",
-    kraPin: "P051234568B",
-    address: "456 Innovation Hub, Nairobi",
-    creditLimit: 300000,
-    balance: 45000,
-    isActive: true,
-    companyId: "1",
-    createdAt: new Date("2024-01-10"),
-    updatedAt: new Date("2024-01-18"),
-  },
-  {
-    id: "3",
-    name: "Global Trading Co.",
-    email: "trading@global.com",
-    phone: "+254733456789",
-    kraPin: "P051234569C",
-    address: "789 Trade Center, Mombasa",
-    creditLimit: 1000000,
-    balance: 0,
-    isActive: true,
-    companyId: "1",
-    createdAt: new Date("2024-01-05"),
-    updatedAt: new Date("2024-01-22"),
-  },
-  {
-    id: "4",
-    name: "Local Retail Store",
-    email: "shop@local.com",
-    phone: "+254744567890",
-    kraPin: "",
-    address: "321 Market Street, Kisumu",
-    creditLimit: 100000,
-    balance: 75000,
-    isActive: false,
-    companyId: "1",
-    createdAt: new Date("2024-01-01"),
-    updatedAt: new Date("2024-01-15"),
-  },
-];
+const dataService = getDataService();
 
 export default function Customers() {
-  const [customers, setCustomers] = useState<Customer[]>(mockCustomers);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load customers from database
+  useEffect(() => {
+    const loadCustomers = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await dataService.getCustomers();
+        setCustomers(data);
+      } catch (err) {
+        console.error('Failed to load customers:', err);
+        setError('Failed to load customers from database');
+        setCustomers([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadCustomers();
+  }, []);
 
   const filteredCustomers = customers.filter(
     (customer) =>
@@ -141,10 +105,31 @@ export default function Customers() {
     }).format(amount);
   };
 
-  const handleCreateCustomer = (e: React.FormEvent) => {
+  const handleCreateCustomer = async (e: React.FormEvent) => {
     e.preventDefault();
-    // This would typically call an API
-    setIsCreateDialogOpen(false);
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+
+    try {
+      const customerData = {
+        name: formData.get('name') as string,
+        email: formData.get('email') as string,
+        phone: formData.get('phone') as string,
+        kraPin: formData.get('kraPin') as string,
+        address: formData.get('address') as string,
+        creditLimit: parseFloat(formData.get('creditLimit') as string) || 0,
+        balance: 0,
+        isActive: true,
+        companyId: '1'
+      };
+
+      const newCustomer = await dataService.createCustomer(customerData);
+      setCustomers([newCustomer, ...customers]);
+      setIsCreateDialogOpen(false);
+    } catch (err) {
+      console.error('Failed to create customer:', err);
+      setError('Failed to create customer');
+    }
   };
 
   return (
@@ -175,11 +160,11 @@ export default function Customers() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Company Name *</Label>
-                  <Input id="name" placeholder="Enter company name" required />
+                  <Input id="name" name="name" placeholder="Enter company name" required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="kraPin">KRA PIN</Label>
-                  <Input id="kraPin" placeholder="P051234567A" />
+                  <Input id="kraPin" name="kraPin" placeholder="P051234567A" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -187,23 +172,25 @@ export default function Customers() {
                   <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
+                    name="email"
                     type="email"
                     placeholder="contact@company.com"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone</Label>
-                  <Input id="phone" placeholder="+254700123456" />
+                  <Input id="phone" name="phone" placeholder="+254700123456" />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="address">Address</Label>
-                <Textarea id="address" placeholder="Enter business address" />
+                <Textarea id="address" name="address" placeholder="Enter business address" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="creditLimit">Credit Limit (KES)</Label>
                 <Input
                   id="creditLimit"
+                  name="creditLimit"
                   type="number"
                   placeholder="500000"
                   min="0"
@@ -321,6 +308,12 @@ export default function Customers() {
           </div>
 
           {/* Customer Table */}
+          {error && (
+            <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+              <p className="text-destructive text-sm">{error}</p>
+            </div>
+          )}
+
           <div className="rounded-md border">
             <Table>
               <TableHeader>
@@ -335,7 +328,13 @@ export default function Customers() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredCustomers.map((customer) => (
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8">
+                      Loading customers...
+                    </TableCell>
+                  </TableRow>
+                ) : filteredCustomers.map((customer) => (
                   <TableRow key={customer.id}>
                     <TableCell>
                       <div className="flex items-center space-x-3">
@@ -431,13 +430,15 @@ export default function Customers() {
             </Table>
           </div>
 
-          {filteredCustomers.length === 0 && (
+          {!loading && filteredCustomers.length === 0 && (
             <div className="text-center py-8">
               <User className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium">No customers found</h3>
               <p className="text-muted-foreground">
                 {searchTerm
                   ? "Try adjusting your search terms."
+                  : error
+                  ? "Unable to load customers from database."
                   : "Get started by adding your first customer."}
               </p>
             </div>
