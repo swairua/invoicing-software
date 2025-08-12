@@ -91,12 +91,12 @@ export default function CreditNotes() {
   const filteredCreditNotes = creditNotes.filter(
     (creditNote) =>
       creditNote.creditNumber
-        .toLowerCase()
+        ?.toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      creditNote.customer.name
-        .toLowerCase()
+      creditNote.customer?.name
+        ?.toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      creditNote.reason.toLowerCase().includes(searchTerm.toLowerCase()),
+      creditNote.reason?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const getStatusBadge = (status: string) => {
