@@ -20,6 +20,7 @@ import Payments from "./pages/Payments";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import TaxSettings from "./pages/TaxSettings";
+import CompanySettings from "./pages/CompanySettings";
 import UserManagement from "./pages/UserManagement";
 import Templates from "./pages/Templates";
 import UnitsOfMeasure from "./pages/UnitsOfMeasure";
@@ -126,6 +127,7 @@ const AppRoutes = () => (
       <Route path="reports/stock" element={<Reports />} />
       <Route path="reports/tax" element={<Reports />} />
       <Route path="settings" element={<Settings />} />
+      <Route path="settings/company" element={<CompanySettings />} />
       <Route path="settings/taxes" element={<TaxSettings />} />
       <Route path="settings/users" element={<UserManagement />} />
       <Route path="templates" element={<Templates />} />
