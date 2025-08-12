@@ -526,7 +526,7 @@ export default function Quotations() {
                       <TableCell>
                         <div>
                           <div className="font-medium">
-                            {quotation.customer.name}
+                            {quotation.customer?.name || 'Unknown Customer'}
                           </div>
                           <div className="text-xs text-muted-foreground">
                             {quotation.customer.email}
