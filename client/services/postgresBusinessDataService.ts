@@ -34,7 +34,9 @@ class PostgresBusinessDataService {
 
   // Customer methods
   public getCustomers(): Promise<Customer[]> {
-    return this.apiCall('/customers').then(response => response.data || []).catch(error => {
+    return this.apiCall('/customers').then(response => {
+      return Array.isArray(response.data) ? response.data : [];
+    }).catch(error => {
       console.error('Failed to fetch customers:', error);
       return this.getFallbackCustomers();
     });
