@@ -258,9 +258,9 @@ export default function Payments() {
       : null;
 
     const matchesSearch =
-      payment.reference.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      invoice?.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      payment.reference?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      invoice?.invoiceNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       false;
 
     const matchesMethod =
