@@ -359,7 +359,15 @@ export class PDFService {
    * Add custom table header design outside the table
    */
   private static addCustomTableHeader(doc: jsPDF, startY: number): void {
-    const headers = ["#", "ITEM DESCRIPTION", "QTY", "UNIT", "UNIT PRICE (KSH)", "VAT %", "TOTAL (KSH)"];
+    const headers = [
+      "#",
+      "ITEM DESCRIPTION",
+      "QTY",
+      "UNIT",
+      "UNIT PRICE (KSH)",
+      "VAT %",
+      "TOTAL (KSH)",
+    ];
     const columnWidths = [12, 65, 15, 18, 25, 15, 30];
     const columnPositions = [20]; // Starting position
 
@@ -370,7 +378,7 @@ export class PDFService {
 
     // Light gray background for better text visibility
     doc.setFillColor(240, 240, 240); // Light gray background
-    doc.rect(20, startY, 180, 18, 'F');
+    doc.rect(20, startY, 180, 18, "F");
 
     // Uniform blue border
     doc.setDrawColor(37, 99, 235); // Blue border
@@ -391,7 +399,7 @@ export class PDFService {
     doc.setFont("helvetica", "bold");
 
     headers.forEach((header, index) => {
-      const x = columnPositions[index] + (columnWidths[index] / 2);
+      const x = columnPositions[index] + columnWidths[index] / 2;
       doc.text(header, x, startY + 11, { align: "center" });
     });
 

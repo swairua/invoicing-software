@@ -24,6 +24,7 @@ Render will automatically detect your `render.yaml` file and set up:
 In the Render dashboard, these variables are pre-configured:
 
 ✅ **Already Set:**
+
 - `NODE_ENV` = `production`
 - `PING_MESSAGE` = `Fusion Invoicing API is running`
 - `PORT` = `10000`
@@ -57,6 +58,7 @@ Once deployed, test these endpoints:
 ## 🎉 Your Invoice System Will Be Live!
 
 Features that will work:
+
 - ✅ Customer management
 - ✅ Product catalog
 - ✅ Invoice generation
