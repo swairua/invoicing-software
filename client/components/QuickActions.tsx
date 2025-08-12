@@ -596,7 +596,7 @@ export default function QuickActions() {
                                   >
                                     <div className="space-y-1">
                                       <div className="font-medium">
-                                        {product.name}
+                                        {product?.name || 'Unknown Product'}
                                       </div>
                                       <div className="text-xs text-muted-foreground">
                                         KES{" "}
