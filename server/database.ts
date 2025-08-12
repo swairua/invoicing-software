@@ -1,25 +1,22 @@
 import { Pool, PoolClient } from "pg";
 
 // Database configuration
-const DATABASE_URL =
-  process.env.DATABASE_URL ||
-  "postgresql://postgres:Sirgeorge.12@db.qvtgnxezqwwlhzdmtwhc.supabase.co:5432/postgres";
+const DATABASE_URL = process.env.DATABASE_URL;
 
 // Create connection pool
 const pool = new Pool({
   connectionString: DATABASE_URL,
-  ssl:
-    process.env.NODE_ENV === "production"
-      ? {
-          rejectUnauthorized: false,
-        }
-      : false,
-  max: 10, // Reduced for Render free tier
+  ssl: DATABASE_URL && DATABASE_URL.includes('render.com') ? {
+    rejectUnauthorized: false
+  } : false,
+  max: 5, // Conservative for free tier
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000, // Increased timeout for network issues
-  acquireTimeoutMillis: 10000,
-  createTimeoutMillis: 10000,
-  application_name: "fusion-invoicing-render",
+  connectionTimeoutMillis: 15000,
+  acquireTimeoutMillis: 15000,
+  createTimeoutMillis: 15000,
+  application_name: "fusion-invoicing-app",
+  // Force IPv4 for better compatibility
+  options: DATABASE_URL && DATABASE_URL.includes('render.com') ? '' : undefined
 });
 
 // Database connection wrapper
