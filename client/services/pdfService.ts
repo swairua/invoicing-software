@@ -90,7 +90,7 @@ export class PDFService {
     } else {
       doc.setTextColor(0, 100, 200); // Blue color
     }
-    doc.text(`INVOICE NO. ${invoice.invoiceNumber}`, pageWidth / 2, 100, {
+    doc.text(`INVOICE NO. ${invoice.invoiceNumber}`, pageWidth / 2, 85, {
       align: "center",
     });
 
