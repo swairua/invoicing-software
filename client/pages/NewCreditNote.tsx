@@ -403,7 +403,7 @@ export default function NewCreditNote() {
                   <TableBody>
                     {items.map((item) => (
                       <TableRow key={item.id}>
-                        <TableCell>{item.product.name}</TableCell>
+                        <TableCell>{item.product?.name || 'Unknown Product'}</TableCell>
                         <TableCell>
                           <Input
                             type="number"
