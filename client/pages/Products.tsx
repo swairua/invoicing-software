@@ -82,9 +82,9 @@ export default function Products() {
 
   const filteredProducts = products.filter(
     (product) =>
-      product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.sku?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.category?.toLowerCase().includes(searchTerm.toLowerCase()),
+      safeIncludes(product.name, searchTerm) ||
+      safeIncludes(product.sku, searchTerm) ||
+      safeIncludes(product.category, searchTerm),
   );
 
   const formatCurrency = (amount: number) => {
