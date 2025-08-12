@@ -36,32 +36,68 @@ DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS companies CASCADE;
 
 -- Companies table
-CREATE TABLE IF NOT EXISTS companies (
+CREATE TABLE companies (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(255) NOT NULL,
-    address_line1 VARCHAR(255),
-    address_line2 VARCHAR(255),
-    city VARCHAR(100),
-    country VARCHAR(100),
-    postal_code VARCHAR(20),
-    phone VARCHAR(50)[],
-    email VARCHAR(255),
-    website VARCHAR(255),
     kra_pin VARCHAR(50),
     vat_number VARCHAR(50),
-    paybill_number VARCHAR(50),
-    account_number VARCHAR(50),
-    logo_url TEXT,
+    address TEXT,
+    phone VARCHAR(50),
+    email VARCHAR(255),
+    logo TEXT,
+    currency VARCHAR(3) DEFAULT 'KES',
+    vat_rate DECIMAL(5,2) DEFAULT 16.00,
+    invoice_prefix VARCHAR(10) DEFAULT 'INV',
     primary_color VARCHAR(7) DEFAULT '#2563eb',
     secondary_color VARCHAR(7) DEFAULT '#10b981',
-    invoice_prefix VARCHAR(10) DEFAULT 'INV',
-    starting_number INTEGER DEFAULT 1001,
-    show_vat BOOLEAN DEFAULT true,
-    default_vat_rate DECIMAL(5,2) DEFAULT 16.00,
     terms TEXT[],
     footer TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Users table
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    role VARCHAR(20) DEFAULT 'viewer' CHECK (role IN ('admin', 'sales', 'accountant', 'viewer')),
+    is_active BOOLEAN DEFAULT true,
+    company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Number sequences for auto-generating document numbers
+CREATE TABLE number_sequences (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+    sequence_type VARCHAR(50) NOT NULL,
+    prefix VARCHAR(10),
+    current_number INTEGER DEFAULT 1,
+    UNIQUE(company_id, sequence_type)
+);
+
+-- Document templates
+CREATE TABLE document_templates (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    type VARCHAR(50) NOT NULL CHECK (type IN ('invoice', 'quotation', 'proforma', 'receipt')),
+    design JSONB,
+    is_active BOOLEAN DEFAULT false,
+    is_default BOOLEAN DEFAULT false,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Product categories
+CREATE TABLE product_categories (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Customers table
