@@ -372,17 +372,12 @@ export default function Invoices() {
     );
 
     if (payment) {
-<<<<<<< HEAD
-      const invoicesData = await businessData.getInvoices();
-      setInvoices(Array.isArray(invoicesData) ? invoicesData : []);
-=======
       try {
-        const updatedInvoices = await businessData.getInvoices();
-        setInvoices(updatedInvoices);
+        const invoicesData = await businessData.getInvoices();
+        setInvoices(Array.isArray(invoicesData) ? invoicesData : []);
       } catch (error) {
         console.error("Failed to refresh invoices:", error);
       }
->>>>>>> origin/ai_main_ca8b34ce3d1a
       toast({
         title: "Payment Recorded",
         description: `Payment of KES ${paymentAmount.toLocaleString()} recorded for ${invoice.invoiceNumber}`,
