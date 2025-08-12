@@ -216,6 +216,11 @@ class BusinessDataService {
   public getTemplateById(id: string): Promise<any | undefined> {
     return Promise.resolve(undefined);
   }
+
+  public getActivityLog(): Promise<any[]> {
+    console.log("⚠️ Activity log not available in minimal mode");
+    return Promise.resolve([]);
+  }
 }
 
 export default BusinessDataService;
