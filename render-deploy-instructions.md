@@ -34,7 +34,7 @@ In the Render dashboard, these variables are pre-configured:
 Click **"Environment"** tab and add:
 
 ```
-DATABASE_URL = postgresql://postgres:Sirgeorge.12@db.qvtgnxezqwwlhzdmtwhc.supabase.co:5432/postgres
+DATABASE_URL = postgresql://neondb_owner:npg_smrD4peod8xL@ep-delicate-shape-aewuio49-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require
 ```
 
 ## Step 4: Deploy
