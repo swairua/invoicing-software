@@ -489,7 +489,7 @@ export class PDFService {
 
     // Table without header - starts lower to accommodate external header
     autoTable(doc, {
-      startY: 145,
+      startY: 148, // Increased to accommodate larger header
       body: tableData,
       theme: "grid",
       styles: {
@@ -503,13 +503,13 @@ export class PDFService {
         fillColor: [248, 250, 252],
       },
       columnStyles: {
-        0: { halign: "center", cellWidth: 12 },
+        0: { halign: "center", cellWidth: 15 },
         1: { halign: "left", cellWidth: 65 },
         2: { halign: "center", cellWidth: 15 },
         3: { halign: "center", cellWidth: 18 },
         4: { halign: "right", cellWidth: 25 },
         5: { halign: "center", cellWidth: 15 },
-        6: { halign: "right", cellWidth: 30 },
+        6: { halign: "right", cellWidth: 27 },
       },
       didParseCell: function (data) {
         // Add subtle hover effect simulation
