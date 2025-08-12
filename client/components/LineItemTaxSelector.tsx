@@ -170,7 +170,7 @@ export default function LineItemTaxSelector({
                   className="flex items-center justify-between p-2 bg-muted/30 rounded"
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">{tax.name}</span>
+                    <span className="text-sm font-medium">{tax?.name || 'Unknown Tax'}</span>
                     <Badge variant="outline" className="text-xs">
                       {tax.rate}%
                     </Badge>
