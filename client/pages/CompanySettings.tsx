@@ -180,7 +180,7 @@ export default function CompanySettingsPage() {
                 <Label htmlFor="company-name">Company Name</Label>
                 <Input
                   id="company-name"
-                  value={settings.name}
+                  value={settings?.name || ''}
                   onChange={(e) => handleInputChange('name', e.target.value)}
                   placeholder="Enter company name"
                 />
