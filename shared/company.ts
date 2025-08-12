@@ -56,7 +56,7 @@ export const defaultCompanySettings: CompanySettings = {
     accountNumber: "2047138798",
   },
   branding: {
-    logo: "https://cdn.builder.io/api/v1/image/assets%2Fc5e390f959914debac74ff126a00850a%2F7f034d3a259741dc8112ad2cfa2f73fa?format=webp&width=800",
+    logo: "https://cdn.builder.io/api/v1/image/assets%2Fc5e390f959914debac74ff126a00850a%2Fa161c78db67e443e97c7bf8632216631?format=webp&width=800",
     primaryColor: "#2563eb",
     secondaryColor: "#10b981",
   },
