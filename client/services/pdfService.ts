@@ -356,6 +356,55 @@ export class PDFService {
   }
 
   /**
+   * Add custom table header design outside the table
+   */
+  private static addCustomTableHeader(doc: jsPDF, startY: number): void {
+    const headers = ["#", "ITEM DESCRIPTION", "QTY", "UNIT", "UNIT PRICE (KSH)", "VAT %", "TOTAL (KSH)"];
+    const columnWidths = [12, 65, 15, 18, 25, 15, 30];
+    const columnPositions = [20]; // Starting position
+
+    // Calculate column positions
+    for (let i = 1; i < columnWidths.length; i++) {
+      columnPositions.push(columnPositions[i - 1] + columnWidths[i - 1]);
+    }
+
+    // Main header background with gradient effect
+    doc.setFillColor(37, 99, 235); // Primary blue
+    doc.rect(20, startY, 180, 18, 'F');
+
+    // Add subtle shadow effect
+    doc.setFillColor(30, 80, 200); // Darker blue for shadow
+    doc.rect(20, startY + 18, 180, 2, 'F');
+
+    // Header border
+    doc.setDrawColor(37, 99, 235);
+    doc.setLineWidth(1);
+    doc.rect(20, startY, 180, 18);
+
+    // Column separators
+    doc.setDrawColor(255, 255, 255);
+    doc.setLineWidth(0.5);
+    for (let i = 1; i < columnPositions.length; i++) {
+      const x = columnPositions[i];
+      doc.line(x, startY + 2, x, startY + 16);
+    }
+
+    // Header text
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "bold");
+
+    headers.forEach((header, index) => {
+      const x = columnPositions[index] + (columnWidths[index] / 2);
+      doc.text(header, x, startY + 11, { align: "center" });
+    });
+
+    // Reset colors
+    doc.setTextColor(0, 0, 0);
+    doc.setDrawColor(0, 0, 0);
+  }
+
+  /**
    * Add customer and date information
    */
   private static addCustomerAndDateInfo(
