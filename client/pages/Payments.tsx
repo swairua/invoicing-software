@@ -771,7 +771,7 @@ export default function Payments() {
                     <div>
                       <div className="font-medium">{invoice.invoiceNumber}</div>
                       <div className="text-sm text-muted-foreground">
-                        {invoice.customer.name}
+                        {invoice.customer?.name || 'Unknown Customer'}
                       </div>
                     </div>
                   </div>
