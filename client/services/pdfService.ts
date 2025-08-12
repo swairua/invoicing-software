@@ -323,7 +323,7 @@ export class PDFService {
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
-    doc.text(settings.name.charAt(0), logoX, 32, { align: "center" });
+    doc.text((settings?.name || 'C').charAt(0), logoX, 32, { align: "center" });
   }
 
   /**
