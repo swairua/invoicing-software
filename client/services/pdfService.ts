@@ -751,7 +751,7 @@ export class PDFService {
     pageHeight: number,
     design?: TemplateDesign,
   ): void {
-    const terms = this.companySettings.invoiceSettings.terms;
+    const terms = this.companySettings?.invoiceSettings?.terms;
     if (!terms || terms.length === 0) return;
 
     const startY = pageHeight - 80;
