@@ -146,41 +146,49 @@ router.get('/quotations', async (req, res) => {
     const fallbackQuotations = [
       {
         id: '1',
-        quote_number: 'QUO-2024-001',
-        customer_id: '1',
-        customer_name: 'Acme Corporation Ltd',
-        customer_email: 'contact@acme.com',
+        quoteNumber: 'QUO-2024-001',
+        customerId: '1',
+        customer: {
+          id: '1',
+          name: 'Acme Corporation Ltd',
+          email: 'contact@acme.com'
+        },
+        items: [],
         subtotal: 25000,
-        vat_amount: 0,
-        discount_amount: 0,
+        vatAmount: 0,
+        discountAmount: 0,
         total: 25000,
         status: 'sent',
-        valid_until: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-        issue_date: new Date(),
+        validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+        issueDate: new Date(),
         notes: 'Bulk order discount available',
-        company_id: req.headers['x-company-id'] as string || '550e8400-e29b-41d4-a716-446655440000',
-        created_by: '1',
-        created_at: new Date(),
-        updated_at: new Date()
+        companyId: req.headers['x-company-id'] as string || '550e8400-e29b-41d4-a716-446655440000',
+        createdBy: '1',
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         id: '2',
-        quote_number: 'QUO-2024-002',
-        customer_id: '2',
-        customer_name: 'Tech Solutions Kenya Ltd',
-        customer_email: 'info@techsolutions.co.ke',
+        quoteNumber: 'QUO-2024-002',
+        customerId: '2',
+        customer: {
+          id: '2',
+          name: 'Tech Solutions Kenya Ltd',
+          email: 'info@techsolutions.co.ke'
+        },
+        items: [],
         subtotal: 18500,
-        vat_amount: 0,
-        discount_amount: 0,
+        vatAmount: 0,
+        discountAmount: 0,
         total: 18500,
         status: 'pending',
-        valid_until: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000), // 15 days from now
-        issue_date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
+        validUntil: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000), // 15 days from now
+        issueDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
         notes: 'Urgent requirement for medical supplies',
-        company_id: req.headers['x-company-id'] as string || '550e8400-e29b-41d4-a716-446655440000',
-        created_by: '1',
-        created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-        updated_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)
+        companyId: req.headers['x-company-id'] as string || '550e8400-e29b-41d4-a716-446655440000',
+        createdBy: '1',
+        createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+        updatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)
       }
     ];
 
