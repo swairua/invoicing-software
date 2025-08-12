@@ -13,7 +13,7 @@ services:
       - key: PING_MESSAGE
         value: Fusion Invoicing API is running
       - key: DATABASE_URL
-        value: postgresql://postgres:Sirgeorge.12@db.qvtgnxezqwwlhzdmtwhc.supabase.co:5432/postgres
+        value: postgresql://neondb_owner:npg_smrD4peod8xL@ep-delicate-shape-aewuio49-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require
     disk:
       name: fusion-invoicing-disk
       sizeGB: 1

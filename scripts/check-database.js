@@ -25,7 +25,7 @@ async function checkDatabase() {
   const pool = new Pool({
     connectionString: databaseUrl,
     ssl:
-      databaseUrl.includes("supabase.co") || databaseUrl.includes("render.com")
+      databaseUrl.includes("neon.tech") || databaseUrl.includes("supabase.co") || databaseUrl.includes("render.com")
         ? {
             rejectUnauthorized: false,
           }
