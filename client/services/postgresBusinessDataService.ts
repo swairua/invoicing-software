@@ -38,7 +38,7 @@ class PostgresBusinessDataService {
       return Array.isArray(response.data) ? response.data : [];
     }).catch(error => {
       console.error('Failed to fetch customers:', error);
-      return this.getFallbackCustomers();
+      throw new Error('Database connection required to load customers');
     });
   }
 
@@ -71,7 +71,7 @@ class PostgresBusinessDataService {
       return Array.isArray(response.data) ? response.data : [];
     }).catch(error => {
       console.error('Failed to fetch products:', error);
-      return this.getFallbackProducts();
+      throw new Error('Database connection required to load products');
     });
   }
 
@@ -113,7 +113,7 @@ class PostgresBusinessDataService {
       return Array.isArray(response.data) ? response.data : [];
     }).catch(error => {
       console.error('Failed to fetch invoices:', error);
-      return this.getFallbackInvoices();
+      throw new Error('Database connection required to load invoices');
     });
   }
 
@@ -147,7 +147,7 @@ class PostgresBusinessDataService {
       return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       console.error('Failed to fetch quotations:', error);
-      return this.getFallbackQuotations();
+      throw new Error('Database connection required to load quotations');
     }
   }
 
@@ -249,7 +249,7 @@ class PostgresBusinessDataService {
       return response.data;
     } catch (error) {
       console.error('Failed to fetch dashboard metrics:', error);
-      return this.getFallbackDashboardMetrics();
+      throw new Error('Database connection required to load dashboard metrics');
     }
   }
 
