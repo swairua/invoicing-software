@@ -113,11 +113,13 @@ export default function Layout() {
         <SheetContent side="left" className="w-72 flex flex-col">
           <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
           <div className="flex items-center space-x-3 mb-6 px-1">
-            <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
-              <Building2 className="h-5 w-5 text-primary-foreground" />
-            </div>
+            <img
+              src={MEDPLUS_LOGO_URL}
+              alt="Medplus Africa Logo"
+              className="h-10 w-10 object-contain"
+            />
             <div>
-              <h1 className="text-lg font-semibold">BusinessERP</h1>
+              <h1 className="text-lg font-semibold">Medplus Africa</h1>
               <p className="text-xs text-muted-foreground">Management System</p>
             </div>
           </div>
