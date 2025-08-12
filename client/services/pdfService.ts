@@ -297,11 +297,11 @@ export class PDFService {
     doc.setFont("helvetica", "bold");
     doc.text(settings.name.toUpperCase(), pageWidth / 2, 50, { align: "center" });
 
-    // Business type or tagline
-    doc.setFontSize(10);
+    // Business type or tagline (centered)
+    doc.setFontSize(11);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(100, 100, 100);
-    doc.text("Your Medical & Laboratory Supplies Partner", 50, 32);
+    doc.text("Your Medical & Laboratory Supplies Partner", pageWidth / 2, 58, { align: "center" });
 
     // PIN number (right-aligned)
     doc.setFontSize(9);
