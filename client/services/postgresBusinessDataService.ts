@@ -113,6 +113,31 @@ class PostgresBusinessDataService {
     }
   }
 
+  public async updateProduct(id: string, productData: Partial<Product>): Promise<Product | undefined> {
+    try {
+      const response = await this.apiCall(`/products/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(productData),
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to update product:', error);
+      throw error;
+    }
+  }
+
+  public async deleteProduct(id: string): Promise<boolean> {
+    try {
+      await this.apiCall(`/products/${id}`, {
+        method: 'DELETE',
+      });
+      return true;
+    } catch (error) {
+      console.error('Failed to delete product:', error);
+      return false;
+    }
+  }
+
   public async updateProductStock(productId: string, quantity: number, movementType: 'in' | 'out' | 'adjustment'): Promise<void> {
     try {
       await this.apiCall(`/products/${productId}/stock`, {
