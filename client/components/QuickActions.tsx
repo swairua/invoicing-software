@@ -423,7 +423,7 @@ export default function QuickActions() {
                 customers.map((customer) => (
                   <SelectItem key={customer.id} value={customer.id}>
                     <div className="space-y-1">
-                      <div className="font-medium">{customer.name}</div>
+                      <div className="font-medium">{customer?.name || 'Unknown Customer'}</div>
                       <div className="text-xs text-muted-foreground">
                         {customer.email}
                       </div>
