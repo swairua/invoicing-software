@@ -136,9 +136,9 @@ export default function UserManagement() {
 
   const filteredUsers = users.filter(
     (user) =>
-      user.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email?.toLowerCase().includes(searchTerm.toLowerCase()),
+      safeIncludes(user.firstName, searchTerm) ||
+      safeIncludes(user.lastName, searchTerm) ||
+      safeIncludes(user.email, searchTerm),
   );
 
   const resetForm = () => {
