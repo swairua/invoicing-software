@@ -6,20 +6,15 @@ const DATABASE_URL = process.env.DATABASE_URL;
 // Create connection pool
 const pool = new Pool({
   connectionString: DATABASE_URL,
-  ssl:
-    DATABASE_URL && DATABASE_URL.includes("render.com")
-      ? {
-          rejectUnauthorized: false,
-        }
-      : false,
-  max: 5, // Conservative for free tier
+  ssl: DATABASE_URL && (DATABASE_URL.includes("supabase.co") || DATABASE_URL.includes("render.com")) ? {
+    rejectUnauthorized: false
+  } : false,
+  max: 10, // Increased for Supabase
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 15000,
-  acquireTimeoutMillis: 15000,
-  createTimeoutMillis: 15000,
-  application_name: "fusion-invoicing-app",
-  // Force IPv4 for better compatibility
-  options: DATABASE_URL && DATABASE_URL.includes("render.com") ? "" : undefined,
+  connectionTimeoutMillis: 20000,
+  acquireTimeoutMillis: 20000,
+  createTimeoutMillis: 20000,
+  application_name: "fusion-invoicing-supabase"
 });
 
 // Database connection wrapper
