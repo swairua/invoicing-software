@@ -346,7 +346,7 @@ export class PDFService {
     doc.text(settings?.address?.line1 || 'Address Not Set', centerX, yPos, { align: "center" });
     yPos += 4;
 
-    if (settings.address.line2) {
+    if (settings?.address?.line2) {
       doc.text(settings.address.line2, centerX, yPos, { align: "center" });
       yPos += 4;
     }
