@@ -84,9 +84,9 @@ export default function Customers() {
 
   const filteredCustomers = customers.filter(
     (customer) =>
-      customer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.kraPin?.toLowerCase().includes(searchTerm.toLowerCase()),
+      safeIncludes(customer.name, searchTerm) ||
+      safeIncludes(customer.email, searchTerm) ||
+      safeIncludes(customer.kraPin, searchTerm),
   );
 
   const getCustomerInitials = (name: string) => {
