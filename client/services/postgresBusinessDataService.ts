@@ -67,7 +67,9 @@ class PostgresBusinessDataService {
 
   // Product methods
   public getProducts(): Promise<Product[]> {
-    return this.apiCall('/products').then(response => response.data || []).catch(error => {
+    return this.apiCall('/products').then(response => {
+      return Array.isArray(response.data) ? response.data : [];
+    }).catch(error => {
       console.error('Failed to fetch products:', error);
       return this.getFallbackProducts();
     });
@@ -98,7 +100,7 @@ class PostgresBusinessDataService {
   public async getLowStockProducts(): Promise<Product[]> {
     try {
       const response = await this.apiCall('/products/low-stock');
-      return response.data || [];
+      return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       console.error('Failed to fetch low stock products:', error);
       return [];
@@ -107,7 +109,9 @@ class PostgresBusinessDataService {
 
   // Invoice methods
   public getInvoices(): Promise<Invoice[]> {
-    return this.apiCall('/invoices').then(response => response.data || []).catch(error => {
+    return this.apiCall('/invoices').then(response => {
+      return Array.isArray(response.data) ? response.data : [];
+    }).catch(error => {
       console.error('Failed to fetch invoices:', error);
       return this.getFallbackInvoices();
     });
