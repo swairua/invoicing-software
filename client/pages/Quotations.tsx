@@ -46,6 +46,7 @@ import {
   Calculator,
   TrendingUp,
   ClipboardList,
+  Clock,
 } from "lucide-react";
 import {
   Customer,
