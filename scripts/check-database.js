@@ -24,13 +24,12 @@ async function checkDatabase() {
 
   const pool = new Pool({
     connectionString: databaseUrl,
-    ssl: databaseUrl.includes("render.com")
-      ? {
-          rejectUnauthorized: false,
-        }
-      : false,
-    max: 5,
-    connectionTimeoutMillis: 15000,
+    ssl: databaseUrl.includes("supabase.co") || databaseUrl.includes("render.com") ? {
+      rejectUnauthorized: false
+    } : false,
+    max: 10,
+    connectionTimeoutMillis: 20000,
+    application_name: "fusion-invoicing-check"
   });
 
   try {
