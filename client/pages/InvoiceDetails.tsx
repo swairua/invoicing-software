@@ -127,8 +127,10 @@ export default function InvoiceDetails() {
         setInvoice(foundInvoice);
 
         // Get payments for this invoice
-        const allPayments = dataService.getPayments?.() || [];
-        const invoicePayments = allPayments.filter((p) => p.invoiceId === id);
+        const allPayments = await dataService.getPayments?.() || [];
+        const invoicePayments = Array.isArray(allPayments)
+          ? allPayments.filter((p) => p.invoiceId === id)
+          : [];
         setPayments(invoicePayments);
       } catch (error) {
         console.error("Error loading invoice:", error);
