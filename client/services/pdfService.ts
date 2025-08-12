@@ -432,7 +432,7 @@ export class PDFService {
     doc.setFont("helvetica", "normal");
     doc.setTextColor(0, 0, 0);
 
-    let startY = 115;
+    let startY = 100;
 
     // Customer info section (left side)
     doc.text("To:", 20, startY);
