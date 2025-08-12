@@ -711,6 +711,29 @@ export default function NewInvoice() {
                   />
                 </div>
                 <div className="space-y-2">
+                  <Label>VAT</Label>
+                  <LineItemVATSelector
+                    enabled={newItem.vatEnabled || false}
+                    selectedRate={newItem.vatRate || 16}
+                    onVATChange={(enabled, rate) =>
+                      setNewItem((prev) => ({
+                        ...prev,
+                        vatEnabled: enabled,
+                        vatRate: rate,
+                      }))
+                    }
+                    itemSubtotal={
+                      (parseFloat(newItem.quantity) || 0) *
+                        (parseFloat(newItem.unitPrice) || 0) -
+                      ((parseFloat(newItem.quantity) || 0) *
+                        (parseFloat(newItem.unitPrice) || 0) *
+                        (parseFloat(newItem.discount) || 0)) /
+                        100
+                    }
+                    className="w-full"
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label>&nbsp;</Label>
                   <Button type="button" onClick={addItem} className="w-full">
                     <Plus className="mr-2 h-4 w-4" />
