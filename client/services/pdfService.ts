@@ -286,16 +286,16 @@ export class PDFService {
       this.addFallbackLogo(doc, settings);
     }
 
-    // Company name
+    // Company name (centered)
     if (design?.colors?.primary) {
       const rgb = this.hexToRgb(design.colors.primary);
       doc.setTextColor(rgb[0], rgb[1], rgb[2]);
     } else {
-      doc.setTextColor(0, 0, 0);
+      doc.setTextColor(0, 100, 200); // Blue color
     }
-    doc.setFontSize(design?.fonts?.size?.heading || 18);
-    doc.setFont(design?.fonts?.heading || "helvetica", "bold");
-    doc.text(settings.name.toUpperCase(), 50, 25);
+    doc.setFontSize(20);
+    doc.setFont("helvetica", "bold");
+    doc.text(settings.name.toUpperCase(), pageWidth / 2, 50, { align: "center" });
 
     // Business type or tagline
     doc.setFontSize(10);
