@@ -502,4 +502,239 @@ router.get('/activity-log', async (req, res) => {
   }
 });
 
+router.get('/statement-of-account', async (req, res) => {
+  try {
+    const companyId = req.headers['x-company-id'] as string || '550e8400-e29b-41d4-a716-446655440000';
+    const { customerId, startDate, endDate, status, aging } = req.query;
+
+    console.log(`Fetching statement of account for customer: ${customerId}`);
+
+    // In a real implementation, this would query the database for invoices and payments
+    // For now, we return comprehensive fallback data that matches the PDF format
+    const fallbackTransactions = [
+      {
+        id: '1',
+        date: '2025-03-01',
+        name: 'Muthaiga Country Club',
+        invoice: '790',
+        dueDate: '2025-03-02',
+        originalAmount: 60000,
+        paidAmount: 60000,
+        balance: 0,
+        status: 'paid'
+      },
+      {
+        id: '2',
+        date: '2025-03-01',
+        name: 'Muthaiga Country Club',
+        invoice: '791',
+        dueDate: '2025-03-02',
+        originalAmount: 18495,
+        paidAmount: 18495,
+        balance: 0,
+        status: 'paid'
+      },
+      {
+        id: '3',
+        date: '2025-09-01',
+        name: 'Muthaiga Country Club',
+        invoice: '795',
+        dueDate: '2025-09-02',
+        originalAmount: 16000,
+        paidAmount: 16000,
+        balance: 0,
+        status: 'paid'
+      },
+      {
+        id: '4',
+        date: '2025-01-24',
+        name: 'Muthaiga Country Club',
+        invoice: '804',
+        dueDate: '2025-02-24',
+        originalAmount: 24000,
+        paidAmount: 24000,
+        balance: 0,
+        status: 'paid'
+      },
+      {
+        id: '5',
+        date: '2025-02-12',
+        name: 'Muthaiga Country Club',
+        invoice: '822',
+        dueDate: '2025-03-12',
+        originalAmount: 24000,
+        paidAmount: 24000,
+        balance: 0,
+        status: 'paid'
+      },
+      {
+        id: '6',
+        date: '2025-02-14',
+        name: 'Muthaiga Country Club',
+        invoice: '826',
+        dueDate: '2025-03-14',
+        originalAmount: 5000,
+        paidAmount: 5000,
+        balance: 0,
+        status: 'paid'
+      },
+      {
+        id: '7',
+        date: '2025-03-06',
+        name: 'Muthaiga Country Club',
+        invoice: '835',
+        dueDate: '2025-04-06',
+        originalAmount: 16000,
+        paidAmount: 16000,
+        balance: 0,
+        status: 'paid'
+      },
+      {
+        id: '8',
+        date: '2025-03-19',
+        name: 'Muthaiga Country Club',
+        invoice: '843',
+        dueDate: '2025-04-19',
+        originalAmount: 24000,
+        paidAmount: 24000,
+        balance: 0,
+        status: 'paid'
+      },
+      {
+        id: '9',
+        date: '2025-04-01',
+        name: 'Muthaiga Country Club',
+        invoice: '852',
+        dueDate: '2025-05-01',
+        originalAmount: 40000,
+        paidAmount: 40000,
+        balance: 0,
+        status: 'paid'
+      },
+      {
+        id: '10',
+        date: '2025-04-04',
+        name: 'Muthaiga Country Club',
+        invoice: '854',
+        dueDate: '2025-05-04',
+        originalAmount: 16000,
+        paidAmount: 16000,
+        balance: 0,
+        status: 'paid'
+      },
+      {
+        id: '11',
+        date: '2025-04-16',
+        name: 'Muthaiga Country Club',
+        invoice: '859',
+        dueDate: '2025-05-16',
+        originalAmount: 29000,
+        paidAmount: 29000,
+        balance: 0,
+        status: 'paid'
+      },
+      {
+        id: '12',
+        date: '2025-05-05',
+        name: 'Muthaiga Country Club',
+        invoice: '863',
+        dueDate: '2025-06-05',
+        originalAmount: 16000,
+        paidAmount: 16000,
+        balance: 0,
+        status: 'paid'
+      },
+      {
+        id: '13',
+        date: '2025-06-05',
+        name: 'Muthaiga Country Club',
+        invoice: '876',
+        dueDate: '2025-07-05',
+        originalAmount: 24000,
+        paidAmount: 0,
+        balance: 24000,
+        status: 'overdue'
+      },
+      {
+        id: '14',
+        date: '2025-06-13',
+        name: 'Muthaiga Country Club',
+        invoice: '881',
+        dueDate: '2025-07-13',
+        originalAmount: 24000,
+        paidAmount: 0,
+        balance: 24000,
+        status: 'overdue'
+      },
+      {
+        id: '15',
+        date: '2025-07-02',
+        name: 'Muthaiga Country Club',
+        invoice: '884',
+        dueDate: '2025-08-02',
+        originalAmount: 16000,
+        paidAmount: 0,
+        balance: 16000,
+        status: 'current'
+      }
+    ];
+
+    // Apply filters
+    let filteredTransactions = [...fallbackTransactions];
+
+    if (startDate) {
+      filteredTransactions = filteredTransactions.filter(t => new Date(t.date) >= new Date(startDate as string));
+    }
+
+    if (endDate) {
+      filteredTransactions = filteredTransactions.filter(t => new Date(t.date) <= new Date(endDate as string));
+    }
+
+    if (status && status !== 'all') {
+      filteredTransactions = filteredTransactions.filter(t => t.status === status);
+    }
+
+    if (aging && aging !== 'all') {
+      const now = new Date();
+      filteredTransactions = filteredTransactions.filter(t => {
+        if (t.balance <= 0) return false; // Only consider unpaid transactions for aging
+
+        const daysDiff = Math.floor((now.getTime() - new Date(t.dueDate).getTime()) / (1000 * 60 * 60 * 24));
+
+        switch (aging) {
+          case '0-30':
+            return daysDiff <= 30;
+          case '30-60':
+            return daysDiff > 30 && daysDiff <= 60;
+          case '60-90':
+            return daysDiff > 60 && daysDiff <= 90;
+          case '90-above':
+            return daysDiff > 90;
+          default:
+            return true;
+        }
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        transactions: filteredTransactions,
+        summary: {
+          totalOriginal: filteredTransactions.reduce((sum, t) => sum + t.originalAmount, 0),
+          totalPaid: filteredTransactions.reduce((sum, t) => sum + t.paidAmount, 0),
+          totalBalance: filteredTransactions.reduce((sum, t) => sum + t.balance, 0)
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching statement of account:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch statement data',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 export default router;
