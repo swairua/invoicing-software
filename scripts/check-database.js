@@ -9,7 +9,7 @@ import pkg from "pg";
 const { Pool } = pkg;
 
 async function checkDatabase() {
-  console.log("�� Checking database status...\n");
+  console.log("🔍 Checking database status...\n");
 
   const databaseUrl = process.env.DATABASE_URL;
 
@@ -122,7 +122,7 @@ async function checkDatabase() {
 }
 
 // Run if called directly
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   checkDatabase()
     .then((success) => {
       process.exit(success ? 0 : 1);
@@ -133,4 +133,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { checkDatabase };
+export { checkDatabase };
