@@ -542,10 +542,12 @@ export default function Templates() {
 
   const templatesByType = DOCUMENT_TYPES.map((docType) => ({
     ...docType,
-    templates: filteredTemplates.filter((t) => t.type === docType.value),
-    activeTemplate: templates.find(
-      (t) => t.type === docType.value && t.isActive,
-    ),
+    templates: Array.isArray(filteredTemplates)
+      ? filteredTemplates.filter((t) => t.type === docType.value)
+      : [],
+    activeTemplate: Array.isArray(templates)
+      ? templates.find((t) => t.type === docType.value && t.isActive)
+      : undefined,
   }));
 
   return (
