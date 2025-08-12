@@ -256,14 +256,14 @@ export class PDFService {
   ): void {
     const settings = this.companySettings;
 
-    // Add dynamic logo from company settings
+    // Add dynamic logo from company settings (centered)
     if (this.logoDataUrl && design?.header?.showLogo !== false) {
       try {
-        // Use the preloaded logo data URL
-        const logoWidth = 25;
-        const logoHeight = 25;
-        const logoX = 20;
-        const logoY = 15;
+        // Use the preloaded logo data URL - centered positioning
+        const logoWidth = 30;
+        const logoHeight = 30;
+        const logoX = (pageWidth - logoWidth) / 2;
+        const logoY = 10;
 
         doc.addImage(
           this.logoDataUrl,
