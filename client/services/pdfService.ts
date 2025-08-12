@@ -675,28 +675,17 @@ export class PDFService {
       },
     });
 
-    // Total Amount - align text and value in one row
-    const finalY = (doc as any).lastAutoTable.finalY + 20;
+    // Total Amount - properly spaced and formatted
+    const finalY = (doc as any).lastAutoTable.finalY + 15;
 
-    // Create a bordered total section with proper spacing
-    doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.3);
-    doc.rect(125, finalY - 5, 70, 15);
-
-    // Add subtle background for total section
-    doc.setFillColor(248, 249, 250);
-    doc.rect(125, finalY - 5, 70, 15, "F");
-    doc.rect(125, finalY - 5, 70, 15);
-
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "bold");
-
-    // Put text and value on the same line
-    doc.text("Total Amount Inc. VAT (Kes)", 128, finalY + 5);
-    doc.text(this.formatCurrency(proforma.total), 192, finalY + 5, {
-      align: "right",
-    });
+    // Check if we need a new page for the total section
+    if (finalY + 40 > doc.internal.pageSize.height - 30) {
+      doc.addPage();
+      const newFinalY = 30;
+      this.addTotalSection(doc, proforma.total, newFinalY);
+    } else {
+      this.addTotalSection(doc, proforma.total, finalY);
+    }
   }
 
   /**
