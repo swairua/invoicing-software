@@ -522,7 +522,7 @@ export default function ProformaInvoices() {
                       <TableCell>
                         <div>
                           <div className="font-medium">
-                            {proforma.customer.name}
+                            {proforma.customer?.name || 'Unknown Customer'}
                           </div>
                           <div className="text-xs text-muted-foreground">
                             {proforma.customer.email}
