@@ -356,7 +356,7 @@ export class PDFService {
     doc.text(contactLine, centerX, yPos, { align: "center" });
     yPos += 4;
 
-    doc.text(`E-mail: ${settings.contact.email}`, centerX, yPos, { align: "center" });
+    doc.text(`E-mail: ${settings?.contact?.email || 'Not Set'}`, centerX, yPos, { align: "center" });
     yPos += 4;
 
     if (settings.contact.website) {
