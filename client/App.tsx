@@ -40,6 +40,7 @@ import QuotationDetails from "./pages/QuotationDetails";
 import NewQuotation from "./pages/NewQuotation";
 import ProformaDetails from "./pages/ProformaDetails";
 import NewProforma from "./pages/NewProforma";
+import StatementOfAccount from "./pages/StatementOfAccount";
 
 const queryClient = new QueryClient();
 
@@ -122,6 +123,7 @@ const AppRoutes = () => (
       <Route path="credit-notes" element={<CreditNotes />} />
       <Route path="credit-notes/:id" element={<CreditNoteDetails />} />
       <Route path="credit-notes/new" element={<NewCreditNote />} />
+      <Route path="statement-of-account" element={<StatementOfAccount />} />
       <Route path="reports" element={<Reports />} />
       <Route path="reports/sales" element={<Reports />} />
       <Route path="reports/stock" element={<Reports />} />
