@@ -81,13 +81,16 @@ export class PDFService {
     // Company Information
     this.addCompanyInfo(doc, pageWidth, design);
 
-    // Invoice Title and Number
-    doc.setFontSize(design?.fonts.size.heading || 16);
-    doc.setFont(design?.fonts.heading || "helvetica", "bold");
+    // Invoice Title and Number (with better spacing)
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
     if (design?.colors.primary) {
-      doc.setTextColor(design.colors.primary);
+      const rgb = this.hexToRgb(design.colors.primary);
+      doc.setTextColor(rgb[0], rgb[1], rgb[2]);
+    } else {
+      doc.setTextColor(0, 100, 200); // Blue color
     }
-    doc.text(`INVOICE NO. ${invoice.invoiceNumber}`, pageWidth / 2, 80, {
+    doc.text(`INVOICE NO. ${invoice.invoiceNumber}`, pageWidth / 2, 100, {
       align: "center",
     });
 
