@@ -804,6 +804,24 @@ export default function NewInvoice() {
                             </div>
                           </TableCell>
                           <TableCell>
+                            <LineItemVATSelector
+                              enabled={item.vatEnabled || false}
+                              selectedRate={item.vatRate || 16}
+                              onVATChange={(enabled, rate) =>
+                                updateItemVAT(index, enabled, rate)
+                              }
+                              itemSubtotal={
+                                parseFloat(item.quantity) *
+                                  parseFloat(item.unitPrice) -
+                                (parseFloat(item.quantity) *
+                                  parseFloat(item.unitPrice) *
+                                  parseFloat(item.discount)) /
+                                  100
+                              }
+                              className="w-64"
+                            />
+                          </TableCell>
+                          <TableCell>
                             <LineItemTaxSelector
                               selectedTaxes={item.lineItemTaxes || []}
                               availableTaxes={getAvailableTaxes()}
