@@ -250,7 +250,7 @@ export class PDFService {
   }
 
   /**
-   * Add company header with logo placeholder
+   * Add company header with three-column layout: logo left, details center, PIN right
    */
   private static addCompanyHeader(
     doc: jsPDF,
@@ -258,15 +258,15 @@ export class PDFService {
     design?: TemplateDesign,
   ): void {
     const settings = this.companySettings;
+    const centerX = pageWidth / 2;
 
-    // Add dynamic logo from company settings (centered)
+    // LEFT COLUMN: Logo
     if (this.logoDataUrl && design?.header?.showLogo !== false) {
       try {
-        // Use the preloaded logo data URL - centered positioning
-        const logoWidth = 30;
-        const logoHeight = 30;
-        const logoX = (pageWidth - logoWidth) / 2;
-        const logoY = 10;
+        const logoWidth = 25;
+        const logoHeight = 25;
+        const logoX = 20; // Left aligned
+        const logoY = 15;
 
         doc.addImage(
           this.logoDataUrl,
@@ -281,36 +281,34 @@ export class PDFService {
           "Failed to add company logo to PDF, using text fallback:",
           error,
         );
-        // Fallback: Show company name initial in a circle
         this.addFallbackLogo(doc, settings);
       }
     } else {
-      // Fallback: Simple company initial
       this.addFallbackLogo(doc, settings);
     }
 
-    // Company name (centered)
+    // CENTER COLUMN: Company name and tagline
     if (design?.colors?.primary) {
       const rgb = this.hexToRgb(design.colors.primary);
       doc.setTextColor(rgb[0], rgb[1], rgb[2]);
     } else {
       doc.setTextColor(0, 100, 200); // Blue color
     }
-    doc.setFontSize(20);
+    doc.setFontSize(18);
     doc.setFont("helvetica", "bold");
-    doc.text(settings.name.toUpperCase(), pageWidth / 2, 50, { align: "center" });
+    doc.text(settings.name.toUpperCase(), centerX, 25, { align: "center" });
 
-    // Business type or tagline (centered)
-    doc.setFontSize(11);
+    // Business tagline (centered)
+    doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(100, 100, 100);
-    doc.text("Your Medical & Laboratory Supplies Partner", pageWidth / 2, 58, { align: "center" });
+    doc.text("Your Medical & Laboratory Supplies Partner", centerX, 32, { align: "center" });
 
-    // PIN number (top right)
+    // RIGHT COLUMN: PIN number
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
     doc.setFont("helvetica", "bold");
-    doc.text(`PIN No: ${settings.tax.kraPin}`, pageWidth - 20, 20, {
+    doc.text(`PIN No: ${settings.tax.kraPin}`, pageWidth - 20, 25, {
       align: "right",
     });
   }
