@@ -48,6 +48,7 @@ import {
 import { Customer, Product, Quotation } from "@shared/types";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import TemplateSelector from "../components/TemplateSelector";
+import LineItemVATSelector from "../components/LineItemVATSelector";
 import { useToast } from "../hooks/use-toast";
 
 interface QuotationFormData {
@@ -62,6 +63,8 @@ interface QuotationItemFormData {
   quantity: string;
   unitPrice: string;
   discount: string;
+  vatEnabled?: boolean;
+  vatRate?: number;
 }
 
 export default function NewQuotation() {
@@ -102,6 +105,8 @@ export default function NewQuotation() {
     quantity: "1",
     unitPrice: "",
     discount: "0",
+    vatEnabled: false,
+    vatRate: 16,
   });
 
   const dataService = dataServiceFactory.getDataService();
