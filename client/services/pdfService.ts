@@ -336,7 +336,7 @@ export class PDFService {
   ): void {
     const settings = this.companySettings;
     const centerX = pageWidth / 2;
-    let yPos = 65;
+    let yPos = 45; // Start closer to header
 
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
@@ -361,15 +361,9 @@ export class PDFService {
 
     if (settings.contact.website) {
       doc.text(`Website: ${settings.contact.website}`, centerX, yPos, { align: "center" });
-      yPos += 4;
     }
 
-    // Duplicate PIN number for emphasis (right aligned)
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "bold");
-    doc.text(`PIN No.${settings.tax.kraPin}`, pageWidth - 20, yPos, {
-      align: "right",
-    });
+    // No duplicate PIN number - already shown in header
   }
 
   /**
