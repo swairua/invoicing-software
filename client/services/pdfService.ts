@@ -308,7 +308,7 @@ export class PDFService {
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
     doc.setFont("helvetica", "bold");
-    doc.text(`PIN No: ${settings.tax.kraPin}`, pageWidth - 20, 25, {
+    doc.text(`PIN No: ${settings?.tax?.kraPin || 'Not Set'}`, pageWidth - 20, 25, {
       align: "right",
     });
   }
