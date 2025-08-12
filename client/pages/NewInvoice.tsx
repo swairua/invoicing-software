@@ -364,7 +364,8 @@ export default function NewInvoice() {
         const quantity = parseFloat(item.quantity);
         const unitPrice = parseFloat(item.unitPrice);
         const discount = parseFloat(item.discount);
-        const vatRate = product.taxable ? product.taxRate || 16 : 0;
+        // Use line item VAT settings instead of product defaults
+        const vatRate = item.vatEnabled ? (item.vatRate || 16) : 0;
 
         const subtotal = quantity * unitPrice;
         const discountAmount = (subtotal * discount) / 100;
