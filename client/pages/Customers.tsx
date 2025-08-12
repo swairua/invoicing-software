@@ -341,7 +341,7 @@ export default function Customers() {
                       <div className="flex items-center space-x-3">
                         <Avatar className="h-8 w-8">
                           <AvatarFallback className="text-xs">
-                            {getCustomerInitials(customer.name)}
+                            {getCustomerInitials(customer?.name || 'N/A')}
                           </AvatarFallback>
                         </Avatar>
                         <div>
