@@ -47,14 +47,14 @@ import {
 } from "lucide-react";
 import { useAuth } from "../hooks/use-auth";
 import ActivityLog from "../components/ActivityLog";
-import BusinessDataService from "../services/businessDataService";
 import { DashboardMetrics } from "@shared/types";
+import { getDataService } from "../services/dataServiceFactory";
 
 // Get business data service instance
-const businessData = BusinessDataService.getInstance();
+const businessData = getDataService();
 
-// Enhanced mock data for demonstration
-const mockMetrics = {
+// Fallback data for when database is unavailable
+const fallbackMetrics = {
   totalRevenue: 145230.5,
   outstandingInvoices: 23450.75,
   lowStockAlerts: 12,
@@ -259,6 +259,8 @@ export default function Dashboard() {
         setIsSimulating(businessData.isSimulationRunning());
       } catch (error) {
         console.error("Failed to load dashboard metrics:", error);
+        // Use fallback metrics when database is unavailable
+        setLiveMetrics(fallbackMetrics);
       }
     };
     loadMetrics();
