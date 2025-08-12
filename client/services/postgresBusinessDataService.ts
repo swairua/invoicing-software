@@ -144,7 +144,7 @@ class PostgresBusinessDataService {
   public async getQuotations(): Promise<Quotation[]> {
     try {
       const response = await this.apiCall('/quotations');
-      return response.data || [];
+      return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       console.error('Failed to fetch quotations:', error);
       return this.getFallbackQuotations();
@@ -168,7 +168,7 @@ class PostgresBusinessDataService {
   public async getProformas(): Promise<ProformaInvoice[]> {
     try {
       const response = await this.apiCall('/proformas');
-      return response.data || [];
+      return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       console.error('Failed to fetch proformas:', error);
       return [];
@@ -179,7 +179,7 @@ class PostgresBusinessDataService {
   public async getPayments(): Promise<Payment[]> {
     try {
       const response = await this.apiCall('/payments');
-      return response.data || [];
+      return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       console.error('Failed to fetch payments:', error);
       return [];
