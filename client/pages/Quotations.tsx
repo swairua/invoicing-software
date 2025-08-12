@@ -1,7 +1,12 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import {
+  useNavigate,
+  Link,
+  useSearchParams,
+} from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
 import {
   Card,
   CardContent,
@@ -9,8 +14,13 @@ import {
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
-import { Badge } from "../components/ui/badge";
-import { Avatar, AvatarFallback } from "../components/ui/avatar";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
 import {
   Table,
   TableBody,
@@ -19,6 +29,31 @@ import {
   TableHeader,
   TableRow,
 } from "../components/ui/table";
+import { Badge } from "../components/ui/badge";
+import {
+  FileText,
+  Plus,
+  Search,
+  Filter,
+  MoreHorizontal,
+  Eye,
+  Copy,
+  FileEdit,
+  Trash2,
+  Send,
+  Calendar,
+  User,
+  Calculator,
+  TrendingUp,
+  ClipboardList,
+} from "lucide-react";
+import {
+  Customer,
+  Product,
+  Quotation,
+} from "@shared/types";
+import { dataServiceFactory } from "../services/dataServiceFactory";
+import { useToast } from "../hooks/use-toast";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,77 +65,46 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogContentLarge,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "../components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
-import { Label } from "../components/ui/label";
-import { Textarea } from "../components/ui/textarea";
-import {
-  Plus,
-  Search,
-  MoreHorizontal,
-  Eye,
-  Edit,
-  Trash2,
-  FileText,
-  Send,
-  CheckCircle,
-  XCircle,
-  Clock,
-  Download,
-  Copy,
-  ArrowRight,
-  Package,
-  Loader2,
-  TrendingUp,
-  DollarSign,
-} from "lucide-react";
-import { Quotation, Customer, Product } from "@shared/types";
-import { useToast } from "../hooks/use-toast";
-import PDFService from "../services/pdfService";
-import dataService from "../services/dataServiceFactory";
 
-// Get data service instance (either mock or PostgreSQL)
-const businessData = dataService;
-
-// Utility function to safely convert dates
-const safeDate = (date: any): Date => {
-  if (!date) return new Date();
-  if (date instanceof Date) return date;
-  return new Date(date);
-};
+interface QuotationFormData {
+  customerId: string;
+  issueDate: string;
+  validUntil: string;
+  notes: string;
+}
 
 export default function Quotations() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { toast } = useToast();
   const [quotations, setQuotations] = useState<Quotation[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<QuotationFormData>({
     customerId: "",
-    validUntil: "",
+    issueDate: new Date().toISOString().split("T")[0],
+    validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split("T")[0],
     notes: "",
-    items: [] as { productId: string; quantity: number; unitPrice: number }[],
   });
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+
+  const businessData = dataServiceFactory.getDataService();
 
   // Load initial data
-  React.useEffect(() => {
+  useEffect(() => {
     const loadData = async () => {
       try {
-<<<<<<< HEAD
         const [quotationsData, customersData, productsData] = await Promise.all([
           businessData.getQuotations(),
           businessData.getCustomers(),
@@ -113,27 +117,7 @@ export default function Quotations() {
         console.error('Error loading data:', error);
       }
     };
-=======
-        const [quotationsData, customersData, productsData] = await Promise.all(
-          [
-            businessData.getQuotations(),
-            businessData.getCustomers(),
-            businessData.getProducts(),
-          ],
-        );
-        setQuotations(quotationsData);
-        setCustomers(customersData);
-        setProducts(productsData);
-      } catch (error) {
-        console.error("Failed to load data:", error);
-        // Set empty arrays as fallbacks
-        setQuotations([]);
-        setCustomers([]);
-        setProducts([]);
-      }
-    };
 
->>>>>>> origin/ai_main_ca8b34ce3d1a
     loadData();
 
     // Start simulation if not already running (only for mock data)
@@ -143,8 +127,7 @@ export default function Quotations() {
   }, []);
 
   // Refresh data periodically
-  React.useEffect(() => {
-<<<<<<< HEAD
+  useEffect(() => {
     const refreshInterval = setInterval(async () => {
       try {
         const [quotationsData, customersData, productsData] = await Promise.all([
@@ -159,33 +142,15 @@ export default function Quotations() {
         console.error('Error refreshing data:', error);
       }
     }, 5000); // Refresh every 5 seconds
-=======
-    const refreshData = async () => {
-      try {
-        const [quotationsData, customersData, productsData] = await Promise.all(
-          [
-            businessData.getQuotations(),
-            businessData.getCustomers(),
-            businessData.getProducts(),
-          ],
-        );
-        setQuotations(quotationsData);
-        setCustomers(customersData);
-        setProducts(productsData);
-      } catch (error) {
-        console.error("Failed to refresh data:", error);
-      }
-    };
-
-    const refreshInterval = setInterval(refreshData, 5000); // Refresh every 5 seconds
->>>>>>> origin/ai_main_ca8b34ce3d1a
 
     return () => clearInterval(refreshInterval);
   }, []);
 
-  const filteredQuotations = (quotations || []).filter((quotation) => {
+  const filteredQuotations = quotations.filter((quotation) => {
     const matchesSearch =
-      quotation.quoteNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      quotation.quoteNumber
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
       quotation.customer.name.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesStatus =
@@ -194,7 +159,7 @@ export default function Quotations() {
     return matchesSearch && matchesStatus;
   });
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat("en-KE", {
       style: "currency",
       currency: "KES",
@@ -202,137 +167,82 @@ export default function Quotations() {
     }).format(amount);
   };
 
-  const getStatusVariant = (status: string) => {
+  const formatDate = (date: Date | string): string => {
+    return new Date(date).toLocaleDateString("en-GB");
+  };
+
+  const getStatusColor = (status: string): string => {
     switch (status) {
       case "draft":
         return "secondary";
       case "sent":
         return "default";
       case "accepted":
-        return "default";
+        return "outline";
       case "rejected":
         return "destructive";
       case "expired":
-        return "outline";
+        return "destructive";
       default:
         return "secondary";
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "draft":
-        return <Edit className="h-3 w-3" />;
-      case "sent":
-        return <Send className="h-3 w-3" />;
-      case "accepted":
-        return <CheckCircle className="h-3 w-3" />;
-      case "rejected":
-        return <XCircle className="h-3 w-3" />;
-      case "expired":
-        return <Clock className="h-3 w-3" />;
-      default:
-        return null;
-    }
-  };
-
-  const isExpiringSoon = (validUntil: Date | string) => {
-    const today = new Date();
-    const validDate = safeDate(validUntil);
-    const diffDays = Math.ceil(
-      (validDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
-    );
-    return diffDays <= 7 && diffDays > 0;
-  };
-
-  const handleCreateQuotation = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!formData.customerId || formData.items.length === 0) {
+  const handleCreateQuotation = () => {
+    if (!formData.customerId) {
       toast({
         title: "Validation Error",
-        description: "Please select a customer and add at least one product.",
+        description: "Please select a customer.",
         variant: "destructive",
       });
       return;
     }
 
-    setIsLoading(true);
-    try {
-      // Calculate totals
-      const subtotal = formData.items.reduce(
-        (sum, item) => sum + item.unitPrice * item.quantity,
-        0,
-      );
-      const vatAmount = subtotal * 0.16;
-      const total = subtotal + vatAmount;
+    navigate("/quotations/new", {
+      state: {
+        formData,
+      },
+    });
+  };
 
-      // Generate quotation number
-      const quoteNumber = `QUO-2024-${String(quotations.length + 1).padStart(3, "0")}`;
+  const handleDuplicate = (quotation: Quotation) => {
+    navigate("/quotations/new", {
+      state: {
+        duplicateFrom: quotation,
+      },
+    });
+  };
 
-      const customer = customers.find((c) => c.id === formData.customerId);
-
-      const newQuotation: Quotation = {
-        id: Date.now().toString(),
-        quoteNumber,
-        customerId: formData.customerId,
-        customer: customer!,
-        items: formData.items.map((item, index) => {
-          const product = products.find((p) => p.id === item.productId);
-          return {
-            id: `item-${index}`,
-            productId: item.productId,
-            product: product!,
-            quantity: item.quantity,
-            unitPrice: item.unitPrice,
-            discount: 0,
-            vatRate: product?.taxable ? 16 : 0,
-            total:
-              item.unitPrice *
-              item.quantity *
-              (1 + (product?.taxable ? 0.16 : 0)),
-          };
-        }),
-        subtotal,
-        vatAmount,
-        discountAmount: 0,
-        total,
-        status: "draft",
-        validUntil: new Date(formData.validUntil),
-        issueDate: new Date(),
-        notes: formData.notes,
-        companyId: "1",
-        createdBy: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
-      // Add to business data service
-      try {
-        // Note: This needs to be refactored to use a proper create method
-        const quotationsData = await businessData.getQuotations();
-        setQuotations([newQuotation, ...quotationsData]);
-      } catch (error) {
-        console.error("Failed to update quotations:", error);
-      }
-      setIsCreateDialogOpen(false);
-
-      // Reset form
-      setFormData({
-        customerId: "",
-        validUntil: "",
-        notes: "",
-        items: [],
-      });
-
+  const handleConvertToProforma = async (quotation: Quotation) => {
+    if (quotation.status !== "accepted") {
       toast({
-        title: "Quotation Created",
-        description: `Quotation ${quoteNumber} created successfully for ${customer?.name}`,
+        title: "Cannot Convert",
+        description: "Only accepted quotations can be converted to proforma invoices.",
+        variant: "destructive",
       });
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const proforma = await businessData.convertQuotationToProforma?.(quotation.id);
+      
+      if (proforma) {
+        const quotationsData = await businessData.getQuotations();
+        setQuotations(Array.isArray(quotationsData) ? quotationsData : []);
+
+        toast({
+          title: "Success",
+          description: `Quotation ${quotation.quoteNumber} converted to proforma invoice successfully.`,
+        });
+
+        navigate(`/proformas/${proforma.id}`);
+      }
     } catch (error) {
+      console.error("Error converting quotation:", error);
       toast({
         title: "Error",
-        description: "Failed to create quotation. Please try again.",
+        description: "Failed to convert quotation to proforma invoice.",
         variant: "destructive",
       });
     } finally {
@@ -340,80 +250,26 @@ export default function Quotations() {
     }
   };
 
-  const addProduct = () => {
-    setFormData((prev) => ({
-      ...prev,
-      items: [...prev.items, { productId: "", quantity: 1, unitPrice: 0 }],
-    }));
-  };
-
-  const removeProduct = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      items: prev.items.filter((_, i) => i !== index),
-    }));
-  };
-
-  const updateProduct = (index: number, field: string, value: any) => {
-    setFormData((prev) => ({
-      ...prev,
-      items: prev.items.map((item, i) =>
-        i === index ? { ...item, [field]: value } : item,
-      ),
-    }));
-  };
-
-  const handleConvertToProforma = async (quotationId: string) => {
-    const proforma = businessData.convertQuotationToProforma(quotationId);
-    if (proforma) {
-      try {
-        const quotationsData = await businessData.getQuotations();
-        setQuotations(quotationsData);
-      } catch (error) {
-        console.error("Failed to refresh quotations:", error);
-      }
+  const handleDelete = async (id: string) => {
+    try {
+      await businessData.deleteQuotation?.(id);
+      const quotationsData = await businessData.getQuotations();
+      setQuotations(Array.isArray(quotationsData) ? quotationsData : []);
       toast({
-        title: "Conversion Successful",
-        description: `Quotation converted to proforma ${proforma.proformaNumber}`,
+        title: "Success",
+        description: "Quotation deleted successfully.",
       });
-    } else {
+    } catch (error) {
+      console.error("Error deleting quotation:", error);
       toast({
-        title: "Conversion Failed",
-        description: "Unable to convert quotation. Make sure it's accepted.",
+        title: "Error",
+        description: "Failed to delete quotation.",
         variant: "destructive",
       });
     }
   };
 
-  const handleConvertToInvoice = async (quotationId: string) => {
-    const invoice = businessData.convertQuotationToInvoice(quotationId);
-    if (invoice) {
-      try {
-        const quotationsData = await businessData.getQuotations();
-        setQuotations(quotationsData);
-      } catch (error) {
-        console.error("Failed to refresh quotations:", error);
-      }
-      toast({
-        title: "Conversion Successful",
-        description: `Quotation converted to invoice ${invoice.invoiceNumber}`,
-      });
-    } else {
-      toast({
-        title: "Conversion Failed",
-        description: "Unable to convert quotation. Make sure it's accepted.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDownloadPDF = async (quotationId: string) => {
-    const quotation = quotations.find((q) => q.id === quotationId);
-    if (quotation) {
-      await PDFService.generateQuotationPDF(quotation);
-    }
-  };
-
+  // Calculate summary statistics
   const totalQuotations = quotations.length;
   const acceptedQuotations = quotations.filter(
     (q) => q.status === "accepted",
@@ -421,62 +277,74 @@ export default function Quotations() {
   const pendingQuotations = quotations.filter(
     (q) => q.status === "sent",
   ).length;
-  const totalValue = quotations.reduce((sum, q) => sum + q.total, 0);
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="container mx-auto py-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Quotations</h1>
           <p className="text-muted-foreground">
-            Create and manage sales quotations with conversion tracking
+            Create and manage customer quotations
           </p>
         </div>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              New Quotation
-            </Button>
-          </DialogTrigger>
-          <DialogContentLarge>
-            <DialogHeader className="flex-shrink-0 p-6 pb-0">
-              <DialogTitle>Create New Quotation</DialogTitle>
-              <DialogDescription>
-                Generate a new sales quotation for your customer
-              </DialogDescription>
-            </DialogHeader>
-            <div className="flex-1 overflow-y-auto p-6 pt-4">
-              <form onSubmit={handleCreateQuotation} className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="customer">Customer *</Label>
-                    <Select
-                      value={formData.customerId}
-                      onValueChange={(value) =>
-                        setFormData((prev) => ({ ...prev, customerId: value }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select customer" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {customers.map((customer) => (
-                          <SelectItem key={customer.id} value={customer.id}>
-                            <div>
-                              <div className="font-medium">{customer.name}</div>
-                              <div className="text-xs text-muted-foreground">
-                                {customer.email}
-                              </div>
+        <div className="flex items-center space-x-2">
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                New Quotation
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create New Quotation</DialogTitle>
+                <DialogDescription>
+                  Set up basic details for your new quotation
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="customer">Customer *</Label>
+                  <Select
+                    value={formData.customerId}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({ ...prev, customerId: value }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select customer" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {customers.map((customer) => (
+                        <SelectItem key={customer.id} value={customer.id}>
+                          <div>
+                            <div className="font-medium">{customer.name}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {customer.email}
                             </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="issueDate">Issue Date</Label>
+                    <Input
+                      id="issueDate"
+                      type="date"
+                      value={formData.issueDate}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          issueDate: e.target.value,
+                        }))
+                      }
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="validUntil">Valid Until *</Label>
+                    <Label htmlFor="validUntil">Valid Until</Label>
                     <Input
                       id="validUntil"
                       type="date"
@@ -487,237 +355,25 @@ export default function Quotations() {
                           validUntil: e.target.value,
                         }))
                       }
-                      required
                     />
                   </div>
                 </div>
-
-                {/* Products Section */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-base font-semibold">Products</Label>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={addProduct}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Product
-                    </Button>
-                  </div>
-
-                  {formData.items.length > 0 && (
-                    <div className="space-y-3 max-h-64 overflow-y-auto">
-                      {formData.items.map((item, index) => {
-                        const product = products.find(
-                          (p) => p.id === item.productId,
-                        );
-                        const lineTotal = item.unitPrice * item.quantity;
-
-                        return (
-                          <div
-                            key={index}
-                            className="border rounded-lg p-4 space-y-3"
-                          >
-                            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                              <div>
-                                <Label className="text-sm">Product</Label>
-                                <Select
-                                  value={item.productId}
-                                  onValueChange={(value) => {
-                                    const selectedProduct = products.find(
-                                      (p) => p.id === value,
-                                    );
-                                    updateProduct(index, "productId", value);
-                                    if (selectedProduct) {
-                                      updateProduct(
-                                        index,
-                                        "unitPrice",
-                                        selectedProduct.sellingPrice,
-                                      );
-                                    }
-                                  }}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select product" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {products.map((product) => (
-                                      <SelectItem
-                                        key={product.id}
-                                        value={product.id}
-                                      >
-                                        <div>
-                                          <div className="font-medium">
-                                            {product.name}
-                                          </div>
-                                          <div className="text-xs text-muted-foreground">
-                                            KES{" "}
-                                            {product.sellingPrice.toLocaleString()}
-                                          </div>
-                                        </div>
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              <div>
-                                <Label className="text-sm">Quantity</Label>
-                                <Input
-                                  type="number"
-                                  placeholder="1"
-                                  value={item.quantity}
-                                  onChange={(e) =>
-                                    updateProduct(
-                                      index,
-                                      "quantity",
-                                      parseInt(e.target.value) || 1,
-                                    )
-                                  }
-                                  min="1"
-                                />
-                              </div>
-                              <div>
-                                <Label className="text-sm">Unit Price</Label>
-                                <Input
-                                  type="number"
-                                  placeholder="0.00"
-                                  value={item.unitPrice}
-                                  onChange={(e) =>
-                                    updateProduct(
-                                      index,
-                                      "unitPrice",
-                                      parseFloat(e.target.value) || 0,
-                                    )
-                                  }
-                                  min="0"
-                                  step="0.01"
-                                />
-                              </div>
-                              <div className="flex items-end gap-2">
-                                <div className="flex-1">
-                                  <Label className="text-sm">Line Total</Label>
-                                  <Input
-                                    value={`KES ${lineTotal.toLocaleString()}`}
-                                    disabled
-                                    className="font-medium"
-                                  />
-                                </div>
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => removeProduct(index)}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-
-                  {formData.items.length === 0 && (
-                    <div className="text-center py-8 border-2 border-dashed rounded-lg">
-                      <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                      <p className="text-muted-foreground mb-4">
-                        No products added yet
-                      </p>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={addProduct}
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Your First Product
-                      </Button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Document Totals */}
-                {formData.items.length > 0 && (
-                  <div className="border-t pt-4">
-                    <div className="bg-muted/20 rounded-lg p-4 space-y-2">
-                      {(() => {
-                        const subtotal = formData.items.reduce(
-                          (sum, item) => sum + item.unitPrice * item.quantity,
-                          0,
-                        );
-                        const vatAmount = subtotal * 0.16;
-                        const total = subtotal + vatAmount;
-
-                        return (
-                          <>
-                            <div className="flex justify-between text-sm">
-                              <span>Subtotal:</span>
-                              <span>KES {subtotal.toLocaleString()}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                              <span>VAT (16%):</span>
-                              <span>KES {vatAmount.toLocaleString()}</span>
-                            </div>
-                            <div className="flex justify-between font-bold text-lg border-t pt-2">
-                              <span>Total:</span>
-                              <span>KES {total.toLocaleString()}</span>
-                            </div>
-                          </>
-                        );
-                      })()}
-                    </div>
-                  </div>
-                )}
-
-                <div className="space-y-2">
-                  <Label htmlFor="notes">Notes</Label>
-                  <Textarea
-                    id="notes"
-                    placeholder="Additional notes or terms"
-                    value={formData.notes}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        notes: e.target.value,
-                      }))
-                    }
-                    rows={3}
-                  />
-                </div>
-
-                <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setIsCreateDialogOpen(false)}
-                    className="w-full sm:w-auto"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    disabled={
-                      isLoading ||
-                      !formData.customerId ||
-                      formData.items.length === 0
-                    }
-                    className="w-full sm:w-auto"
-                  >
-                    {isLoading && (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    )}
-                    Create Quotation
-                  </Button>
-                </div>
-              </form>
-            </div>
-          </DialogContentLarge>
-        </Dialog>
+              </div>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsCreateDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={handleCreateQuotation}>Continue</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
-      {/* Metrics Cards */}
+      {/* Statistics Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -729,87 +385,79 @@ export default function Quotations() {
           <CardContent>
             <div className="text-2xl font-bold">{totalQuotations}</div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-success font-medium">+3</span> this month
+              All quotations created
             </p>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Accepted</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-success">
-              {acceptedQuotations}
-            </div>
+            <div className="text-2xl font-bold">{acceptedQuotations}</div>
             <p className="text-xs text-muted-foreground">
-              {totalQuotations > 0
-                ? Math.round((acceptedQuotations / totalQuotations) * 100)
-                : 0}
-              % acceptance rate
+              Ready for conversion
             </p>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Pending Response
-            </CardTitle>
-            <Send className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Pending</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-warning">
-              {pendingQuotations}
-            </div>
+            <div className="text-2xl font-bold">{pendingQuotations}</div>
             <p className="text-xs text-muted-foreground">
               Awaiting customer response
             </p>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Value</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+            <Calculator className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(totalValue)}
+              {formatCurrency(
+                quotations.reduce((sum, q) => sum + q.total, 0),
+              )}
             </div>
             <p className="text-xs text-muted-foreground">
-              Combined quotation value
+              Total quotations value
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Search and Filters */}
+      {/* Filters */}
       <Card>
         <CardHeader>
-          <CardTitle>Quotation Management</CardTitle>
-          <CardDescription>
-            Track and manage your sales quotations with conversion pipeline
-          </CardDescription>
+          <CardTitle className="flex items-center gap-2">
+            <Filter className="h-5 w-5" />
+            Filters
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center space-x-2 mb-6">
-            <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search quotations..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-8"
-              />
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search quotations..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="All Status" />
+              <SelectTrigger className="w-full md:w-48">
+                <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="draft">Draft</SelectItem>
                 <SelectItem value="sent">Sent</SelectItem>
                 <SelectItem value="accepted">Accepted</SelectItem>
@@ -817,10 +465,19 @@ export default function Quotations() {
                 <SelectItem value="expired">Expired</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline">Export</Button>
           </div>
+        </CardContent>
+      </Card>
 
-          {/* Quotations Table */}
+      {/* Quotations Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Quotations</CardTitle>
+          <CardDescription>
+            {filteredQuotations.length} of {totalQuotations} quotations
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
           <div className="rounded-md border">
             <Table>
               <TableHeader>
@@ -829,158 +486,110 @@ export default function Quotations() {
                   <TableHead>Customer</TableHead>
                   <TableHead>Issue Date</TableHead>
                   <TableHead>Valid Until</TableHead>
-                  <TableHead>Amount</TableHead>
+                  <TableHead>Total</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                  <TableHead className="w-[70px]"></TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredQuotations.map((quotation) => (
-                  <TableRow key={quotation.id}>
-                    <TableCell>
-                      <div className="font-medium">{quotation.quoteNumber}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {quotation.items.length} item(s)
+                {filteredQuotations.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8">
+                      <div className="flex flex-col items-center gap-2">
+                        <ClipboardList className="h-8 w-8 text-muted-foreground" />
+                        <p className="text-muted-foreground">
+                          No quotations found
+                        </p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setIsCreateDialogOpen(true)}
+                        >
+                          <Plus className="mr-2 h-4 w-4" />
+                          Create Your First Quotation
+                        </Button>
                       </div>
                     </TableCell>
-                    <TableCell>
-                      <div className="flex items-center space-x-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback className="text-xs">
-                            {quotation.customer.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")
-                              .substring(0, 2)}
-                          </AvatarFallback>
-                        </Avatar>
+                  </TableRow>
+                ) : (
+                  filteredQuotations.map((quotation) => (
+                    <TableRow key={quotation.id}>
+                      <TableCell className="font-medium">
+                        <Link
+                          to={`/quotations/${quotation.id}`}
+                          className="text-primary hover:underline"
+                        >
+                          {quotation.quoteNumber}
+                        </Link>
+                      </TableCell>
+                      <TableCell>
                         <div>
                           <div className="font-medium">
                             {quotation.customer.name}
                           </div>
-                          <div className="text-sm text-muted-foreground">
+                          <div className="text-xs text-muted-foreground">
                             {quotation.customer.email}
                           </div>
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {safeDate(quotation.issueDate).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <div
-                        className={`text-sm ${isExpiringSoon(quotation.validUntil) ? "text-warning font-medium" : ""}`}
-                      >
-                        {safeDate(quotation.validUntil).toLocaleDateString()}
-                      </div>
-                      {isExpiringSoon(quotation.validUntil) && (
-                        <div className="text-xs text-warning">
-                          Expires soon!
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="font-medium">
+                      </TableCell>
+                      <TableCell>{formatDate(quotation.issueDate)}</TableCell>
+                      <TableCell>{formatDate(quotation.validUntil)}</TableCell>
+                      <TableCell className="font-medium">
                         {formatCurrency(quotation.total)}
-                      </div>
-                      {quotation.discountAmount > 0 && (
-                        <div className="text-sm text-muted-foreground">
-                          Discount: {formatCurrency(quotation.discountAmount)}
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={getStatusVariant(quotation.status)}
-                        className="capitalize"
-                      >
-                        {getStatusIcon(quotation.status)}
-                        <span className="ml-1">{quotation.status}</span>
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {quotation.status === "accepted" && (
-                        <div className="flex space-x-1">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() =>
-                              handleConvertToProforma(quotation.id)
-                            }
-                            className="text-xs"
-                          >
-                            <ArrowRight className="h-3 w-3 mr-1" />
-                            Proforma
-                          </Button>
-                          <Button
-                            size="sm"
-                            onClick={() => handleConvertToInvoice(quotation.id)}
-                            className="text-xs"
-                          >
-                            <ArrowRight className="h-3 w-3 mr-1" />
-                            Invoice
-                          </Button>
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit Quotation
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Copy className="mr-2 h-4 w-4" />
-                            Duplicate
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => handleDownloadPDF(quotation.id)}
-                          >
-                            <Download className="mr-2 h-4 w-4" />
-                            Download PDF
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Send className="mr-2 h-4 w-4" />
-                            Send to Customer
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-destructive">
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={getStatusColor(quotation.status) as any}>
+                          {quotation.status.toUpperCase()}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem asChild>
+                              <Link to={`/quotations/${quotation.id}`}>
+                                <Eye className="mr-2 h-4 w-4" />
+                                View Details
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleDuplicate(quotation)}
+                            >
+                              <Copy className="mr-2 h-4 w-4" />
+                              Duplicate
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            {quotation.status === "accepted" && (
+                              <DropdownMenuItem
+                                onClick={() => handleConvertToProforma(quotation)}
+                                disabled={isLoading}
+                              >
+                                <FileEdit className="mr-2 h-4 w-4" />
+                                Convert to Proforma
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => handleDelete(quotation.id)}
+                              className="text-destructive"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </div>
-
-          {filteredQuotations.length === 0 && (
-            <div className="text-center py-8">
-              <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium">No quotations found</h3>
-              <p className="text-muted-foreground">
-                {searchTerm || statusFilter !== "all"
-                  ? "Try adjusting your search terms or filters."
-                  : "Get started by creating your first quotation."}
-              </p>
-            </div>
-          )}
         </CardContent>
       </Card>
     </div>
