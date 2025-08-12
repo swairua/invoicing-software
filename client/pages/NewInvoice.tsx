@@ -284,6 +284,18 @@ export default function NewInvoice() {
     });
   };
 
+  const updateItemVAT = (index: number, enabled: boolean, rate: number) => {
+    setItems((prev) => {
+      const updatedItems = [...prev];
+      updatedItems[index] = {
+        ...updatedItems[index],
+        vatEnabled: enabled,
+        vatRate: rate,
+      };
+      return updatedItems;
+    });
+  };
+
   const updateItem = (
     index: number,
     field: keyof InvoiceItemFormData,
