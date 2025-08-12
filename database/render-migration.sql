@@ -101,7 +101,7 @@ CREATE TABLE product_categories (
 );
 
 -- Customers table
-CREATE TABLE IF NOT EXISTS customers (
+CREATE TABLE customers (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,
@@ -110,6 +110,21 @@ CREATE TABLE IF NOT EXISTS customers (
     address TEXT,
     kra_pin VARCHAR(50),
     credit_limit DECIMAL(15,2) DEFAULT 0.00,
+    balance DECIMAL(15,2) DEFAULT 0.00,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Suppliers table
+CREATE TABLE suppliers (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    phone VARCHAR(50),
+    address TEXT,
+    kra_pin VARCHAR(50),
     balance DECIMAL(15,2) DEFAULT 0.00,
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
