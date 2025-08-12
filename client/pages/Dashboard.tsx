@@ -363,7 +363,7 @@ export default function Dashboard() {
             </div>
             <div className="space-y-3">
               <h4 className="font-semibold">Daily Revenue Breakdown</h4>
-              {mockMetrics.salesTrend.map((day, index) => (
+              {fallbackMetrics.salesTrend.map((day, index) => (
                 <div
                   key={index}
                   className="flex justify-between items-center py-2 border-b"
@@ -399,7 +399,7 @@ export default function Dashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockMetrics.outstandingInvoicesList.map((invoice) => (
+                {fallbackMetrics.outstandingInvoicesList.map((invoice) => (
                   <TableRow key={invoice.id}>
                     <TableCell>
                       <Button
@@ -446,7 +446,7 @@ export default function Dashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockMetrics.lowStockItems.map((item) => (
+                {fallbackMetrics.lowStockItems.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell>{item.name}</TableCell>
                     <TableCell>{item.category}</TableCell>
@@ -483,7 +483,7 @@ export default function Dashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockMetrics.recentPaymentsList.map((payment) => (
+                {fallbackMetrics.recentPaymentsList.map((payment) => (
                   <TableRow key={payment.id}>
                     <TableCell>
                       <Button
@@ -614,7 +614,7 @@ export default function Dashboard() {
                   KES{" "}
                   {(
                     liveMetrics?.outstandingInvoices ||
-                    mockMetrics.outstandingInvoices
+                    fallbackMetrics.outstandingInvoices
                   ).toLocaleString()}
                   {isSimulating && (
                     <Badge variant="secondary" className="ml-2 text-xs">
@@ -657,7 +657,7 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {liveMetrics?.lowStockAlerts || mockMetrics.lowStockAlerts}
+                  {liveMetrics?.lowStockAlerts || fallbackMetrics.lowStockAlerts}
                   {isSimulating && (
                     <Badge variant="secondary" className="ml-2 text-xs">
                       Live
@@ -701,7 +701,7 @@ export default function Dashboard() {
                 <div className="text-2xl font-bold">
                   KES{" "}
                   {(
-                    liveMetrics?.recentPayments || mockMetrics.recentPayments
+                    liveMetrics?.recentPayments || fallbackMetrics.recentPayments
                   ).toLocaleString()}
                   {isSimulating && (
                     <Badge variant="secondary" className="ml-2 text-xs">
@@ -769,9 +769,9 @@ export default function Dashboard() {
 
               {/* Daily Sales Chart */}
               <div className="space-y-2">
-                {mockMetrics.salesTrend.map((day, index) => {
+                {fallbackMetrics.salesTrend.map((day, index) => {
                   const maxAmount = Math.max(
-                    ...mockMetrics.salesTrend.map((d) => d.amount),
+                    ...fallbackMetrics.salesTrend.map((d) => d.amount),
                   );
                   const percentage = (day.amount / maxAmount) * 100;
 
@@ -846,7 +846,7 @@ export default function Dashboard() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {mockMetrics.topProducts.map((product, index) => (
+            {fallbackMetrics.topProducts.map((product, index) => (
               <div
                 key={product.id}
                 className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/5 transition-colors cursor-pointer"
@@ -912,7 +912,7 @@ export default function Dashboard() {
               <div className="text-right">
                 <div className="text-lg font-bold">
                   {formatCurrency(
-                    mockMetrics.topProducts.reduce(
+                    fallbackMetrics.topProducts.reduce(
                       (sum, p) => sum + p.sales,
                       0,
                     ),
