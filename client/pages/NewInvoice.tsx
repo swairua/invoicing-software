@@ -120,6 +120,8 @@ export default function NewInvoice() {
     unitPrice: "",
     discount: "0",
     lineItemTaxes: [],
+    vatEnabled: false,
+    vatRate: 16,
   });
 
   const dataService = dataServiceFactory.getDataService();
