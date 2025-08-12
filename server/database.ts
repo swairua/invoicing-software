@@ -1,27 +1,28 @@
 import { Pool, PoolClient } from "pg";
 
-// Database configuration - Force Supabase connection
+// Database configuration - Force Neon connection
 const DATABASE_URL =
   process.env.DATABASE_URL ||
-  "postgresql://postgres:Sirgeorge.12@db.qvtgnxezqwwlhzdmtwhc.supabase.co:5432/postgres";
+  "postgresql://neondb_owner:npg_smrD4peod8xL@ep-delicate-shape-aewuio49-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
 
 // Create connection pool
 const pool = new Pool({
   connectionString: DATABASE_URL,
   ssl:
     DATABASE_URL &&
-    (DATABASE_URL.includes("supabase.co") ||
+    (DATABASE_URL.includes("neon.tech") ||
+      DATABASE_URL.includes("supabase.co") ||
       DATABASE_URL.includes("render.com"))
       ? {
           rejectUnauthorized: false,
         }
       : false,
-  max: 10, // Increased for Supabase
+  max: 10, // Connection pool size
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 20000,
   acquireTimeoutMillis: 20000,
   createTimeoutMillis: 20000,
-  application_name: "fusion-invoicing-supabase",
+  application_name: "fusion-invoicing-neon",
 });
 
 // Database connection wrapper
@@ -123,7 +124,7 @@ export class Database {
       return true;
     } catch (error: any) {
       console.error("❌ LIVE DATABASE CONNECTION FAILED:", error.message);
-      console.log("🔧 Check Supabase connection string and permissions");
+      console.log("🔧 Check Neon connection string and permissions");
       return false;
     }
   }

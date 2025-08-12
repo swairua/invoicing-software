@@ -2,17 +2,17 @@
 
 /**
  * Simple Database Connection Test
- * Tests the specific Supabase connection
+ * Tests the specific Neon connection
  */
 
 import pkg from "pg";
 const { Pool } = pkg;
 
-async function testSupabaseConnection() {
-  console.log("🧪 Testing Supabase Database Connection\n");
+async function testNeonConnection() {
+  console.log("🧪 Testing Neon Database Connection\n");
 
   const databaseUrl =
-    "postgresql://postgres:Sirgeorge.12@db.qvtgnxezqwwlhzdmtwhc.supabase.co:5432/postgres";
+    "postgresql://neondb_owner:npg_smrD4peod8xL@ep-delicate-shape-aewuio49-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
 
   console.log("🔌 Connection string configured");
   console.log("🏗️ Creating connection pool...");
@@ -84,7 +84,7 @@ async function testSupabaseConnection() {
     console.log("\n🔧 Possible issues:");
     console.log("   • Database credentials incorrect");
     console.log("   • Network/firewall blocking connection");
-    console.log("   • Supabase instance not accessible");
+    console.log("   • Neon instance not accessible");
     return false;
   } finally {
     await pool.end();
@@ -92,7 +92,7 @@ async function testSupabaseConnection() {
 }
 
 // Run test
-testSupabaseConnection()
+testNeonConnection()
   .then((success) => {
     console.log(`\n${success ? "✅ TEST PASSED" : "❌ TEST FAILED"}`);
     process.exit(success ? 0 : 1);
