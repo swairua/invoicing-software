@@ -203,6 +203,12 @@ export default function Layout() {
                     <Settings className="mr-2 h-4 w-4" />
                     Settings
                   </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => (window.location.href = "/settings/company")}
+                  >
+                    <Building2 className="mr-2 h-4 w-4" />
+                    Company Settings
+                  </DropdownMenuItem>
                   {user?.role === "admin" && (
                     <>
                       <DropdownMenuSeparator />
