@@ -296,7 +296,7 @@ export class PDFService {
     }
     doc.setFontSize(18);
     doc.setFont("helvetica", "bold");
-    doc.text(settings.name.toUpperCase(), centerX, 25, { align: "center" });
+    doc.text((settings?.name || 'Company Name').toUpperCase(), centerX, 25, { align: "center" });
 
     // Business tagline (centered)
     doc.setFontSize(10);
