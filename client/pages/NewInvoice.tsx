@@ -159,8 +159,8 @@ export default function NewInvoice() {
     if (productSearch) {
       const filtered = products.filter(
         (product) =>
-          product.name.toLowerCase().includes(productSearch.toLowerCase()) ||
-          product.sku.toLowerCase().includes(productSearch.toLowerCase()),
+          product.name?.toLowerCase().includes(productSearch.toLowerCase()) ||
+          product.sku?.toLowerCase().includes(productSearch.toLowerCase()),
       );
       setFilteredProducts(filtered);
     } else {
