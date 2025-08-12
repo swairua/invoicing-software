@@ -226,7 +226,7 @@ export default function DynamicLineItems({
                               <SelectItem key={product.id} value={product.id}>
                                 <div>
                                   <div className="font-medium">
-                                    {product.name}
+                                    {product?.name || 'Unknown Product'}
                                   </div>
                                   <div className="text-xs text-muted-foreground">
                                     {product.sku} •{" "}
