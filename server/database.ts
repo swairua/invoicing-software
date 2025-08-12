@@ -71,18 +71,29 @@ export class Database {
 
   // Test connection with fallback
   async testConnection(): Promise<boolean> {
+    if (!process.env.DATABASE_URL) {
+      console.log("📱 No DATABASE_URL found, using mock data mode");
+      return false;
+    }
+
     try {
-      const result = await this.query("SELECT NOW() as current_time");
-      console.log(
-        "✅ Database connection successful:",
-        result.rows[0].current_time,
-      );
+      console.log("🔌 Attempting database connection...");
+      const result = await this.query("SELECT NOW() as current_time, version() as version");
+      console.log("✅ Database connection successful!");
+      console.log("🕐 Current time:", result.rows[0].current_time);
+      console.log("🗄️ Database version:", result.rows[0].version.split(' ')[0]);
+
+      // Test if we can query tables
+      try {
+        await this.query("SELECT 1 FROM companies LIMIT 1");
+        console.log("✅ Database schema ready");
+      } catch (schemaError) {
+        console.log("⚠️ Database schema not found - needs migration");
+      }
+
       return true;
-    } catch (error) {
-      console.warn(
-        "⚠️ Database connection failed, using mock data mode:",
-        error.message,
-      );
+    } catch (error: any) {
+      console.warn("⚠️ Database connection failed:", error.message);
       console.log("📱 App will continue to work with simulated data");
       return false;
     }
