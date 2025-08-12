@@ -144,9 +144,9 @@ export default function ProformaInvoices() {
   const filteredProformas = proformas.filter((proforma) => {
     const matchesSearch =
       proforma.proformaNumber
-        .toLowerCase()
+        ?.toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      proforma.customer.name.toLowerCase().includes(searchTerm.toLowerCase());
+      proforma.customer?.name?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesStatus =
       statusFilter === "all" || proforma.status === statusFilter;
