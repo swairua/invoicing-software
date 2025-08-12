@@ -15,6 +15,7 @@ export class PDFService {
   private static templates: Map<string, DocumentTemplate> = new Map();
   private static logoDataUrl: string | null = null;
   private static initialized: boolean = false;
+  private static cacheVersion: number = Date.now();
 
   /**
    * Initialize the service with logo loading
