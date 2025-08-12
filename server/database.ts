@@ -1,7 +1,7 @@
 import { Pool, PoolClient } from "pg";
 
-// Database configuration
-const DATABASE_URL = process.env.DATABASE_URL;
+// Database configuration - Force Supabase connection
+const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:Sirgeorge.12@db.qvtgnxezqwwlhzdmtwhc.supabase.co:5432/postgres';
 
 // Create connection pool
 const pool = new Pool({
