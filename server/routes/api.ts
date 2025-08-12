@@ -27,6 +27,16 @@ router.get('/health', async (req, res) => {
   }
 });
 
+// Simple test endpoint
+router.get('/test', (req, res) => {
+  console.log('Test endpoint called');
+  res.json({
+    success: true,
+    message: 'API routing is working',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Database test endpoint
 router.get('/test-db', async (req, res) => {
   try {
