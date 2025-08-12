@@ -371,7 +371,8 @@ export default function Invoices() {
     );
 
     if (payment) {
-      setInvoices(businessData.getInvoices());
+      const invoicesData = await businessData.getInvoices();
+      setInvoices(Array.isArray(invoicesData) ? invoicesData : []);
       toast({
         title: "Payment Recorded",
         description: `Payment of KES ${paymentAmount.toLocaleString()} recorded for ${invoice.invoiceNumber}`,
