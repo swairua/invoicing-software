@@ -316,12 +316,13 @@ export class PDFService {
    * Add fallback logo when dynamic logo is not available
    */
   private static addFallbackLogo(doc: jsPDF, settings: CompanySettings): void {
+    const centerX = doc.internal.pageSize.width / 2;
     doc.setFillColor(41, 128, 185);
-    doc.circle(32.5, 27.5, 12, "F");
+    doc.circle(centerX, 25, 15, "F");
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(14);
+    doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
-    doc.text(settings.name.charAt(0), 32.5, 32, { align: "center" });
+    doc.text(settings.name.charAt(0), centerX, 30, { align: "center" });
   }
 
   /**
