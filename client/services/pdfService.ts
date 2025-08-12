@@ -21,10 +21,9 @@ export class PDFService {
    * Initialize the service with logo loading
    */
   static async initialize(): Promise<void> {
-    if (!this.initialized) {
-      await this.updateCompanySettings(this.companySettings);
-      this.initialized = true;
-    }
+    // Force reinitialization to ensure changes are applied
+    await this.updateCompanySettings(this.companySettings);
+    this.initialized = true;
   }
 
   /**
