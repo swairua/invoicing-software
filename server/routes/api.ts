@@ -227,22 +227,26 @@ router.get('/proformas', async (req, res) => {
     const fallbackProformas = [
       {
         id: '1',
-        proforma_number: 'PRO-2024-001',
-        customer_id: '1',
-        customer_name: 'Acme Corporation Ltd',
-        customer_email: 'contact@acme.com',
+        proformaNumber: 'PRO-2024-001',
+        customerId: '1',
+        customer: {
+          id: '1',
+          name: 'Acme Corporation Ltd',
+          email: 'contact@acme.com'
+        },
+        items: [],
         subtotal: 35000,
-        vat_amount: 5600,
-        discount_amount: 0,
+        vatAmount: 5600,
+        discountAmount: 0,
         total: 40600,
         status: 'sent',
-        valid_until: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        issue_date: new Date(),
+        validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        issueDate: new Date(),
         notes: 'Proforma for quarterly supplies',
-        company_id: req.headers['x-company-id'] as string || '550e8400-e29b-41d4-a716-446655440000',
-        created_by: '1',
-        created_at: new Date(),
-        updated_at: new Date()
+        companyId: req.headers['x-company-id'] as string || '550e8400-e29b-41d4-a716-446655440000',
+        createdBy: '1',
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
     ];
 
