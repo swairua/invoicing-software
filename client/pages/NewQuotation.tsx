@@ -40,15 +40,19 @@ import {
   Calculator,
   Calendar,
   Send,
+  Plus,
+  Trash2,
+  Search,
 } from "lucide-react";
-import { Customer, Product, Quotation } from "@shared/types";
+import {
+  Customer,
+  Product,
+  Quotation,
+  InvoiceItem,
+} from "@shared/types";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import TemplateSelector from "../components/TemplateSelector";
-<<<<<<< HEAD
 import LineItemVATSelector from "../components/LineItemVATSelector";
-=======
-import DynamicLineItems, { LineItem } from "../components/DynamicLineItems";
->>>>>>> origin/ai_main_ca8b34ce3d1a
 import { useToast } from "../hooks/use-toast";
 
 interface QuotationFormData {
@@ -58,7 +62,6 @@ interface QuotationFormData {
   notes: string;
 }
 
-<<<<<<< HEAD
 interface QuotationItemFormData {
   productId: string;
   quantity: string;
@@ -67,9 +70,6 @@ interface QuotationItemFormData {
   vatEnabled?: boolean;
   vatRate?: number;
 }
-=======
-// Using LineItem interface from DynamicLineItems component
->>>>>>> origin/ai_main_ca8b34ce3d1a
 
 export default function NewQuotation() {
   const navigate = useNavigate();
@@ -80,6 +80,8 @@ export default function NewQuotation() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [productSearch, setProductSearch] = useState("");
 
   const duplicateData = location.state?.duplicateFrom;
   const preselectedCustomerId = searchParams.get("customer");
@@ -93,18 +95,17 @@ export default function NewQuotation() {
     notes: duplicateData?.notes || "",
   });
 
-  const [items, setItems] = useState<LineItem[]>(
-    duplicateData?.items?.map((item: any, index: number) => ({
-      id: `item-${index}`,
+  const [items, setItems] = useState<QuotationItemFormData[]>(
+    duplicateData?.items?.map((item: any) => ({
       productId: item.productId,
       quantity: item.quantity.toString(),
       unitPrice: item.unitPrice.toString(),
       discount: item.discount.toString(),
-      lineItemTaxes: item.lineItemTaxes || [],
+      vatEnabled: item.vatRate > 0,
+      vatRate: item.vatRate || 16,
     })) || [],
   );
 
-<<<<<<< HEAD
   const [newItem, setNewItem] = useState<QuotationItemFormData>({
     productId: "",
     quantity: "1",
@@ -113,9 +114,6 @@ export default function NewQuotation() {
     vatEnabled: false,
     vatRate: 16,
   });
-=======
-  // Using DynamicLineItems component for item management
->>>>>>> origin/ai_main_ca8b34ce3d1a
 
   const dataService = dataServiceFactory.getDataService();
 
@@ -126,9 +124,9 @@ export default function NewQuotation() {
           dataService.getCustomers(),
           dataService.getProducts(),
         ]);
-        setCustomers(customerData);
-        setProducts(productData);
-        // Product filtering handled by DynamicLineItems
+        setCustomers(Array.isArray(customerData) ? customerData : []);
+        setProducts(Array.isArray(productData) ? productData : []);
+        setFilteredProducts(Array.isArray(productData) ? productData : []);
       } catch (error) {
         console.error("Error loading data:", error);
         toast({
@@ -142,9 +140,20 @@ export default function NewQuotation() {
     loadData();
   }, [dataService, toast]);
 
-  // Product filtering handled by DynamicLineItems component
+  useEffect(() => {
+    if (productSearch) {
+      const filtered = products.filter(
+        (product) =>
+          product.name.toLowerCase().includes(productSearch.toLowerCase()) ||
+          product.sku.toLowerCase().includes(productSearch.toLowerCase()),
+      );
+      setFilteredProducts(filtered);
+    } else {
+      setFilteredProducts(products);
+    }
+  }, [productSearch, products]);
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat("en-KE", {
       style: "currency",
       currency: "KES",
@@ -152,7 +161,7 @@ export default function NewQuotation() {
     }).format(amount);
   };
 
-  const calculateItemTotal = (item: LineItem) => {
+  const calculateItemTotal = (item: QuotationItemFormData) => {
     const quantity = parseFloat(item.quantity) || 0;
     const unitPrice = parseFloat(item.unitPrice) || 0;
     const discount = parseFloat(item.discount) || 0;
@@ -173,34 +182,23 @@ export default function NewQuotation() {
     let discountAmount = 0;
     let vatAmount = 0;
 
-    items
-      .filter((item) => item.productId)
-      .forEach((item) => {
-        const quantity = parseFloat(item.quantity) || 0;
-        const unitPrice = parseFloat(item.unitPrice) || 0;
-        const discount = parseFloat(item.discount) || 0;
+    items.forEach((item) => {
+      const quantity = parseFloat(item.quantity) || 0;
+      const unitPrice = parseFloat(item.unitPrice) || 0;
+      const discount = parseFloat(item.discount) || 0;
 
-        const itemSubtotal = quantity * unitPrice;
-        subtotal += itemSubtotal;
+      const itemSubtotal = quantity * unitPrice;
+      subtotal += itemSubtotal;
 
-        const itemDiscountAmount = (itemSubtotal * discount) / 100;
-        discountAmount += itemDiscountAmount;
+      const itemDiscountAmount = (itemSubtotal * discount) / 100;
+      discountAmount += itemDiscountAmount;
 
-<<<<<<< HEAD
       const afterDiscount = itemSubtotal - itemDiscountAmount;
       // Use line item VAT settings instead of product defaults
       const vatRate = item.vatEnabled ? (item.vatRate || 16) : 0;
       const itemVatAmount = (afterDiscount * vatRate) / 100;
       vatAmount += itemVatAmount;
     });
-=======
-        const afterDiscount = itemSubtotal - itemDiscountAmount;
-        const product = products.find((p) => p.id === item.productId);
-        const vatRate = product?.taxable ? product.taxRate || 16 : 0;
-        const itemVatAmount = (afterDiscount * vatRate) / 100;
-        vatAmount += itemVatAmount;
-      });
->>>>>>> origin/ai_main_ca8b34ce3d1a
 
     const total = subtotal - discountAmount + vatAmount;
 
@@ -212,12 +210,70 @@ export default function NewQuotation() {
     };
   };
 
-  // Item management functions handled by DynamicLineItems component
+  const addItem = () => {
+    if (!newItem.productId || !newItem.quantity || !newItem.unitPrice) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-  const handleSubmit = async (
-    e: React.FormEvent,
-    sendImmediately: boolean = false,
+    setItems((prev) => [...prev, { ...newItem }]);
+
+    // Reset form
+    setNewItem({
+      productId: "",
+      quantity: "1",
+      unitPrice: "",
+      discount: "0",
+      vatEnabled: false,
+      vatRate: 16,
+    });
+    setProductSearch("");
+  };
+
+  const removeItem = (index: number) => {
+    setItems((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const updateItem = (
+    index: number,
+    field: keyof QuotationItemFormData,
+    value: string,
   ) => {
+    setItems((prev) =>
+      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
+    );
+  };
+
+  const updateItemVAT = (index: number, enabled: boolean, rate: number) => {
+    setItems((prev) => {
+      const updatedItems = [...prev];
+      updatedItems[index] = {
+        ...updatedItems[index],
+        vatEnabled: enabled,
+        vatRate: rate,
+      };
+      return updatedItems;
+    });
+  };
+
+  const handleProductSelect = (productId: string) => {
+    const product = products.find((p) => p.id === productId);
+    if (product) {
+      setNewItem((prev) => ({
+        ...prev,
+        productId,
+        unitPrice: product.sellingPrice.toString(),
+        vatEnabled: product.taxable || false,
+        vatRate: product.taxRate || 16,
+      }));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.customerId) {
@@ -229,22 +285,10 @@ export default function NewQuotation() {
       return;
     }
 
-    const validItems = items.filter((item) => item.productId);
-    if (validItems.length === 0) {
+    if (items.length === 0) {
       toast({
         title: "Validation Error",
-        description: "Please add at least one item to the quotation.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const totals = calculateTotals();
-
-    if (totals.total <= 0) {
-      toast({
-        title: "Validation Error",
-        description: "Quotation total must be greater than zero.",
+        description: "Please add at least one item.",
         variant: "destructive",
       });
       return;
@@ -253,20 +297,54 @@ export default function NewQuotation() {
     setIsSubmitting(true);
 
     try {
-      // Here you would normally call a create quotation API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const customer = customers.find((c) => c.id === formData.customerId)!;
 
-      toast({
-        title: "Quotation Created",
-        description: `Quotation has been created successfully.`,
+      const quotationItems: InvoiceItem[] = items.map((item, index) => {
+        const product = products.find((p) => p.id === item.productId)!;
+        const quantity = parseFloat(item.quantity);
+        const unitPrice = parseFloat(item.unitPrice);
+        const discount = parseFloat(item.discount);
+        const vatRate = item.vatEnabled ? (item.vatRate || 16) : 0;
+
+        const subtotal = quantity * unitPrice;
+        const discountAmount = (subtotal * discount) / 100;
+        const afterDiscount = subtotal - discountAmount;
+        const vatAmount = (afterDiscount * vatRate) / 100;
+        const total = afterDiscount + vatAmount;
+
+        return {
+          id: `item-${index}`,
+          productId: product.id,
+          product,
+          quantity,
+          unitPrice,
+          discount,
+          vatRate,
+          total,
+        };
       });
 
-      if (sendImmediately) {
-        toast({
-          title: "Quotation Sent",
-          description: "Quotation has been sent to the customer.",
-        });
-      }
+      const totals = calculateTotals();
+
+      const quotationData = {
+        customerId: formData.customerId,
+        items: quotationItems,
+        subtotal: totals.subtotal,
+        vatAmount: totals.vatAmount,
+        discountAmount: totals.discountAmount,
+        total: totals.total,
+        validUntil: formData.validUntil,
+        issueDate: formData.issueDate,
+        notes: formData.notes,
+        status: "draft",
+      };
+
+      await dataService.createQuotation(quotationData);
+
+      toast({
+        title: "Success",
+        description: "Quotation created successfully.",
+      });
 
       navigate("/quotations");
     } catch (error) {
@@ -282,230 +360,414 @@ export default function NewQuotation() {
   };
 
   const totals = calculateTotals();
-  const selectedCustomer = customers.find((c) => c.id === formData.customerId);
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="container mx-auto py-6 space-y-6">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="sm" asChild>
+        <div className="flex items-center space-x-4">
+          <Button variant="ghost" size="sm" asChild>
             <Link to="/quotations">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Quotations
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              {duplicateData ? "Duplicate Quotation" : "New Quotation"}
-            </h1>
+            <h1 className="text-3xl font-bold tracking-tight">New Quotation</h1>
             <p className="text-muted-foreground">
-              {duplicateData
-                ? "Create a copy of an existing quotation"
-                : "Create a new quotation for your customer"}
+              Create a new quotation for your customer
             </p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" asChild>
-            <Link to="/quotations">Cancel</Link>
-          </Button>
-          <Button
-            variant="outline"
-            onClick={(e) => handleSubmit(e, false)}
-            disabled={isSubmitting}
-          >
-            <Save className="mr-2 h-4 w-4" />
-            Save Draft
-          </Button>
-          <Button
-            onClick={(e) => handleSubmit(e, true)}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                Creating...
-              </>
-            ) : (
-              <>
-                <Send className="mr-2 h-4 w-4" />
-                Create & Send
-              </>
-            )}
-          </Button>
-        </div>
       </div>
 
-      <form onSubmit={(e) => handleSubmit(e, false)} className="space-y-6">
-        {/* Customer and Date Information */}
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Customer Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="customer">Customer *</Label>
-                <Select
-                  value={formData.customerId}
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({ ...prev, customerId: value }))
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a customer" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {customers.map((customer) => (
-                      <SelectItem key={customer.id} value={customer.id}>
-                        <div>
-                          <div className="font-medium">{customer.name}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {customer.email ||
-                              customer.phone ||
-                              "No contact info"}
-                          </div>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid gap-6 lg:grid-cols-3">
+          {/* Customer & Dates */}
+          <div className="lg:col-span-2 space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  Customer Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="customer">Customer *</Label>
+                    <Select
+                      value={formData.customerId}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({ ...prev, customerId: value }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select customer" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {customers.map((customer) => (
+                          <SelectItem key={customer.id} value={customer.id}>
+                            <div>
+                              <div className="font-medium">{customer.name}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {customer.email}
+                              </div>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="issueDate">Issue Date *</Label>
+                    <Input
+                      id="issueDate"
+                      type="date"
+                      value={formData.issueDate}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          issueDate: e.target.value,
+                        }))
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="validUntil">Valid Until *</Label>
+                    <Input
+                      id="validUntil"
+                      type="date"
+                      value={formData.validUntil}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          validUntil: e.target.value,
+                        }))
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
+                      id="notes"
+                      placeholder="Additional notes..."
+                      value={formData.notes}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          notes: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-              {selectedCustomer && (
-                <div className="p-3 bg-muted rounded-lg">
-                  <h4 className="font-medium text-sm mb-2">Customer Details</h4>
-                  <div className="space-y-1 text-xs">
-                    <div>Email: {selectedCustomer.email || "Not provided"}</div>
-                    <div>Phone: {selectedCustomer.phone || "Not provided"}</div>
-                    <div>
-                      Credit Limit:{" "}
-                      {formatCurrency(selectedCustomer.creditLimit)}
+            {/* Add Items */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Plus className="h-5 w-5" />
+                  Add Items
+                </CardTitle>
+                <CardDescription>
+                  Search and add products to your quotation
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
+                  <div className="space-y-2 md:col-span-2">
+                    <Label>Product *</Label>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        type="text"
+                        placeholder="Search products..."
+                        value={productSearch}
+                        onChange={(e) => setProductSearch(e.target.value)}
+                        className="pl-10"
+                      />
                     </div>
+                    <Select
+                      value={newItem.productId}
+                      onValueChange={handleProductSelect}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select product" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-64">
+                        {filteredProducts.map((product) => (
+                          <SelectItem key={product.id} value={product.id}>
+                            <div>
+                              <div className="font-medium">{product.name}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {product.sku} •{" "}
+                                {formatCurrency(product.sellingPrice)}
+                              </div>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Quantity</Label>
+                    <Input
+                      type="number"
+                      value={newItem.quantity}
+                      onChange={(e) =>
+                        setNewItem((prev) => ({
+                          ...prev,
+                          quantity: e.target.value,
+                        }))
+                      }
+                      placeholder="1"
+                      min="1"
+                      step="0.01"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Unit Price (KES)</Label>
+                    <Input
+                      type="number"
+                      value={newItem.unitPrice}
+                      onChange={(e) =>
+                        setNewItem((prev) => ({
+                          ...prev,
+                          unitPrice: e.target.value,
+                        }))
+                      }
+                      placeholder="0.00"
+                      min="0"
+                      step="0.01"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Discount (%)</Label>
+                    <Input
+                      type="number"
+                      value={newItem.discount}
+                      onChange={(e) =>
+                        setNewItem((prev) => ({
+                          ...prev,
+                          discount: e.target.value,
+                        }))
+                      }
+                      placeholder="0"
+                      min="0"
+                      max="100"
+                      step="0.01"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>&nbsp;</Label>
+                    <Button type="button" onClick={addItem} className="w-full">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add Item
+                    </Button>
                   </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Quotation Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+                {/* VAT Selector for new item */}
+                {newItem.productId && (
+                  <div className="mt-4 p-4 border rounded-lg">
+                    <LineItemVATSelector
+                      enabled={newItem.vatEnabled || false}
+                      selectedRate={newItem.vatRate || 16}
+                      onVATChange={(enabled, rate) =>
+                        setNewItem((prev) => ({
+                          ...prev,
+                          vatEnabled: enabled,
+                          vatRate: rate,
+                        }))
+                      }
+                      itemSubtotal={
+                        (parseFloat(newItem.quantity) || 0) *
+                          (parseFloat(newItem.unitPrice) || 0) -
+                        ((parseFloat(newItem.quantity) || 0) *
+                          (parseFloat(newItem.unitPrice) || 0) *
+                          (parseFloat(newItem.discount) || 0)) /
+                          100
+                      }
+                      className="w-full"
+                    />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Current Items */}
+            {items.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Quotation Items</CardTitle>
+                  <CardDescription>
+                    Review and manage your quotation items
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Product</TableHead>
+                          <TableHead>Quantity</TableHead>
+                          <TableHead>Unit Price</TableHead>
+                          <TableHead>Discount</TableHead>
+                          <TableHead>VAT</TableHead>
+                          <TableHead>Total</TableHead>
+                          <TableHead className="w-[50px]"></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {items.map((item, index) => {
+                          const product = products.find(
+                            (p) => p.id === item.productId,
+                          );
+                          const itemTotal = calculateItemTotal(item);
+
+                          return (
+                            <TableRow key={index}>
+                              <TableCell>
+                                <div>
+                                  <div className="font-medium">
+                                    {product?.name}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    {product?.sku}
+                                  </div>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <Input
+                                  type="number"
+                                  value={item.quantity}
+                                  onChange={(e) =>
+                                    updateItem(index, "quantity", e.target.value)
+                                  }
+                                  className="w-20"
+                                  min="1"
+                                  step="0.01"
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <Input
+                                  type="number"
+                                  value={item.unitPrice}
+                                  onChange={(e) =>
+                                    updateItem(index, "unitPrice", e.target.value)
+                                  }
+                                  className="w-24"
+                                  min="0"
+                                  step="0.01"
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-1">
+                                  <Input
+                                    type="number"
+                                    value={item.discount}
+                                    onChange={(e) =>
+                                      updateItem(index, "discount", e.target.value)
+                                    }
+                                    className="w-16"
+                                    min="0"
+                                    max="100"
+                                    step="0.01"
+                                  />
+                                  <span className="text-sm text-muted-foreground">
+                                    %
+                                  </span>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <LineItemVATSelector
+                                  enabled={item.vatEnabled || false}
+                                  selectedRate={item.vatRate || 16}
+                                  onVATChange={(enabled, rate) =>
+                                    updateItemVAT(index, enabled, rate)
+                                  }
+                                  itemSubtotal={
+                                    parseFloat(item.quantity) *
+                                      parseFloat(item.unitPrice) -
+                                    (parseFloat(item.quantity) *
+                                      parseFloat(item.unitPrice) *
+                                      parseFloat(item.discount)) /
+                                      100
+                                  }
+                                  className="w-64"
+                                />
+                              </TableCell>
+                              <TableCell className="font-medium">
+                                {formatCurrency(itemTotal)}
+                              </TableCell>
+                              <TableCell>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => removeItem(index)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Summary */}
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calculator className="h-5 w-5" />
+                  Quotation Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="issueDate">Issue Date</Label>
-                  <Input
-                    id="issueDate"
-                    type="date"
-                    value={formData.issueDate}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        issueDate: e.target.value,
-                      }))
-                    }
-                  />
+                  <div className="flex justify-between">
+                    <span>Subtotal:</span>
+                    <span>{formatCurrency(totals.subtotal)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Discount:</span>
+                    <span>-{formatCurrency(totals.discountAmount)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>VAT:</span>
+                    <span>{formatCurrency(totals.vatAmount)}</span>
+                  </div>
+                  <div className="border-t pt-2 flex justify-between font-bold text-lg">
+                    <span>Total:</span>
+                    <span>{formatCurrency(totals.total)}</span>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="validUntil">Valid Until</Label>
-                  <Input
-                    id="validUntil"
-                    type="date"
-                    value={formData.validUntil}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        validUntil: e.target.value,
-                      }))
-                    }
-                  />
-                </div>
-              </div>
+              </CardContent>
+            </Card>
 
-              {/* Template Selection */}
-              <TemplateSelector
-                documentType="quotation"
-                selectedTemplateId={selectedTemplateId}
-                onTemplateSelect={setSelectedTemplateId}
-              />
-
-              <div className="space-y-2">
-                <Label htmlFor="notes">Notes</Label>
-                <Textarea
-                  id="notes"
-                  value={formData.notes}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, notes: e.target.value }))
-                  }
-                  placeholder="Additional notes for this quotation..."
-                  rows={3}
-                />
-              </div>
-            </CardContent>
-          </Card>
+            <div className="space-y-3">
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isSubmitting || items.length === 0}
+              >
+                <Save className="mr-2 h-4 w-4" />
+                {isSubmitting ? "Creating..." : "Create Quotation"}
+              </Button>
+            </div>
+          </div>
         </div>
-
-        {/* Items - Using DynamicLineItems component */}
-        <DynamicLineItems
-          items={items}
-          products={products}
-          onItemsChange={setItems}
-          formatCurrency={formatCurrency}
-          calculateItemTotal={calculateItemTotal}
-        />
-
-        {/* Summary */}
-        {items.filter((item) => item.productId).length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calculator className="h-5 w-5" />
-                Quotation Summary
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3 max-w-md ml-auto">
-                <div className="flex justify-between">
-                  <span className="text-sm">Subtotal:</span>
-                  <span className="font-medium">
-                    {formatCurrency(totals.subtotal)}
-                  </span>
-                </div>
-                {totals.discountAmount > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-sm">Discount:</span>
-                    <span className="font-medium">
-                      -{formatCurrency(totals.discountAmount)}
-                    </span>
-                  </div>
-                )}
-                {totals.vatAmount > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-sm">VAT:</span>
-                    <span className="font-medium">
-                      {formatCurrency(totals.vatAmount)}
-                    </span>
-                  </div>
-                )}
-                <div className="flex justify-between border-t pt-3">
-                  <span className="font-medium">Total:</span>
-                  <span className="font-bold text-lg">
-                    {formatCurrency(totals.total)}
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
       </form>
     </div>
   );
