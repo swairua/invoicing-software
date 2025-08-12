@@ -480,41 +480,23 @@ export class PDFService {
       ? hexToRgb(design.table.headerBackgroundColor)
       : [37, 99, 235]; // Force blue color for visibility
 
+    // Custom header design outside the table
+    this.addCustomTableHeader(doc, 125);
+
+    // Table without header - starts lower to accommodate external header
     autoTable(doc, {
-      startY: 125,
-      head: [
-        [
-          "#",
-          "ITEM DESCRIPTION",
-          "QTY",
-          "UNIT",
-          "UNIT PRICE (KSH)",
-          "VAT %",
-          "TOTAL (KSH)",
-        ],
-      ],
+      startY: 145,
       body: tableData,
-      theme: "striped",
+      theme: "grid",
       styles: {
         fontSize: 9,
-        cellPadding: 5,
-        lineColor: [200, 200, 200],
-        lineWidth: 0.5,
-        textColor: [50, 50, 50],
-      },
-      headStyles: {
-        fillColor: headerColor,
-        textColor: [255, 255, 255],
-        fontStyle: "bold",
-        fontSize: 10,
-        halign: "center",
-        valign: "middle",
-        minCellHeight: 22,
-        lineColor: [37, 99, 235],
-        lineWidth: 1,
+        cellPadding: 4,
+        lineColor: [180, 180, 180],
+        lineWidth: 0.3,
+        textColor: [40, 40, 40],
       },
       alternateRowStyles: {
-        fillColor: [245, 247, 250],
+        fillColor: [248, 250, 252],
       },
       columnStyles: {
         0: { halign: "center", cellWidth: 12 },
@@ -524,6 +506,12 @@ export class PDFService {
         4: { halign: "right", cellWidth: 25 },
         5: { halign: "center", cellWidth: 15 },
         6: { halign: "right", cellWidth: 30 },
+      },
+      didParseCell: function (data) {
+        // Add subtle hover effect simulation
+        if (data.row.index % 2 === 0) {
+          data.cell.styles.fillColor = [252, 252, 253];
+        }
       },
     });
 
