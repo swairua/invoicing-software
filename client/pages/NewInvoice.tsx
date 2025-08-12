@@ -60,6 +60,7 @@ import {
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import TemplateSelector from "../components/TemplateSelector";
 import LineItemTaxSelector from "../components/LineItemTaxSelector";
+import LineItemVATSelector from "../components/LineItemVATSelector";
 import { useToast } from "../hooks/use-toast";
 
 interface InvoiceFormData {
