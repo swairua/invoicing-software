@@ -86,7 +86,7 @@ export default function LineItemVATSelector({
                   <SelectItem key={vat.id} value={vat.rate.toString()}>
                     <div className="flex items-center justify-between w-full">
                       <div className="flex flex-col">
-                        <span className="font-medium">{vat.name}</span>
+                        <span className="font-medium">{vat?.name || 'Unknown VAT'}</span>
                         {vat.description && (
                           <span className="text-xs text-muted-foreground">
                             {vat.description}
