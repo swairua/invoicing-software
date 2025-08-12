@@ -144,9 +144,11 @@ const App = () => (
     <BrowserRouter>
       <AuthProvider>
         <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <AppRoutes />
+          <ErrorBoundary>
+            <Toaster />
+            <Sonner />
+            <AppRoutes />
+          </ErrorBoundary>
         </TooltipProvider>
       </AuthProvider>
     </BrowserRouter>
