@@ -562,7 +562,7 @@ export default function NewProduct() {
                           {UnitConverter.getCommonUnits().quantity.map(
                             (unit) => (
                               <SelectItem key={unit.id} value={unit.id}>
-                                {unit.name} ({unit.symbol})
+                                {unit?.name || 'Unknown Unit'} ({unit?.symbol || '?'})
                               </SelectItem>
                             ),
                           )}
