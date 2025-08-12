@@ -4,6 +4,37 @@
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- Drop existing tables if they exist (for clean migration)
+DROP TABLE IF EXISTS activity_logs CASCADE;
+DROP TABLE IF EXISTS tax_configurations CASCADE;
+DROP TABLE IF EXISTS payments CASCADE;
+DROP TABLE IF EXISTS proforma_items CASCADE;
+DROP TABLE IF EXISTS proforma_invoices CASCADE;
+DROP TABLE IF EXISTS quotation_items CASCADE;
+DROP TABLE IF EXISTS quotations CASCADE;
+DROP TABLE IF EXISTS invoice_items CASCADE;
+DROP TABLE IF EXISTS invoices CASCADE;
+DROP TABLE IF EXISTS credit_note_items CASCADE;
+DROP TABLE IF EXISTS credit_notes CASCADE;
+DROP TABLE IF EXISTS delivery_note_items CASCADE;
+DROP TABLE IF EXISTS delivery_notes CASCADE;
+DROP TABLE IF EXISTS packing_list_items CASCADE;
+DROP TABLE IF EXISTS packing_lists CASCADE;
+DROP TABLE IF EXISTS purchase_order_items CASCADE;
+DROP TABLE IF EXISTS purchase_orders CASCADE;
+DROP TABLE IF EXISTS goods_received_items CASCADE;
+DROP TABLE IF EXISTS goods_received_notes CASCADE;
+DROP TABLE IF EXISTS stock_movements CASCADE;
+DROP TABLE IF EXISTS product_variants CASCADE;
+DROP TABLE IF EXISTS product_categories CASCADE;
+DROP TABLE IF EXISTS products CASCADE;
+DROP TABLE IF EXISTS suppliers CASCADE;
+DROP TABLE IF EXISTS customers CASCADE;
+DROP TABLE IF EXISTS document_templates CASCADE;
+DROP TABLE IF EXISTS number_sequences CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS companies CASCADE;
+
 -- Companies table
 CREATE TABLE IF NOT EXISTS companies (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
