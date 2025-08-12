@@ -89,11 +89,13 @@ export default function Layout() {
         <div className="flex grow flex-col border-r bg-card">
           <div className="flex h-16 shrink-0 items-center px-6 border-b">
             <div className="flex items-center space-x-3">
-              <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
-                <Building2 className="h-5 w-5 text-primary-foreground" />
-              </div>
+              <img
+                src={MEDPLUS_LOGO_URL}
+                alt="Medplus Africa Logo"
+                className="h-10 w-10 object-contain"
+              />
               <div>
-                <h1 className="text-lg font-semibold">BusinessERP</h1>
+                <h1 className="text-lg font-semibold">Medplus Africa</h1>
                 <p className="text-xs text-muted-foreground">
                   Management System
                 </p>
