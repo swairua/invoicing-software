@@ -111,7 +111,7 @@ export default function TemplateSelector({
                 <DialogHeader>
                   <DialogTitle>Template Preview</DialogTitle>
                   <DialogDescription>
-                    Preview of "{selectedTemplate.name}" template
+                    Preview of "{selectedTemplate?.name || 'Unknown Template'}" template
                   </DialogDescription>
                 </DialogHeader>
                 <TemplatePreview template={selectedTemplate} />
