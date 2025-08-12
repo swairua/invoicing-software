@@ -17,19 +17,32 @@ class PostgresBusinessDataService {
 
   // API helper methods
   private async apiCall(endpoint: string, options: RequestInit = {}): Promise<any> {
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-      ...options,
-    });
+    const url = `${this.baseUrl}${endpoint}`;
+    console.log(`Making API call to: ${url}`);
 
-    if (!response.ok) {
-      throw new Error(`API call failed: ${response.statusText}`);
+    try {
+      const response = await fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+        ...options,
+      });
+
+      console.log(`API response status: ${response.status} ${response.statusText}`);
+
+      if (!response.ok) {
+        console.error(`API call failed: ${response.status} ${response.statusText}`);
+        throw new Error(`API call failed: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log(`API call successful for ${endpoint}`);
+      return data;
+    } catch (error) {
+      console.error(`API call error for ${endpoint}:`, error);
+      throw error;
     }
-
-    return response.json();
   }
 
   // Customer methods
