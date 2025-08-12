@@ -101,7 +101,9 @@ export default function ProductDetails() {
 
         // Get stock movements for this product
         const allMovements = dataService.getStockMovements?.() || [];
-        const productMovements = allMovements.filter((m) => m.productId === id);
+        const productMovements = Array.isArray(allMovements)
+          ? allMovements.filter((m) => m.productId === id)
+          : [];
         setStockMovements(productMovements);
       } catch (error) {
         console.error("Error loading product:", error);
