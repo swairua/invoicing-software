@@ -360,15 +360,15 @@ export class PDFService {
    */
   private static addCustomTableHeader(doc: jsPDF, startY: number): void {
     const headers = [
-      "#",
-      "ITEM DESCRIPTION",
-      "QTY",
-      "UNIT",
-      "UNIT PRICE (KSH)",
-      "VAT %",
-      "TOTAL (KSH)",
+      "Item No.",
+      "Item Description",
+      "Qty",
+      "Unit Pack",
+      "Unit Price (incl) Ksh",
+      "Vat",
+      "Total Price (incl) Ksh",
     ];
-    const columnWidths = [12, 65, 15, 18, 25, 15, 30];
+    const columnWidths = [15, 65, 15, 18, 25, 15, 27];
     const columnPositions = [20]; // Starting position
 
     // Calculate column positions
@@ -376,31 +376,31 @@ export class PDFService {
       columnPositions.push(columnPositions[i - 1] + columnWidths[i - 1]);
     }
 
-    // Light gray background for better text visibility
-    doc.setFillColor(240, 240, 240); // Light gray background
-    doc.rect(20, startY, 180, 18, "F");
+    // Dark gray background for better contrast
+    doc.setFillColor(200, 200, 200); // Darker gray background
+    doc.rect(20, startY, 180, 20, "F");
 
-    // Uniform blue border
-    doc.setDrawColor(37, 99, 235); // Blue border
+    // Strong black border for visibility
+    doc.setDrawColor(0, 0, 0); // Black border
     doc.setLineWidth(1.5);
-    doc.rect(20, startY, 180, 18);
+    doc.rect(20, startY, 180, 20);
 
-    // Column separators with blue lines
-    doc.setDrawColor(37, 99, 235);
+    // Column separators with black lines
+    doc.setDrawColor(0, 0, 0);
     doc.setLineWidth(1);
     for (let i = 1; i < columnPositions.length; i++) {
       const x = columnPositions[i];
-      doc.line(x, startY, x, startY + 18);
+      doc.line(x, startY, x, startY + 20);
     }
 
-    // Header text - BOLD AND BLACK for visibility
+    // Header text - BOLD AND BLACK for maximum visibility
     doc.setTextColor(0, 0, 0); // BLACK TEXT
-    doc.setFontSize(9);
+    doc.setFontSize(8);
     doc.setFont("helvetica", "bold");
 
     headers.forEach((header, index) => {
       const x = columnPositions[index] + columnWidths[index] / 2;
-      doc.text(header, x, startY + 11, { align: "center" });
+      doc.text(header, x, startY + 13, { align: "center" });
     });
 
     // Reset colors
