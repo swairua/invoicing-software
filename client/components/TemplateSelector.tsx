@@ -82,7 +82,7 @@ export default function TemplateSelector({
               {templates.map((template) => (
                 <SelectItem key={template.id} value={template.id}>
                   <div className="flex items-center gap-2">
-                    <span>{template.name}</span>
+                    <span>{template?.name || 'Unknown Template'}</span>
                     {template.isActive && (
                       <Badge variant="default" className="text-xs">
                         <Star className="h-3 w-3 mr-1" />
