@@ -34,11 +34,12 @@ async function deployToRender() {
 
   const pool = new Pool({
     connectionString: databaseUrl,
-    ssl: {
-      rejectUnauthorized: false,
-    },
-    max: 5,
-    connectionTimeoutMillis: 30000,
+    ssl: databaseUrl.includes("supabase.co") || databaseUrl.includes("render.com") ? {
+      rejectUnauthorized: false
+    } : false,
+    max: 10,
+    connectionTimeoutMillis: 20000,
+    application_name: "fusion-invoicing-migration"
   });
 
   try {
