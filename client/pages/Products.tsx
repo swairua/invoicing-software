@@ -376,7 +376,7 @@ export default function Products() {
                     <TableRow key={product.id}>
                       <TableCell>
                         <div>
-                          <div className="font-medium">{product.name}</div>
+                          <div className="font-medium">{product?.name || 'Unknown Product'}</div>
                           <div className="text-sm text-muted-foreground">
                             {product.description?.substring(0, 50)}
                             {product.description && product.description.length > 50 && "..."}
