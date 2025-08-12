@@ -132,25 +132,72 @@ CREATE TABLE suppliers (
 );
 
 -- Products table
-CREATE TABLE IF NOT EXISTS products (
+CREATE TABLE products (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+    category_id UUID REFERENCES product_categories(id),
+    supplier_id UUID REFERENCES suppliers(id),
     name VARCHAR(255) NOT NULL,
     description TEXT,
-    sku VARCHAR(100),
-    unit VARCHAR(50) DEFAULT 'Piece',
-    price DECIMAL(15,2) NOT NULL DEFAULT 0.00,
-    cost DECIMAL(15,2) DEFAULT 0.00,
-    stock_quantity INTEGER DEFAULT 0,
-    low_stock_threshold INTEGER DEFAULT 5,
-    category VARCHAR(100),
+    sku VARCHAR(100) UNIQUE NOT NULL,
     barcode VARCHAR(100),
+    category VARCHAR(100),
+    subcategory VARCHAR(100),
+    brand VARCHAR(100),
+    supplier VARCHAR(255),
+    unit VARCHAR(50) DEFAULT 'Piece',
     weight DECIMAL(10,3),
-    dimensions VARCHAR(100),
+    length DECIMAL(10,3),
+    width DECIMAL(10,3),
+    height DECIMAL(10,3),
+    purchase_price DECIMAL(15,2) DEFAULT 0.00,
+    selling_price DECIMAL(15,2) NOT NULL DEFAULT 0.00,
+    markup DECIMAL(5,2),
+    cost_price DECIMAL(15,2) DEFAULT 0.00,
+    wholesale_price DECIMAL(15,2) DEFAULT 0.00,
+    retail_price DECIMAL(15,2) DEFAULT 0.00,
+    min_stock INTEGER DEFAULT 0,
+    max_stock INTEGER DEFAULT 0,
+    current_stock INTEGER DEFAULT 0,
+    reserved_stock INTEGER DEFAULT 0,
+    available_stock INTEGER DEFAULT 0,
+    reorder_level INTEGER DEFAULT 5,
+    location VARCHAR(100),
+    bin_location VARCHAR(100),
+    tags TEXT[],
+    taxable BOOLEAN DEFAULT true,
     tax_rate DECIMAL(5,2) DEFAULT 16.00,
+    track_inventory BOOLEAN DEFAULT true,
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Product variants
+CREATE TABLE product_variants (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    product_id UUID REFERENCES products(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    sku VARCHAR(100) UNIQUE NOT NULL,
+    price DECIMAL(15,2) NOT NULL,
+    stock_quantity INTEGER DEFAULT 0,
+    attributes JSONB,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Stock movements
+CREATE TABLE stock_movements (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+    product_id UUID REFERENCES products(id) ON DELETE CASCADE,
+    type VARCHAR(50) NOT NULL CHECK (type IN ('in', 'out', 'adjustment', 'transfer')),
+    quantity INTEGER NOT NULL,
+    reference_type VARCHAR(50),
+    reference_id UUID,
+    notes TEXT,
+    created_by UUID,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Invoices table
