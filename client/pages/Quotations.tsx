@@ -98,9 +98,21 @@ export default function Quotations() {
 
   // Load initial data
   React.useEffect(() => {
-    setQuotations(businessData.getQuotations());
-    setCustomers(businessData.getCustomers());
-    setProducts(businessData.getProducts());
+    const loadData = async () => {
+      try {
+        const [quotationsData, customersData, productsData] = await Promise.all([
+          businessData.getQuotations(),
+          businessData.getCustomers(),
+          businessData.getProducts()
+        ]);
+        setQuotations(Array.isArray(quotationsData) ? quotationsData : []);
+        setCustomers(Array.isArray(customersData) ? customersData : []);
+        setProducts(Array.isArray(productsData) ? productsData : []);
+      } catch (error) {
+        console.error('Error loading data:', error);
+      }
+    };
+    loadData();
 
     // Start simulation if not already running (only for mock data)
     if (!businessData.isSimulationRunning()) {
