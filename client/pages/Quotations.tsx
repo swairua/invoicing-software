@@ -150,9 +150,9 @@ export default function Quotations() {
   const filteredQuotations = quotations.filter((quotation) => {
     const matchesSearch =
       quotation.quoteNumber
-        .toLowerCase()
+        ?.toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      quotation.customer.name.toLowerCase().includes(searchTerm.toLowerCase());
+      quotation.customer?.name?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesStatus =
       statusFilter === "all" || quotation.status === statusFilter;
