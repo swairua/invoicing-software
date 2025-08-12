@@ -111,6 +111,9 @@ export default function NewInvoice() {
       quantity: item.quantity.toString(),
       unitPrice: item.unitPrice.toString(),
       discount: item.discount.toString(),
+      lineItemTaxes: item.lineItemTaxes || [],
+      vatEnabled: item.vatRate > 0,
+      vatRate: item.vatRate || 16,
     })) || [],
   );
 
