@@ -440,7 +440,7 @@ export class PDFService {
     doc.text(document.customer?.name || 'Unknown Customer', 20, startY + 7);
     doc.setFont("helvetica", "normal");
 
-    if (document.customer.address) {
+    if (document.customer?.address) {
       const addressLines = document.customer.address.split(",");
       let yPos = startY + 12;
       addressLines.forEach((line) => {
