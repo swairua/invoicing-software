@@ -498,7 +498,7 @@ export default function QuickActions() {
                           {quotation.quoteNumber}
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          {quotation.customer.name} - KES{" "}
+                          {quotation.customer?.name || 'Unknown Customer'} - KES{" "}
                           {quotation.total.toLocaleString()}
                         </div>
                       </div>
