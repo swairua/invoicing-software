@@ -597,7 +597,7 @@ export default function StatementOfAccount() {
             </div>
 
             {/* Aging Analysis */}
-            {transactions.length > 0 && (
+            {statementEntries.length > 0 && (
               <div className="mb-6">
                 <Table className="w-1/2">
                   <TableHeader>
