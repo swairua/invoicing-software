@@ -33,7 +33,8 @@ import {
 } from "lucide-react";
 import { cn } from "../lib/utils";
 
-const MEDPLUS_LOGO_URL = "https://cdn.builder.io/api/v1/image/assets%2Fc5e390f959914debac74ff126a00850a%2Fa161c78db67e443e97c7bf8632216631?format=webp&width=800";
+const MEDPLUS_LOGO_URL =
+  "https://cdn.builder.io/api/v1/image/assets%2Fc5e390f959914debac74ff126a00850a%2Fa161c78db67e443e97c7bf8632216631?format=webp&width=800";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
