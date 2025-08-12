@@ -162,12 +162,31 @@ export default function StatementOfAccount() {
           status = "overdue";
         }
 
+        // Helper function to safely format dates
+        const formatDate = (date: any): string => {
+          if (!date) return new Date().toISOString().split('T')[0];
+
+          if (date instanceof Date) {
+            return date.toISOString().split('T')[0];
+          }
+
+          if (typeof date === 'string') {
+            try {
+              return new Date(date).toISOString().split('T')[0];
+            } catch {
+              return new Date().toISOString().split('T')[0];
+            }
+          }
+
+          return new Date().toISOString().split('T')[0];
+        };
+
         return {
           id: invoice.id,
-          date: invoice.issueDate?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0],
+          date: formatDate(invoice.issueDate),
           name: invoice.customer?.name || 'Unknown Customer',
           invoice: invoice.invoiceNumber,
-          dueDate: invoice.dueDate?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0],
+          dueDate: formatDate(invoice.dueDate),
           originalAmount: invoice.total,
           paidAmount: totalPaid,
           balance: balance,
