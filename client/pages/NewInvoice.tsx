@@ -40,6 +40,9 @@ import {
   Calculator,
   Calendar,
   Send,
+  Plus,
+  Trash2,
+  Search,
 } from "lucide-react";
 import {
   Customer,
@@ -55,12 +58,8 @@ import {
 } from "@shared/taxUtils";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import TemplateSelector from "../components/TemplateSelector";
-<<<<<<< HEAD
 import LineItemTaxSelector from "../components/LineItemTaxSelector";
 import LineItemVATSelector from "../components/LineItemVATSelector";
-=======
-import DynamicLineItems, { LineItem } from "../components/DynamicLineItems";
->>>>>>> origin/ai_main_ca8b34ce3d1a
 import { useToast } from "../hooks/use-toast";
 
 interface InvoiceFormData {
@@ -70,7 +69,6 @@ interface InvoiceFormData {
   notes: string;
 }
 
-<<<<<<< HEAD
 interface InvoiceItemFormData {
   productId: string;
   quantity: string;
@@ -80,9 +78,6 @@ interface InvoiceItemFormData {
   vatEnabled?: boolean;
   vatRate?: number;
 }
-=======
-// Using LineItem interface from DynamicLineItems component
->>>>>>> origin/ai_main_ca8b34ce3d1a
 
 export default function NewInvoice() {
   const navigate = useNavigate();
@@ -93,7 +88,9 @@ export default function NewInvoice() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
-  // Removed unnecessary state - handled by DynamicLineItems component
+  const [availableTaxes, setAvailableTaxes] = useState<LineItemTax[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [productSearch, setProductSearch] = useState("");
 
   const duplicateData = location.state?.duplicateFrom;
   const preselectedCustomerId = searchParams.get("customer");
@@ -107,15 +104,13 @@ export default function NewInvoice() {
     notes: duplicateData?.notes || "",
   });
 
-  const [items, setItems] = useState<LineItem[]>(
-    duplicateData?.items?.map((item: any, index: number) => ({
-      id: `item-${index}`,
+  const [items, setItems] = useState<InvoiceItemFormData[]>(
+    duplicateData?.items?.map((item: any) => ({
       productId: item.productId,
       quantity: item.quantity.toString(),
       unitPrice: item.unitPrice.toString(),
       discount: item.discount.toString(),
       lineItemTaxes: item.lineItemTaxes || [],
-<<<<<<< HEAD
       vatEnabled: item.vatRate > 0,
       vatRate: item.vatRate || 16,
     })) || [],
@@ -131,11 +126,6 @@ export default function NewInvoice() {
     vatRate: 16,
   });
 
-=======
-    })) || [],
-  );
-
->>>>>>> origin/ai_main_ca8b34ce3d1a
   const dataService = dataServiceFactory.getDataService();
 
   useEffect(() => {
@@ -145,8 +135,9 @@ export default function NewInvoice() {
           dataService.getCustomers(),
           dataService.getProducts(),
         ]);
-        setCustomers(customerData);
-        setProducts(productData);
+        setCustomers(Array.isArray(customerData) ? customerData : []);
+        setProducts(Array.isArray(productData) ? productData : []);
+        setFilteredProducts(Array.isArray(productData) ? productData : []);
       } catch (error) {
         console.error("Error loading data:", error);
         toast({
@@ -160,9 +151,24 @@ export default function NewInvoice() {
     loadData();
   }, [dataService, toast]);
 
-  // Product filtering is now handled by DynamicLineItems component
+  useEffect(() => {
+    setAvailableTaxes(getAvailableTaxes());
+  }, []);
 
-  const formatCurrency = (amount: number) => {
+  useEffect(() => {
+    if (productSearch) {
+      const filtered = products.filter(
+        (product) =>
+          product.name.toLowerCase().includes(productSearch.toLowerCase()) ||
+          product.sku.toLowerCase().includes(productSearch.toLowerCase()),
+      );
+      setFilteredProducts(filtered);
+    } else {
+      setFilteredProducts(products);
+    }
+  }, [productSearch, products]);
+
+  const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat("en-KE", {
       style: "currency",
       currency: "KES",
@@ -170,7 +176,7 @@ export default function NewInvoice() {
     }).format(amount);
   };
 
-  const calculateItemTotal = (item: LineItem) => {
+  const calculateItemTotal = (item: InvoiceItemFormData) => {
     const quantity = parseFloat(item.quantity) || 0;
     const unitPrice = parseFloat(item.unitPrice) || 0;
     const discount = parseFloat(item.discount) || 0;
@@ -192,41 +198,31 @@ export default function NewInvoice() {
     let vatAmount = 0;
     let additionalTaxAmount = 0;
 
-    items
-      .filter((item) => item.productId)
-      .forEach((item) => {
-        const quantity = parseFloat(item.quantity) || 0;
-        const unitPrice = parseFloat(item.unitPrice) || 0;
-        const discount = parseFloat(item.discount) || 0;
+    items.forEach((item) => {
+      const quantity = parseFloat(item.quantity) || 0;
+      const unitPrice = parseFloat(item.unitPrice) || 0;
+      const discount = parseFloat(item.discount) || 0;
 
-        const itemSubtotal = quantity * unitPrice;
-        subtotal += itemSubtotal;
+      const itemSubtotal = quantity * unitPrice;
+      subtotal += itemSubtotal;
 
-        const itemDiscountAmount = (itemSubtotal * discount) / 100;
-        discountAmount += itemDiscountAmount;
+      const itemDiscountAmount = (itemSubtotal * discount) / 100;
+      discountAmount += itemDiscountAmount;
 
-<<<<<<< HEAD
       const afterDiscount = itemSubtotal - itemDiscountAmount;
       // Use line item VAT settings instead of product defaults
       const vatRate = item.vatEnabled ? (item.vatRate || 16) : 0;
       const itemVatAmount = (afterDiscount * vatRate) / 100;
       vatAmount += itemVatAmount;
-=======
-        const afterDiscount = itemSubtotal - itemDiscountAmount;
-        const product = products.find((p) => p.id === item.productId);
-        const vatRate = product?.taxable ? product.taxRate || 16 : 0;
-        const itemVatAmount = (afterDiscount * vatRate) / 100;
-        vatAmount += itemVatAmount;
->>>>>>> origin/ai_main_ca8b34ce3d1a
 
-        // Calculate additional line item taxes
-        if (item.lineItemTaxes && item.lineItemTaxes.length > 0) {
-          const itemTaxAmount = item.lineItemTaxes.reduce((taxSum, tax) => {
-            return taxSum + afterDiscount * (tax.rate / 100);
-          }, 0);
-          additionalTaxAmount += itemTaxAmount;
-        }
-      });
+      // Calculate additional line item taxes
+      if (item.lineItemTaxes && item.lineItemTaxes.length > 0) {
+        const itemTaxAmount = item.lineItemTaxes.reduce((taxSum, tax) => {
+          return taxSum + afterDiscount * (tax.rate / 100);
+        }, 0);
+        additionalTaxAmount += itemTaxAmount;
+      }
+    });
 
     const total = subtotal - discountAmount + vatAmount + additionalTaxAmount;
 
@@ -239,19 +235,17 @@ export default function NewInvoice() {
     };
   };
 
-<<<<<<< HEAD
   const addItem = () => {
     if (!newItem.productId || !newItem.quantity || !newItem.unitPrice) {
       toast({
         title: "Validation Error",
-        description:
-          "Please select a product and enter quantity and unit price.",
+        description: "Please fill in all required fields.",
         variant: "destructive",
       });
       return;
     }
 
-    // Check if product already exists in items
+    // Check if item already exists
     const existingItemIndex = items.findIndex(
       (item) => item.productId === newItem.productId,
     );
@@ -332,9 +326,6 @@ export default function NewInvoice() {
       }));
     }
   };
-=======
-  // Item management is now handled by DynamicLineItems component
->>>>>>> origin/ai_main_ca8b34ce3d1a
 
   const handleSubmit = async (
     e: React.FormEvent,
@@ -351,22 +342,10 @@ export default function NewInvoice() {
       return;
     }
 
-    const validItems = items.filter((item) => item.productId);
-    if (validItems.length === 0) {
+    if (items.length === 0) {
       toast({
         title: "Validation Error",
-        description: "Please add at least one item to the invoice.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const totals = calculateTotals();
-
-    if (totals.total <= 0) {
-      toast({
-        title: "Validation Error",
-        description: "Invoice total must be greater than zero.",
+        description: "Please add at least one item.",
         variant: "destructive",
       });
       return;
@@ -377,7 +356,7 @@ export default function NewInvoice() {
     try {
       const customer = customers.find((c) => c.id === formData.customerId)!;
 
-      const invoiceItems: InvoiceItem[] = validItems.map((item, index) => {
+      const invoiceItems: InvoiceItem[] = items.map((item, index) => {
         const product = products.find((p) => p.id === item.productId)!;
         const quantity = parseFloat(item.quantity);
         const unitPrice = parseFloat(item.unitPrice);
@@ -404,28 +383,28 @@ export default function NewInvoice() {
         };
       });
 
-      const newInvoice = {
-        customerId: customer.id,
+      const totals = calculateTotals();
+
+      const invoiceData = {
+        customerId: formData.customerId,
         items: invoiceItems,
-        dueDate: new Date(formData.dueDate),
-        notes: formData.notes,
+        subtotal: totals.subtotal,
+        vatAmount: totals.vatAmount,
+        discountAmount: totals.discountAmount,
         additionalTaxAmount: totals.additionalTaxAmount,
+        total: totals.total,
+        dueDate: formData.dueDate,
+        issueDate: formData.issueDate,
+        notes: formData.notes,
+        status: sendImmediately ? "sent" : "draft",
       };
 
-      // Here you would normally call the createInvoice API
-      const createdInvoice = await dataService.createInvoice(newInvoice);
+      const invoice = await dataService.createInvoice(invoiceData);
 
       toast({
-        title: "Invoice Created",
-        description: `Invoice has been created successfully.`,
+        title: "Success",
+        description: `Invoice ${invoice.invoiceNumber} ${sendImmediately ? "created and sent" : "saved as draft"} successfully.`,
       });
-
-      if (sendImmediately) {
-        toast({
-          title: "Invoice Sent",
-          description: "Invoice has been sent to the customer.",
-        });
-      }
 
       navigate("/invoices");
     } catch (error) {
@@ -441,216 +420,131 @@ export default function NewInvoice() {
   };
 
   const totals = calculateTotals();
-  const selectedCustomer = customers.find((c) => c.id === formData.customerId);
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="container mx-auto py-6 space-y-6">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="sm" asChild>
+        <div className="flex items-center space-x-4">
+          <Button variant="ghost" size="sm" asChild>
             <Link to="/invoices">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Invoices
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              {duplicateData ? "Duplicate Invoice" : "New Invoice"}
-            </h1>
+            <h1 className="text-3xl font-bold tracking-tight">New Invoice</h1>
             <p className="text-muted-foreground">
-              {duplicateData
-                ? "Create a copy of an existing invoice"
-                : "Create a new invoice for your customer"}
+              Create a new invoice for your customer
             </p>
           </div>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" asChild>
-            <Link to="/invoices">Cancel</Link>
-          </Button>
-          <Button
-            variant="outline"
-            onClick={(e) => handleSubmit(e, false)}
-            disabled={isSubmitting}
-          >
-            <Save className="mr-2 h-4 w-4" />
-            Save Draft
-          </Button>
-          <Button
-            onClick={(e) => handleSubmit(e, true)}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                Creating...
-              </>
-            ) : (
-              <>
-                <Send className="mr-2 h-4 w-4" />
-                Create & Send
-              </>
-            )}
-          </Button>
         </div>
       </div>
 
       <form onSubmit={(e) => handleSubmit(e, false)} className="space-y-6">
-        {/* Customer and Date Information */}
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Customer Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="customer">Customer *</Label>
-                <Select
-                  value={formData.customerId}
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({ ...prev, customerId: value }))
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a customer" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {customers.map((customer) => (
-                      <SelectItem key={customer.id} value={customer.id}>
-                        <div>
-                          <div className="font-medium">{customer.name}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {customer.email ||
-                              customer.phone ||
-                              "No contact info"}
-                          </div>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {!formData.customerId && (
-                  <p className="text-xs text-muted-foreground">
-                    Don't see your customer?{" "}
-                    <Link
-                      to="/customers/new"
-                      className="text-primary hover:underline"
+        <div className="grid gap-6 lg:grid-cols-3">
+          {/* Customer & Dates */}
+          <div className="lg:col-span-2 space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  Customer Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="customer">Customer *</Label>
+                    <Select
+                      value={formData.customerId}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({ ...prev, customerId: value }))
+                      }
                     >
-                      Create a new customer
-                    </Link>
-                  </p>
-                )}
-              </div>
-
-              {selectedCustomer && (
-                <div className="p-3 bg-muted rounded-lg">
-                  <h4 className="font-medium text-sm mb-2">Customer Details</h4>
-                  <div className="space-y-1 text-xs">
-                    <div>Email: {selectedCustomer.email || "Not provided"}</div>
-                    <div>Phone: {selectedCustomer.phone || "Not provided"}</div>
-                    <div>
-                      Credit Limit:{" "}
-                      {formatCurrency(selectedCustomer.creditLimit)}
-                    </div>
-                    <div>
-                      Current Balance:{" "}
-                      {formatCurrency(selectedCustomer.balance)}
-                    </div>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select customer" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {customers.map((customer) => (
+                          <SelectItem key={customer.id} value={customer.id}>
+                            <div>
+                              <div className="font-medium">{customer.name}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {customer.email}
+                              </div>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="issueDate">Issue Date *</Label>
+                    <Input
+                      id="issueDate"
+                      type="date"
+                      value={formData.issueDate}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          issueDate: e.target.value,
+                        }))
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="dueDate">Due Date *</Label>
+                    <Input
+                      id="dueDate"
+                      type="date"
+                      value={formData.dueDate}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          dueDate: e.target.value,
+                        }))
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
+                      id="notes"
+                      placeholder="Additional notes..."
+                      value={formData.notes}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          notes: e.target.value,
+                        }))
+                      }
+                    />
                   </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Invoice Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="issueDate">Issue Date</Label>
-                  <Input
-                    id="issueDate"
-                    type="date"
-                    value={formData.issueDate}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        issueDate: e.target.value,
-                      }))
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="dueDate">Due Date</Label>
-                  <Input
-                    id="dueDate"
-                    type="date"
-                    value={formData.dueDate}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        dueDate: e.target.value,
-                      }))
-                    }
-                  />
-                </div>
-              </div>
-
-              {/* Template Selection */}
-              <TemplateSelector
-                documentType="invoice"
-                selectedTemplateId={selectedTemplateId}
-                onTemplateSelect={setSelectedTemplateId}
-              />
-
-              <div className="space-y-2">
-                <Label htmlFor="notes">Notes</Label>
-                <Textarea
-                  id="notes"
-                  value={formData.notes}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, notes: e.target.value }))
-                  }
-                  placeholder="Additional notes for this invoice..."
-                  rows={3}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-<<<<<<< HEAD
-        {/* Invoice Items */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Package className="h-5 w-5" />
-              Invoice Items
-            </CardTitle>
-            <CardDescription>
-              Add products and services to this invoice
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Add New Item */}
-            <div className="border rounded-lg p-4 space-y-4">
-              <h4 className="font-medium">Add Item</h4>
-              <div className="grid gap-4 md:grid-cols-5">
-                <div className="space-y-2">
-                  <Label>Product</Label>
-                  <div className="space-y-2">
+            {/* Add Items */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Plus className="h-5 w-5" />
+                  Add Items
+                </CardTitle>
+                <CardDescription>
+                  Search and add products to your invoice
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
+                  <div className="space-y-2 md:col-span-2">
+                    <Label>Product *</Label>
                     <div className="relative">
                       <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
+                        type="text"
                         placeholder="Search products..."
                         value={productSearch}
                         onChange={(e) => setProductSearch(e.target.value)}
@@ -664,8 +558,8 @@ export default function NewInvoice() {
                       <SelectTrigger>
                         <SelectValue placeholder="Select product" />
                       </SelectTrigger>
-                      <SelectContent className="max-h-[200px]">
-                        {filteredProducts.slice(0, 20).map((product) => (
+                      <SelectContent className="max-h-64">
+                        {filteredProducts.map((product) => (
                           <SelectItem key={product.id} value={product.id}>
                             <div>
                               <div className="font-medium">{product.name}</div>
@@ -679,299 +573,294 @@ export default function NewInvoice() {
                       </SelectContent>
                     </Select>
                   </div>
+                  <div className="space-y-2">
+                    <Label>Quantity</Label>
+                    <Input
+                      type="number"
+                      value={newItem.quantity}
+                      onChange={(e) =>
+                        setNewItem((prev) => ({
+                          ...prev,
+                          quantity: e.target.value,
+                        }))
+                      }
+                      placeholder="1"
+                      min="1"
+                      step="0.01"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Unit Price (KES)</Label>
+                    <Input
+                      type="number"
+                      value={newItem.unitPrice}
+                      onChange={(e) =>
+                        setNewItem((prev) => ({
+                          ...prev,
+                          unitPrice: e.target.value,
+                        }))
+                      }
+                      placeholder="0.00"
+                      min="0"
+                      step="0.01"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Discount (%)</Label>
+                    <Input
+                      type="number"
+                      value={newItem.discount}
+                      onChange={(e) =>
+                        setNewItem((prev) => ({
+                          ...prev,
+                          discount: e.target.value,
+                        }))
+                      }
+                      placeholder="0"
+                      min="0"
+                      max="100"
+                      step="0.01"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>&nbsp;</Label>
+                    <Button type="button" onClick={addItem} className="w-full">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add Item
+                    </Button>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label>Quantity</Label>
-                  <Input
-                    type="number"
-                    value={newItem.quantity}
-                    onChange={(e) =>
-                      setNewItem((prev) => ({
-                        ...prev,
-                        quantity: e.target.value,
-                      }))
-                    }
-                    placeholder="1"
-                    min="1"
-                    step="0.01"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Unit Price (KES)</Label>
-                  <Input
-                    type="number"
-                    value={newItem.unitPrice}
-                    onChange={(e) =>
-                      setNewItem((prev) => ({
-                        ...prev,
-                        unitPrice: e.target.value,
-                      }))
-                    }
-                    placeholder="0.00"
-                    min="0"
-                    step="0.01"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Discount (%)</Label>
-                  <Input
-                    type="number"
-                    value={newItem.discount}
-                    onChange={(e) =>
-                      setNewItem((prev) => ({
-                        ...prev,
-                        discount: e.target.value,
-                      }))
-                    }
-                    placeholder="0"
-                    min="0"
-                    max="100"
-                    step="0.01"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>VAT</Label>
-                  <LineItemVATSelector
-                    enabled={newItem.vatEnabled || false}
-                    selectedRate={newItem.vatRate || 16}
-                    onVATChange={(enabled, rate) =>
-                      setNewItem((prev) => ({
-                        ...prev,
-                        vatEnabled: enabled,
-                        vatRate: rate,
-                      }))
-                    }
-                    itemSubtotal={
-                      (parseFloat(newItem.quantity) || 0) *
-                        (parseFloat(newItem.unitPrice) || 0) -
-                      ((parseFloat(newItem.quantity) || 0) *
-                        (parseFloat(newItem.unitPrice) || 0) *
-                        (parseFloat(newItem.discount) || 0)) /
-                        100
-                    }
-                    className="w-full"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>&nbsp;</Label>
-                  <Button type="button" onClick={addItem} className="w-full">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Item
-                  </Button>
-                </div>
-              </div>
-            </div>
+
+                {/* VAT Selector for new item */}
+                {newItem.productId && (
+                  <div className="mt-4 p-4 border rounded-lg">
+                    <LineItemVATSelector
+                      enabled={newItem.vatEnabled || false}
+                      selectedRate={newItem.vatRate || 16}
+                      onVATChange={(enabled, rate) =>
+                        setNewItem((prev) => ({
+                          ...prev,
+                          vatEnabled: enabled,
+                          vatRate: rate,
+                        }))
+                      }
+                      itemSubtotal={
+                        (parseFloat(newItem.quantity) || 0) *
+                          (parseFloat(newItem.unitPrice) || 0) -
+                        ((parseFloat(newItem.quantity) || 0) *
+                          (parseFloat(newItem.unitPrice) || 0) *
+                          (parseFloat(newItem.discount) || 0)) /
+                          100
+                      }
+                      className="w-full"
+                    />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Current Items */}
-            {items.length > 0 ? (
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Product</TableHead>
-                      <TableHead>Quantity</TableHead>
-                      <TableHead>Unit Price</TableHead>
-                      <TableHead>Discount</TableHead>
-                      <TableHead>VAT</TableHead>
-                      <TableHead>Additional Taxes</TableHead>
-                      <TableHead>Total</TableHead>
-                      <TableHead className="w-[50px]"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {items.map((item, index) => {
-                      const product = products.find(
-                        (p) => p.id === item.productId,
-                      );
-                      const itemTotal = calculateItemTotal(item);
-
-                      return (
-                        <TableRow key={index}>
-                          <TableCell>
-                            <div>
-                              <div className="font-medium">{product?.name}</div>
-                              <div className="text-sm text-muted-foreground">
-                                SKU: {product?.sku}
-                                {product?.taxable && (
-                                  <Badge
-                                    variant="outline"
-                                    className="ml-2 text-xs"
-                                  >
-                                    VAT {product.taxRate || 16}%
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Input
-                              type="number"
-                              value={item.quantity}
-                              onChange={(e) =>
-                                updateItem(index, "quantity", e.target.value)
-                              }
-                              className="w-20"
-                              min="1"
-                              step="0.01"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Input
-                              type="number"
-                              value={item.unitPrice}
-                              onChange={(e) =>
-                                updateItem(index, "unitPrice", e.target.value)
-                              }
-                              className="w-24"
-                              min="0"
-                              step="0.01"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-1">
-                              <Input
-                                type="number"
-                                value={item.discount}
-                                onChange={(e) =>
-                                  updateItem(index, "discount", e.target.value)
-                                }
-                                className="w-16"
-                                min="0"
-                                max="100"
-                                step="0.01"
-                              />
-                              <span className="text-sm text-muted-foreground">
-                                %
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <LineItemVATSelector
-                              enabled={item.vatEnabled || false}
-                              selectedRate={item.vatRate || 16}
-                              onVATChange={(enabled, rate) =>
-                                updateItemVAT(index, enabled, rate)
-                              }
-                              itemSubtotal={
-                                parseFloat(item.quantity) *
-                                  parseFloat(item.unitPrice) -
-                                (parseFloat(item.quantity) *
-                                  parseFloat(item.unitPrice) *
-                                  parseFloat(item.discount)) /
-                                  100
-                              }
-                              className="w-64"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <LineItemTaxSelector
-                              selectedTaxes={item.lineItemTaxes || []}
-                              availableTaxes={getAvailableTaxes()}
-                              onTaxesChange={(taxes) =>
-                                updateItemTaxes(index, taxes)
-                              }
-                              itemSubtotal={
-                                parseFloat(item.quantity) *
-                                  parseFloat(item.unitPrice) -
-                                (parseFloat(item.quantity) *
-                                  parseFloat(item.unitPrice) *
-                                  parseFloat(item.discount)) /
-                                  100
-                              }
-                            />
-                          </TableCell>
-                          <TableCell className="font-medium">
-                            {formatCurrency(itemTotal)}
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeItem(index)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
+            {items.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Invoice Items</CardTitle>
+                  <CardDescription>
+                    Review and manage your invoice items
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Product</TableHead>
+                          <TableHead>Quantity</TableHead>
+                          <TableHead>Unit Price</TableHead>
+                          <TableHead>Discount</TableHead>
+                          <TableHead>VAT</TableHead>
+                          <TableHead>Additional Taxes</TableHead>
+                          <TableHead>Total</TableHead>
+                          <TableHead className="w-[50px]"></TableHead>
                         </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
-            ) : (
-              <div className="text-center py-8 border-2 border-dashed border-muted-foreground/25 rounded-lg">
-                <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium">No Items Added</h3>
-                <p className="text-muted-foreground">
-                  Add products or services to get started with your invoice.
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-=======
-        {/* Invoice Items - Using DynamicLineItems component */}
-        <DynamicLineItems
-          items={items}
-          products={products}
-          onItemsChange={setItems}
-          formatCurrency={formatCurrency}
-          calculateItemTotal={calculateItemTotal}
-        />
->>>>>>> origin/ai_main_ca8b34ce3d1a
+                      </TableHeader>
+                      <TableBody>
+                        {items.map((item, index) => {
+                          const product = products.find(
+                            (p) => p.id === item.productId,
+                          );
+                          const itemTotal = calculateItemTotal(item);
 
-        {/* Invoice Summary */}
-        {items.filter((item) => item.productId).length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calculator className="h-5 w-5" />
-                Invoice Summary
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3 max-w-md ml-auto">
-                <div className="flex justify-between">
-                  <span className="text-sm">Subtotal:</span>
-                  <span className="font-medium">
-                    {formatCurrency(totals.subtotal)}
-                  </span>
+                          return (
+                            <TableRow key={index}>
+                              <TableCell>
+                                <div>
+                                  <div className="font-medium">
+                                    {product?.name}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    {product?.sku}
+                                  </div>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <Input
+                                  type="number"
+                                  value={item.quantity}
+                                  onChange={(e) =>
+                                    updateItem(index, "quantity", e.target.value)
+                                  }
+                                  className="w-20"
+                                  min="1"
+                                  step="0.01"
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <Input
+                                  type="number"
+                                  value={item.unitPrice}
+                                  onChange={(e) =>
+                                    updateItem(index, "unitPrice", e.target.value)
+                                  }
+                                  className="w-24"
+                                  min="0"
+                                  step="0.01"
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-1">
+                                  <Input
+                                    type="number"
+                                    value={item.discount}
+                                    onChange={(e) =>
+                                      updateItem(index, "discount", e.target.value)
+                                    }
+                                    className="w-16"
+                                    min="0"
+                                    max="100"
+                                    step="0.01"
+                                  />
+                                  <span className="text-sm text-muted-foreground">
+                                    %
+                                  </span>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <LineItemVATSelector
+                                  enabled={item.vatEnabled || false}
+                                  selectedRate={item.vatRate || 16}
+                                  onVATChange={(enabled, rate) =>
+                                    updateItemVAT(index, enabled, rate)
+                                  }
+                                  itemSubtotal={
+                                    parseFloat(item.quantity) *
+                                      parseFloat(item.unitPrice) -
+                                    (parseFloat(item.quantity) *
+                                      parseFloat(item.unitPrice) *
+                                      parseFloat(item.discount)) /
+                                      100
+                                  }
+                                  className="w-64"
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <LineItemTaxSelector
+                                  selectedTaxes={item.lineItemTaxes || []}
+                                  onTaxesChange={(taxes) =>
+                                    updateItemTaxes(index, taxes)
+                                  }
+                                  itemTotal={
+                                    parseFloat(item.quantity) *
+                                      parseFloat(item.unitPrice) -
+                                    (parseFloat(item.quantity) *
+                                      parseFloat(item.unitPrice) *
+                                      parseFloat(item.discount)) /
+                                      100
+                                  }
+                                />
+                              </TableCell>
+                              <TableCell className="font-medium">
+                                {formatCurrency(itemTotal)}
+                              </TableCell>
+                              <TableCell>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => removeItem(index)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Summary */}
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calculator className="h-5 w-5" />
+                  Invoice Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span>Subtotal:</span>
+                    <span>{formatCurrency(totals.subtotal)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Discount:</span>
+                    <span>-{formatCurrency(totals.discountAmount)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>VAT:</span>
+                    <span>{formatCurrency(totals.vatAmount)}</span>
+                  </div>
+                  {totals.additionalTaxAmount > 0 && (
+                    <div className="flex justify-between">
+                      <span>Additional Taxes:</span>
+                      <span>{formatCurrency(totals.additionalTaxAmount)}</span>
+                    </div>
+                  )}
+                  <div className="border-t pt-2 flex justify-between font-bold text-lg">
+                    <span>Total:</span>
+                    <span>{formatCurrency(totals.total)}</span>
+                  </div>
                 </div>
-                {totals.discountAmount > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-sm">Discount:</span>
-                    <span className="font-medium">
-                      -{formatCurrency(totals.discountAmount)}
-                    </span>
-                  </div>
-                )}
-                {totals.vatAmount > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-sm">VAT:</span>
-                    <span className="font-medium">
-                      {formatCurrency(totals.vatAmount)}
-                    </span>
-                  </div>
-                )}
-                {totals.additionalTaxAmount > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-sm">Additional Taxes:</span>
-                    <span className="font-medium">
-                      {formatCurrency(totals.additionalTaxAmount)}
-                    </span>
-                  </div>
-                )}
-                <div className="flex justify-between border-t pt-3">
-                  <span className="font-medium">Total:</span>
-                  <span className="font-bold text-lg">
-                    {formatCurrency(totals.total)}
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+              </CardContent>
+            </Card>
+
+            <div className="space-y-3">
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isSubmitting || items.length === 0}
+              >
+                <Save className="mr-2 h-4 w-4" />
+                {isSubmitting ? "Saving..." : "Save as Draft"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={(e) => handleSubmit(e, true)}
+                disabled={isSubmitting || items.length === 0}
+              >
+                <Send className="mr-2 h-4 w-4" />
+                {isSubmitting ? "Sending..." : "Save & Send"}
+              </Button>
+            </div>
+          </div>
+        </div>
       </form>
     </div>
   );
