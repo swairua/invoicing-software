@@ -95,17 +95,38 @@ export default function ProformaInvoices() {
 
   // Load initial data
   React.useEffect(() => {
-    setProformas(businessData.getProformas());
-    setCustomers(businessData.getCustomers());
-    setProducts(businessData.getProducts());
+    const loadData = async () => {
+      try {
+        const [proformasData, customersData, productsData] = await Promise.all([
+          businessData.getProformas(),
+          businessData.getCustomers(),
+          businessData.getProducts()
+        ]);
+        setProformas(Array.isArray(proformasData) ? proformasData : []);
+        setCustomers(Array.isArray(customersData) ? customersData : []);
+        setProducts(Array.isArray(productsData) ? productsData : []);
+      } catch (error) {
+        console.error('Error loading data:', error);
+      }
+    };
+    loadData();
   }, []);
 
   // Refresh data periodically
   React.useEffect(() => {
-    const refreshInterval = setInterval(() => {
-      setProformas(businessData.getProformas());
-      setCustomers(businessData.getCustomers());
-      setProducts(businessData.getProducts());
+    const refreshInterval = setInterval(async () => {
+      try {
+        const [proformasData, customersData, productsData] = await Promise.all([
+          businessData.getProformas(),
+          businessData.getCustomers(),
+          businessData.getProducts()
+        ]);
+        setProformas(Array.isArray(proformasData) ? proformasData : []);
+        setCustomers(Array.isArray(customersData) ? customersData : []);
+        setProducts(Array.isArray(productsData) ? productsData : []);
+      } catch (error) {
+        console.error('Error refreshing data:', error);
+      }
     }, 5000);
 
     return () => clearInterval(refreshInterval);
