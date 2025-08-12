@@ -609,7 +609,7 @@ export class PDFService {
 
     // Table without header - starts lower to accommodate external header
     autoTable(doc, {
-      startY: 148,
+      startY: 155,
       body: tableData,
       theme: "grid",
       styles: {
@@ -673,7 +673,7 @@ export class PDFService {
 
     // Table without header - starts lower to accommodate external header
     autoTable(doc, {
-      startY: 148,
+      startY: 155,
       body: tableData,
       theme: "grid",
       styles: {
