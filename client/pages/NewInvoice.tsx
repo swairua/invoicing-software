@@ -265,6 +265,9 @@ export default function NewInvoice() {
       quantity: "1",
       unitPrice: "",
       discount: "0",
+      lineItemTaxes: [],
+      vatEnabled: false,
+      vatRate: 16,
     });
     setProductSearch("");
   };
