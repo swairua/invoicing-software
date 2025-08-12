@@ -487,7 +487,9 @@ export default function StatementOfAccount() {
                   />
                 ) : (
                   <div className="h-16 w-16 bg-primary rounded-lg flex items-center justify-center mr-4">
-                    <Building2 className="h-10 w-10 text-primary-foreground" />
+                    <span className="text-2xl font-bold text-primary-foreground">
+                      {companyInfo.name.charAt(0)}
+                    </span>
                   </div>
                 )}
               </div>
