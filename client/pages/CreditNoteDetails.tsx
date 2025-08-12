@@ -369,7 +369,7 @@ export default function CreditNoteDetails() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <h4 className="font-medium">{creditNote.customer.name}</h4>
+                <h4 className="font-medium">{creditNote.customer?.name || 'Unknown Customer'}</h4>
                 <p className="text-sm text-muted-foreground">
                   {creditNote.customer.email}
                 </p>
