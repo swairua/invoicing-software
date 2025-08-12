@@ -436,8 +436,8 @@ export default function Invoices() {
   const handleEditInvoice = (invoiceId: string) => {
     const invoice = invoices.find((inv) => inv.id === invoiceId);
     if (invoice) {
-      // In a real app, this would navigate to the edit form
-      window.location.href = `/invoices/${invoiceId}/edit`;
+      // Navigate to edit form using React Router
+      navigate(`/invoices/new?edit=${invoiceId}`);
       toast({
         title: "Edit Invoice",
         description: `Opening edit form for ${invoice.invoiceNumber}`,
