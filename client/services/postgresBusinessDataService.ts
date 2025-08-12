@@ -267,6 +267,19 @@ class PostgresBusinessDataService {
     }
   }
 
+  public async getCreditNote(id: string): Promise<any | undefined> {
+    try {
+      const response = await this.apiCall(`/credit-notes/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch credit note:', error);
+      console.log('Using fallback credit note data');
+      // Return the first matching credit note from fallback data
+      const fallbackData = this.getFallbackCreditNotes();
+      return fallbackData.find(cn => cn.id === id);
+    }
+  }
+
   // Payment methods
   public async getPayments(): Promise<Payment[]> {
     try {
