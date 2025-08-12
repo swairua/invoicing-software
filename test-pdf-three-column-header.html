@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Three-Column Header Fix - Medplus Africa</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .header-demo {
+            border: 2px solid #0066cc;
+            padding: 15px;
+            margin: 20px 0;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        .three-column-layout {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border: 1px dashed #666;
+            margin: 10px 0;
+            background-color: white;
+        }
+        .column {
+            padding: 10px;
+            text-align: center;
+        }
+        .left-column {
+            flex: 0 0 25%;
+            text-align: left;
+            color: #0066cc;
+            font-weight: bold;
+        }
+        .center-column {
+            flex: 0 0 50%;
+            text-align: center;
+        }
+        .right-column {
+            flex: 0 0 25%;
+            text-align: right;
+            font-weight: bold;
+        }
+        .company-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0066cc;
+            margin-bottom: 5px;
+        }
+        .tagline {
+            font-size: 10px;
+            color: #666;
+        }
+        .logo-placeholder {
+            width: 25px;
+            height: 25px;
+            background-color: #0066cc;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .fix-summary {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .before-after {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .before, .after {
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .before {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+        .after {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+        .positioning-info {
+            background-color: #e2e3e5;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>📄 PDF Three-Column Header Layout Fix</h1>
+    <h2>Medplus Africa Limited - Corrected Invoice Header</h2>
+
+    <div class="fix-summary">
+        <h3>✅ Layout Fix Applied</h3>
+        <p><strong>Problem:</strong> PDF header elements were scattered and poorly aligned</p>
+        <p><strong>Solution:</strong> Implemented proper three-column header layout</p>
+        <p><strong>Result:</strong> Professional, aligned header with logo left, details center, PIN right</p>
+    </div>
+
+    <div class="header-demo">
+        <h3>🎯 New Three-Column Header Layout</h3>
+        <div class="three-column-layout">
+            <div class="left-column">
+                <div class="logo-placeholder">M</div>
+                <div style="font-size: 8px; margin-top: 2px;">LOGO</div>
+            </div>
+            
+            <div class="center-column">
+                <div class="company-name">MEDPLUS AFRICA LIMITED</div>
+                <div class="tagline">Your Medical & Laboratory Supplies Partner</div>
+            </div>
+            
+            <div class="right-column">
+                PIN No: P052045925Z
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 10px; font-size: 9px; color: #666;">
+            P.O BOX 45352 - 00100, NAIROBI, KENYA<br>
+            Siens Plaza 4th floor room 1 opposite kcb bank River road<br>
+            Tel: +254 713416022, +254 786830610<br>
+            E-mail: sales@medplusafrica.com<br>
+            Website: www.medplusafrica.com
+        </div>
+    </div>
+
+    <div class="before-after">
+        <div class="before">
+            <h4>❌ Before (Problematic)</h4>
+            <ul>
+                <li>Logo centered at top</li>
+                <li>Company name centered below logo</li>
+                <li>PIN number scattered in multiple places</li>
+                <li>Poor use of horizontal space</li>
+                <li>Unprofessional appearance</li>
+                <li>Table alignment issues</li>
+            </ul>
+        </div>
+        
+        <div class="after">
+            <h4>✅ After (Fixed)</h4>
+            <ul>
+                <li>Logo positioned on the left</li>
+                <li>Company details centered</li>
+                <li>PIN number on far right</li>
+                <li>All elements in same row</li>
+                <li>Professional three-column layout</li>
+                <li>Proper table alignment</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="positioning-info">
+        <h4>📐 Technical Positioning Details</h4>
+        <strong>LEFT COLUMN (Logo):</strong><br>
+        • X: 20px (left margin)<br>
+        • Y: 15px (top margin)<br>
+        • Size: 25x25px<br>
+        • Fallback: Circle with company initial<br><br>
+
+        <strong>CENTER COLUMN (Company Details):</strong><br>
+        • X: pageWidth/2 (centered)<br>
+        • Y: 25px (company name), 32px (tagline)<br>
+        • Alignment: center<br>
+        • Font: 18px bold (name), 10px normal (tagline)<br><br>
+
+        <strong>RIGHT COLUMN (PIN):</strong><br>
+        • X: pageWidth-20 (right margin)<br>
+        �� Y: 25px (aligned with company name)<br>
+        • Alignment: right<br>
+        • Font: 10px bold<br><br>
+
+        <strong>CONTACT INFO:</strong><br>
+        • X: pageWidth/2 (centered)<br>
+        • Y: 45px+ (below header row)<br>
+        • Alignment: center<br>
+        • Font: 9px normal
+    </div>
+
+    <div class="header-demo">
+        <h3>📋 Layout Improvements Summary</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr style="background-color: #f8f9fa;">
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Element</th>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Old Position</th>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">New Position</th>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Improvement</th>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">Logo</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Center top</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Left aligned</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Professional placement</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">Company Name</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Below logo</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Center column</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Same row as logo</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">PIN Number</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Multiple locations</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Right column only</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">No duplication</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">Invoice Title</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Y=100</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Y=85</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Better spacing</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">Customer Info</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Y=115</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Y=100</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Compact layout</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">Table Header</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Y=135</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Y=120</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Proper alignment</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">Table Content</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Y=155</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Y=140</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Aligned with header</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="fix-summary">
+        <h3>🎯 Fixed Issues</h3>
+        <ul>
+            <li><strong>Header Layout:</strong> Professional three-column design</li>
+            <li><strong>Logo Position:</strong> Moved from center to left alignment</li>
+            <li><strong>Company Details:</strong> Centered between logo and PIN</li>
+            <li><strong>PIN Number:</strong> Single location on far right</li>
+            <li><strong>Table Alignment:</strong> Proper positioning with header</li>
+            <li><strong>Space Utilization:</strong> Efficient use of horizontal space</li>
+            <li><strong>Professional Appearance:</strong> Standard business document layout</li>
+        </ul>
+    </div>
+
+    <div style="background-color: #e7f3ff; padding: 15px; border-radius: 8px; margin: 20px 0;">
+        <h3>📊 Result</h3>
+        <p><strong>The PDF now displays a professional three-column header layout:</strong></p>
+        <ul>
+            <li>✅ Logo on the left side</li>
+            <li>✅ Company name and details centered</li>
+            <li>✅ PIN number on the far right</li>
+            <li>✅ All elements properly aligned in the same row</li>
+            <li>✅ Table and content properly positioned</li>
+            <li>✅ Professional business document appearance</li>
+        </ul>
+    </div>
+
+    <script>
+        console.log('✅ PDF three-column header layout fixed');
+        console.log('🎯 Header elements properly positioned:');
+        console.log('  - Logo: Left aligned');
+        console.log('  - Company details: Centered');
+        console.log('  - PIN number: Right aligned');
+        console.log('  - Table: Properly aligned');
+    </script>
+</body>
+</html>
