@@ -64,8 +64,8 @@ export default function ActivityLog({
       const dataService = dataServiceFactory.getDataService();
       const activityData = await dataService.getActivityLog();
 
-      let filteredActivities = activityData;
-      if (type) {
+      let filteredActivities = activityData || [];
+      if (type && filteredActivities.length > 0) {
         filteredActivities = activityData.filter(
           (activity) => activity.type === type,
         );
@@ -74,6 +74,8 @@ export default function ActivityLog({
       setActivities(filteredActivities.slice(0, limit));
     } catch (error) {
       console.error("Error loading activities:", error);
+      // Set empty array on error to prevent crashes
+      setActivities([]);
     } finally {
       setLoading(false);
     }
