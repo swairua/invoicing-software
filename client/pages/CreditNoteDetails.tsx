@@ -338,7 +338,7 @@ export default function CreditNoteDetails() {
                     <TableRow key={item.id}>
                       <TableCell>
                         <div>
-                          <p className="font-medium">{item.product.name}</p>
+                          <p className="font-medium">{item.product?.name || 'Unknown Product'}</p>
                           <p className="text-sm text-muted-foreground">
                             SKU: {item.product.sku}
                           </p>
