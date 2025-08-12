@@ -343,7 +343,7 @@ export class PDFService {
     doc.setTextColor(0, 0, 0);
 
     // Company address (centered with proper spacing)
-    doc.text(settings.address.line1, centerX, yPos, { align: "center" });
+    doc.text(settings?.address?.line1 || 'Address Not Set', centerX, yPos, { align: "center" });
     yPos += 4;
 
     if (settings.address.line2) {
