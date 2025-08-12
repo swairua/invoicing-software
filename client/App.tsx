@@ -9,7 +9,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./hooks/use-auth";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import Layout from "./components/Layout";
-import ErrorBoundary from "./components/ErrorBoundary";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Customers from "./pages/Customers";
