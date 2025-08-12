@@ -436,6 +436,61 @@ class PostgresBusinessDataService {
       ]
     };
   }
+
+  private getFallbackActivityLog(): any[] {
+    return [
+      {
+        id: '1',
+        type: 'invoice',
+        action: 'created',
+        title: 'Invoice Created',
+        description: 'Invoice INV-2024-001 created for Acme Corporation Ltd',
+        user: 'Admin User',
+        timestamp: new Date(Date.now() - 15 * 60000),
+        metadata: { invoiceNumber: 'INV-2024-001', amount: 25600 }
+      },
+      {
+        id: '2',
+        type: 'payment',
+        action: 'created',
+        title: 'Payment Received',
+        description: 'Payment received from Tech Solutions Kenya',
+        user: 'Admin User',
+        timestamp: new Date(Date.now() - 45 * 60000),
+        metadata: { amount: 15000, method: 'M-Pesa' }
+      },
+      {
+        id: '3',
+        type: 'product',
+        action: 'updated',
+        title: 'Stock Updated',
+        description: 'Stock level updated for Latex Rubber Gloves',
+        user: 'Admin User',
+        timestamp: new Date(Date.now() - 75 * 60000),
+        metadata: { productName: 'Latex Rubber Gloves', newStock: 425 }
+      },
+      {
+        id: '4',
+        type: 'quotation',
+        action: 'created',
+        title: 'Quotation Created',
+        description: 'Quotation QUO-2024-001 created for Global Trading Co.',
+        user: 'Admin User',
+        timestamp: new Date(Date.now() - 120 * 60000),
+        metadata: { quoteNumber: 'QUO-2024-001', amount: 42500 }
+      },
+      {
+        id: '5',
+        type: 'customer',
+        action: 'created',
+        title: 'Customer Added',
+        description: 'New customer registration: Local Retail Store',
+        user: 'Admin User',
+        timestamp: new Date(Date.now() - 180 * 60000),
+        metadata: { customerName: 'Local Retail Store' }
+      }
+    ];
+  }
 }
 
 export default PostgresBusinessDataService;
