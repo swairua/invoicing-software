@@ -504,7 +504,7 @@ export class PDFService {
       : [37, 99, 235]; // Force blue color for visibility
 
     // Custom header design outside the table
-    this.addCustomTableHeader(doc, 135);
+    this.addCustomTableHeader(doc, 120);
 
     // Table without header - starts lower to accommodate external header
     autoTable(doc, {
@@ -597,7 +597,7 @@ export class PDFService {
     ]);
 
     // Custom header design outside the table
-    this.addCustomTableHeader(doc, 135);
+    this.addCustomTableHeader(doc, 120);
 
     // Table without header - starts lower to accommodate external header
     autoTable(doc, {
@@ -661,7 +661,7 @@ export class PDFService {
     ]);
 
     // Custom header design outside the table
-    this.addCustomTableHeader(doc, 135);
+    this.addCustomTableHeader(doc, 120);
 
     // Table without header - starts lower to accommodate external header
     autoTable(doc, {
