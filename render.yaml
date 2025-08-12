@@ -13,8 +13,16 @@ services:
       - key: PING_MESSAGE
         value: Fusion Invoicing API is running
       - key: DATABASE_URL
-        value: postgresql://postgres:Sirgeorge.12@db.qvtgnxezqwwlhzdmtwhc.supabase.co:5432/postgres?sslmode=require&options=-c%20search_path%3Dpublic
+        fromDatabase:
+          name: fusion-invoicing-db
+          property: connectionString
     disk:
       name: fusion-invoicing-disk
       sizeGB: 1
       mountPath: /opt/render/project/dist
+
+databases:
+  - name: fusion-invoicing-db
+    databaseName: fusion_invoicing
+    user: fusion_user
+    plan: free
