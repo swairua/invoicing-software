@@ -519,26 +519,46 @@ export class PDFService {
       },
     });
 
-    // Total Amount - align text and value in one row
-    const finalY = (doc as any).lastAutoTable.finalY + 20;
+    // Total Amount - properly spaced and formatted
+    const finalY = (doc as any).lastAutoTable.finalY + 15;
 
-    // Create a bordered total section with proper spacing
+    // Check if we need a new page for the total section
+    if (finalY + 40 > doc.internal.pageSize.height - 30) {
+      doc.addPage();
+      const newFinalY = 30;
+      this.addTotalSection(doc, invoice.total, newFinalY);
+    } else {
+      this.addTotalSection(doc, invoice.total, finalY);
+    }
+  }
+
+  /**
+   * Add total section with proper formatting
+   */
+  private static addTotalSection(doc: jsPDF, total: number, startY: number): void {
+    // Total section with better spacing
+    const boxWidth = 75;
+    const boxHeight = 18;
+    const rightMargin = 20;
+    const boxX = doc.internal.pageSize.width - rightMargin - boxWidth;
+
+    // Create a bordered total section
     doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.3);
-    doc.rect(125, finalY - 5, 70, 15);
+    doc.setLineWidth(1);
+    doc.rect(boxX, startY, boxWidth, boxHeight);
 
-    // Add subtle background for total section
-    doc.setFillColor(248, 249, 250);
-    doc.rect(125, finalY - 5, 70, 15, "F");
-    doc.rect(125, finalY - 5, 70, 15);
+    // Add background for total section
+    doc.setFillColor(240, 240, 240);
+    doc.rect(boxX, startY, boxWidth, boxHeight, "F");
+    doc.rect(boxX, startY, boxWidth, boxHeight);
 
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
 
-    // Put text and value on the same line
-    doc.text("Total Amount Inc. VAT (Kes)", 128, finalY + 5);
-    doc.text(this.formatCurrency(invoice.total), 192, finalY + 5, {
+    // Add total label and amount with proper alignment
+    doc.text("Total Amount Inc. VAT (Kes)", boxX + 3, startY + 12);
+    doc.text(this.formatCurrency(total), boxX + boxWidth - 3, startY + 12, {
       align: "right",
     });
   }
