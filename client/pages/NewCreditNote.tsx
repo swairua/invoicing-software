@@ -221,8 +221,8 @@ export default function NewCreditNote() {
 
   const filteredProducts = products.filter(
     (product) =>
-      product.name.toLowerCase().includes(productSearchTerm.toLowerCase()) ||
-      product.sku.toLowerCase().includes(productSearchTerm.toLowerCase()),
+      product.name?.toLowerCase().includes(productSearchTerm.toLowerCase()) ||
+      product.sku?.toLowerCase().includes(productSearchTerm.toLowerCase()),
   );
 
   const customerInvoices = invoices.filter(
