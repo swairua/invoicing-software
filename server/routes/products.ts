@@ -52,7 +52,7 @@ router.get('/', async (req, res) => {
         maxStock: 1000,
         currentStock: 450,
         isActive: true,
-        companyId: companyId,
+        companyId: req.headers['x-company-id'] as string || '550e8400-e29b-41d4-a716-446655440000',
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -69,7 +69,7 @@ router.get('/', async (req, res) => {
         maxStock: 100,
         currentStock: 25,
         isActive: true,
-        companyId: companyId,
+        companyId: req.headers['x-company-id'] as string || '550e8400-e29b-41d4-a716-446655440000',
         createdAt: new Date(),
         updatedAt: new Date()
       }
