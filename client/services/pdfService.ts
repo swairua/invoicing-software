@@ -368,30 +368,26 @@ export class PDFService {
       columnPositions.push(columnPositions[i - 1] + columnWidths[i - 1]);
     }
 
-    // Main header background with gradient effect
-    doc.setFillColor(37, 99, 235); // Primary blue
+    // Light gray background for better text visibility
+    doc.setFillColor(240, 240, 240); // Light gray background
     doc.rect(20, startY, 180, 18, 'F');
 
-    // Add subtle shadow effect
-    doc.setFillColor(30, 80, 200); // Darker blue for shadow
-    doc.rect(20, startY + 18, 180, 2, 'F');
-
-    // Header border
-    doc.setDrawColor(37, 99, 235);
-    doc.setLineWidth(1);
+    // Uniform blue border
+    doc.setDrawColor(37, 99, 235); // Blue border
+    doc.setLineWidth(1.5);
     doc.rect(20, startY, 180, 18);
 
-    // Column separators
-    doc.setDrawColor(255, 255, 255);
-    doc.setLineWidth(0.5);
+    // Column separators with blue lines
+    doc.setDrawColor(37, 99, 235);
+    doc.setLineWidth(1);
     for (let i = 1; i < columnPositions.length; i++) {
       const x = columnPositions[i];
-      doc.line(x, startY + 2, x, startY + 16);
+      doc.line(x, startY, x, startY + 18);
     }
 
-    // Header text
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(8);
+    // Header text - BOLD AND BLACK for visibility
+    doc.setTextColor(0, 0, 0); // BLACK TEXT
+    doc.setFontSize(9);
     doc.setFont("helvetica", "bold");
 
     headers.forEach((header, index) => {
