@@ -496,7 +496,7 @@ export default function Invoices() {
       window.open(`/customers/${invoice.customerId}/statement`, "_blank");
       toast({
         title: "Customer Statement",
-        description: `Opening statement for ${invoice.customer.name}`,
+        description: `Opening statement for ${invoice.customer?.name || 'Unknown Customer'}`,
       });
     }
   };
