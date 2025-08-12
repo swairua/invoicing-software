@@ -121,7 +121,7 @@ export default function LineItemTaxSelector({
                           />
                         </TableCell>
                         <TableCell className="font-medium">
-                          {tax.name}
+                          {tax?.name || 'Unknown Tax'}
                         </TableCell>
                         <TableCell>{tax.rate}%</TableCell>
                         <TableCell>
