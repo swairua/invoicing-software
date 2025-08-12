@@ -1,7 +1,9 @@
 import { Pool, PoolClient } from "pg";
 
 // Database configuration - Force Supabase connection
-const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:Sirgeorge.12@db.qvtgnxezqwwlhzdmtwhc.supabase.co:5432/postgres';
+const DATABASE_URL =
+  process.env.DATABASE_URL ||
+  "postgresql://postgres:Sirgeorge.12@db.qvtgnxezqwwlhzdmtwhc.supabase.co:5432/postgres";
 
 // Create connection pool
 const pool = new Pool({
@@ -82,7 +84,7 @@ export class Database {
     }
 
     // Log connection details (safely)
-    const urlParts = dbUrl.includes('@') ? dbUrl.split('@')[1] : 'unknown';
+    const urlParts = dbUrl.includes("@") ? dbUrl.split("@")[1] : "unknown";
     console.log(`🔌 Connecting to: ${urlParts}`);
     console.log("🗄️ Using LIVE DATABASE - No mock data");
 
@@ -93,12 +95,19 @@ export class Database {
       );
       console.log("✅ LIVE DATABASE CONNECTION SUCCESSFUL!");
       console.log("🕐 Server time:", result.rows[0].current_time);
-      console.log("🗄️ PostgreSQL version:", result.rows[0].version.split(" ")[0]);
+      console.log(
+        "🗄️ PostgreSQL version:",
+        result.rows[0].version.split(" ")[0],
+      );
 
       // Test if we can query tables
       try {
-        const companyTest = await this.query("SELECT COUNT(*) as count FROM companies");
-        console.log(`✅ Database schema ready - Found ${companyTest.rows[0].count} companies`);
+        const companyTest = await this.query(
+          "SELECT COUNT(*) as count FROM companies",
+        );
+        console.log(
+          `✅ Database schema ready - Found ${companyTest.rows[0].count} companies`,
+        );
 
         const tableCheck = await this.query(`
           SELECT table_name FROM information_schema.tables
@@ -106,7 +115,6 @@ export class Database {
           ORDER BY table_name
         `);
         console.log(`📋 Available tables: ${tableCheck.rows.length} total`);
-
       } catch (schemaError) {
         console.log("⚠️ Database schema not found - needs migration");
         console.log("🔧 Run migration to create tables");

@@ -11,27 +11,30 @@ const { Pool } = pkg;
 async function testSupabaseConnection() {
   console.log("🧪 Testing Supabase Database Connection\n");
 
-  const databaseUrl = "postgresql://postgres:Sirgeorge.12@db.qvtgnxezqwwlhzdmtwhc.supabase.co:5432/postgres";
-  
+  const databaseUrl =
+    "postgresql://postgres:Sirgeorge.12@db.qvtgnxezqwwlhzdmtwhc.supabase.co:5432/postgres";
+
   console.log("🔌 Connection string configured");
   console.log("🏗️ Creating connection pool...");
 
   const pool = new Pool({
     connectionString: databaseUrl,
     ssl: {
-      rejectUnauthorized: false
+      rejectUnauthorized: false,
     },
     max: 5,
     connectionTimeoutMillis: 10000,
-    application_name: "fusion-invoicing-test"
+    application_name: "fusion-invoicing-test",
   });
 
   try {
     console.log("⏳ Testing connection...");
     const client = await pool.connect();
-    
+
     // Basic connection test
-    const result = await client.query("SELECT NOW() as current_time, version() as version");
+    const result = await client.query(
+      "SELECT NOW() as current_time, version() as version",
+    );
     console.log("✅ CONNECTION SUCCESSFUL!");
     console.log("🕐 Server time:", result.rows[0].current_time);
     console.log("🗄️ PostgreSQL version:", result.rows[0].version.split(" ")[0]);
@@ -43,10 +46,10 @@ async function testSupabaseConnection() {
       WHERE table_schema = 'public' 
       ORDER BY table_name
     `);
-    
+
     if (tables.rows.length > 0) {
       console.log(`✅ Found ${tables.rows.length} tables:`);
-      tables.rows.forEach(row => {
+      tables.rows.forEach((row) => {
         console.log(`   • ${row.table_name}`);
       });
     } else {
@@ -56,11 +59,17 @@ async function testSupabaseConnection() {
 
     // Test data
     try {
-      const dataTest = await client.query("SELECT COUNT(*) as count FROM companies");
-      console.log(`\n📊 Data check: ${dataTest.rows[0].count} companies in database`);
-      
+      const dataTest = await client.query(
+        "SELECT COUNT(*) as count FROM companies",
+      );
+      console.log(
+        `\n📊 Data check: ${dataTest.rows[0].count} companies in database`,
+      );
+
       if (dataTest.rows[0].count > 0) {
-        const company = await client.query("SELECT name FROM companies LIMIT 1");
+        const company = await client.query(
+          "SELECT name FROM companies LIMIT 1",
+        );
         console.log(`   • Primary company: ${company.rows[0].name}`);
       }
     } catch (err) {
@@ -70,7 +79,6 @@ async function testSupabaseConnection() {
     client.release();
     console.log("\n🎉 Database test completed successfully!");
     return true;
-
   } catch (error) {
     console.error("❌ CONNECTION FAILED:", error.message);
     console.log("\n🔧 Possible issues:");
@@ -85,11 +93,11 @@ async function testSupabaseConnection() {
 
 // Run test
 testSupabaseConnection()
-  .then(success => {
-    console.log(`\n${success ? '✅ TEST PASSED' : '❌ TEST FAILED'}`);
+  .then((success) => {
+    console.log(`\n${success ? "✅ TEST PASSED" : "❌ TEST FAILED"}`);
     process.exit(success ? 0 : 1);
   })
-  .catch(error => {
+  .catch((error) => {
     console.error("Test error:", error);
     process.exit(1);
   });
