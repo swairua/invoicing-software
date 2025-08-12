@@ -286,33 +286,47 @@ router.get('/payments', async (req, res) => {
     const fallbackPayments = [
       {
         id: '1',
-        customer_id: '1',
-        customer_name: 'Acme Corporation Ltd',
-        invoice_id: '1',
-        invoice_number: 'INV-2024-001',
+        customerId: '1',
+        customer: {
+          id: '1',
+          name: 'Acme Corporation Ltd',
+          email: 'contact@acme.com'
+        },
+        invoiceId: '1',
+        invoice: {
+          id: '1',
+          invoiceNumber: 'INV-2024-001'
+        },
         amount: 25000,
         method: 'M-Pesa',
         reference: 'MP240115ABC123',
         status: 'completed',
         notes: 'Payment via M-Pesa',
-        company_id: req.headers['x-company-id'] as string || '550e8400-e29b-41d4-a716-446655440000',
-        created_at: new Date(),
-        updated_at: new Date()
+        companyId: req.headers['x-company-id'] as string || '550e8400-e29b-41d4-a716-446655440000',
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         id: '2',
-        customer_id: '2',
-        customer_name: 'Tech Solutions Kenya Ltd',
-        invoice_id: '2',
-        invoice_number: 'INV-2024-002',
+        customerId: '2',
+        customer: {
+          id: '2',
+          name: 'Tech Solutions Kenya Ltd',
+          email: 'info@techsolutions.co.ke'
+        },
+        invoiceId: '2',
+        invoice: {
+          id: '2',
+          invoiceNumber: 'INV-2024-002'
+        },
         amount: 18500,
         method: 'Bank Transfer',
         reference: 'BT240116XYZ789',
         status: 'completed',
         notes: 'Bank transfer payment received',
-        company_id: req.headers['x-company-id'] as string || '550e8400-e29b-41d4-a716-446655440000',
-        created_at: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
-        updated_at: new Date(Date.now() - 24 * 60 * 60 * 1000)
+        companyId: req.headers['x-company-id'] as string || '550e8400-e29b-41d4-a716-446655440000',
+        createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
+        updatedAt: new Date(Date.now() - 24 * 60 * 60 * 1000)
       }
     ];
 
