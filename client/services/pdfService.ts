@@ -516,7 +516,7 @@ export class PDFService {
 
     // Table without header - starts lower to accommodate external header
     autoTable(doc, {
-      startY: 148, // Increased to accommodate larger header
+      startY: 155, // Adjusted for better header spacing
       body: tableData,
       theme: "grid",
       styles: {
