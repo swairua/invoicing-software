@@ -303,9 +303,11 @@ export class PDFService {
     doc.setTextColor(100, 100, 100);
     doc.text("Your Medical & Laboratory Supplies Partner", pageWidth / 2, 58, { align: "center" });
 
-    // PIN number (right-aligned)
-    doc.setFontSize(9);
-    doc.text(`PIN No: ${settings.tax.kraPin}`, pageWidth - 20, 25, {
+    // PIN number (top right)
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    doc.setFont("helvetica", "bold");
+    doc.text(`PIN No: ${settings.tax.kraPin}`, pageWidth - 20, 20, {
       align: "right",
     });
   }
