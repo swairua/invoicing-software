@@ -50,6 +50,7 @@ import {
 } from "lucide-react";
 import { Product } from "@shared/types";
 import { getDataService } from "../services/dataServiceFactory";
+import { safeIncludes } from "../lib/search-utils";
 
 const dataService = getDataService();
 
