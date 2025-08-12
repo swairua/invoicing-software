@@ -92,9 +92,9 @@ export default function UnitsOfMeasure() {
 
   const filteredUnits = allUnits.filter((unit) => {
     const matchesSearch =
-      unit.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      unit.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      unit.id.toLowerCase().includes(searchTerm.toLowerCase());
+      unit.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      unit.symbol?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      unit.id?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesCategory =
       categoryFilter === "all" || unit.category === categoryFilter;
