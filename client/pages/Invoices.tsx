@@ -193,8 +193,8 @@ export default function Invoices() {
 
   const filteredInvoices = invoices.filter((invoice) => {
     const matchesSearch =
-      invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      invoice.customer.name.toLowerCase().includes(searchTerm.toLowerCase());
+      invoice.invoiceNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      invoice.customer?.name?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesStatus =
       statusFilter === "all" || invoice.status === statusFilter;
