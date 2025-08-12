@@ -498,6 +498,29 @@ VALUES (
     'https://cdn.builder.io/api/v1/image/assets%2F36ce27fc004b41f8b60187584af31eda%2F23d8ea5c29cb4749aafd5fc67fea1acc?format=webp&width=800'
 ) ON CONFLICT (id) DO NOTHING;
 
+-- Insert number sequences
+INSERT INTO number_sequences (company_id, sequence_type, prefix, current_number)
+VALUES
+    ('00000000-0000-0000-0000-000000000001', 'invoice', 'INV', 1001),
+    ('00000000-0000-0000-0000-000000000001', 'quotation', 'QUO', 1001),
+    ('00000000-0000-0000-0000-000000000001', 'proforma', 'PRO', 1001),
+    ('00000000-0000-0000-0000-000000000001', 'credit_note', 'CN', 1001),
+    ('00000000-0000-0000-0000-000000000001', 'purchase_order', 'PO', 1001),
+    ('00000000-0000-0000-0000-000000000001', 'delivery_note', 'DN', 1001),
+    ('00000000-0000-0000-0000-000000000001', 'packing_list', 'PL', 1001),
+    ('00000000-0000-0000-0000-000000000001', 'grn', 'GRN', 1001),
+    ('00000000-0000-0000-0000-000000000001', 'customer', 'CUST', 1001),
+    ('00000000-0000-0000-0000-000000000001', 'supplier', 'SUPP', 1001)
+ON CONFLICT (company_id, sequence_type) DO NOTHING;
+
+-- Insert product categories
+INSERT INTO product_categories (id, company_id, name, description)
+VALUES
+    ('00000000-0000-0000-0000-000000000010', '00000000-0000-0000-0000-000000000001', 'Medical Supplies', 'General medical supplies and consumables'),
+    ('00000000-0000-0000-0000-000000000011', '00000000-0000-0000-0000-000000000001', 'Medical Equipment', 'Medical devices and equipment'),
+    ('00000000-0000-0000-0000-000000000012', '00000000-0000-0000-0000-000000000001', 'Laboratory', 'Laboratory supplies and equipment')
+ON CONFLICT (id) DO NOTHING;
+
 -- Insert sample customer
 INSERT INTO customers (id, company_id, name, email, phone, address, kra_pin)
 VALUES (
