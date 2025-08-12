@@ -124,7 +124,7 @@ export default function LineItemVATSelector({
           {/* Selected VAT Info */}
           <div className="flex items-center gap-2">
             <Badge variant={selectedRate === 0 ? "secondary" : "default"}>
-              {selectedVAT.name} - {selectedRate}%
+              {selectedVAT?.name || 'Unknown VAT'} - {selectedRate}%
             </Badge>
             {selectedVAT.description && (
               <span className="text-xs text-muted-foreground">
