@@ -1108,7 +1108,7 @@ export default function NewProduct() {
                             >
                               <div className="flex-1">
                                 <div className="font-medium">
-                                  {variant.name}
+                                  {variant?.name || 'Unknown Variant'}
                                 </div>
                                 <div className="text-sm text-muted-foreground">
                                   SKU: {variant.sku}
