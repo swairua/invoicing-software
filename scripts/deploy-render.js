@@ -11,15 +11,17 @@ const path = require('path');
 
 async function deployToRender() {
   console.log('🚀 Starting Render deployment process...\n');
+  console.log('🗄️ Database configuration: LIVE DATABASE MODE');
+  console.log('❌ Mock data has been removed - database required\n');
 
   // Check if DATABASE_URL is available
   const databaseUrl = process.env.DATABASE_URL;
-  
+
   if (!databaseUrl) {
     console.log('⚠️ No DATABASE_URL found');
-    console.log('📝 This is normal for the first deployment');
-    console.log('🔧 Render will create the database automatically');
-    console.log('✅ App will work with mock data until database is ready\n');
+    console.log('🔧 Render will create the database during first deployment');
+    console.log('📋 Database tables will be created automatically');
+    console.log('⏳ This may take a few minutes...\n');
     return;
   }
 
