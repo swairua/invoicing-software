@@ -189,9 +189,9 @@ router.get('/proformas', async (req, res) => {
 router.get('/payments', async (req, res) => {
   try {
     const companyId = req.headers['x-company-id'] as string || '550e8400-e29b-41d4-a716-446655440000';
-    
+
     const result = await Database.query(`
-      SELECT 
+      SELECT
         p.*,
         c.name as customer_name,
         i.invoice_number
@@ -212,6 +212,58 @@ router.get('/payments', async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to fetch payments'
+    });
+  }
+});
+
+router.get('/activity-log', async (req, res) => {
+  try {
+    const companyId = req.headers['x-company-id'] as string || '550e8400-e29b-41d4-a716-446655440000';
+    const limit = parseInt(req.query.limit as string) || 50;
+
+    // For now, return mock activity data since we don't have activity logging in the database yet
+    const mockActivities = [
+      {
+        id: '1',
+        type: 'invoice',
+        action: 'created',
+        title: 'Invoice Created',
+        description: 'Invoice INV-2024-001 created for customer',
+        user: 'Admin User',
+        timestamp: new Date(Date.now() - 15 * 60000),
+        metadata: { invoiceNumber: 'INV-2024-001', amount: 25600 }
+      },
+      {
+        id: '2',
+        type: 'payment',
+        action: 'created',
+        title: 'Payment Received',
+        description: 'Payment received from customer',
+        user: 'Admin User',
+        timestamp: new Date(Date.now() - 45 * 60000),
+        metadata: { amount: 15000, method: 'M-Pesa' }
+      },
+      {
+        id: '3',
+        type: 'product',
+        action: 'updated',
+        title: 'Stock Updated',
+        description: 'Product stock level updated',
+        user: 'Admin User',
+        timestamp: new Date(Date.now() - 75 * 60000),
+        metadata: { productName: 'Product Item', newStock: 425 }
+      }
+    ];
+
+    res.json({
+      success: true,
+      data: mockActivities.slice(0, limit)
+    });
+  } catch (error) {
+    console.error('Error fetching activity log:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch activity log'
     });
   }
 });
