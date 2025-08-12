@@ -982,7 +982,7 @@ export default function Invoices() {
                           </Avatar>
                           <div>
                             <div className="font-medium">
-                              {invoice.customer.name}
+                              {invoice.customer?.name || 'Unknown Customer'}
                             </div>
                             <div className="text-sm text-muted-foreground">
                               {invoice.customer.email}
