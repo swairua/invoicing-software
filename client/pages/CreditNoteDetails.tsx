@@ -180,7 +180,7 @@ export default function CreditNoteDetails() {
               Credit Note {creditNote.creditNumber}
             </h1>
             <p className="text-muted-foreground">
-              Issued to {creditNote.customer.name}
+              Issued to {creditNote.customer?.name || 'Unknown Customer'}
             </p>
           </div>
         </div>
