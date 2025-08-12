@@ -394,6 +394,32 @@ class PostgresBusinessDataService {
     }
   }
 
+  // Statement of Account methods
+  public async getStatementOfAccount(filter: {
+    customerId: string;
+    startDate?: string;
+    endDate?: string;
+    status?: string;
+    aging?: string;
+  }): Promise<any> {
+    try {
+      const queryParams = new URLSearchParams();
+
+      if (filter.customerId) queryParams.append('customerId', filter.customerId);
+      if (filter.startDate) queryParams.append('startDate', filter.startDate);
+      if (filter.endDate) queryParams.append('endDate', filter.endDate);
+      if (filter.status) queryParams.append('status', filter.status);
+      if (filter.aging) queryParams.append('aging', filter.aging);
+
+      const response = await this.apiCall(`/statement-of-account?${queryParams.toString()}`);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch statement of account:', error);
+      console.log('Using fallback statement data');
+      return this.getFallbackStatementData(filter);
+    }
+  }
+
   // Fallback data methods (for when API is unavailable)
   private getFallbackCustomers(): Customer[] {
     return [
