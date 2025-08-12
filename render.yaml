@@ -6,13 +6,14 @@ services:
     buildCommand: npm ci && npm run build:production
     startCommand: npm start
     healthCheckPath: /api/ping
+    region: oregon
     envVars:
       - key: NODE_ENV
         value: production
       - key: PING_MESSAGE
         value: Fusion Invoicing API is running
-      - key: PORT
-        value: 10000
+      - key: DATABASE_URL
+        value: postgresql://postgres:Sirgeorge.12@db.qvtgnxezqwwlhzdmtwhc.supabase.co:5432/postgres
     disk:
       name: fusion-invoicing-disk
       sizeGB: 1
