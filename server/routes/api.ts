@@ -217,9 +217,12 @@ router.get('/payments', async (req, res) => {
 });
 
 router.get('/activity-log', async (req, res) => {
+  console.log('Activity log endpoint called');
   try {
     const companyId = req.headers['x-company-id'] as string || '550e8400-e29b-41d4-a716-446655440000';
     const limit = parseInt(req.query.limit as string) || 50;
+
+    console.log(`Fetching activity log for company: ${companyId}, limit: ${limit}`);
 
     // For now, return mock activity data since we don't have activity logging in the database yet
     const mockActivities = [
@@ -255,15 +258,19 @@ router.get('/activity-log', async (req, res) => {
       }
     ];
 
+    const result = mockActivities.slice(0, limit);
+    console.log(`Returning ${result.length} activity entries`);
+
     res.json({
       success: true,
-      data: mockActivities.slice(0, limit)
+      data: result
     });
   } catch (error) {
-    console.error('Error fetching activity log:', error);
+    console.error('Error in activity-log endpoint:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to fetch activity log'
+      error: 'Failed to fetch activity log',
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
