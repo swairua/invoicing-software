@@ -313,6 +313,8 @@ export default function NewInvoice() {
         ...prev,
         productId,
         unitPrice: product.sellingPrice.toString(),
+        vatEnabled: product.taxable || false,
+        vatRate: product.taxRate || 16,
       }));
     }
   };
