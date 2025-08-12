@@ -353,22 +353,149 @@ CREATE INDEX IF NOT EXISTS idx_quotations_company_id ON quotations(company_id);
 CREATE INDEX IF NOT EXISTS idx_payments_invoice_id ON payments(invoice_id);
 CREATE INDEX IF NOT EXISTS idx_activity_logs_company_id ON activity_logs(company_id);
 
+-- Credit Notes table
+CREATE TABLE credit_notes (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+    customer_id UUID REFERENCES customers(id) ON DELETE RESTRICT,
+    invoice_id UUID REFERENCES invoices(id) ON DELETE RESTRICT,
+    credit_note_number VARCHAR(100) NOT NULL UNIQUE,
+    issue_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    reason VARCHAR(255),
+    status VARCHAR(20) DEFAULT 'draft' CHECK (status IN ('draft', 'issued', 'applied')),
+    subtotal DECIMAL(15,2) NOT NULL DEFAULT 0.00,
+    tax_amount DECIMAL(15,2) NOT NULL DEFAULT 0.00,
+    total DECIMAL(15,2) NOT NULL DEFAULT 0.00,
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Credit Note Items table
+CREATE TABLE credit_note_items (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    credit_note_id UUID REFERENCES credit_notes(id) ON DELETE CASCADE,
+    product_id UUID REFERENCES products(id) ON DELETE RESTRICT,
+    description VARCHAR(255) NOT NULL,
+    quantity DECIMAL(10,3) NOT NULL DEFAULT 1,
+    unit_price DECIMAL(15,2) NOT NULL,
+    total DECIMAL(15,2) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Purchase Orders table
+CREATE TABLE purchase_orders (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+    supplier_id UUID REFERENCES suppliers(id) ON DELETE RESTRICT,
+    po_number VARCHAR(100) NOT NULL UNIQUE,
+    issue_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    expected_date DATE,
+    status VARCHAR(20) DEFAULT 'draft' CHECK (status IN ('draft', 'sent', 'confirmed', 'received', 'cancelled')),
+    subtotal DECIMAL(15,2) NOT NULL DEFAULT 0.00,
+    tax_amount DECIMAL(15,2) NOT NULL DEFAULT 0.00,
+    total DECIMAL(15,2) NOT NULL DEFAULT 0.00,
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Purchase Order Items table
+CREATE TABLE purchase_order_items (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    purchase_order_id UUID REFERENCES purchase_orders(id) ON DELETE CASCADE,
+    product_id UUID REFERENCES products(id) ON DELETE RESTRICT,
+    description VARCHAR(255) NOT NULL,
+    quantity DECIMAL(10,3) NOT NULL DEFAULT 1,
+    unit_price DECIMAL(15,2) NOT NULL,
+    total DECIMAL(15,2) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Delivery Notes table
+CREATE TABLE delivery_notes (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+    customer_id UUID REFERENCES customers(id) ON DELETE RESTRICT,
+    invoice_id UUID REFERENCES invoices(id) ON DELETE RESTRICT,
+    delivery_note_number VARCHAR(100) NOT NULL UNIQUE,
+    delivery_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    delivery_address TEXT,
+    status VARCHAR(20) DEFAULT 'draft' CHECK (status IN ('draft', 'dispatched', 'delivered')),
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Delivery Note Items table
+CREATE TABLE delivery_note_items (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    delivery_note_id UUID REFERENCES delivery_notes(id) ON DELETE CASCADE,
+    product_id UUID REFERENCES products(id) ON DELETE RESTRICT,
+    description VARCHAR(255) NOT NULL,
+    quantity DECIMAL(10,3) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Packing Lists table
+CREATE TABLE packing_lists (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+    customer_id UUID REFERENCES customers(id) ON DELETE RESTRICT,
+    packing_list_number VARCHAR(100) NOT NULL UNIQUE,
+    pack_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    status VARCHAR(20) DEFAULT 'draft' CHECK (status IN ('draft', 'packed', 'shipped')),
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Packing List Items table
+CREATE TABLE packing_list_items (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    packing_list_id UUID REFERENCES packing_lists(id) ON DELETE CASCADE,
+    product_id UUID REFERENCES products(id) ON DELETE RESTRICT,
+    description VARCHAR(255) NOT NULL,
+    quantity DECIMAL(10,3) NOT NULL DEFAULT 1,
+    weight DECIMAL(10,3),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Goods Received Notes table
+CREATE TABLE goods_received_notes (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+    supplier_id UUID REFERENCES suppliers(id) ON DELETE RESTRICT,
+    purchase_order_id UUID REFERENCES purchase_orders(id) ON DELETE RESTRICT,
+    grn_number VARCHAR(100) NOT NULL UNIQUE,
+    received_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    received_by VARCHAR(255),
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Goods Received Items table
+CREATE TABLE goods_received_items (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    grn_id UUID REFERENCES goods_received_notes(id) ON DELETE CASCADE,
+    product_id UUID REFERENCES products(id) ON DELETE RESTRICT,
+    description VARCHAR(255) NOT NULL,
+    ordered_quantity DECIMAL(10,3) NOT NULL,
+    received_quantity DECIMAL(10,3) NOT NULL,
+    unit_price DECIMAL(15,2) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Insert default company data
-INSERT INTO companies (id, name, address_line1, address_line2, city, country, postal_code, phone, email, website, kra_pin, paybill_number, account_number)
+INSERT INTO companies (id, name, kra_pin, address, phone, email, logo)
 VALUES (
     '00000000-0000-0000-0000-000000000001',
     'Medplus Africa Limited',
-    'P.O BOX 45352 - 00100, NAIROBI, KENYA',
-    'Siens Plaza 4th floor room 1 opposite kcb bank River road',
-    'Nairobi',
-    'Kenya',
-    '00100',
-    ARRAY['+254 713416022', '+254 786830610'],
-    'sales@medplusafrica.com',
-    'www.medplusafrica.com',
     'P052045925Z',
-    '303030',
-    '2047138798'
+    'P.O BOX 45352 - 00100, NAIROBI, KENYA, Siens Plaza 4th floor room 1 opposite kcb bank River road',
+    '+254 713416022',
+    'sales@medplusafrica.com',
+    'https://cdn.builder.io/api/v1/image/assets%2F36ce27fc004b41f8b60187584af31eda%2F23d8ea5c29cb4749aafd5fc67fea1acc?format=webp&width=800'
 ) ON CONFLICT (id) DO NOTHING;
 
 -- Insert sample customer
