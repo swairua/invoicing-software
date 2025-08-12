@@ -38,7 +38,8 @@ import {
   Globe,
 } from "lucide-react";
 import { getDataService } from "../services/dataServiceFactory";
-import { Customer } from "@shared/types";
+import { Customer, Invoice, Payment } from "@shared/types";
+import { CompanySettings, defaultCompanySettings } from "@shared/company";
 
 const dataService = getDataService();
 
@@ -60,6 +61,7 @@ interface StatementTransaction {
   paidAmount: number;
   balance: number;
   status: "paid" | "overdue" | "current";
+  invoiceData?: Invoice;
 }
 
 interface AgingData {
@@ -72,9 +74,12 @@ interface AgingData {
 export default function StatementOfAccount() {
   const [transactions, setTransactions] = useState<StatementTransaction[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [payments, setPayments] = useState<Payment[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [companySettings] = useState<CompanySettings>(defaultCompanySettings);
   const [filter, setFilter] = useState<StatementFilter>({
     customerId: "",
     startDate: "",
@@ -83,15 +88,15 @@ export default function StatementOfAccount() {
     aging: "all",
   });
 
-  // Company information (should come from settings/context)
+  // Company information from settings
   const companyInfo = {
-    name: "Medplus Africa Limited",
-    address: "P.O BOX 45352 - 00100, NAIROBI, KENYA",
-    street: "Raquel Plaza, Rongai. Paybill No. 303030 A/c. 2047138798",
-    phone: "+254 713416022, +254 786830610",
-    email: "sales@medplusafrica.com",
-    website: "www.medplusafrica.com",
-    pin: "P052045925Z",
+    name: companySettings?.name || "Your Company Name",
+    address: companySettings?.address?.line1 || "Your Company Address",
+    street: companySettings?.address?.line2 || "",
+    phone: companySettings?.contact?.phone?.join(", ") || "Your Phone Number",
+    email: companySettings?.contact?.email || "your-email@company.com",
+    website: companySettings?.contact?.website || "www.yourcompany.com",
+    pin: companySettings?.tax?.kraPin || "Your PIN Number",
     logo: "/placeholder.svg"
   };
 
@@ -105,39 +110,116 @@ export default function StatementOfAccount() {
   };
 
   useEffect(() => {
-    loadCustomers();
+    loadInitialData();
   }, []);
 
   useEffect(() => {
-    if (filter.customerId) {
-      loadStatementData();
+    if (filter.customerId && invoices.length > 0) {
+      generateStatementData();
     }
-  }, [filter]);
+  }, [filter, invoices, payments]);
 
-  const loadCustomers = async () => {
-    try {
-      const data = await dataService.getCustomers();
-      setCustomers(data);
-    } catch (err) {
-      console.error('Failed to load customers:', err);
-      setError('Failed to load customers');
-    }
-  };
-
-  const loadStatementData = async () => {
+  const loadInitialData = async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await dataService.getStatementOfAccount(filter);
-      setTransactions(data.transactions || []);
+
+      // Load all necessary data
+      const [customersData, invoicesData, paymentsData] = await Promise.all([
+        dataService.getCustomers(),
+        dataService.getInvoices(),
+        dataService.getPayments?.()
+      ]);
+
+      setCustomers(customersData || []);
+      setInvoices(invoicesData || []);
+      setPayments(paymentsData || []);
+    } catch (err) {
+      console.error('Failed to load data:', err);
+      setError('Failed to load data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const generateStatementData = () => {
+    try {
+      // Filter invoices for selected customer
+      const customerInvoices = invoices.filter(inv => inv.customerId === filter.customerId);
+
+      // Calculate statement transactions from actual invoice data
+      const statementTransactions: StatementTransaction[] = customerInvoices.map(invoice => {
+        // Calculate total payments for this invoice
+        const invoicePayments = payments.filter(p => p.invoiceId === invoice.id);
+        const totalPaid = invoicePayments.reduce((sum, p) => sum + p.amount, 0);
+        const balance = invoice.total - totalPaid;
+
+        // Determine status based on due date and balance
+        let status: "paid" | "overdue" | "current" = "current";
+        if (balance <= 0) {
+          status = "paid";
+        } else if (invoice.dueDate && new Date(invoice.dueDate) < new Date()) {
+          status = "overdue";
+        }
+
+        return {
+          id: invoice.id,
+          date: invoice.issueDate?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0],
+          name: invoice.customer?.name || 'Unknown Customer',
+          invoice: invoice.invoiceNumber,
+          dueDate: invoice.dueDate?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0],
+          originalAmount: invoice.total,
+          paidAmount: totalPaid,
+          balance: balance,
+          status: status,
+          invoiceData: invoice
+        };
+      });
+
+      // Apply filters
+      let filteredTransactions = [...statementTransactions];
+
+      if (filter.startDate) {
+        filteredTransactions = filteredTransactions.filter(t => new Date(t.date) >= new Date(filter.startDate));
+      }
+
+      if (filter.endDate) {
+        filteredTransactions = filteredTransactions.filter(t => new Date(t.date) <= new Date(filter.endDate));
+      }
+
+      if (filter.status && filter.status !== 'all') {
+        filteredTransactions = filteredTransactions.filter(t => t.status === filter.status);
+      }
+
+      if (filter.aging && filter.aging !== 'all') {
+        const now = new Date();
+        filteredTransactions = filteredTransactions.filter(t => {
+          if (t.balance <= 0) return false;
+
+          const daysDiff = Math.floor((now.getTime() - new Date(t.dueDate).getTime()) / (1000 * 60 * 60 * 24));
+
+          switch (filter.aging) {
+            case '0-30':
+              return daysDiff <= 30;
+            case '30-60':
+              return daysDiff > 30 && daysDiff <= 60;
+            case '60-90':
+              return daysDiff > 60 && daysDiff <= 90;
+            case '90-above':
+              return daysDiff > 90;
+            default:
+              return true;
+          }
+        });
+      }
+
+      setTransactions(filteredTransactions);
       const customer = customers.find(c => c.id === filter.customerId);
       setSelectedCustomer(customer || null);
     } catch (err) {
-      console.error('Failed to load statement data:', err);
-      setError('Failed to load statement data');
+      console.error('Failed to generate statement data:', err);
+      setError('Failed to generate statement data');
       setTransactions([]);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -306,23 +388,31 @@ export default function StatementOfAccount() {
       {selectedCustomer && (
         <Card className="print:shadow-none print:border-none">
           <CardContent className="p-8">
-            {/* Company Header */}
+            {/* Company Header - Using Invoice Template Style */}
             <div className="flex items-start justify-between mb-8">
-              <div className="flex items-center space-x-4">
-                <img src={companyInfo.logo} alt="Company Logo" className="h-16 w-16" />
-                <div>
-                  <h2 className="text-2xl font-bold text-green-600">{companyInfo.name}</h2>
-                  <div className="text-sm text-muted-foreground space-y-1">
-                    <p>{companyInfo.address}</p>
-                    <p>{companyInfo.street}</p>
-                    <p>Tel: {companyInfo.phone}</p>
-                    <p>E-mail: {companyInfo.email}</p>
-                    <p>Website: {companyInfo.website}</p>
-                  </div>
+              {/* LEFT: Logo */}
+              <div className="flex items-center">
+                <div className="h-16 w-16 bg-primary rounded-lg flex items-center justify-center mr-4">
+                  <Building2 className="h-10 w-10 text-primary-foreground" />
                 </div>
               </div>
+
+              {/* CENTER: Company Name and Details */}
+              <div className="text-center flex-1">
+                <h1 className="text-2xl font-bold text-primary mb-2">{companyInfo.name.toUpperCase()}</h1>
+                <p className="text-sm text-muted-foreground mb-1">Your Medical & Laboratory Supplies Partner</p>
+                <div className="text-sm space-y-1">
+                  <p>{companyInfo.address}</p>
+                  {companyInfo.street && <p>{companyInfo.street}</p>}
+                  <p>Tel: {companyInfo.phone}</p>
+                  <p>E-mail: {companyInfo.email}</p>
+                  {companyInfo.website && <p>Website: {companyInfo.website}</p>}
+                </div>
+              </div>
+
+              {/* RIGHT: PIN Number */}
               <div className="text-right">
-                <p className="text-sm">PIN No.{companyInfo.pin}</p>
+                <p className="text-sm font-bold">PIN No: {companyInfo.pin}</p>
               </div>
             </div>
 
