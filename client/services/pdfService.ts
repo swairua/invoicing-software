@@ -859,7 +859,7 @@ export class PDFService {
     this.companySettings = settings;
 
     // Preload logo as data URL if available
-    if (settings.branding?.logo) {
+    if (settings?.branding?.logo) {
       this.logoDataUrl = await this.loadLogoAsDataUrl(settings.branding.logo);
     } else {
       this.logoDataUrl = null;
