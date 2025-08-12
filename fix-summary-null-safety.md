@@ -17,22 +17,47 @@ When we removed dummy data and switched to database integration, some string pro
    - Fixed: `product.name.toLowerCase()` → `product.name?.toLowerCase()`
    - Updated to use safe filtering utility
 
-### Secondary Fixes (Preventive)
-3. **client/pages/Invoices.tsx**
+### Comprehensive Secondary Fixes (Preventive)
+3. **client/pages/UserManagement.tsx**
+   - Fixed: All user field filtering with null safety
+   - Added: Safe filtering utility import
+
+4. **client/pages/Invoices.tsx**
    - Fixed: `invoice.invoiceNumber.toLowerCase()` → `invoice.invoiceNumber?.toLowerCase()`
    - Fixed: `invoice.customer.name.toLowerCase()` → `invoice.customer?.name?.toLowerCase()`
 
-4. **client/pages/NewInvoice.tsx**
+5. **client/pages/NewInvoice.tsx**
    - Fixed: `product.name.toLowerCase()` → `product.name?.toLowerCase()`
    - Fixed: `product.sku.toLowerCase()` → `product.sku?.toLowerCase()`
 
-5. **client/pages/Quotations.tsx**
+6. **client/pages/Quotations.tsx**
    - Fixed: `quotation.quoteNumber.toLowerCase()` → `quotation.quoteNumber?.toLowerCase()`
    - Fixed: `quotation.customer.name.toLowerCase()` → `quotation.customer?.name?.toLowerCase()`
 
-6. **client/pages/NewQuotation.tsx**
+7. **client/pages/NewQuotation.tsx**
    - Fixed: `product.name.toLowerCase()` → `product.name?.toLowerCase()`
    - Fixed: `product.sku.toLowerCase()` → `product.sku?.toLowerCase()`
+
+8. **client/pages/Templates.tsx**
+   - Fixed: `template.name.toLowerCase()` → `template.name?.toLowerCase()`
+
+9. **client/pages/NewCreditNote.tsx**
+   - Fixed: Product filtering with null safety
+
+10. **client/pages/CreditNotes.tsx**
+    - Fixed: Credit note number, customer name, and reason filtering
+
+11. **client/pages/UnitsOfMeasure.tsx**
+    - Fixed: Unit name, symbol, and ID filtering
+
+12. **client/pages/ProformaInvoices.tsx**
+    - Fixed: Proforma number and customer name filtering
+
+13. **client/pages/Payments.tsx**
+    - Fixed: Payment reference, customer, and invoice filtering
+
+14. **client/components/DynamicLineItems.tsx**
+    - Fixed: Component-level product filtering
 
 ## New Utility Created
 **client/lib/search-utils.ts**
