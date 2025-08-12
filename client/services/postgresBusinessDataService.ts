@@ -79,6 +79,31 @@ class PostgresBusinessDataService {
     }
   }
 
+  public async updateCustomer(id: string, customerData: Partial<Customer>): Promise<Customer | undefined> {
+    try {
+      const response = await this.apiCall(`/customers/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(customerData),
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to update customer:', error);
+      throw error;
+    }
+  }
+
+  public async deleteCustomer(id: string): Promise<boolean> {
+    try {
+      await this.apiCall(`/customers/${id}`, {
+        method: 'DELETE',
+      });
+      return true;
+    } catch (error) {
+      console.error('Failed to delete customer:', error);
+      return false;
+    }
+  }
+
   // Product methods
   public getProducts(): Promise<Product[]> {
     return this.apiCall('/products').then(response => {
