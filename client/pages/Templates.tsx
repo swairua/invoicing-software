@@ -280,7 +280,7 @@ export default function Templates() {
   };
 
   const filterTemplates = () => {
-    let filtered = templates;
+    let filtered = Array.isArray(templates) ? templates : [];
 
     if (selectedType !== "all") {
       filtered = filtered.filter((t) => t.type === selectedType);
