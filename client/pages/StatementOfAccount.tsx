@@ -125,8 +125,8 @@ export default function StatementOfAccount() {
 
   const loadCompanyLogo = async () => {
     try {
-      // Use the specific Medplus Africa logo
-      const medplusLogo = "https://cdn.builder.io/api/v1/image/assets%2Fc5e390f959914debac74ff126a00850a%2Fa6e12efb3f954cfc8197e351071f6cd1?format=webp&width=800";
+      // Use the specific Medplus Africa logo (second attachment)
+      const medplusLogo = "https://cdn.builder.io/api/v1/image/assets%2Fc5e390f959914debac74ff126a00850a%2Fa161c78db67e443e97c7bf8632216631?format=webp&width=800";
       setLogoUrl(medplusLogo);
     } catch (error) {
       console.warn('Could not load company logo:', error);
