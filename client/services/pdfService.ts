@@ -677,7 +677,7 @@ export class PDFService {
   }
 
   /**
-   * Add proforma items table with external header design
+   * Add proforma items table with integrated header design
    */
   private static addProformaItemsTable(
     doc: jsPDF,
@@ -693,19 +693,37 @@ export class PDFService {
       this.formatCurrency(item.total),
     ]);
 
-    // Custom header design outside the table
-    this.addCustomTableHeader(doc, 120);
+    const tableHeaders = [
+      "Item No.",
+      "Item Description",
+      "Qty",
+      "Unit Pack",
+      "Unit Price (incl) Ksh",
+      "Vat",
+      "Total Price (incl) Ksh",
+    ];
 
-    // Table without header - starts lower to accommodate external header
+    // Table with integrated header for perfect alignment
     autoTable(doc, {
-      startY: 155,
+      startY: 120,
+      head: [tableHeaders],
       body: tableData,
       theme: "grid",
+      headStyles: {
+        fillColor: [128, 128, 128], // Gray background like in the PDF
+        textColor: [0, 0, 0], // Black text
+        fontStyle: "bold",
+        fontSize: 8,
+        halign: "center",
+        valign: "middle",
+        lineColor: [0, 0, 0],
+        lineWidth: 1,
+      },
       styles: {
         fontSize: 9,
         cellPadding: 4,
-        lineColor: [180, 180, 180],
-        lineWidth: 0.3,
+        lineColor: [0, 0, 0],
+        lineWidth: 0.5,
         textColor: [40, 40, 40],
       },
       alternateRowStyles: {
@@ -721,7 +739,14 @@ export class PDFService {
         6: { halign: "right", cellWidth: 27 },
       },
       didParseCell: function (data) {
-        if (data.row.index % 2 === 0) {
+        // Header row styling
+        if (data.section === 'head') {
+          data.cell.styles.fillColor = [128, 128, 128];
+          data.cell.styles.textColor = [0, 0, 0];
+          data.cell.styles.fontStyle = 'bold';
+        }
+        // Body row styling
+        else if (data.row.index % 2 === 0) {
           data.cell.styles.fillColor = [252, 252, 253];
         }
       },
