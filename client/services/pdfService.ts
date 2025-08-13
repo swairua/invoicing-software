@@ -487,35 +487,37 @@ export class PDFService {
       this.formatCurrency(item.total),
     ]);
 
-    // Convert hex to RGB for autoTable
-    const hexToRgb = (hex: string): [number, number, number] => {
-      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-      return result
-        ? [
-            parseInt(result[1], 16),
-            parseInt(result[2], 16),
-            parseInt(result[3], 16),
-          ]
-        : [128, 128, 128];
-    };
+    const tableHeaders = [
+      "Item No.",
+      "Item Description",
+      "Qty",
+      "Unit Pack",
+      "Unit Price (incl) Ksh",
+      "Vat",
+      "Total Price (incl) Ksh",
+    ];
 
-    const headerColor = design?.table.headerBackgroundColor
-      ? hexToRgb(design.table.headerBackgroundColor)
-      : [37, 99, 235]; // Force blue color for visibility
-
-    // Custom header design outside the table
-    this.addCustomTableHeader(doc, 120);
-
-    // Table without header - starts lower to accommodate external header
+    // Table with integrated header for perfect alignment
     autoTable(doc, {
-      startY: 140, // Adjusted for new header layout
+      startY: 120,
+      head: [tableHeaders],
       body: tableData,
       theme: "grid",
+      headStyles: {
+        fillColor: [128, 128, 128], // Gray background like in the PDF
+        textColor: [0, 0, 0], // Black text
+        fontStyle: "bold",
+        fontSize: 8,
+        halign: "center",
+        valign: "middle",
+        lineColor: [0, 0, 0],
+        lineWidth: 1,
+      },
       styles: {
         fontSize: 9,
         cellPadding: 4,
-        lineColor: [180, 180, 180],
-        lineWidth: 0.3,
+        lineColor: [0, 0, 0],
+        lineWidth: 0.5,
         textColor: [40, 40, 40],
       },
       alternateRowStyles: {
@@ -531,8 +533,14 @@ export class PDFService {
         6: { halign: "right", cellWidth: 27 },
       },
       didParseCell: function (data) {
-        // Add subtle hover effect simulation
-        if (data.row.index % 2 === 0) {
+        // Header row styling
+        if (data.section === 'head') {
+          data.cell.styles.fillColor = [128, 128, 128];
+          data.cell.styles.textColor = [0, 0, 0];
+          data.cell.styles.fontStyle = 'bold';
+        }
+        // Body row styling
+        else if (data.row.index % 2 === 0) {
           data.cell.styles.fillColor = [252, 252, 253];
         }
       },
