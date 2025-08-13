@@ -296,21 +296,30 @@ export class PDFService {
     }
     doc.setFontSize(18);
     doc.setFont("helvetica", "bold");
-    doc.text((settings?.name || 'Company Name').toUpperCase(), centerX, 25, { align: "center" });
+    doc.text((settings?.name || "Company Name").toUpperCase(), centerX, 25, {
+      align: "center",
+    });
 
     // Business tagline (centered)
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(100, 100, 100);
-    doc.text("Your Medical & Laboratory Supplies Partner", centerX, 32, { align: "center" });
+    doc.text("Your Medical & Laboratory Supplies Partner", centerX, 32, {
+      align: "center",
+    });
 
     // RIGHT COLUMN: PIN number
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
     doc.setFont("helvetica", "bold");
-    doc.text(`PIN No: ${settings?.tax?.kraPin || 'Not Set'}`, pageWidth - 20, 25, {
-      align: "right",
-    });
+    doc.text(
+      `PIN No: ${settings?.tax?.kraPin || "Not Set"}`,
+      pageWidth - 20,
+      25,
+      {
+        align: "right",
+      },
+    );
   }
 
   /**
@@ -323,7 +332,7 @@ export class PDFService {
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
-    doc.text((settings?.name || 'C').charAt(0), logoX, 32, { align: "center" });
+    doc.text((settings?.name || "C").charAt(0), logoX, 32, { align: "center" });
   }
 
   /**
@@ -343,7 +352,9 @@ export class PDFService {
     doc.setTextColor(0, 0, 0);
 
     // Company address (centered with proper spacing)
-    doc.text(settings?.address?.line1 || 'Address Not Set', centerX, yPos, { align: "center" });
+    doc.text(settings?.address?.line1 || "Address Not Set", centerX, yPos, {
+      align: "center",
+    });
     yPos += 4;
 
     if (settings?.address?.line2) {
@@ -352,15 +363,22 @@ export class PDFService {
     }
 
     // Contact information (centered)
-    const contactLine = `Tel: ${settings?.contact?.phone?.join(", ") || 'Not Set'}`;
+    const contactLine = `Tel: ${settings?.contact?.phone?.join(", ") || "Not Set"}`;
     doc.text(contactLine, centerX, yPos, { align: "center" });
     yPos += 4;
 
-    doc.text(`E-mail: ${settings?.contact?.email || 'Not Set'}`, centerX, yPos, { align: "center" });
+    doc.text(
+      `E-mail: ${settings?.contact?.email || "Not Set"}`,
+      centerX,
+      yPos,
+      { align: "center" },
+    );
     yPos += 4;
 
     if (settings?.contact?.website) {
-      doc.text(`Website: ${settings.contact.website}`, centerX, yPos, { align: "center" });
+      doc.text(`Website: ${settings.contact.website}`, centerX, yPos, {
+        align: "center",
+      });
     }
 
     // No duplicate PIN number - already shown in header
@@ -437,7 +455,7 @@ export class PDFService {
     // Customer info section (left side)
     doc.text("To:", 20, startY);
     doc.setFont("helvetica", "bold");
-    doc.text(document.customer?.name || 'Unknown Customer', 20, startY + 7);
+    doc.text(document.customer?.name || "Unknown Customer", 20, startY + 7);
     doc.setFont("helvetica", "normal");
 
     if (document.customer?.address) {
@@ -453,7 +471,8 @@ export class PDFService {
 
     // Date and document info (right side, properly aligned)
     const dateLabel = "issueDate" in document ? "Date:" : "Date:";
-    const date = "issueDate" in document ? document.issueDate : document.createdAt;
+    const date =
+      "issueDate" in document ? document.issueDate : document.createdAt;
 
     // Right column starting position
     const rightColumnX = pageWidth - 100;
@@ -534,10 +553,10 @@ export class PDFService {
       },
       didParseCell: function (data) {
         // Header row styling
-        if (data.section === 'head') {
+        if (data.section === "head") {
           data.cell.styles.fillColor = [128, 128, 128];
           data.cell.styles.textColor = [0, 0, 0];
-          data.cell.styles.fontStyle = 'bold';
+          data.cell.styles.fontStyle = "bold";
         }
         // Body row styling
         else if (data.row.index % 2 === 0) {
@@ -562,7 +581,11 @@ export class PDFService {
   /**
    * Add total section with proper formatting
    */
-  private static addTotalSection(doc: jsPDF, total: number, startY: number): void {
+  private static addTotalSection(
+    doc: jsPDF,
+    total: number,
+    startY: number,
+  ): void {
     // Total section with better spacing
     const boxWidth = 75;
     const boxHeight = 18;
@@ -651,10 +674,10 @@ export class PDFService {
       },
       didParseCell: function (data) {
         // Header row styling
-        if (data.section === 'head') {
+        if (data.section === "head") {
           data.cell.styles.fillColor = [128, 128, 128];
           data.cell.styles.textColor = [0, 0, 0];
-          data.cell.styles.fontStyle = 'bold';
+          data.cell.styles.fontStyle = "bold";
         }
         // Body row styling
         else if (data.row.index % 2 === 0) {
@@ -740,10 +763,10 @@ export class PDFService {
       },
       didParseCell: function (data) {
         // Header row styling
-        if (data.section === 'head') {
+        if (data.section === "head") {
           data.cell.styles.fillColor = [128, 128, 128];
           data.cell.styles.textColor = [0, 0, 0];
-          data.cell.styles.fontStyle = 'bold';
+          data.cell.styles.fontStyle = "bold";
         }
         // Body row styling
         else if (data.row.index % 2 === 0) {
