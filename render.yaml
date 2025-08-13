@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: fusion-invoicing-app
+    env: node
+    plan: free
+    buildCommand: npm ci && npm run build:production
+    startCommand: npm start
+    healthCheckPath: /api/ping
+    region: oregon
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PING_MESSAGE
+        value: Fusion Invoicing API is running
+      - key: DATABASE_URL
+        value: postgresql://neondb_owner:npg_smrD4peod8xL@ep-delicate-shape-aewuio49-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+    disk:
+      name: fusion-invoicing-disk
+      sizeGB: 1
+      mountPath: /opt/render/project/dist
