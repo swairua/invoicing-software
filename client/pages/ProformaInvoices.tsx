@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  useNavigate,
-  Link,
-  useSearchParams,
-} from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -47,12 +43,7 @@ import {
   TrendingUp,
   ClipboardList,
 } from "lucide-react";
-import {
-  Customer,
-  Product,
-  ProformaInvoice,
-  Invoice,
-} from "@shared/types";
+import { Customer, Product, ProformaInvoice, Invoice } from "@shared/types";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import { useToast } from "../hooks/use-toast";
 import {
@@ -107,15 +98,15 @@ export default function ProformaInvoices() {
     const loadData = async () => {
       try {
         const [proformasData, customersData, productsData] = await Promise.all([
-          businessData.getProformas(),
+          businessData.getProformaInvoices(),
           businessData.getCustomers(),
-          businessData.getProducts()
+          businessData.getProducts(),
         ]);
         setProformas(Array.isArray(proformasData) ? proformasData : []);
         setCustomers(Array.isArray(customersData) ? customersData : []);
         setProducts(Array.isArray(productsData) ? productsData : []);
       } catch (error) {
-        console.error('Error loading data:', error);
+        console.error("Error loading data:", error);
       }
     };
     loadData();
@@ -126,15 +117,15 @@ export default function ProformaInvoices() {
     const refreshInterval = setInterval(async () => {
       try {
         const [proformasData, customersData, productsData] = await Promise.all([
-          businessData.getProformas(),
+          businessData.getProformaInvoices(),
           businessData.getCustomers(),
-          businessData.getProducts()
+          businessData.getProducts(),
         ]);
         setProformas(Array.isArray(proformasData) ? proformasData : []);
         setCustomers(Array.isArray(customersData) ? customersData : []);
         setProducts(Array.isArray(productsData) ? productsData : []);
       } catch (error) {
-        console.error('Error refreshing data:', error);
+        console.error("Error refreshing data:", error);
       }
     }, 5000);
 
@@ -210,7 +201,8 @@ export default function ProformaInvoices() {
     if (proforma.status !== "sent") {
       toast({
         title: "Cannot Convert",
-        description: "Only sent proforma invoices can be converted to invoices.",
+        description:
+          "Only sent proforma invoices can be converted to invoices.",
         variant: "destructive",
       });
       return;
@@ -219,8 +211,10 @@ export default function ProformaInvoices() {
     try {
       setIsLoading(true);
       // Call conversion API
-      const invoice = await businessData.convertProformaToInvoice?.(proforma.id);
-      
+      const invoice = await businessData.convertProformaToInvoice?.(
+        proforma.id,
+      );
+
       if (invoice) {
         // Refresh data
         const proformasData = await businessData.getProformas();
@@ -247,7 +241,7 @@ export default function ProformaInvoices() {
 
   const handleDelete = async (id: string) => {
     try {
-      await businessData.deleteProforma?.(id);
+      await businessData.deleteProformaInvoice?.(id);
       const proformasData = await businessData.getProformas();
       setProformas(Array.isArray(proformasData) ? proformasData : []);
       toast({
@@ -284,7 +278,10 @@ export default function ProformaInvoices() {
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <Dialog
+            open={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
+          >
             <DialogTrigger asChild>
               <Button>
                 <Plus className="mr-2 h-4 w-4" />
@@ -522,7 +519,7 @@ export default function ProformaInvoices() {
                       <TableCell>
                         <div>
                           <div className="font-medium">
-                            {proforma.customer?.name || 'Unknown Customer'}
+                            {proforma.customer?.name || "Unknown Customer"}
                           </div>
                           <div className="text-xs text-muted-foreground">
                             {proforma.customer.email}

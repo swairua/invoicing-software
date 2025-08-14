@@ -44,6 +44,45 @@ import StatementOfAccount from "./pages/StatementOfAccount";
 
 const queryClient = new QueryClient();
 
+// Suppress ResizeObserver loop errors - these are benign and don't affect functionality
+const resizeObserverErrorSuppressionScript = () => {
+  // Store the original console.error
+  const originalConsoleError = console.error;
+
+  // Override console.error to filter out ResizeObserver errors
+  console.error = (...args) => {
+    // Check if it's a ResizeObserver loop error
+    if (
+      args[0] &&
+      typeof args[0] === "string" &&
+      args[0].includes(
+        "ResizeObserver loop completed with undelivered notifications",
+      )
+    ) {
+      // Suppress this specific error as it's benign
+      return;
+    }
+    // Call the original console.error for all other errors
+    originalConsoleError.apply(console, args);
+  };
+
+  // Also handle window error events for ResizeObserver
+  window.addEventListener("error", (event) => {
+    if (
+      event.message &&
+      event.message.includes(
+        "ResizeObserver loop completed with undelivered notifications",
+      )
+    ) {
+      event.stopImmediatePropagation();
+      event.preventDefault();
+    }
+  });
+};
+
+// Apply the error suppression
+resizeObserverErrorSuppressionScript();
+
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
 
