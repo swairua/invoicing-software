@@ -91,9 +91,13 @@ interface VariantFormData {
 export default function NewProduct() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [product, setProduct] = useState<Product | null>(null);
 
+  const isEditMode = Boolean(id);
   const duplicateData = location.state?.duplicateFrom;
 
   const [formData, setFormData] = useState<ProductFormData>({
