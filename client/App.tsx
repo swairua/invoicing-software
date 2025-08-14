@@ -41,6 +41,7 @@ import NewQuotation from "./pages/NewQuotation";
 import ProformaDetails from "./pages/ProformaDetails";
 import NewProforma from "./pages/NewProforma";
 import StatementOfAccount from "./pages/StatementOfAccount";
+import SampleDataCreator from "./pages/SampleDataCreator";
 
 const queryClient = new QueryClient();
 
