@@ -423,22 +423,32 @@ export default function Customers() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem asChild>
-                              <Link to={`/customers/${customer.id}`}>
-                                <Eye className="mr-2 h-4 w-4" />
-                                View Details
-                              </Link>
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                window.location.href = `/customers/${customer.id}`;
+                              }}
+                            >
+                              <Eye className="mr-2 h-4 w-4" />
+                              View Details
                             </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                              <Link to={`/customers/${customer.id}/edit`}>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Edit Customer
-                              </Link>
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                window.location.href = `/customers/${customer.id}/edit`;
+                              }}
+                            >
+                              <Edit className="mr-2 h-4 w-4" />
+                              Edit Customer
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               className="text-destructive cursor-pointer"
-                              onClick={() => {
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
                                 // TODO: Implement customer deletion
                                 console.log("Delete customer:", customer.id);
                               }}
