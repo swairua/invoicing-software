@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation, Link, useParams } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -40,9 +40,13 @@ interface CustomerFormData {
 export default function NewCustomer() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [customer, setCustomer] = useState<Customer | null>(null);
 
+  const isEditMode = Boolean(id);
   const duplicateData = location.state?.duplicateFrom;
 
   const [formData, setFormData] = useState<CustomerFormData>({
@@ -56,6 +60,52 @@ export default function NewCustomer() {
   });
 
   const dataService = dataServiceFactory.getDataService();
+
+  // Load customer data when in edit mode
+  useEffect(() => {
+    const loadCustomer = async () => {
+      if (!isEditMode || !id) return;
+
+      try {
+        setLoading(true);
+        const customers = await dataService.getCustomers();
+        const foundCustomer = customers.find((c) => c.id === id);
+
+        if (!foundCustomer) {
+          toast({
+            title: "Customer Not Found",
+            description: "The requested customer could not be found.",
+            variant: "destructive",
+          });
+          navigate("/customers");
+          return;
+        }
+
+        setCustomer(foundCustomer);
+        setFormData({
+          name: foundCustomer.name,
+          email: foundCustomer.email || "",
+          phone: foundCustomer.phone || "",
+          kraPin: foundCustomer.kraPin || "",
+          address: foundCustomer.address || "",
+          creditLimit: foundCustomer.creditLimit?.toString() || "0",
+          isActive: foundCustomer.isActive,
+        });
+      } catch (error) {
+        console.error("Error loading customer:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load customer details.",
+          variant: "destructive",
+        });
+        navigate("/customers");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCustomer();
+  }, [isEditMode, id, dataService, navigate, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,33 +131,63 @@ export default function NewCustomer() {
     setIsSubmitting(true);
 
     try {
-      const newCustomer: Omit<Customer, "id" | "createdAt" | "updatedAt"> = {
-        name: formData.name,
-        email: formData.email || undefined,
-        phone: formData.phone || undefined,
-        kraPin: formData.kraPin || undefined,
-        address: formData.address || undefined,
-        creditLimit: parseFloat(formData.creditLimit) || 0,
-        balance: 0,
-        isActive: formData.isActive,
-        companyId: "1",
-      };
+      if (isEditMode && customer) {
+        // Update existing customer
+        const updatedCustomer: Customer = {
+          ...customer,
+          name: formData.name,
+          email: formData.email || undefined,
+          phone: formData.phone || undefined,
+          kraPin: formData.kraPin || undefined,
+          address: formData.address || undefined,
+          creditLimit: parseFloat(formData.creditLimit) || 0,
+          isActive: formData.isActive,
+          updatedAt: new Date(),
+        };
 
-      // Here you would normally call a create API
-      // For now, we'll simulate success
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+        // Here you would normally call an update API
+        // For now, we'll simulate success
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      toast({
-        title: "Customer Created",
-        description: `Customer "${formData.name}" has been created successfully.`,
-      });
+        toast({
+          title: "Customer Updated",
+          description: `Customer "${formData.name}" has been updated successfully.`,
+        });
 
-      navigate("/customers");
+        navigate(`/customers/${customer.id}`);
+      } else {
+        // Create new customer
+        const newCustomer: Omit<Customer, "id" | "createdAt" | "updatedAt"> = {
+          name: formData.name,
+          email: formData.email || undefined,
+          phone: formData.phone || undefined,
+          kraPin: formData.kraPin || undefined,
+          address: formData.address || undefined,
+          creditLimit: parseFloat(formData.creditLimit) || 0,
+          balance: 0,
+          isActive: formData.isActive,
+          companyId: "1",
+        };
+
+        // Here you would normally call a create API
+        // For now, we'll simulate success
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        toast({
+          title: "Customer Created",
+          description: `Customer "${formData.name}" has been created successfully.`,
+        });
+
+        navigate("/customers");
+      }
     } catch (error) {
-      console.error("Error creating customer:", error);
+      console.error(
+        `Error ${isEditMode ? "updating" : "creating"} customer:`,
+        error,
+      );
       toast({
         title: "Error",
-        description: "Failed to create customer. Please try again.",
+        description: `Failed to ${isEditMode ? "update" : "create"} customer. Please try again.`,
         variant: "destructive",
       });
     } finally {
@@ -140,42 +220,58 @@ export default function NewCustomer() {
     setFormData((prev) => ({ ...prev, kraPin: formatted }));
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="sm" asChild>
-            <Link to="/customers">
+            <Link to={isEditMode ? `/customers/${id}` : "/customers"}>
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Customers
+              {isEditMode ? "Back to Customer" : "Back to Customers"}
             </Link>
           </Button>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              {duplicateData ? "Duplicate Customer" : "New Customer"}
+              {isEditMode
+                ? "Edit Customer"
+                : duplicateData
+                  ? "Duplicate Customer"
+                  : "New Customer"}
             </h1>
             <p className="text-muted-foreground">
-              {duplicateData
-                ? "Create a copy of an existing customer"
-                : "Add a new customer to your database"}
+              {isEditMode
+                ? "Update customer information and settings"
+                : duplicateData
+                  ? "Create a copy of an existing customer"
+                  : "Add a new customer to your database"}
             </p>
           </div>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" asChild>
-            <Link to="/customers">Cancel</Link>
+            <Link to={isEditMode ? `/customers/${id}` : "/customers"}>
+              Cancel
+            </Link>
           </Button>
           <Button onClick={handleSubmit} disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                Creating...
+                {isEditMode ? "Updating..." : "Creating..."}
               </>
             ) : (
               <>
                 <Save className="mr-2 h-4 w-4" />
-                Create Customer
+                {isEditMode ? "Update Customer" : "Create Customer"}
               </>
             )}
           </Button>
@@ -344,9 +440,14 @@ export default function NewCustomer() {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">
-                    Initial Balance:
+                    {isEditMode ? "Current Balance:" : "Initial Balance:"}
                   </span>
-                  <span className="font-medium">KES 0.00</span>
+                  <span className="font-medium">
+                    KES{" "}
+                    {isEditMode && customer
+                      ? customer.balance.toLocaleString()
+                      : "0.00"}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Credit Limit:</span>
@@ -361,7 +462,10 @@ export default function NewCustomer() {
                   </span>
                   <span className="font-medium text-green-600">
                     KES{" "}
-                    {parseFloat(formData.creditLimit || "0").toLocaleString()}
+                    {(
+                      parseFloat(formData.creditLimit || "0") -
+                      (isEditMode && customer ? customer.balance : 0)
+                    ).toLocaleString()}
                   </span>
                 </div>
               </div>

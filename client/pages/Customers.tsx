@@ -429,12 +429,20 @@ export default function Customers() {
                                 View Details
                               </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Edit className="mr-2 h-4 w-4" />
-                              Edit Customer
+                            <DropdownMenuItem asChild>
+                              <Link to={`/customers/${customer.id}/edit`}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                Edit Customer
+                              </Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive">
+                            <DropdownMenuItem
+                              className="text-destructive cursor-pointer"
+                              onClick={() => {
+                                // TODO: Implement customer deletion
+                                console.log("Delete customer:", customer.id);
+                              }}
+                            >
                               <Trash2 className="mr-2 h-4 w-4" />
                               Delete Customer
                             </DropdownMenuItem>

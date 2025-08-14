@@ -144,9 +144,11 @@ const AppRoutes = () => (
       <Route path="dashboard" element={<Dashboard />} />
       <Route path="customers" element={<Customers />} />
       <Route path="customers/:id" element={<CustomerDetails />} />
+      <Route path="customers/:id/edit" element={<NewCustomer />} />
       <Route path="customers/new" element={<NewCustomer />} />
       <Route path="products" element={<Products />} />
       <Route path="products/:id" element={<ProductDetails />} />
+      <Route path="products/:id/edit" element={<NewProduct />} />
       <Route path="products/new" element={<NewProduct />} />
       <Route path="quotations" element={<Quotations />} />
       <Route path="quotations/:id" element={<QuotationDetails />} />
