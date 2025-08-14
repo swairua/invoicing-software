@@ -181,10 +181,13 @@ export default function NewCustomer() {
         navigate("/customers");
       }
     } catch (error) {
-      console.error(`Error ${isEditMode ? 'updating' : 'creating'} customer:`, error);
+      console.error(
+        `Error ${isEditMode ? "updating" : "creating"} customer:`,
+        error,
+      );
       toast({
         title: "Error",
-        description: `Failed to ${isEditMode ? 'update' : 'create'} customer. Please try again.`,
+        description: `Failed to ${isEditMode ? "update" : "create"} customer. Please try again.`,
         variant: "destructive",
       });
     } finally {
@@ -255,7 +258,9 @@ export default function NewCustomer() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" asChild>
-            <Link to={isEditMode ? `/customers/${id}` : "/customers"}>Cancel</Link>
+            <Link to={isEditMode ? `/customers/${id}` : "/customers"}>
+              Cancel
+            </Link>
           </Button>
           <Button onClick={handleSubmit} disabled={isSubmitting}>
             {isSubmitting ? (
@@ -438,7 +443,10 @@ export default function NewCustomer() {
                     {isEditMode ? "Current Balance:" : "Initial Balance:"}
                   </span>
                   <span className="font-medium">
-                    KES {isEditMode && customer ? customer.balance.toLocaleString() : "0.00"}
+                    KES{" "}
+                    {isEditMode && customer
+                      ? customer.balance.toLocaleString()
+                      : "0.00"}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -454,7 +462,10 @@ export default function NewCustomer() {
                   </span>
                   <span className="font-medium text-green-600">
                     KES{" "}
-                    {(parseFloat(formData.creditLimit || "0") - (isEditMode && customer ? customer.balance : 0)).toLocaleString()}
+                    {(
+                      parseFloat(formData.creditLimit || "0") -
+                      (isEditMode && customer ? customer.balance : 0)
+                    ).toLocaleString()}
                   </span>
                 </div>
               </div>

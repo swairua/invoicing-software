@@ -222,17 +222,19 @@ export default function NewProduct() {
 
         // Set variants if product has them
         if (foundProduct.variants) {
-          setVariants(foundProduct.variants.map((v) => ({
-            name: v.name,
-            sku: v.sku,
-            attributes: Object.entries(v.attributes).map(([key, value]) => ({
-              key,
-              value: value as string,
+          setVariants(
+            foundProduct.variants.map((v) => ({
+              name: v.name,
+              sku: v.sku,
+              attributes: Object.entries(v.attributes).map(([key, value]) => ({
+                key,
+                value: value as string,
+              })),
+              price: v.price?.toString() || "",
+              stock: v.stock?.toString() || "",
+              isActive: v.isActive,
             })),
-            price: v.price?.toString() || "",
-            stock: v.stock?.toString() || "",
-            isActive: v.isActive,
-          })));
+          );
         }
       } catch (error) {
         console.error("Error loading product:", error);
@@ -444,10 +446,13 @@ export default function NewProduct() {
         navigate("/products");
       }
     } catch (error) {
-      console.error(`Error ${isEditMode ? 'updating' : 'creating'} product:`, error);
+      console.error(
+        `Error ${isEditMode ? "updating" : "creating"} product:`,
+        error,
+      );
       toast({
         title: "Error",
-        description: `Failed to ${isEditMode ? 'update' : 'create'} product. Please try again.`,
+        description: `Failed to ${isEditMode ? "update" : "create"} product. Please try again.`,
         variant: "destructive",
       });
     } finally {
@@ -562,7 +567,9 @@ export default function NewProduct() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" asChild>
-            <Link to={isEditMode ? `/products/${id}` : "/products"}>Cancel</Link>
+            <Link to={isEditMode ? `/products/${id}` : "/products"}>
+              Cancel
+            </Link>
           </Button>
           <Button onClick={handleSubmit} disabled={isSubmitting}>
             {isSubmitting ? (
@@ -748,7 +755,8 @@ export default function NewProduct() {
                           {UnitConverter.getCommonUnits().quantity.map(
                             (unit) => (
                               <SelectItem key={unit.id} value={unit.id}>
-                                {unit?.name || 'Unknown Unit'} ({unit?.symbol || '?'})
+                                {unit?.name || "Unknown Unit"} (
+                                {unit?.symbol || "?"})
                               </SelectItem>
                             ),
                           )}
@@ -1294,7 +1302,7 @@ export default function NewProduct() {
                             >
                               <div className="flex-1">
                                 <div className="font-medium">
-                                  {variant?.name || 'Unknown Variant'}
+                                  {variant?.name || "Unknown Variant"}
                                 </div>
                                 <div className="text-sm text-muted-foreground">
                                   SKU: {variant.sku}

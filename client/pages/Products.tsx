@@ -466,7 +466,7 @@ export default function Products() {
                                 className="text-destructive cursor-pointer"
                                 onClick={() => {
                                   // TODO: Implement product deletion
-                                  console.log('Delete product:', product.id);
+                                  console.log("Delete product:", product.id);
                                 }}
                               >
                                 <Trash2 className="mr-2 h-4 w-4" />

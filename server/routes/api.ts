@@ -669,7 +669,9 @@ router.get("/stock-movements", async (req, res) => {
       },
     ];
 
-    console.log(`Returning ${mockStockMovements.length} stock movement entries`);
+    console.log(
+      `Returning ${mockStockMovements.length} stock movement entries`,
+    );
 
     res.json({
       success: true,
