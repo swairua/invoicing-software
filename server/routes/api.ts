@@ -121,6 +121,7 @@ router.use("/customers", customersRouter);
 router.use("/products", productsRouter);
 router.use("/invoices", invoicesRouter);
 router.use("/taxes", taxesRouter);
+router.use("/seed", seedRouter);
 
 router.get("/quotations", async (req, res) => {
   try {
