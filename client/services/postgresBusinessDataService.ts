@@ -61,14 +61,34 @@ class PostgresBusinessDataService {
 
   // Customer methods
   public getCustomers(): Promise<Customer[]> {
+    console.log("PostgresBusinessDataService: getCustomers() called");
     return this.apiCall("/customers")
       .then((response) => {
-        return Array.isArray(response.data) ? response.data : [];
+        console.log(
+          "PostgresBusinessDataService: customers API response:",
+          response,
+        );
+        const customers = Array.isArray(response.data) ? response.data : [];
+        console.log(
+          "PostgresBusinessDataService: returning customers:",
+          customers,
+        );
+        return customers;
       })
       .catch((error) => {
-        console.error("Failed to fetch customers:", error);
-        console.log("Using fallback customer data");
-        return this.getFallbackCustomers();
+        console.error(
+          "PostgresBusinessDataService: Failed to fetch customers:",
+          error,
+        );
+        console.log(
+          "PostgresBusinessDataService: Using fallback customer data",
+        );
+        const fallbackCustomers = this.getFallbackCustomers();
+        console.log(
+          "PostgresBusinessDataService: fallback customers:",
+          fallbackCustomers,
+        );
+        return fallbackCustomers;
       });
   }
 
@@ -127,14 +147,29 @@ class PostgresBusinessDataService {
 
   // Product methods
   public getProducts(): Promise<Product[]> {
+    console.log("PostgresBusinessDataService: getProducts() called");
     return this.apiCall("/products")
       .then((response) => {
-        return Array.isArray(response.data) ? response.data : [];
+        console.log("PostgresBusinessDataService: API response:", response);
+        const products = Array.isArray(response.data) ? response.data : [];
+        console.log(
+          "PostgresBusinessDataService: returning products:",
+          products,
+        );
+        return products;
       })
       .catch((error) => {
-        console.error("Failed to fetch products:", error);
-        console.log("Using fallback product data");
-        return this.getFallbackProducts();
+        console.error(
+          "PostgresBusinessDataService: Failed to fetch products:",
+          error,
+        );
+        console.log("PostgresBusinessDataService: Using fallback product data");
+        const fallbackProducts = this.getFallbackProducts();
+        console.log(
+          "PostgresBusinessDataService: fallback products:",
+          fallbackProducts,
+        );
+        return fallbackProducts;
       });
   }
 
@@ -530,7 +565,8 @@ class PostgresBusinessDataService {
       {
         id: "1",
         name: "Latex Rubber Gloves Bicolor Reusable XL",
-        description: "High-quality latex rubber gloves",
+        description:
+          "High-quality latex rubber gloves for medical and industrial use",
         sku: "LRG-001",
         category: "Medical Supplies",
         unit: "Pair",
@@ -539,6 +575,74 @@ class PostgresBusinessDataService {
         minStock: 50,
         maxStock: 1000,
         currentStock: 450,
+        isActive: true,
+        companyId: "1",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: "2",
+        name: "Digital Blood Pressure Monitor",
+        description: "Accurate digital blood pressure monitoring device",
+        sku: "DBP-001",
+        category: "Medical Equipment",
+        unit: "Piece",
+        purchasePrice: 2500,
+        sellingPrice: 3500,
+        minStock: 5,
+        maxStock: 100,
+        currentStock: 25,
+        isActive: true,
+        companyId: "1",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: "3",
+        name: "Executive Office Chair with Lumbar Support",
+        description: "Ergonomic executive chair with adjustable lumbar support",
+        sku: "EOC-002",
+        category: "Office Furniture",
+        unit: "Piece",
+        purchasePrice: 12000,
+        sellingPrice: 18000,
+        minStock: 5,
+        maxStock: 50,
+        currentStock: 12,
+        isActive: true,
+        companyId: "1",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: "4",
+        name: "Wireless Bluetooth Headphones",
+        description: "Premium wireless headphones with noise cancellation",
+        sku: "WBH-004",
+        category: "Electronics",
+        unit: "Piece",
+        purchasePrice: 3500,
+        sellingPrice: 5500,
+        minStock: 20,
+        maxStock: 200,
+        currentStock: 85,
+        isActive: true,
+        companyId: "1",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: "5",
+        name: "Surgical Face Masks (Box of 50)",
+        description: "3-layer disposable surgical face masks, medical grade",
+        sku: "SFM-005",
+        category: "Medical Supplies",
+        unit: "Box",
+        purchasePrice: 800,
+        sellingPrice: 1200,
+        minStock: 100,
+        maxStock: 2000,
+        currentStock: 45,
         isActive: true,
         companyId: "1",
         createdAt: new Date(),

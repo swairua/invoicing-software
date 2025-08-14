@@ -8,8 +8,12 @@
  * @param searchTerm - The term to search for
  * @returns boolean indicating if the text contains the search term
  */
-export function safeIncludes(text: string | null | undefined, searchTerm: string): boolean {
-  if (!text || !searchTerm) return false;
+export function safeIncludes(
+  text: string | null | undefined,
+  searchTerm: string,
+): boolean {
+  if (!text) return false;
+  if (!searchTerm) return true; // Show all items when search term is empty
   return text.toLowerCase().includes(searchTerm.toLowerCase());
 }
 
@@ -23,17 +27,15 @@ export function safeIncludes(text: string | null | undefined, searchTerm: string
 export function safeFilter<T>(
   items: T[],
   searchTerm: string,
-  fields: Array<keyof T | ((item: T) => string | null | undefined)>
+  fields: Array<keyof T | ((item: T) => string | null | undefined)>,
 ): T[] {
   if (!searchTerm.trim()) return items;
-  
-  return items.filter(item => 
-    fields.some(field => {
-      const value = typeof field === 'function' 
-        ? field(item) 
-        : item[field];
-      return safeIncludes(String(value || ''), searchTerm);
-    })
+
+  return items.filter((item) =>
+    fields.some((field) => {
+      const value = typeof field === "function" ? field(item) : item[field];
+      return safeIncludes(String(value || ""), searchTerm);
+    }),
   );
 }
 
@@ -43,7 +45,7 @@ export function safeFilter<T>(
  * @returns Lowercase string or empty string if input is null/undefined
  */
 export function safeLowerCase(text: string | null | undefined): string {
-  return (text || '').toLowerCase();
+  return (text || "").toLowerCase();
 }
 
 /**
@@ -54,18 +56,18 @@ export function safeLowerCase(text: string | null | undefined): string {
  */
 export function createSearchPredicate<T>(
   searchTerm: string,
-  getSearchableText: (item: T) => string
+  getSearchableText: (item: T) => string,
 ) {
   const normalizedSearchTerm = searchTerm.toLowerCase().trim();
-  
+
   return (item: T): boolean => {
     if (!normalizedSearchTerm) return true;
-    
+
     try {
       const searchableText = getSearchableText(item);
       return safeIncludes(searchableText, normalizedSearchTerm);
     } catch (error) {
-      console.warn('Error in search predicate:', error);
+      console.warn("Error in search predicate:", error);
       return false;
     }
   };
