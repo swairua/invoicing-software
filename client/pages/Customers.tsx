@@ -69,7 +69,9 @@ export default function Customers() {
       try {
         setLoading(true);
         setError(null);
+        console.log('Loading customers from data service...');
         const data = await dataService.getCustomers();
+        console.log('Customers loaded:', data);
         setCustomers(data);
       } catch (err) {
         console.error('Failed to load customers:', err);
