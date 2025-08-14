@@ -3,6 +3,7 @@ import customersRouter from "./customers";
 import productsRouter from "./products";
 import invoicesRouter from "./invoices";
 import taxesRouter from "./taxes";
+import seedRouter from "./seed";
 import Database from "../database";
 
 const router = Router();
@@ -120,6 +121,7 @@ router.use("/customers", customersRouter);
 router.use("/products", productsRouter);
 router.use("/invoices", invoicesRouter);
 router.use("/taxes", taxesRouter);
+router.use("/seed", seedRouter);
 
 router.get("/quotations", async (req, res) => {
   try {
