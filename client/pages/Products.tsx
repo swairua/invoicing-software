@@ -455,12 +455,20 @@ export default function Products() {
                                   View Details
                                 </Link>
                               </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Edit Product
+                              <DropdownMenuItem asChild>
+                                <Link to={`/products/${product.id}/edit`}>
+                                  <Edit className="mr-2 h-4 w-4" />
+                                  Edit Product
+                                </Link>
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem className="text-destructive">
+                              <DropdownMenuItem
+                                className="text-destructive cursor-pointer"
+                                onClick={() => {
+                                  // TODO: Implement product deletion
+                                  console.log('Delete product:', product.id);
+                                }}
+                              >
                                 <Trash2 className="mr-2 h-4 w-4" />
                                 Delete Product
                               </DropdownMenuItem>
