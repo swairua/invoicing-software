@@ -61,14 +61,20 @@ class PostgresBusinessDataService {
 
   // Customer methods
   public getCustomers(): Promise<Customer[]> {
+    console.log("PostgresBusinessDataService: getCustomers() called");
     return this.apiCall("/customers")
       .then((response) => {
-        return Array.isArray(response.data) ? response.data : [];
+        console.log("PostgresBusinessDataService: customers API response:", response);
+        const customers = Array.isArray(response.data) ? response.data : [];
+        console.log("PostgresBusinessDataService: returning customers:", customers);
+        return customers;
       })
       .catch((error) => {
-        console.error("Failed to fetch customers:", error);
-        console.log("Using fallback customer data");
-        return this.getFallbackCustomers();
+        console.error("PostgresBusinessDataService: Failed to fetch customers:", error);
+        console.log("PostgresBusinessDataService: Using fallback customer data");
+        const fallbackCustomers = this.getFallbackCustomers();
+        console.log("PostgresBusinessDataService: fallback customers:", fallbackCustomers);
+        return fallbackCustomers;
       });
   }
 
