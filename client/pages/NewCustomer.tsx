@@ -40,9 +40,13 @@ interface CustomerFormData {
 export default function NewCustomer() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [customer, setCustomer] = useState<Customer | null>(null);
 
+  const isEditMode = Boolean(id);
   const duplicateData = location.state?.duplicateFrom;
 
   const [formData, setFormData] = useState<CustomerFormData>({
@@ -56,6 +60,52 @@ export default function NewCustomer() {
   });
 
   const dataService = dataServiceFactory.getDataService();
+
+  // Load customer data when in edit mode
+  useEffect(() => {
+    const loadCustomer = async () => {
+      if (!isEditMode || !id) return;
+
+      try {
+        setLoading(true);
+        const customers = await dataService.getCustomers();
+        const foundCustomer = customers.find((c) => c.id === id);
+
+        if (!foundCustomer) {
+          toast({
+            title: "Customer Not Found",
+            description: "The requested customer could not be found.",
+            variant: "destructive",
+          });
+          navigate("/customers");
+          return;
+        }
+
+        setCustomer(foundCustomer);
+        setFormData({
+          name: foundCustomer.name,
+          email: foundCustomer.email || "",
+          phone: foundCustomer.phone || "",
+          kraPin: foundCustomer.kraPin || "",
+          address: foundCustomer.address || "",
+          creditLimit: foundCustomer.creditLimit?.toString() || "0",
+          isActive: foundCustomer.isActive,
+        });
+      } catch (error) {
+        console.error("Error loading customer:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load customer details.",
+          variant: "destructive",
+        });
+        navigate("/customers");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCustomer();
+  }, [isEditMode, id, dataService, navigate, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
