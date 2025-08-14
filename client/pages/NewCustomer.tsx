@@ -435,9 +435,11 @@ export default function NewCustomer() {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">
-                    Initial Balance:
+                    {isEditMode ? "Current Balance:" : "Initial Balance:"}
                   </span>
-                  <span className="font-medium">KES 0.00</span>
+                  <span className="font-medium">
+                    KES {isEditMode && customer ? customer.balance.toLocaleString() : "0.00"}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Credit Limit:</span>
@@ -452,7 +454,7 @@ export default function NewCustomer() {
                   </span>
                   <span className="font-medium text-green-600">
                     KES{" "}
-                    {parseFloat(formData.creditLimit || "0").toLocaleString()}
+                    {(parseFloat(formData.creditLimit || "0") - (isEditMode && customer ? customer.balance : 0)).toLocaleString()}
                   </span>
                 </div>
               </div>
