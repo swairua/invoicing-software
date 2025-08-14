@@ -127,14 +127,20 @@ class PostgresBusinessDataService {
 
   // Product methods
   public getProducts(): Promise<Product[]> {
+    console.log("PostgresBusinessDataService: getProducts() called");
     return this.apiCall("/products")
       .then((response) => {
-        return Array.isArray(response.data) ? response.data : [];
+        console.log("PostgresBusinessDataService: API response:", response);
+        const products = Array.isArray(response.data) ? response.data : [];
+        console.log("PostgresBusinessDataService: returning products:", products);
+        return products;
       })
       .catch((error) => {
-        console.error("Failed to fetch products:", error);
-        console.log("Using fallback product data");
-        return this.getFallbackProducts();
+        console.error("PostgresBusinessDataService: Failed to fetch products:", error);
+        console.log("PostgresBusinessDataService: Using fallback product data");
+        const fallbackProducts = this.getFallbackProducts();
+        console.log("PostgresBusinessDataService: fallback products:", fallbackProducts);
+        return fallbackProducts;
       });
   }
 
