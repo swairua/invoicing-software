@@ -288,86 +288,166 @@ export default function NewProduct() {
     setIsSubmitting(true);
 
     try {
-      const newProduct: Omit<Product, "id" | "createdAt" | "updatedAt"> = {
-        name: formData.name,
-        description: formData.description,
-        sku: formData.sku,
-        barcode: formData.barcode,
-        category: formData.category,
-        subcategory: formData.subcategory,
-        brand: formData.brand,
-        supplier: formData.supplier,
-        unit: formData.unit,
-        weight: parseFloat(formData.weight) || undefined,
-        dimensions: formData.dimensions,
-        purchasePrice: parseFloat(formData.purchasePrice) || 0,
-        sellingPrice: parseFloat(formData.sellingPrice) || 0,
-        markup:
-          formData.purchasePrice && formData.sellingPrice
-            ? ((parseFloat(formData.sellingPrice) -
-                parseFloat(formData.purchasePrice)) /
-                parseFloat(formData.purchasePrice)) *
-              100
-            : 0,
-        costPrice: parseFloat(formData.purchasePrice) || 0,
-        wholesalePrice: parseFloat(formData.wholesalePrice) || undefined,
-        retailPrice: parseFloat(formData.retailPrice) || undefined,
-        minStock: parseInt(formData.minStock) || 0,
-        maxStock: parseInt(formData.maxStock) || 0,
-        currentStock: parseInt(formData.currentStock) || 0,
-        availableStock: parseInt(formData.currentStock) || 0,
-        reorderLevel: parseInt(formData.reorderLevel) || undefined,
-        location: formData.location,
-        binLocation: formData.binLocation,
-        tags: formData.tags
-          .split(",")
-          .map((t) => t.trim())
-          .filter((t) => t),
-        taxable: formData.taxable,
-        taxRate: parseFloat(formData.taxRate) || undefined,
-        trackInventory: formData.trackInventory,
-        allowBackorders: formData.allowBackorders,
-        hasVariants: formData.hasVariants,
-        variants: formData.hasVariants
-          ? variants.map((v) => ({
-              id: Date.now().toString() + Math.random(),
-              name: v.name,
-              sku: v.sku,
-              attributes: v.attributes.reduce(
-                (acc, attr) => {
-                  if (attr.key && attr.value) {
-                    acc[attr.key] = attr.value;
-                  }
-                  return acc;
-                },
-                {} as Record<string, string>,
-              ),
-              price: parseFloat(v.price) || undefined,
-              stock: parseInt(v.stock) || undefined,
-              isActive: v.isActive,
-            }))
-          : [],
-        notes: formData.notes,
-        isActive: true,
-        status: formData.status,
-        companyId: "1",
-      };
+      if (isEditMode && product) {
+        // Update existing product
+        const updatedProduct: Product = {
+          ...product,
+          name: formData.name,
+          description: formData.description,
+          sku: formData.sku,
+          barcode: formData.barcode,
+          category: formData.category,
+          subcategory: formData.subcategory,
+          brand: formData.brand,
+          supplier: formData.supplier,
+          unit: formData.unit,
+          weight: parseFloat(formData.weight) || undefined,
+          dimensions: formData.dimensions,
+          purchasePrice: parseFloat(formData.purchasePrice) || 0,
+          sellingPrice: parseFloat(formData.sellingPrice) || 0,
+          markup:
+            formData.purchasePrice && formData.sellingPrice
+              ? ((parseFloat(formData.sellingPrice) -
+                  parseFloat(formData.purchasePrice)) /
+                  parseFloat(formData.purchasePrice)) *
+                100
+              : 0,
+          costPrice: parseFloat(formData.purchasePrice) || 0,
+          wholesalePrice: parseFloat(formData.wholesalePrice) || undefined,
+          retailPrice: parseFloat(formData.retailPrice) || undefined,
+          minStock: parseInt(formData.minStock) || 0,
+          maxStock: parseInt(formData.maxStock) || 0,
+          currentStock: parseInt(formData.currentStock) || 0,
+          availableStock: parseInt(formData.currentStock) || 0,
+          reorderLevel: parseInt(formData.reorderLevel) || undefined,
+          location: formData.location,
+          binLocation: formData.binLocation,
+          tags: formData.tags
+            .split(",")
+            .map((t) => t.trim())
+            .filter((t) => t),
+          taxable: formData.taxable,
+          taxRate: parseFloat(formData.taxRate) || undefined,
+          trackInventory: formData.trackInventory,
+          allowBackorders: formData.allowBackorders,
+          hasVariants: formData.hasVariants,
+          variants: formData.hasVariants
+            ? variants.map((v) => ({
+                id: v.name + "-" + Date.now().toString(),
+                name: v.name,
+                sku: v.sku,
+                attributes: v.attributes.reduce(
+                  (acc, attr) => {
+                    if (attr.key && attr.value) {
+                      acc[attr.key] = attr.value;
+                    }
+                    return acc;
+                  },
+                  {} as Record<string, string>,
+                ),
+                price: parseFloat(v.price) || undefined,
+                stock: parseInt(v.stock) || undefined,
+                isActive: v.isActive,
+              }))
+            : [],
+          notes: formData.notes,
+          status: formData.status,
+          updatedAt: new Date(),
+        };
 
-      // Here you would normally call a create API
-      // For now, we'll simulate success
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+        // Here you would normally call an update API
+        // For now, we'll simulate success
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      toast({
-        title: "Product Created",
-        description: `Product "${formData.name}" has been created successfully.`,
-      });
+        toast({
+          title: "Product Updated",
+          description: `Product "${formData.name}" has been updated successfully.`,
+        });
 
-      navigate("/products");
+        navigate(`/products/${product.id}`);
+      } else {
+        // Create new product
+        const newProduct: Omit<Product, "id" | "createdAt" | "updatedAt"> = {
+          name: formData.name,
+          description: formData.description,
+          sku: formData.sku,
+          barcode: formData.barcode,
+          category: formData.category,
+          subcategory: formData.subcategory,
+          brand: formData.brand,
+          supplier: formData.supplier,
+          unit: formData.unit,
+          weight: parseFloat(formData.weight) || undefined,
+          dimensions: formData.dimensions,
+          purchasePrice: parseFloat(formData.purchasePrice) || 0,
+          sellingPrice: parseFloat(formData.sellingPrice) || 0,
+          markup:
+            formData.purchasePrice && formData.sellingPrice
+              ? ((parseFloat(formData.sellingPrice) -
+                  parseFloat(formData.purchasePrice)) /
+                  parseFloat(formData.purchasePrice)) *
+                100
+              : 0,
+          costPrice: parseFloat(formData.purchasePrice) || 0,
+          wholesalePrice: parseFloat(formData.wholesalePrice) || undefined,
+          retailPrice: parseFloat(formData.retailPrice) || undefined,
+          minStock: parseInt(formData.minStock) || 0,
+          maxStock: parseInt(formData.maxStock) || 0,
+          currentStock: parseInt(formData.currentStock) || 0,
+          availableStock: parseInt(formData.currentStock) || 0,
+          reorderLevel: parseInt(formData.reorderLevel) || undefined,
+          location: formData.location,
+          binLocation: formData.binLocation,
+          tags: formData.tags
+            .split(",")
+            .map((t) => t.trim())
+            .filter((t) => t),
+          taxable: formData.taxable,
+          taxRate: parseFloat(formData.taxRate) || undefined,
+          trackInventory: formData.trackInventory,
+          allowBackorders: formData.allowBackorders,
+          hasVariants: formData.hasVariants,
+          variants: formData.hasVariants
+            ? variants.map((v) => ({
+                id: Date.now().toString() + Math.random(),
+                name: v.name,
+                sku: v.sku,
+                attributes: v.attributes.reduce(
+                  (acc, attr) => {
+                    if (attr.key && attr.value) {
+                      acc[attr.key] = attr.value;
+                    }
+                    return acc;
+                  },
+                  {} as Record<string, string>,
+                ),
+                price: parseFloat(v.price) || undefined,
+                stock: parseInt(v.stock) || undefined,
+                isActive: v.isActive,
+              }))
+            : [],
+          notes: formData.notes,
+          isActive: true,
+          status: formData.status,
+          companyId: "1",
+        };
+
+        // Here you would normally call a create API
+        // For now, we'll simulate success
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        toast({
+          title: "Product Created",
+          description: `Product "${formData.name}" has been created successfully.`,
+        });
+
+        navigate("/products");
+      }
     } catch (error) {
-      console.error("Error creating product:", error);
+      console.error(`Error ${isEditMode ? 'updating' : 'creating'} product:`, error);
       toast({
         title: "Error",
-        description: "Failed to create product. Please try again.",
+        description: `Failed to ${isEditMode ? 'update' : 'create'} product. Please try again.`,
         variant: "destructive",
       });
     } finally {
