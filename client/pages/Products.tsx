@@ -449,22 +449,32 @@ export default function Products() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem asChild>
-                                <Link to={`/products/${product.id}`}>
-                                  <Eye className="mr-2 h-4 w-4" />
-                                  View Details
-                                </Link>
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  window.location.href = `/products/${product.id}`;
+                                }}
+                              >
+                                <Eye className="mr-2 h-4 w-4" />
+                                View Details
                               </DropdownMenuItem>
-                              <DropdownMenuItem asChild>
-                                <Link to={`/products/${product.id}/edit`}>
-                                  <Edit className="mr-2 h-4 w-4" />
-                                  Edit Product
-                                </Link>
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  window.location.href = `/products/${product.id}/edit`;
+                                }}
+                              >
+                                <Edit className="mr-2 h-4 w-4" />
+                                Edit Product
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 className="text-destructive cursor-pointer"
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
                                   // TODO: Implement product deletion
                                   console.log("Delete product:", product.id);
                                 }}

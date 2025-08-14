@@ -41,6 +41,7 @@ import NewQuotation from "./pages/NewQuotation";
 import ProformaDetails from "./pages/ProformaDetails";
 import NewProforma from "./pages/NewProforma";
 import StatementOfAccount from "./pages/StatementOfAccount";
+import SampleDataCreator from "./pages/SampleDataCreator";
 
 const queryClient = new QueryClient();
 
@@ -173,6 +174,7 @@ const AppRoutes = () => (
       <Route path="settings/company" element={<CompanySettings />} />
       <Route path="settings/taxes" element={<TaxSettings />} />
       <Route path="settings/users" element={<UserManagement />} />
+      <Route path="settings/sample-data" element={<SampleDataCreator />} />
       <Route path="templates" element={<Templates />} />
       <Route path="units" element={<UnitsOfMeasure />} />
       <Route path="coming-soon-test" element={<ComingSoonTest />} />
