@@ -3,6 +3,7 @@ import customersRouter from "./customers";
 import productsRouter from "./products";
 import invoicesRouter from "./invoices";
 import taxesRouter from "./taxes";
+import seedRouter from "./seed";
 import Database from "../database";
 
 const router = Router();
