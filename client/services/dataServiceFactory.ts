@@ -8,7 +8,7 @@ const USE_POSTGRES = true; // Set to true to use PostgreSQL, false for mock data
 export function getDataService() {
   if (USE_POSTGRES) {
     console.log("✅ LIVE DATABASE MODE: Using PostgreSQL data service");
-    console.log("❌ Mock data disabled - All data from Supabase");
+    console.log("❌ Mock data disabled - All data from database");
     return PostgresBusinessDataService.getInstance();
   } else {
     console.log("🎭 Using mock data service");
