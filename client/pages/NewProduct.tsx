@@ -524,42 +524,56 @@ export default function NewProduct() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="sm" asChild>
-            <Link to="/products">
+            <Link to={isEditMode ? `/products/${id}` : "/products"}>
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Products
+              {isEditMode ? "Back to Product" : "Back to Products"}
             </Link>
           </Button>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              {duplicateData ? "Duplicate Product" : "New Product"}
+              {isEditMode
+                ? "Edit Product"
+                : duplicateData
+                  ? "Duplicate Product"
+                  : "New Product"}
             </h1>
             <p className="text-muted-foreground">
-              {duplicateData
-                ? "Create a copy of an existing product"
-                : "Add a new product to your catalog"}
+              {isEditMode
+                ? "Update product information and settings"
+                : duplicateData
+                  ? "Create a copy of an existing product"
+                  : "Add a new product to your catalog"}
             </p>
           </div>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" asChild>
-            <Link to="/products">Cancel</Link>
+            <Link to={isEditMode ? `/products/${id}` : "/products"}>Cancel</Link>
           </Button>
           <Button onClick={handleSubmit} disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                Creating...
+                {isEditMode ? "Updating..." : "Creating..."}
               </>
             ) : (
               <>
                 <Save className="mr-2 h-4 w-4" />
-                Create Product
+                {isEditMode ? "Update Product" : "Create Product"}
               </>
             )}
           </Button>
