@@ -69,13 +69,13 @@ export default function Customers() {
       try {
         setLoading(true);
         setError(null);
-        console.log('Loading customers from data service...');
+        console.log("Loading customers from data service...");
         const data = await dataService.getCustomers();
-        console.log('Customers loaded:', data);
+        console.log("Customers loaded:", data);
         setCustomers(data);
       } catch (err) {
-        console.error('Failed to load customers:', err);
-        setError('Failed to load customers from database');
+        console.error("Failed to load customers:", err);
+        setError("Failed to load customers from database");
         setCustomers([]);
       } finally {
         setLoading(false);
@@ -115,23 +115,23 @@ export default function Customers() {
 
     try {
       const customerData = {
-        name: formData.get('name') as string,
-        email: formData.get('email') as string,
-        phone: formData.get('phone') as string,
-        kraPin: formData.get('kraPin') as string,
-        address: formData.get('address') as string,
-        creditLimit: parseFloat(formData.get('creditLimit') as string) || 0,
+        name: formData.get("name") as string,
+        email: formData.get("email") as string,
+        phone: formData.get("phone") as string,
+        kraPin: formData.get("kraPin") as string,
+        address: formData.get("address") as string,
+        creditLimit: parseFloat(formData.get("creditLimit") as string) || 0,
         balance: 0,
         isActive: true,
-        companyId: '1'
+        companyId: "1",
       };
 
       const newCustomer = await dataService.createCustomer(customerData);
       setCustomers([newCustomer, ...customers]);
       setIsCreateDialogOpen(false);
     } catch (err) {
-      console.error('Failed to create customer:', err);
-      setError('Failed to create customer');
+      console.error("Failed to create customer:", err);
+      setError("Failed to create customer");
     }
   };
 
@@ -163,7 +163,12 @@ export default function Customers() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Company Name *</Label>
-                  <Input id="name" name="name" placeholder="Enter company name" required />
+                  <Input
+                    id="name"
+                    name="name"
+                    placeholder="Enter company name"
+                    required
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="kraPin">KRA PIN</Label>
@@ -187,7 +192,11 @@ export default function Customers() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="address">Address</Label>
-                <Textarea id="address" name="address" placeholder="Enter business address" />
+                <Textarea
+                  id="address"
+                  name="address"
+                  placeholder="Enter business address"
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="creditLimit">Credit Limit (KES)</Label>
@@ -337,98 +346,104 @@ export default function Customers() {
                       Loading customers...
                     </TableCell>
                   </TableRow>
-                ) : filteredCustomers.map((customer) => (
-                  <TableRow key={customer.id}>
-                    <TableCell>
-                      <div className="flex items-center space-x-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback className="text-xs">
-                            {getCustomerInitials(customer?.name || 'N/A')}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="font-medium">{customer?.name || 'Unknown Customer'}</div>
-                          <div className="text-sm text-muted-foreground flex items-center">
-                            <MapPin className="h-3 w-3 mr-1" />
-                            {customer.address?.split(",")[1]?.trim() ||
-                              "No location"}
+                ) : (
+                  filteredCustomers.map((customer) => (
+                    <TableRow key={customer.id}>
+                      <TableCell>
+                        <div className="flex items-center space-x-3">
+                          <Avatar className="h-8 w-8">
+                            <AvatarFallback className="text-xs">
+                              {getCustomerInitials(customer?.name || "N/A")}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <div className="font-medium">
+                              {customer?.name || "Unknown Customer"}
+                            </div>
+                            <div className="text-sm text-muted-foreground flex items-center">
+                              <MapPin className="h-3 w-3 mr-1" />
+                              {customer.address?.split(",")[1]?.trim() ||
+                                "No location"}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        {customer.email && (
-                          <div className="text-sm flex items-center">
-                            <Mail className="h-3 w-3 mr-1 text-muted-foreground" />
-                            {customer.email}
-                          </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          {customer.email && (
+                            <div className="text-sm flex items-center">
+                              <Mail className="h-3 w-3 mr-1 text-muted-foreground" />
+                              {customer.email}
+                            </div>
+                          )}
+                          {customer.phone && (
+                            <div className="text-sm flex items-center">
+                              <Phone className="h-3 w-3 mr-1 text-muted-foreground" />
+                              {customer.phone}
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {customer.kraPin ? (
+                          <code className="text-xs bg-muted px-1 py-0.5 rounded">
+                            {customer.kraPin}
+                          </code>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">
+                            -
+                          </span>
                         )}
-                        {customer.phone && (
-                          <div className="text-sm flex items-center">
-                            <Phone className="h-3 w-3 mr-1 text-muted-foreground" />
-                            {customer.phone}
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {customer.kraPin ? (
-                        <code className="text-xs bg-muted px-1 py-0.5 rounded">
-                          {customer.kraPin}
-                        </code>
-                      ) : (
-                        <span className="text-muted-foreground text-sm">-</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div
-                        className={`font-medium ${customer.balance > 0 ? "text-warning" : "text-muted-foreground"}`}
-                      >
-                        {formatCurrency(customer.balance)}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm text-muted-foreground">
-                        {formatCurrency(customer.creditLimit)}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={customer.isActive ? "default" : "secondary"}
-                      >
-                        {customer.isActive ? "Active" : "Inactive"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem asChild>
-                            <Link to={`/customers/${customer.id}`}>
-                              <Eye className="mr-2 h-4 w-4" />
-                              View Details
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit Customer
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-destructive">
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete Customer
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      </TableCell>
+                      <TableCell>
+                        <div
+                          className={`font-medium ${customer.balance > 0 ? "text-warning" : "text-muted-foreground"}`}
+                        >
+                          {formatCurrency(customer.balance)}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm text-muted-foreground">
+                          {formatCurrency(customer.creditLimit)}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={customer.isActive ? "default" : "secondary"}
+                        >
+                          {customer.isActive ? "Active" : "Inactive"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem asChild>
+                              <Link to={`/customers/${customer.id}`}>
+                                <Eye className="mr-2 h-4 w-4" />
+                                View Details
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Edit className="mr-2 h-4 w-4" />
+                              Edit Customer
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="text-destructive">
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete Customer
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </div>
@@ -441,8 +456,8 @@ export default function Customers() {
                 {searchTerm
                   ? "Try adjusting your search terms."
                   : error
-                  ? "Unable to load customers from database."
-                  : "Get started by adding your first customer."}
+                    ? "Unable to load customers from database."
+                    : "Get started by adding your first customer."}
               </p>
             </div>
           )}

@@ -64,16 +64,30 @@ class PostgresBusinessDataService {
     console.log("PostgresBusinessDataService: getCustomers() called");
     return this.apiCall("/customers")
       .then((response) => {
-        console.log("PostgresBusinessDataService: customers API response:", response);
+        console.log(
+          "PostgresBusinessDataService: customers API response:",
+          response,
+        );
         const customers = Array.isArray(response.data) ? response.data : [];
-        console.log("PostgresBusinessDataService: returning customers:", customers);
+        console.log(
+          "PostgresBusinessDataService: returning customers:",
+          customers,
+        );
         return customers;
       })
       .catch((error) => {
-        console.error("PostgresBusinessDataService: Failed to fetch customers:", error);
-        console.log("PostgresBusinessDataService: Using fallback customer data");
+        console.error(
+          "PostgresBusinessDataService: Failed to fetch customers:",
+          error,
+        );
+        console.log(
+          "PostgresBusinessDataService: Using fallback customer data",
+        );
         const fallbackCustomers = this.getFallbackCustomers();
-        console.log("PostgresBusinessDataService: fallback customers:", fallbackCustomers);
+        console.log(
+          "PostgresBusinessDataService: fallback customers:",
+          fallbackCustomers,
+        );
         return fallbackCustomers;
       });
   }
@@ -138,14 +152,23 @@ class PostgresBusinessDataService {
       .then((response) => {
         console.log("PostgresBusinessDataService: API response:", response);
         const products = Array.isArray(response.data) ? response.data : [];
-        console.log("PostgresBusinessDataService: returning products:", products);
+        console.log(
+          "PostgresBusinessDataService: returning products:",
+          products,
+        );
         return products;
       })
       .catch((error) => {
-        console.error("PostgresBusinessDataService: Failed to fetch products:", error);
+        console.error(
+          "PostgresBusinessDataService: Failed to fetch products:",
+          error,
+        );
         console.log("PostgresBusinessDataService: Using fallback product data");
         const fallbackProducts = this.getFallbackProducts();
-        console.log("PostgresBusinessDataService: fallback products:", fallbackProducts);
+        console.log(
+          "PostgresBusinessDataService: fallback products:",
+          fallbackProducts,
+        );
         return fallbackProducts;
       });
   }
@@ -542,7 +565,8 @@ class PostgresBusinessDataService {
       {
         id: "1",
         name: "Latex Rubber Gloves Bicolor Reusable XL",
-        description: "High-quality latex rubber gloves for medical and industrial use",
+        description:
+          "High-quality latex rubber gloves for medical and industrial use",
         sku: "LRG-001",
         category: "Medical Supplies",
         unit: "Pair",
