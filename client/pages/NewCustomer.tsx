@@ -131,33 +131,60 @@ export default function NewCustomer() {
     setIsSubmitting(true);
 
     try {
-      const newCustomer: Omit<Customer, "id" | "createdAt" | "updatedAt"> = {
-        name: formData.name,
-        email: formData.email || undefined,
-        phone: formData.phone || undefined,
-        kraPin: formData.kraPin || undefined,
-        address: formData.address || undefined,
-        creditLimit: parseFloat(formData.creditLimit) || 0,
-        balance: 0,
-        isActive: formData.isActive,
-        companyId: "1",
-      };
+      if (isEditMode && customer) {
+        // Update existing customer
+        const updatedCustomer: Customer = {
+          ...customer,
+          name: formData.name,
+          email: formData.email || undefined,
+          phone: formData.phone || undefined,
+          kraPin: formData.kraPin || undefined,
+          address: formData.address || undefined,
+          creditLimit: parseFloat(formData.creditLimit) || 0,
+          isActive: formData.isActive,
+          updatedAt: new Date(),
+        };
 
-      // Here you would normally call a create API
-      // For now, we'll simulate success
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+        // Here you would normally call an update API
+        // For now, we'll simulate success
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      toast({
-        title: "Customer Created",
-        description: `Customer "${formData.name}" has been created successfully.`,
-      });
+        toast({
+          title: "Customer Updated",
+          description: `Customer "${formData.name}" has been updated successfully.`,
+        });
 
-      navigate("/customers");
+        navigate(`/customers/${customer.id}`);
+      } else {
+        // Create new customer
+        const newCustomer: Omit<Customer, "id" | "createdAt" | "updatedAt"> = {
+          name: formData.name,
+          email: formData.email || undefined,
+          phone: formData.phone || undefined,
+          kraPin: formData.kraPin || undefined,
+          address: formData.address || undefined,
+          creditLimit: parseFloat(formData.creditLimit) || 0,
+          balance: 0,
+          isActive: formData.isActive,
+          companyId: "1",
+        };
+
+        // Here you would normally call a create API
+        // For now, we'll simulate success
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        toast({
+          title: "Customer Created",
+          description: `Customer "${formData.name}" has been created successfully.`,
+        });
+
+        navigate("/customers");
+      }
     } catch (error) {
-      console.error("Error creating customer:", error);
+      console.error(`Error ${isEditMode ? 'updating' : 'creating'} customer:`, error);
       toast({
         title: "Error",
-        description: "Failed to create customer. Please try again.",
+        description: `Failed to ${isEditMode ? 'update' : 'create'} customer. Please try again.`,
         variant: "destructive",
       });
     } finally {
