@@ -67,11 +67,13 @@ export default function Products() {
       try {
         setLoading(true);
         setError(null);
+        console.log("Loading products from data service...");
         const data = await dataService.getProducts();
+        console.log("Products loaded:", data);
         setProducts(data);
       } catch (err) {
-        console.error('Failed to load products:', err);
-        setError('Failed to load products from database');
+        console.error("Failed to load products:", err);
+        setError("Failed to load products from database");
         setProducts([]);
       } finally {
         setLoading(false);
@@ -113,7 +115,7 @@ export default function Products() {
         maxStock: parseInt(formData.get("maxStock") as string) || 0,
         currentStock: parseInt(formData.get("currentStock") as string) || 0,
         isActive: true,
-        companyId: "1"
+        companyId: "1",
       };
 
       const newProduct = await dataService.createProduct(productData);
@@ -121,14 +123,16 @@ export default function Products() {
       setIsCreateDialogOpen(false);
       form.reset();
     } catch (err) {
-      console.error('Failed to create product:', err);
-      setError('Failed to create product');
+      console.error("Failed to create product:", err);
+      setError("Failed to create product");
     }
   };
 
   const getStockStatus = (product: Product) => {
-    if (product.currentStock === 0) return { label: "Out of Stock", variant: "destructive" as const };
-    if (product.currentStock <= product.minStock) return { label: "Low Stock", variant: "warning" as const };
+    if (product.currentStock === 0)
+      return { label: "Out of Stock", variant: "destructive" as const };
+    if (product.currentStock <= product.minStock)
+      return { label: "Low Stock", variant: "warning" as const };
     return { label: "In Stock", variant: "default" as const };
   };
 
@@ -160,7 +164,12 @@ export default function Products() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Product Name *</Label>
-                  <Input id="name" name="name" placeholder="Enter product name" required />
+                  <Input
+                    id="name"
+                    name="name"
+                    placeholder="Enter product name"
+                    required
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="sku">SKU</Label>
@@ -169,12 +178,20 @@ export default function Products() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="description">Description</Label>
-                <Textarea id="description" name="description" placeholder="Product description" />
+                <Textarea
+                  id="description"
+                  name="description"
+                  placeholder="Product description"
+                />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="category">Category</Label>
-                  <Input id="category" name="category" placeholder="Product category" />
+                  <Input
+                    id="category"
+                    name="category"
+                    placeholder="Product category"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="unit">Unit</Label>
@@ -256,7 +273,9 @@ export default function Products() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Products</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Products
+            </CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -269,16 +288,16 @@ export default function Products() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Low Stock Items</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Low Stock Items
+            </CardTitle>
             <AlertTriangle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {products.filter(p => p.currentStock <= p.minStock).length}
+              {products.filter((p) => p.currentStock <= p.minStock).length}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Need reordering
-            </p>
+            <p className="text-xs text-muted-foreground">Need reordering</p>
           </CardContent>
         </Card>
 
@@ -289,11 +308,9 @@ export default function Products() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {products.filter(p => p.currentStock === 0).length}
+              {products.filter((p) => p.currentStock === 0).length}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Items unavailable
-            </p>
+            <p className="text-xs text-muted-foreground">Items unavailable</p>
           </CardContent>
         </Card>
 
@@ -306,14 +323,12 @@ export default function Products() {
             <div className="text-2xl font-bold">
               {formatCurrency(
                 products.reduce(
-                  (sum, p) => sum + (p.currentStock * p.sellingPrice),
-                  0
-                )
+                  (sum, p) => sum + p.currentStock * p.sellingPrice,
+                  0,
+                ),
               )}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Inventory value
-            </p>
+            <p className="text-xs text-muted-foreground">Inventory value</p>
           </CardContent>
         </Card>
       </div>
@@ -332,7 +347,7 @@ export default function Products() {
               <p className="text-destructive text-sm">{error}</p>
             </div>
           )}
-          
+
           <div className="flex items-center space-x-2 mb-4">
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -370,80 +385,92 @@ export default function Products() {
                       Loading products...
                     </TableCell>
                   </TableRow>
-                ) : filteredProducts.map((product) => {
-                  const stockStatus = getStockStatus(product);
-                  return (
-                    <TableRow key={product.id}>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">{product?.name || 'Unknown Product'}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {product.description?.substring(0, 50)}
-                            {product.description && product.description.length > 50 && "..."}
+                ) : (
+                  filteredProducts.map((product) => {
+                    const stockStatus = getStockStatus(product);
+                    return (
+                      <TableRow key={product.id}>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">
+                              {product?.name || "Unknown Product"}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              {product.description?.substring(0, 50)}
+                              {product.description &&
+                                product.description.length > 50 &&
+                                "..."}
+                            </div>
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {product.sku ? (
-                          <code className="text-xs bg-muted px-1 py-0.5 rounded">
-                            {product.sku}
-                          </code>
-                        ) : (
-                          <span className="text-muted-foreground text-sm">-</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{product.category}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <div className="font-medium">{product.currentStock}</div>
-                          <div className="text-xs text-muted-foreground">
-                            Min: {product.minStock}
+                        </TableCell>
+                        <TableCell>
+                          {product.sku ? (
+                            <code className="text-xs bg-muted px-1 py-0.5 rounded">
+                              {product.sku}
+                            </code>
+                          ) : (
+                            <span className="text-muted-foreground text-sm">
+                              -
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{product.category}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
+                            <div className="font-medium">
+                              {product.currentStock}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              Min: {product.minStock}
+                            </div>
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {formatCurrency(product.sellingPrice)}
-                      </TableCell>
-                      <TableCell>
-                        {formatCurrency(product.currentStock * product.sellingPrice)}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={stockStatus.variant}>
-                          {stockStatus.label}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem asChild>
-                              <Link to={`/products/${product.id}`}>
-                                <Eye className="mr-2 h-4 w-4" />
-                                View Details
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Edit className="mr-2 h-4 w-4" />
-                              Edit Product
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive">
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete Product
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                        </TableCell>
+                        <TableCell>
+                          {formatCurrency(product.sellingPrice)}
+                        </TableCell>
+                        <TableCell>
+                          {formatCurrency(
+                            product.currentStock * product.sellingPrice,
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={stockStatus.variant}>
+                            {stockStatus.label}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" className="h-8 w-8 p-0">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuItem asChild>
+                                <Link to={`/products/${product.id}`}>
+                                  <Eye className="mr-2 h-4 w-4" />
+                                  View Details
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>
+                                <Edit className="mr-2 h-4 w-4" />
+                                Edit Product
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem className="text-destructive">
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete Product
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
               </TableBody>
             </Table>
           </div>
@@ -456,8 +483,8 @@ export default function Products() {
                 {searchTerm
                   ? "Try adjusting your search terms."
                   : error
-                  ? "Unable to load products from database."
-                  : "Get started by adding your first product."}
+                    ? "Unable to load products from database."
+                    : "Get started by adding your first product."}
               </p>
             </div>
           )}
