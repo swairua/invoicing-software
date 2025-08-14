@@ -611,6 +611,82 @@ router.get("/credit-notes/:id", async (req, res) => {
   }
 });
 
+router.get("/stock-movements", async (req, res) => {
+  try {
+    const companyId =
+      (req.headers["x-company-id"] as string) ||
+      "550e8400-e29b-41d4-a716-446655440000";
+
+    // For now, return mock stock movement data since we don't have stock movements in the database yet
+    const mockStockMovements = [
+      {
+        id: "1",
+        productId: "1",
+        type: "in",
+        quantity: 100,
+        previousStock: 0,
+        newStock: 100,
+        reference: "PO-2024-001",
+        notes: "Initial stock for new product",
+        createdBy: "1",
+        createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
+      },
+      {
+        id: "2",
+        productId: "1",
+        type: "out",
+        quantity: 25,
+        previousStock: 100,
+        newStock: 75,
+        reference: "INV-2024-001",
+        notes: "Sale to customer",
+        createdBy: "1",
+        createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+      },
+      {
+        id: "3",
+        productId: "2",
+        type: "in",
+        quantity: 50,
+        previousStock: 10,
+        newStock: 60,
+        reference: "PO-2024-002",
+        notes: "Stock replenishment",
+        createdBy: "1",
+        createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+      },
+      {
+        id: "4",
+        productId: "1",
+        type: "adjustment",
+        quantity: 73,
+        previousStock: 75,
+        newStock: 73,
+        reference: "ADJ-2024-001",
+        notes: "Stock count adjustment",
+        createdBy: "1",
+        createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
+      },
+    ];
+
+    console.log(
+      `Returning ${mockStockMovements.length} stock movement entries`,
+    );
+
+    res.json({
+      success: true,
+      data: mockStockMovements,
+    });
+  } catch (error) {
+    console.error("Error in stock-movements endpoint:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch stock movements",
+      message: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+});
+
 router.get("/activity-log", async (req, res) => {
   console.log("Activity log endpoint called");
   try {
