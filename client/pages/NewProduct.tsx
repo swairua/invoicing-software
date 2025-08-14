@@ -162,6 +162,94 @@ export default function NewProduct() {
 
   const dataService = dataServiceFactory.getDataService();
 
+  // Load product data when in edit mode
+  useEffect(() => {
+    const loadProduct = async () => {
+      if (!isEditMode || !id) return;
+
+      try {
+        setLoading(true);
+        const products = await dataService.getProducts();
+        const foundProduct = products.find((p) => p.id === id);
+
+        if (!foundProduct) {
+          toast({
+            title: "Product Not Found",
+            description: "The requested product could not be found.",
+            variant: "destructive",
+          });
+          navigate("/products");
+          return;
+        }
+
+        setProduct(foundProduct);
+        setFormData({
+          name: foundProduct.name,
+          description: foundProduct.description || "",
+          sku: foundProduct.sku,
+          barcode: foundProduct.barcode || "",
+          category: foundProduct.category,
+          subcategory: foundProduct.subcategory || "",
+          brand: foundProduct.brand || "",
+          supplier: foundProduct.supplier || "",
+          unit: foundProduct.unit || "piece",
+          weight: foundProduct.weight?.toString() || "",
+          dimensions: foundProduct.dimensions || {
+            length: 0,
+            width: 0,
+            height: 0,
+            unit: "cm",
+          },
+          purchasePrice: foundProduct.purchasePrice?.toString() || "",
+          sellingPrice: foundProduct.sellingPrice?.toString() || "",
+          wholesalePrice: foundProduct.wholesalePrice?.toString() || "",
+          retailPrice: foundProduct.retailPrice?.toString() || "",
+          minStock: foundProduct.minStock?.toString() || "",
+          maxStock: foundProduct.maxStock?.toString() || "",
+          currentStock: foundProduct.currentStock?.toString() || "",
+          reorderLevel: foundProduct.reorderLevel?.toString() || "",
+          location: foundProduct.location || "",
+          binLocation: foundProduct.binLocation || "",
+          tags: foundProduct.tags?.join(", ") || "",
+          taxable: foundProduct.taxable ?? true,
+          taxRate: foundProduct.taxRate?.toString() || "16",
+          trackInventory: foundProduct.trackInventory ?? true,
+          allowBackorders: foundProduct.allowBackorders ?? false,
+          hasVariants: foundProduct.hasVariants ?? false,
+          notes: foundProduct.notes || "",
+          status: foundProduct.status || "active",
+        });
+
+        // Set variants if product has them
+        if (foundProduct.variants) {
+          setVariants(foundProduct.variants.map((v) => ({
+            name: v.name,
+            sku: v.sku,
+            attributes: Object.entries(v.attributes).map(([key, value]) => ({
+              key,
+              value: value as string,
+            })),
+            price: v.price?.toString() || "",
+            stock: v.stock?.toString() || "",
+            isActive: v.isActive,
+          })));
+        }
+      } catch (error) {
+        console.error("Error loading product:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load product details.",
+          variant: "destructive",
+        });
+        navigate("/products");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProduct();
+  }, [isEditMode, id, dataService, navigate, toast]);
+
   const categories = [
     "Medical Supplies",
     "Furniture",
