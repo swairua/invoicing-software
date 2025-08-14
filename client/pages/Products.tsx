@@ -67,7 +67,9 @@ export default function Products() {
       try {
         setLoading(true);
         setError(null);
+        console.log('Loading products from data service...');
         const data = await dataService.getProducts();
+        console.log('Products loaded:', data);
         setProducts(data);
       } catch (err) {
         console.error('Failed to load products:', err);
