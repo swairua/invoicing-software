@@ -9,7 +9,8 @@
  * @returns boolean indicating if the text contains the search term
  */
 export function safeIncludes(text: string | null | undefined, searchTerm: string): boolean {
-  if (!text || !searchTerm) return false;
+  if (!text) return false;
+  if (!searchTerm) return true; // Show all items when search term is empty
   return text.toLowerCase().includes(searchTerm.toLowerCase());
 }
 
