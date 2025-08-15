@@ -38,7 +38,7 @@ import {
   User,
   Receipt,
 } from "lucide-react";
-import { format } from "date-fns";
+import { safeFormatDate } from "@/lib/utils";
 import { CreditNote } from "@shared/types";
 import { dataServiceFactory } from "@/services/dataServiceFactory";
 import { toast } from "@/hooks/use-toast";
@@ -266,7 +266,7 @@ export default function CreditNoteDetails() {
                     Issue Date
                   </div>
                   <p className="font-medium">
-                    {format(new Date(creditNote.issueDate), "MMMM dd, yyyy")}
+                    {safeFormatDate(creditNote.issueDate, "MMMM dd, yyyy")}
                   </p>
                 </div>
                 {creditNote.invoiceId && (
