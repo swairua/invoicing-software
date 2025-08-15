@@ -123,6 +123,7 @@ router.use("/products", productsRouter);
 router.use("/invoices", invoicesRouter);
 router.use("/taxes", taxesRouter);
 router.use("/seed", seedRouter);
+router.use("/migration", migrationRouter);
 
 router.get("/quotations", async (req, res) => {
   try {
