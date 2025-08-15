@@ -538,7 +538,7 @@ export default function Reports() {
                   </TableHeader>
                   <TableBody>
                     {mockAgedReceivables.map((customer, index) => (
-                      <TableRow key={index}>
+                      <TableRow key={customer.customerName}>
                         <TableCell className="font-medium">
                           {customer.customerName}
                         </TableCell>
