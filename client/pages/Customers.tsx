@@ -167,7 +167,8 @@ export default function Customers() {
         const data = await dataService.getCustomers();
         console.log("Customers loaded:", data);
         console.log("Customer balances:", data.map(c => ({ name: c.name, balance: c.balance, creditLimit: c.creditLimit })));
-        setCustomers(data);
+        const normalizedData = normalizeCustomerData(data);
+        setCustomers(normalizedData);
       } catch (err) {
         console.error("Failed to load customers:", err);
         setError("Failed to load customers from database");
