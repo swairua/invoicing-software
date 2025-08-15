@@ -605,6 +605,49 @@ class PostgresBusinessDataService {
     }
   }
 
+  public async createSupplier(
+    supplierData: Omit<Supplier, "id" | "createdAt" | "updatedAt">,
+  ): Promise<Supplier> {
+    try {
+      const response = await this.apiCall("/suppliers", {
+        method: "POST",
+        body: JSON.stringify(supplierData),
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Failed to create supplier:", error);
+      throw error;
+    }
+  }
+
+  public async updateSupplier(
+    id: string,
+    supplierData: Partial<Supplier>,
+  ): Promise<Supplier | undefined> {
+    try {
+      const response = await this.apiCall(`/suppliers/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(supplierData),
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Failed to update supplier:", error);
+      throw error;
+    }
+  }
+
+  public async deleteSupplier(id: string): Promise<boolean> {
+    try {
+      await this.apiCall(`/suppliers/${id}`, {
+        method: "DELETE",
+      });
+      return true;
+    } catch (error) {
+      console.error("Failed to delete supplier:", error);
+      return false;
+    }
+  }
+
   // Stock movements
   public async getStockMovements(): Promise<any[]> {
     try {
