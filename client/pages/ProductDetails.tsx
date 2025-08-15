@@ -63,6 +63,7 @@ import {
 import { Product, StockMovement } from "@shared/types";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import { useToast } from "../hooks/use-toast";
+import { safeToLocaleDateString, safeToLocaleTimeString } from "@/lib/utils";
 
 export default function ProductDetails() {
   const { id } = useParams<{ id: string }>();
