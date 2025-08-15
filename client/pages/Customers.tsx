@@ -57,6 +57,7 @@ import { safeIncludes } from "../lib/search-utils";
 const dataService = getDataService();
 
 export default function Customers() {
+  const navigate = useNavigate();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
