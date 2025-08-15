@@ -1383,7 +1383,7 @@ export default function NewProduct() {
                         <div className="space-y-2">
                           <Label>Attributes</Label>
                           {newVariant.attributes.map((attr, index) => (
-                            <div key={index} className="flex gap-2">
+                            <div key={`attr-${index}-${attr.key}`} className="flex gap-2">
                               <Input
                                 placeholder="Attribute name (e.g., Color)"
                                 value={attr.key}
