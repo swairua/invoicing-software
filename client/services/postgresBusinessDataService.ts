@@ -264,8 +264,7 @@ class PostgresBusinessDataService {
       })
       .catch((error) => {
         console.error("Failed to fetch invoices:", error);
-        console.log("Using fallback invoice data");
-        return this.getFallbackInvoices();
+        throw new Error(`Failed to fetch invoices from database: ${error.message}`);
       });
   }
 
