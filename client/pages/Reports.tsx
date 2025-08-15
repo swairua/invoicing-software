@@ -447,7 +447,7 @@ export default function Reports() {
                 <div className="space-y-4">
                   {mockSalesData.topCustomers.map((customer, index) => (
                     <div
-                      key={index}
+                      key={customer.name}
                       className="flex items-center justify-between"
                     >
                       <div className="flex items-center space-x-3">
