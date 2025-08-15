@@ -786,7 +786,7 @@ export default function Settings() {
                 </div>
                 {(companySettings.invoiceSettings.terms || []).map(
                   (term, index) => (
-                    <div key={index} className="flex space-x-2">
+                    <div key={`term-${index}-${term.substring(0, 10)}`} className="flex space-x-2">
                       <Textarea
                         value={term}
                         onChange={(e) =>
