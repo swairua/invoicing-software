@@ -583,6 +583,21 @@ export default function NewProduct() {
                   ? "Create a copy of an existing product"
                   : "Add a new product to your catalog"}
             </p>
+            {!isEditMode && categories.length === 0 && (
+              <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-700">
+                  <strong>Tip:</strong> Create{" "}
+                  <Link to="/categories" className="underline font-medium">
+                    Categories
+                  </Link>{" "}
+                  and{" "}
+                  <Link to="/units" className="underline font-medium">
+                    Units
+                  </Link>{" "}
+                  first to organize your products better.
+                </p>
+              </div>
+            )}
           </div>
         </div>
         <div className="flex gap-2">
