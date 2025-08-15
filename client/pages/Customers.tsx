@@ -99,6 +99,29 @@ export default function Customers() {
     }
   };
 
+  // Clear cache and reload data
+  const clearCacheAndReload = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      console.log("Clearing cache and reloading...");
+
+      await clearAllCache();
+
+      // Force reload customers from server
+      const data = await dataService.getCustomers();
+      console.log("Fresh customers loaded:", data);
+      setCustomers(data);
+
+      console.log("✅ Cache cleared and data reloaded");
+    } catch (err) {
+      console.error("Failed to clear cache and reload:", err);
+      setError("Failed to refresh data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Load customers from database
   useEffect(() => {
     const loadCustomers = async () => {
