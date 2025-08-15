@@ -68,6 +68,7 @@ import {
 import { Payment, Customer, Invoice } from "@shared/types";
 import PDFService from "../services/pdfService";
 import { useToast } from "../hooks/use-toast";
+import { safeToLocaleDateString, safeToLocaleTimeString } from "@/lib/utils";
 
 // Mock data
 const mockCustomers: Customer[] = [
