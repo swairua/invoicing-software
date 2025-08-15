@@ -169,7 +169,14 @@ export default function Customers() {
         console.log("Loading customers from data service...");
         const data = await dataService.getCustomers();
         console.log("Customers loaded:", data);
-        console.log("Customer balances:", data.map(c => ({ name: c.name, balance: c.balance, creditLimit: c.creditLimit })));
+        console.log("Customer balances:", data.map(c => ({
+          name: c.name,
+          balance: c.balance,
+          currentBalance: c.currentBalance,
+          creditLimit: c.creditLimit,
+          balanceType: typeof c.balance,
+          creditLimitType: typeof c.creditLimit
+        })));
         const normalizedData = normalizeCustomerData(data);
         setCustomers(normalizedData);
       } catch (err) {
