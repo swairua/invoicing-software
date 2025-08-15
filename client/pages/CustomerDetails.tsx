@@ -47,6 +47,7 @@ import {
 import { Customer, Invoice, Payment, Quotation } from "@shared/types";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import { useToast } from "../hooks/use-toast";
+import { safeFormatDateKE } from "@/lib/utils";
 
 export default function CustomerDetails() {
   const { id } = useParams<{ id: string }>();
