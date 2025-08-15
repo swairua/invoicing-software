@@ -726,7 +726,7 @@ export default function Reports() {
               <CardContent>
                 <div className="space-y-4">
                   {mockStockReport.categoryBreakdown.map((category, index) => (
-                    <div key={index} className="space-y-2">
+                    <div key={category.category} className="space-y-2">
                       <div className="flex justify-between">
                         <span className="font-medium">{category.category}</span>
                         <span className="text-sm font-medium">
