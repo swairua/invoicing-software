@@ -24,6 +24,7 @@ import CompanySettings from "./pages/CompanySettings";
 import UserManagement from "./pages/UserManagement";
 import Templates from "./pages/Templates";
 import UnitsOfMeasure from "./pages/UnitsOfMeasure";
+import ProductCategories from "./pages/ProductCategories";
 import PlaceholderPage from "./pages/PlaceholderPage";
 import ComingSoonTest from "./pages/ComingSoonTest";
 import ProductDetails from "./pages/ProductDetails";
