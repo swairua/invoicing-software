@@ -60,14 +60,18 @@ export class CustomerRepository extends BaseRepository {
       FROM customers
       WHERE id = $1 AND company_id = $2
     `;
-    
+
     const result = await this.db.query(query, [id, companyId]);
-    
+
     if (result.rows.length === 0) {
       return null;
     }
 
-    return this.toCamelCase(result.rows[0]) as Customer;
+    const customer = this.toCamelCase(result.rows[0]);
+    return {
+      ...customer,
+      balance: customer.currentBalance || 0 // Map current_balance to balance for frontend
+    } as Customer;
   }
 
   async create(customerData: Omit<Customer, 'id' | 'createdAt' | 'updatedAt'>): Promise<Customer> {
@@ -86,7 +90,11 @@ export class CustomerRepository extends BaseRepository {
     const finalQuery = query.replace('uuid_generate_v4()', 'DEFAULT');
     
     const result = await this.db.query(finalQuery, values);
-    return this.toCamelCase(result.rows[0]) as Customer;
+    const customer = this.toCamelCase(result.rows[0]);
+    return {
+      ...customer,
+      balance: customer.currentBalance || 0 // Map current_balance to balance for frontend
+    } as Customer;
   }
 
   async update(id: string, companyId: string, updateData: Partial<Customer>): Promise<Customer | null> {
@@ -102,12 +110,16 @@ export class CustomerRepository extends BaseRepository {
     );
 
     const result = await this.db.query(query, values);
-    
+
     if (result.rows.length === 0) {
       return null;
     }
 
-    return this.toCamelCase(result.rows[0]) as Customer;
+    const customer = this.toCamelCase(result.rows[0]);
+    return {
+      ...customer,
+      balance: customer.currentBalance || 0 // Map current_balance to balance for frontend
+    } as Customer;
   }
 
   async delete(id: string, companyId: string): Promise<boolean> {
