@@ -162,8 +162,15 @@ export default function Customers() {
       };
 
       const newCustomer = await dataService.createCustomer(customerData);
-      setCustomers([newCustomer, ...customers]);
+      console.log("Customer created:", newCustomer);
+
+      // Refresh the customers list from the server to ensure consistency
+      const updatedCustomers = await dataService.getCustomers();
+      setCustomers(updatedCustomers);
       setIsCreateDialogOpen(false);
+
+      // Show success message
+      console.log("Customer list updated with new customer");
     } catch (err) {
       console.error("Failed to create customer:", err);
       setError("Failed to create customer");
