@@ -334,6 +334,11 @@ class PostgresBusinessDataService {
     }
   }
 
+  // Alias method for compatibility with existing code
+  public async getProformaInvoices(): Promise<ProformaInvoice[]> {
+    return this.getProformas();
+  }
+
   // Credit Notes methods
   public async getCreditNotes(): Promise<any[]> {
     try {
