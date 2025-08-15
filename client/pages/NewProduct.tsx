@@ -748,17 +748,35 @@ export default function NewProduct() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="subcategory">Subcategory</Label>
-                      <Input
-                        id="subcategory"
+                      <Select
                         value={formData.subcategory}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            subcategory: e.target.value,
-                          }))
+                        onValueChange={(value) =>
+                          setFormData((prev) => ({ ...prev, subcategory: value }))
                         }
-                        placeholder="Subcategory"
-                      />
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select subcategory (optional)" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">No subcategory</SelectItem>
+                          {categories
+                            .filter(cat => {
+                              // Show subcategories that belong to the selected category
+                              const selectedCategory = categories.find(c => c.name === formData.category);
+                              return selectedCategory && cat.parentId === selectedCategory.id;
+                            })
+                            .map((subcategory) => (
+                              <SelectItem key={subcategory.id} value={subcategory.name}>
+                                {subcategory.name}
+                                {subcategory.description && (
+                                  <span className="text-xs text-muted-foreground ml-2">
+                                    - {subcategory.description}
+                                  </span>
+                                )}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
 
