@@ -1,6 +1,7 @@
 import { Router } from "express";
 import customersRouter from "./customers";
 import productsRouter from "./products";
+import categoriesRouter from "./categories";
 import invoicesRouter from "./invoices";
 import taxesRouter from "./taxes";
 import seedRouter from "./seed";
