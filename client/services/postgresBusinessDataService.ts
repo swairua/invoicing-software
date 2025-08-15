@@ -715,6 +715,18 @@ class PostgresBusinessDataService {
     }
   }
 
+  public async addActivityLog(entry: any): Promise<void> {
+    try {
+      await this.apiCall("/activity-log", {
+        method: "POST",
+        body: JSON.stringify(entry),
+      });
+    } catch (error) {
+      console.error("Failed to add activity log entry:", error);
+      // Don't throw here as activity logging is usually not critical
+    }
+  }
+
   // Statement of Account methods
   public async getStatementOfAccount(filter: {
     customerId: string;
