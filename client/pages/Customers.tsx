@@ -125,7 +125,8 @@ export default function Customers() {
 
       // Reload customers
       const data = await dataService.getCustomers();
-      setCustomers(data);
+      const normalizedData = normalizeCustomerData(data);
+      setCustomers(normalizedData);
 
     } catch (err) {
       console.error("Failed to load sample data:", err);
