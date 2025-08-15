@@ -31,49 +31,10 @@ router.get('/', async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching customers:', error);
-    console.log('Returning fallback customers data');
-
-    // Return fallback customers when database is unavailable
-    const fallbackCustomers = [
-      {
-        id: '1',
-        name: 'Acme Corporation Ltd',
-        email: 'contact@acme.com',
-        phone: '+254700123456',
-        kraPin: 'P051234567A',
-        address: '123 Business Ave, Nairobi',
-        creditLimit: 500000,
-        balance: 125000,
-        isActive: true,
-        companyId: req.headers['x-company-id'] as string || '550e8400-e29b-41d4-a716-446655440000',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: '2',
-        name: 'Tech Solutions Kenya Ltd',
-        email: 'info@techsolutions.co.ke',
-        phone: '+254722987654',
-        kraPin: 'P051234568B',
-        address: '456 Innovation Hub, Nairobi',
-        creditLimit: 300000,
-        balance: 45000,
-        isActive: true,
-        companyId: req.headers['x-company-id'] as string || '550e8400-e29b-41d4-a716-446655440000',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-    ];
-
-    res.json({
-      success: true,
-      data: fallbackCustomers,
-      meta: {
-        total: fallbackCustomers.length,
-        page: 1,
-        limit: 50,
-        totalPages: 1
-      }
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch customers from database',
+      details: error.message
     });
   }
 });
