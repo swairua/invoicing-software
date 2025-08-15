@@ -39,6 +39,7 @@ import {
 import { Quotation } from "@shared/types";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import { useToast } from "../hooks/use-toast";
+import { safeFormatDateKE } from "@/lib/utils";
 
 export default function QuotationDetails() {
   const { id } = useParams<{ id: string }>();
