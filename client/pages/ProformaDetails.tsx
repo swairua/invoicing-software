@@ -93,13 +93,8 @@ export default function ProformaDetails() {
     }).format(amount);
   };
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat("en-KE", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    }).format(new Date(date));
-  };
+  // Use safe date formatting to prevent RangeError: Invalid time value
+  const formatDate = safeFormatDateKE;
 
   const getStatusColor = (status: string) => {
     switch (status) {
