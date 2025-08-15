@@ -75,7 +75,7 @@ async function addSampleCustomers() {
     for (const customer of customers) {
       try {
         await client.query(`
-          INSERT INTO customers (id, company_id, name, email, phone, address, kra_pin, credit_limit, balance, is_active, created_at, updated_at)
+          INSERT INTO customers (id, company_id, name, email, phone, address, kra_pin, credit_limit, current_balance, is_active, created_at, updated_at)
           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
           ON CONFLICT (id) DO NOTHING
         `, [
