@@ -573,7 +573,7 @@ export default function QuickActions() {
                   : 0;
 
                 return (
-                  <div key={index} className="border rounded-lg p-4 space-y-3">
+                  <div key={`product-${item.productId || 'empty'}-${index}`} className="border rounded-lg p-4 space-y-3">
                     <div className="flex items-start gap-3">
                       <div className="flex-1 space-y-3">
                         <div>
