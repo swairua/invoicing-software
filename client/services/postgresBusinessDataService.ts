@@ -80,15 +80,7 @@ class PostgresBusinessDataService {
           "PostgresBusinessDataService: Failed to fetch customers:",
           error,
         );
-        console.log(
-          "PostgresBusinessDataService: Using fallback customer data",
-        );
-        const fallbackCustomers = this.getFallbackCustomers();
-        console.log(
-          "PostgresBusinessDataService: fallback customers:",
-          fallbackCustomers,
-        );
-        return fallbackCustomers;
+        throw new Error(`Failed to fetch customers: ${error.message}`);
       });
   }
 
