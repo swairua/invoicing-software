@@ -42,7 +42,7 @@ import {
   Ruler,
   MapPin,
 } from "lucide-react";
-import { Product, ProductDimensions, ProductVariant } from "@shared/types";
+import { Product, ProductDimensions, ProductVariant, ProductCategory } from "@shared/types";
 import { UnitConverter } from "@shared/units";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import { useToast } from "../hooks/use-toast";
