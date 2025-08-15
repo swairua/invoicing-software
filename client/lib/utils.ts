@@ -72,11 +72,15 @@ export function safeFormatDateKE(
   const dateObj = date instanceof Date ? date : new Date(date);
   if (!isValid(dateObj)) return fallback;
 
-  return new Intl.DateTimeFormat("en-KE", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  }).format(dateObj);
+  try {
+    return new Intl.DateTimeFormat("en-KE", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    }).format(dateObj);
+  } catch (error) {
+    return fallback;
+  }
 }
 
 /**
