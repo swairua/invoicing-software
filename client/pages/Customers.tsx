@@ -408,13 +408,11 @@ export default function Customers() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {customers.filter((c) => c.isActive).length}
+              {customerTotals.activeCustomers}
             </div>
             <p className="text-xs text-muted-foreground">
-              {customers.length > 0 ? Math.round(
-                (customers.filter((c) => c.isActive).length /
-                  customers.length) *
-                  100,
+              {customerTotals.totalCustomers > 0 ? Math.round(
+                (customerTotals.activeCustomers / customerTotals.totalCustomers) * 100,
               ) : 0}
               % of total
             </p>
