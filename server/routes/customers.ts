@@ -146,7 +146,7 @@ router.post('/', async (req, res) => {
 
     // Return a fallback created customer response when database is unavailable
     const fallbackCustomer = {
-      id: `fallback-${Date.now()}`,
+      id: `fb-${Date.now()}-${Math.random().toString(36).substring(2, 15)}`,
       name: req.body.name || 'Sample Customer',
       email: req.body.email || 'customer@example.com',
       phone: req.body.phone || '+254700000000',
