@@ -13,6 +13,7 @@ import {
   DashboardMetrics,
   InvoiceItem,
   Supplier,
+  ProductCategory,
 } from "@shared/types";
 
 // Live simulation data with realistic business operations
