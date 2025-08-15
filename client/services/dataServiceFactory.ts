@@ -1,9 +1,16 @@
 import PostgresBusinessDataService from "./postgresBusinessDataService";
 
-// Factory function to get the data service - LIVE DATABASE ONLY
+/**
+ * Data Service Factory - LIVE DATABASE MODE ONLY
+ *
+ * This factory only returns the PostgreSQL data service.
+ * All fallback mechanisms have been removed per user requirements.
+ * The application will fail fast if database connections are unavailable.
+ */
 export function getDataService() {
   console.log("✅ LIVE DATABASE MODE: Using PostgreSQL data service");
   console.log("❌ Mock data permanently disabled - All data from database");
+  console.log("⚠️  Application will fail if database is unavailable");
   return PostgresBusinessDataService.getInstance();
 }
 
