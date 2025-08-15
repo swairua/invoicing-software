@@ -310,6 +310,16 @@ class PostgresBusinessDataService {
     }
   }
 
+  public async getQuotationById(id: string): Promise<Quotation | undefined> {
+    try {
+      const response = await this.apiCall(`/quotations/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("Failed to fetch quotation:", error);
+      return undefined;
+    }
+  }
+
   public async createQuotation(quotationData: any): Promise<Quotation> {
     try {
       const response = await this.apiCall("/quotations", {
@@ -320,6 +330,34 @@ class PostgresBusinessDataService {
     } catch (error) {
       console.error("Failed to create quotation:", error);
       throw error;
+    }
+  }
+
+  public async updateQuotation(
+    id: string,
+    quotationData: Partial<Quotation>,
+  ): Promise<Quotation | undefined> {
+    try {
+      const response = await this.apiCall(`/quotations/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(quotationData),
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Failed to update quotation:", error);
+      throw error;
+    }
+  }
+
+  public async deleteQuotation(id: string): Promise<boolean> {
+    try {
+      await this.apiCall(`/quotations/${id}`, {
+        method: "DELETE",
+      });
+      return true;
+    } catch (error) {
+      console.error("Failed to delete quotation:", error);
+      return false;
     }
   }
 
