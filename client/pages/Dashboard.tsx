@@ -499,7 +499,7 @@ export default function Dashboard() {
                     <TableCell>
                       <Badge variant="outline">{payment.method}</Badge>
                     </TableCell>
-                    <TableCell>{payment.date.toLocaleDateString()}</TableCell>
+                    <TableCell>{safeToLocaleDateString(payment.date)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
