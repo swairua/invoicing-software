@@ -42,7 +42,7 @@ import {
   Ruler,
   MapPin,
 } from "lucide-react";
-import { Product, ProductDimensions, ProductVariant } from "@shared/types";
+import { Product, ProductDimensions, ProductVariant, ProductCategory } from "@shared/types";
 import { UnitConverter } from "@shared/units";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import { useToast } from "../hooks/use-toast";
@@ -159,6 +159,8 @@ export default function NewProduct() {
     stock: "",
     isActive: true,
   });
+  const [categories, setCategories] = useState<ProductCategory[]>([]);
+  const [units, setUnits] = useState<any[]>([]);
 
   const dataService = dataServiceFactory.getDataService();
 
@@ -252,18 +254,36 @@ export default function NewProduct() {
     loadProduct();
   }, [isEditMode, id, dataService, navigate, toast]);
 
-  const categories = [
-    "Medical Supplies",
-    "Furniture",
-    "Electronics",
-    "Office Supplies",
-    "Cleaning Supplies",
-    "Food & Beverages",
-    "Automotive",
-    "Construction",
-    "Clothing & Textiles",
-    "Tools & Equipment",
-  ];
+  // Load categories and units
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [categoriesData, unitsData] = await Promise.all([
+          dataService.getCategories(),
+          // Get units from UnitConverter for now
+          Promise.resolve(UnitConverter.getAllUnits()),
+        ]);
+        setCategories(categoriesData || []);
+        setUnits(unitsData || []);
+      } catch (error) {
+        console.error("Error loading categories and units:", error);
+        toast({
+          title: "Warning",
+          description: "Could not load categories and units. Using defaults.",
+          variant: "destructive",
+        });
+        // Fallback to hardcoded categories if API fails
+        setCategories([
+          { id: "1", name: "Medical Supplies", companyId: "1" },
+          { id: "2", name: "Electronics", companyId: "1" },
+          { id: "3", name: "Office Furniture", companyId: "1" },
+          { id: "4", name: "Cleaning Supplies", companyId: "1" },
+        ]);
+        setUnits(UnitConverter.getAllUnits());
+      }
+    };
+    loadData();
+  }, [dataService, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -563,6 +583,21 @@ export default function NewProduct() {
                   ? "Create a copy of an existing product"
                   : "Add a new product to your catalog"}
             </p>
+            {!isEditMode && categories.length === 0 && (
+              <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-700">
+                  <strong>Tip:</strong> Create{" "}
+                  <Link to="/categories" className="underline font-medium">
+                    Categories
+                  </Link>{" "}
+                  and{" "}
+                  <Link to="/units" className="underline font-medium">
+                    Units
+                  </Link>{" "}
+                  first to organize your products better.
+                </p>
+              </div>
+            )}
           </div>
         </div>
         <div className="flex gap-2">
@@ -699,8 +734,13 @@ export default function NewProduct() {
                         </SelectTrigger>
                         <SelectContent>
                           {categories.map((category) => (
-                            <SelectItem key={category} value={category}>
-                              {category}
+                            <SelectItem key={category.id} value={category.name}>
+                              {category.name}
+                              {category.description && (
+                                <span className="text-xs text-muted-foreground ml-2">
+                                  - {category.description}
+                                </span>
+                              )}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -708,17 +748,35 @@ export default function NewProduct() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="subcategory">Subcategory</Label>
-                      <Input
-                        id="subcategory"
+                      <Select
                         value={formData.subcategory}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            subcategory: e.target.value,
-                          }))
+                        onValueChange={(value) =>
+                          setFormData((prev) => ({ ...prev, subcategory: value }))
                         }
-                        placeholder="Subcategory"
-                      />
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select subcategory (optional)" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">No subcategory</SelectItem>
+                          {categories
+                            .filter(cat => {
+                              // Show subcategories that belong to the selected category
+                              const selectedCategory = categories.find(c => c.name === formData.category);
+                              return selectedCategory && cat.parentId === selectedCategory.id;
+                            })
+                            .map((subcategory) => (
+                              <SelectItem key={subcategory.id} value={subcategory.name}>
+                                {subcategory.name}
+                                {subcategory.description && (
+                                  <span className="text-xs text-muted-foreground ml-2">
+                                    - {subcategory.description}
+                                  </span>
+                                )}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
 
@@ -1297,7 +1355,7 @@ export default function NewProduct() {
                         <div className="space-y-2">
                           {variants.map((variant, index) => (
                             <div
-                              key={index}
+                              key={variant.sku || `variant-${index}`}
                               className="flex items-center gap-4 p-4 border rounded-lg"
                             >
                               <div className="flex-1">
@@ -1383,7 +1441,7 @@ export default function NewProduct() {
                         <div className="space-y-2">
                           <Label>Attributes</Label>
                           {newVariant.attributes.map((attr, index) => (
-                            <div key={index} className="flex gap-2">
+                            <div key={`attr-${index}-${attr.key}`} className="flex gap-2">
                               <Input
                                 placeholder="Attribute name (e.g., Color)"
                                 value={attr.key}

@@ -8,6 +8,7 @@ import {
   DashboardMetrics,
   InvoiceItem,
   Supplier,
+  ProductCategory,
 } from "@shared/types";
 
 // PostgreSQL Business Data Service that connects to real database
@@ -173,13 +174,7 @@ class PostgresBusinessDataService {
           "PostgresBusinessDataService: Failed to fetch products:",
           error,
         );
-        console.log("PostgresBusinessDataService: Using fallback product data");
-        const fallbackProducts = this.getFallbackProducts();
-        console.log(
-          "PostgresBusinessDataService: fallback products:",
-          fallbackProducts,
-        );
-        return fallbackProducts;
+        throw new Error(`Failed to fetch products from database: ${error.message}`);
       });
   }
 
@@ -270,8 +265,7 @@ class PostgresBusinessDataService {
       })
       .catch((error) => {
         console.error("Failed to fetch invoices:", error);
-        console.log("Using fallback invoice data");
-        return this.getFallbackInvoices();
+        throw new Error(`Failed to fetch invoices from database: ${error.message}`);
       });
   }
 
@@ -298,6 +292,34 @@ class PostgresBusinessDataService {
     }
   }
 
+  public async updateInvoice(
+    id: string,
+    invoiceData: Partial<Invoice>,
+  ): Promise<Invoice | undefined> {
+    try {
+      const response = await this.apiCall(`/invoices/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(invoiceData),
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Failed to update invoice:", error);
+      throw error;
+    }
+  }
+
+  public async deleteInvoice(id: string): Promise<boolean> {
+    try {
+      await this.apiCall(`/invoices/${id}`, {
+        method: "DELETE",
+      });
+      return true;
+    } catch (error) {
+      console.error("Failed to delete invoice:", error);
+      return false;
+    }
+  }
+
   // Quotation methods
   public async getQuotations(): Promise<Quotation[]> {
     try {
@@ -305,8 +327,17 @@ class PostgresBusinessDataService {
       return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       console.error("Failed to fetch quotations:", error);
-      console.log("Using fallback quotation data");
-      return this.getFallbackQuotations();
+      throw new Error(`Failed to fetch quotations from database: ${error.message}`);
+    }
+  }
+
+  public async getQuotationById(id: string): Promise<Quotation | undefined> {
+    try {
+      const response = await this.apiCall(`/quotations/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("Failed to fetch quotation:", error);
+      return undefined;
     }
   }
 
@@ -323,6 +354,34 @@ class PostgresBusinessDataService {
     }
   }
 
+  public async updateQuotation(
+    id: string,
+    quotationData: Partial<Quotation>,
+  ): Promise<Quotation | undefined> {
+    try {
+      const response = await this.apiCall(`/quotations/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(quotationData),
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Failed to update quotation:", error);
+      throw error;
+    }
+  }
+
+  public async deleteQuotation(id: string): Promise<boolean> {
+    try {
+      await this.apiCall(`/quotations/${id}`, {
+        method: "DELETE",
+      });
+      return true;
+    } catch (error) {
+      console.error("Failed to delete quotation:", error);
+      return false;
+    }
+  }
+
   // Proforma methods
   public async getProformas(): Promise<ProformaInvoice[]> {
     try {
@@ -334,6 +393,62 @@ class PostgresBusinessDataService {
     }
   }
 
+  // Alias method for compatibility with existing code
+  public async getProformaInvoices(): Promise<ProformaInvoice[]> {
+    return this.getProformas();
+  }
+
+  public async getProformaInvoiceById(id: string): Promise<ProformaInvoice | undefined> {
+    try {
+      const response = await this.apiCall(`/proformas/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("Failed to fetch proforma invoice:", error);
+      return undefined;
+    }
+  }
+
+  public async createProformaInvoice(proformaData: any): Promise<ProformaInvoice> {
+    try {
+      const response = await this.apiCall("/proformas", {
+        method: "POST",
+        body: JSON.stringify(proformaData),
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Failed to create proforma invoice:", error);
+      throw error;
+    }
+  }
+
+  public async updateProformaInvoice(
+    id: string,
+    proformaData: Partial<ProformaInvoice>,
+  ): Promise<ProformaInvoice | undefined> {
+    try {
+      const response = await this.apiCall(`/proformas/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(proformaData),
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Failed to update proforma invoice:", error);
+      throw error;
+    }
+  }
+
+  public async deleteProformaInvoice(id: string): Promise<boolean> {
+    try {
+      await this.apiCall(`/proformas/${id}`, {
+        method: "DELETE",
+      });
+      return true;
+    } catch (error) {
+      console.error("Failed to delete proforma invoice:", error);
+      return false;
+    }
+  }
+
   // Credit Notes methods
   public async getCreditNotes(): Promise<any[]> {
     try {
@@ -341,8 +456,7 @@ class PostgresBusinessDataService {
       return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       console.error("Failed to fetch credit notes:", error);
-      console.log("Using fallback credit notes data");
-      return this.getFallbackCreditNotes();
+      throw new Error(`Failed to fetch credit notes from database: ${error.message}`);
     }
   }
 
@@ -352,10 +466,7 @@ class PostgresBusinessDataService {
       return response.data;
     } catch (error) {
       console.error("Failed to fetch credit note:", error);
-      console.log("Using fallback credit note data");
-      // Return the first matching credit note from fallback data
-      const fallbackData = this.getFallbackCreditNotes();
-      return fallbackData.find((cn) => cn.id === id);
+      throw new Error(`Failed to fetch credit note from database: ${error.message}`);
     }
   }
 
@@ -367,6 +478,49 @@ class PostgresBusinessDataService {
     } catch (error) {
       console.error("Failed to fetch payments:", error);
       return [];
+    }
+  }
+
+  public async createPayment(
+    paymentData: Omit<Payment, "id" | "createdAt" | "updatedAt">,
+  ): Promise<Payment> {
+    try {
+      const response = await this.apiCall("/payments", {
+        method: "POST",
+        body: JSON.stringify(paymentData),
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Failed to create payment:", error);
+      throw error;
+    }
+  }
+
+  public async updatePayment(
+    id: string,
+    paymentData: Partial<Payment>,
+  ): Promise<Payment | undefined> {
+    try {
+      const response = await this.apiCall(`/payments/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(paymentData),
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Failed to update payment:", error);
+      throw error;
+    }
+  }
+
+  public async deletePayment(id: string): Promise<boolean> {
+    try {
+      await this.apiCall(`/payments/${id}`, {
+        method: "DELETE",
+      });
+      return true;
+    } catch (error) {
+      console.error("Failed to delete payment:", error);
+      return false;
     }
   }
 
@@ -454,8 +608,7 @@ class PostgresBusinessDataService {
       return response.data;
     } catch (error) {
       console.error("Failed to fetch dashboard metrics:", error);
-      console.log("Using fallback dashboard metrics");
-      return this.getFallbackDashboardMetrics();
+      throw new Error(`Failed to fetch dashboard metrics from database: ${error.message}`);
     }
   }
 
@@ -483,6 +636,49 @@ class PostgresBusinessDataService {
     }
   }
 
+  public async createSupplier(
+    supplierData: Omit<Supplier, "id" | "createdAt" | "updatedAt">,
+  ): Promise<Supplier> {
+    try {
+      const response = await this.apiCall("/suppliers", {
+        method: "POST",
+        body: JSON.stringify(supplierData),
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Failed to create supplier:", error);
+      throw error;
+    }
+  }
+
+  public async updateSupplier(
+    id: string,
+    supplierData: Partial<Supplier>,
+  ): Promise<Supplier | undefined> {
+    try {
+      const response = await this.apiCall(`/suppliers/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(supplierData),
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Failed to update supplier:", error);
+      throw error;
+    }
+  }
+
+  public async deleteSupplier(id: string): Promise<boolean> {
+    try {
+      await this.apiCall(`/suppliers/${id}`, {
+        method: "DELETE",
+      });
+      return true;
+    } catch (error) {
+      console.error("Failed to delete supplier:", error);
+      return false;
+    }
+  }
+
   // Stock movements
   public async getStockMovements(): Promise<any[]> {
     try {
@@ -501,9 +697,19 @@ class PostgresBusinessDataService {
       return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       console.error("Failed to fetch activity log:", error);
-      console.log("Using fallback activity data");
-      // Return fallback activity data when API is unavailable
-      return this.getFallbackActivityLog();
+      throw new Error(`Failed to fetch activity log from database: ${error.message}`);
+    }
+  }
+
+  public async addActivityLog(entry: any): Promise<void> {
+    try {
+      await this.apiCall("/activity-log", {
+        method: "POST",
+        body: JSON.stringify(entry),
+      });
+    } catch (error) {
+      console.error("Failed to add activity log entry:", error);
+      // Don't throw here as activity logging is usually not critical
     }
   }
 
@@ -531,555 +737,64 @@ class PostgresBusinessDataService {
       return response.data;
     } catch (error) {
       console.error("Failed to fetch statement of account:", error);
-      console.log("Using fallback statement data");
-      return this.getFallbackStatementData(filter);
+      throw new Error(`Failed to fetch statement of account from database: ${error.message}`);
     }
   }
 
-  // Fallback data methods (for when API is unavailable)
-  private getFallbackCustomers(): Customer[] {
-    return [
-      {
-        id: "1",
-        name: "Acme Corporation Ltd",
-        email: "procurement@acme.com",
-        phone: "+254700123456",
-        kraPin: "P051234567A",
-        address: "P.O Box 12345, Nairobi Kenya",
-        creditLimit: 500000,
-        balance: 125000,
-        isActive: true,
-        companyId: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: "2",
-        name: "Tech Solutions Kenya Ltd",
-        email: "info@techsolutions.co.ke",
-        phone: "+254722987654",
-        kraPin: "P051234568B",
-        address: "456 Innovation Hub, Nairobi",
-        creditLimit: 300000,
-        balance: 45000,
-        isActive: true,
-        companyId: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ];
-  }
-
-  private getFallbackProducts(): Product[] {
-    return [
-      {
-        id: "1",
-        name: "Latex Rubber Gloves Bicolor Reusable XL",
-        description:
-          "High-quality latex rubber gloves for medical and industrial use",
-        sku: "LRG-001",
-        category: "Medical Supplies",
-        unit: "Pair",
-        purchasePrice: 400,
-        sellingPrice: 500,
-        minStock: 50,
-        maxStock: 1000,
-        currentStock: 450,
-        isActive: true,
-        companyId: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: "2",
-        name: "Digital Blood Pressure Monitor",
-        description: "Accurate digital blood pressure monitoring device",
-        sku: "DBP-001",
-        category: "Medical Equipment",
-        unit: "Piece",
-        purchasePrice: 2500,
-        sellingPrice: 3500,
-        minStock: 5,
-        maxStock: 100,
-        currentStock: 25,
-        isActive: true,
-        companyId: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: "3",
-        name: "Executive Office Chair with Lumbar Support",
-        description: "Ergonomic executive chair with adjustable lumbar support",
-        sku: "EOC-002",
-        category: "Office Furniture",
-        unit: "Piece",
-        purchasePrice: 12000,
-        sellingPrice: 18000,
-        minStock: 5,
-        maxStock: 50,
-        currentStock: 12,
-        isActive: true,
-        companyId: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: "4",
-        name: "Wireless Bluetooth Headphones",
-        description: "Premium wireless headphones with noise cancellation",
-        sku: "WBH-004",
-        category: "Electronics",
-        unit: "Piece",
-        purchasePrice: 3500,
-        sellingPrice: 5500,
-        minStock: 20,
-        maxStock: 200,
-        currentStock: 85,
-        isActive: true,
-        companyId: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: "5",
-        name: "Surgical Face Masks (Box of 50)",
-        description: "3-layer disposable surgical face masks, medical grade",
-        sku: "SFM-005",
-        category: "Medical Supplies",
-        unit: "Box",
-        purchasePrice: 800,
-        sellingPrice: 1200,
-        minStock: 100,
-        maxStock: 2000,
-        currentStock: 45,
-        isActive: true,
-        companyId: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ];
-  }
-
-  private getFallbackInvoices(): Invoice[] {
-    return [
-      {
-        id: "1",
-        invoiceNumber: "INV-2024-001",
-        customerId: "1",
-        customer: this.getFallbackCustomers()[0],
-        items: [],
-        subtotal: 12000,
-        vatAmount: 0,
-        discountAmount: 0,
-        total: 12000,
-        amountPaid: 12000,
-        balance: 0,
-        status: "paid",
-        dueDate: new Date(),
-        issueDate: new Date(),
-        notes: "Payment received via M-Pesa",
-        companyId: "1",
-        createdBy: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ];
-  }
-
-  private getFallbackQuotations(): Quotation[] {
-    return [
-      {
-        id: "1",
-        quoteNumber: "QUO-2024-001",
-        customerId: "1",
-        customer: this.getFallbackCustomers()[0],
-        items: [],
-        subtotal: 25000,
-        vatAmount: 0,
-        discountAmount: 0,
-        total: 25000,
-        status: "sent",
-        validUntil: new Date(),
-        issueDate: new Date(),
-        notes: "Bulk order discount available",
-        companyId: "1",
-        createdBy: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ];
-  }
-
-  private getFallbackDashboardMetrics(): DashboardMetrics {
-    return {
-      totalRevenue: 145230.5,
-      outstandingInvoices: 23450.75,
-      lowStockAlerts: 12,
-      recentPayments: 8750.25,
-      salesTrend: [
-        { date: "2024-01-01", amount: 12500 },
-        { date: "2024-01-02", amount: 15600 },
-        { date: "2024-01-03", amount: 18200 },
-        { date: "2024-01-04", amount: 16800 },
-        { date: "2024-01-05", amount: 21400 },
-        { date: "2024-01-06", amount: 19300 },
-        { date: "2024-01-07", amount: 23200 },
-      ],
-      topProducts: [
-        { name: "Wireless Bluetooth Headphones", sales: 45600 },
-        { name: "Office Chair Executive", sales: 32400 },
-        { name: "Digital Blood Pressure Monitor", sales: 28900 },
-      ],
-      recentActivities: [
-        {
-          id: "1",
-          type: "invoice",
-          description: "New invoice INV-2024-001 created",
-          timestamp: new Date(),
-        },
-      ],
-    };
-  }
-
-  private getFallbackCreditNotes(): any[] {
-    return [
-      {
-        id: "1",
-        creditNoteNumber: "CN-2024-001",
-        customerId: "1",
-        customer: {
-          id: "1",
-          name: "Acme Corporation Ltd",
-          email: "contact@acme.com",
-        },
-        items: [
-          {
-            id: "1",
-            productId: "1",
-            product: {
-              id: "1",
-              name: "Latex Rubber Gloves Bicolor Reusable XL",
-              sku: "LRG-XL-001",
-            },
-            quantity: 10,
-            unitPrice: 500,
-            total: 5000,
-          },
-        ],
-        subtotal: 5000,
-        vatAmount: 800,
-        total: 5800,
-        reason: "Defective items returned",
-        status: "issued",
-        issueDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-        notes: "Credit for defective gloves returned by customer",
-        companyId: "1",
-        createdBy: "1",
-        createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-        updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-      },
-      {
-        id: "2",
-        creditNoteNumber: "CN-2024-002",
-        customerId: "2",
-        customer: {
-          id: "2",
-          name: "Tech Solutions Kenya Ltd",
-          email: "info@techsolutions.co.ke",
-        },
-        items: [
-          {
-            id: "2",
-            productId: "2",
-            product: {
-              id: "2",
-              name: "Digital Blood Pressure Monitor",
-              sku: "DBP-001",
-            },
-            quantity: 1,
-            unitPrice: 3500,
-            total: 3500,
-          },
-        ],
-        subtotal: 3500,
-        vatAmount: 560,
-        total: 4060,
-        reason: "Billing error adjustment",
-        status: "draft",
-        issueDate: new Date(),
-        notes: "Credit for billing error on invoice INV-2024-002",
-        companyId: "1",
-        createdBy: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ];
-  }
-
-  private getFallbackActivityLog(): any[] {
-    return [
-      {
-        id: "1",
-        type: "invoice",
-        action: "created",
-        title: "Invoice Created",
-        description: "Invoice INV-2024-001 created for Acme Corporation Ltd",
-        user: "Admin User",
-        timestamp: new Date(Date.now() - 15 * 60000),
-        metadata: { invoiceNumber: "INV-2024-001", amount: 25600 },
-      },
-      {
-        id: "2",
-        type: "payment",
-        action: "created",
-        title: "Payment Received",
-        description: "Payment received from Tech Solutions Kenya",
-        user: "Admin User",
-        timestamp: new Date(Date.now() - 45 * 60000),
-        metadata: { amount: 15000, method: "M-Pesa" },
-      },
-      {
-        id: "3",
-        type: "product",
-        action: "updated",
-        title: "Stock Updated",
-        description: "Stock level updated for Latex Rubber Gloves",
-        user: "Admin User",
-        timestamp: new Date(Date.now() - 75 * 60000),
-        metadata: { productName: "Latex Rubber Gloves", newStock: 425 },
-      },
-      {
-        id: "4",
-        type: "quotation",
-        action: "created",
-        title: "Quotation Created",
-        description: "Quotation QUO-2024-001 created for Global Trading Co.",
-        user: "Admin User",
-        timestamp: new Date(Date.now() - 120 * 60000),
-        metadata: { quoteNumber: "QUO-2024-001", amount: 42500 },
-      },
-      {
-        id: "5",
-        type: "customer",
-        action: "created",
-        title: "Customer Added",
-        description: "New customer registration: Local Retail Store",
-        user: "Admin User",
-        timestamp: new Date(Date.now() - 180 * 60000),
-        metadata: { customerName: "Local Retail Store" },
-      },
-    ];
-  }
-
-  private getFallbackStatementData(filter: any): any {
-    const fallbackTransactions = [
-      {
-        id: "1",
-        date: "2025-03-01",
-        name: "Muthaiga Country Club",
-        invoice: "790",
-        dueDate: "2025-03-02",
-        originalAmount: 60000,
-        paidAmount: 60000,
-        balance: 0,
-        status: "paid",
-      },
-      {
-        id: "2",
-        date: "2025-03-01",
-        name: "Muthaiga Country Club",
-        invoice: "791",
-        dueDate: "2025-03-02",
-        originalAmount: 18495,
-        paidAmount: 18495,
-        balance: 0,
-        status: "paid",
-      },
-      {
-        id: "3",
-        date: "2025-09-01",
-        name: "Muthaiga Country Club",
-        invoice: "795",
-        dueDate: "2025-09-02",
-        originalAmount: 16000,
-        paidAmount: 16000,
-        balance: 0,
-        status: "paid",
-      },
-      {
-        id: "4",
-        date: "2025-01-24",
-        name: "Muthaiga Country Club",
-        invoice: "804",
-        dueDate: "2025-02-24",
-        originalAmount: 24000,
-        paidAmount: 24000,
-        balance: 0,
-        status: "paid",
-      },
-      {
-        id: "5",
-        date: "2025-02-12",
-        name: "Muthaiga Country Club",
-        invoice: "822",
-        dueDate: "2025-03-12",
-        originalAmount: 24000,
-        paidAmount: 24000,
-        balance: 0,
-        status: "paid",
-      },
-      {
-        id: "6",
-        date: "2025-02-14",
-        name: "Muthaiga Country Club",
-        invoice: "826",
-        dueDate: "2025-03-14",
-        originalAmount: 5000,
-        paidAmount: 5000,
-        balance: 0,
-        status: "paid",
-      },
-      {
-        id: "7",
-        date: "2025-03-06",
-        name: "Muthaiga Country Club",
-        invoice: "835",
-        dueDate: "2025-04-06",
-        originalAmount: 16000,
-        paidAmount: 16000,
-        balance: 0,
-        status: "paid",
-      },
-      {
-        id: "8",
-        date: "2025-03-19",
-        name: "Muthaiga Country Club",
-        invoice: "843",
-        dueDate: "2025-04-19",
-        originalAmount: 24000,
-        paidAmount: 24000,
-        balance: 0,
-        status: "paid",
-      },
-      {
-        id: "9",
-        date: "2025-04-01",
-        name: "Muthaiga Country Club",
-        invoice: "852",
-        dueDate: "2025-05-01",
-        originalAmount: 40000,
-        paidAmount: 40000,
-        balance: 0,
-        status: "paid",
-      },
-      {
-        id: "10",
-        date: "2025-04-04",
-        name: "Muthaiga Country Club",
-        invoice: "854",
-        dueDate: "2025-05-04",
-        originalAmount: 16000,
-        paidAmount: 16000,
-        balance: 0,
-        status: "paid",
-      },
-      {
-        id: "11",
-        date: "2025-04-16",
-        name: "Muthaiga Country Club",
-        invoice: "859",
-        dueDate: "2025-05-16",
-        originalAmount: 29000,
-        paidAmount: 29000,
-        balance: 0,
-        status: "paid",
-      },
-      {
-        id: "12",
-        date: "2025-05-05",
-        name: "Muthaiga Country Club",
-        invoice: "863",
-        dueDate: "2025-06-05",
-        originalAmount: 16000,
-        paidAmount: 16000,
-        balance: 0,
-        status: "paid",
-      },
-      {
-        id: "13",
-        date: "2025-06-05",
-        name: "Muthaiga Country Club",
-        invoice: "876",
-        dueDate: "2025-07-05",
-        originalAmount: 24000,
-        paidAmount: 0,
-        balance: 24000,
-        status: "overdue",
-      },
-      {
-        id: "14",
-        date: "2025-06-13",
-        name: "Muthaiga Country Club",
-        invoice: "881",
-        dueDate: "2025-07-13",
-        originalAmount: 24000,
-        paidAmount: 0,
-        balance: 24000,
-        status: "overdue",
-      },
-      {
-        id: "15",
-        date: "2025-07-02",
-        name: "Muthaiga Country Club",
-        invoice: "884",
-        dueDate: "2025-08-02",
-        originalAmount: 16000,
-        paidAmount: 0,
-        balance: 16000,
-        status: "current",
-      },
-    ];
-
-    // Apply basic filtering (client-side for fallback data)
-    let filteredTransactions = [...fallbackTransactions];
-
-    if (filter.startDate) {
-      filteredTransactions = filteredTransactions.filter(
-        (t) => new Date(t.date) >= new Date(filter.startDate),
-      );
+  // Categories methods
+  public async getCategories(): Promise<ProductCategory[]> {
+    try {
+      const response = await this.apiCall("/categories");
+      return Array.isArray(response.data) ? response.data : [];
+    } catch (error) {
+      console.error("Failed to fetch categories:", error);
+      throw new Error(`Failed to fetch categories from database: ${error.message}`);
     }
-
-    if (filter.endDate) {
-      filteredTransactions = filteredTransactions.filter(
-        (t) => new Date(t.date) <= new Date(filter.endDate),
-      );
-    }
-
-    if (filter.status && filter.status !== "all") {
-      filteredTransactions = filteredTransactions.filter(
-        (t) => t.status === filter.status,
-      );
-    }
-
-    return {
-      transactions: filteredTransactions,
-      summary: {
-        totalOriginal: filteredTransactions.reduce(
-          (sum, t) => sum + t.originalAmount,
-          0,
-        ),
-        totalPaid: filteredTransactions.reduce(
-          (sum, t) => sum + t.paidAmount,
-          0,
-        ),
-        totalBalance: filteredTransactions.reduce(
-          (sum, t) => sum + t.balance,
-          0,
-        ),
-      },
-    };
   }
+
+  public async createCategory(
+    categoryData: Omit<ProductCategory, "id" | "createdAt" | "updatedAt">
+  ): Promise<ProductCategory> {
+    try {
+      const response = await this.apiCall("/categories", {
+        method: "POST",
+        body: JSON.stringify(categoryData),
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Failed to create category:", error);
+      throw error;
+    }
+  }
+
+  public async updateCategory(
+    id: string,
+    categoryData: Partial<ProductCategory>
+  ): Promise<ProductCategory | undefined> {
+    try {
+      const response = await this.apiCall(`/categories/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(categoryData),
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Failed to update category:", error);
+      throw error;
+    }
+  }
+
+  public async deleteCategory(id: string): Promise<boolean> {
+    try {
+      await this.apiCall(`/categories/${id}`, {
+        method: "DELETE",
+      });
+      return true;
+    } catch (error) {
+      console.error("Failed to delete category:", error);
+      return false;
+    }
+  }
+
 }
 
 export default PostgresBusinessDataService;

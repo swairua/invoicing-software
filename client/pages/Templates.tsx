@@ -983,7 +983,7 @@ function TemplateDesigner({
                 <div className="grid grid-cols-5 gap-2">
                   {COLOR_PRESETS.map((preset, index) => (
                     <Button
-                      key={index}
+                      key={preset.name}
                       variant="outline"
                       size="sm"
                       onClick={() => applyColorPreset(preset)}
@@ -1313,7 +1313,7 @@ function TemplatePreview({ template }: { template: DocumentTemplate }) {
                 fontFamily: template.design.fonts.heading,
               }}
             >
-              {template.type.toUpperCase().replace("_", " ")}
+              {template.type ? template.type.toUpperCase().replace("_", " ") : "Unknown Template"}
             </h1>
           </div>
 
