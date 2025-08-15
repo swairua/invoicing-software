@@ -366,7 +366,7 @@ export default function Dashboard() {
               <h4 className="font-semibold">Daily Revenue Breakdown</h4>
               {fallbackMetrics.salesTrend.map((day, index) => (
                 <div
-                  key={index}
+                  key={day.date}
                   className="flex justify-between items-center py-2 border-b"
                 >
                   <span className="text-sm">
