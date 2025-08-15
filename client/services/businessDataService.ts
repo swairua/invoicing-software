@@ -1116,7 +1116,7 @@ class BusinessDataService {
     quotation.updatedAt = new Date();
 
     console.log(
-      `🎭 Converted quotation ${quotation.quoteNumber} to proforma ${proforma.proformaNumber}`,
+      `���� Converted quotation ${quotation.quoteNumber} to proforma ${proforma.proformaNumber}`,
     );
     return Promise.resolve(proforma);
   }
@@ -1484,6 +1484,68 @@ class BusinessDataService {
 
   private initializeTemplates() {
     // Placeholder for template initialization
+  }
+
+  // Categories methods
+  public getCategories(): Promise<ProductCategory[]> {
+    const mockCategories: ProductCategory[] = [
+      {
+        id: "1",
+        name: "Medical Supplies",
+        description: "Medical and healthcare products",
+        companyId: "1",
+      },
+      {
+        id: "2",
+        name: "PPE",
+        description: "Personal Protective Equipment",
+        companyId: "1",
+        parentId: "1",
+      },
+      {
+        id: "3",
+        name: "Electronics",
+        description: "Electronic devices and accessories",
+        companyId: "1",
+      },
+      {
+        id: "4",
+        name: "Office Furniture",
+        description: "Desks, chairs, and office equipment",
+        companyId: "1",
+      },
+      {
+        id: "5",
+        name: "Chairs",
+        description: "Office seating solutions",
+        companyId: "1",
+        parentId: "4",
+      },
+    ];
+    return Promise.resolve(mockCategories);
+  }
+
+  public createCategory(
+    category: Omit<ProductCategory, "id" | "createdAt" | "updatedAt">
+  ): Promise<ProductCategory> {
+    const newCategory: ProductCategory = {
+      ...category,
+      id: Date.now().toString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    return Promise.resolve(newCategory);
+  }
+
+  public updateCategory(
+    id: string,
+    category: Partial<ProductCategory>
+  ): Promise<ProductCategory | undefined> {
+    return Promise.resolve(undefined);
+  }
+
+  public deleteCategory(id: string): Promise<boolean> {
+    return Promise.resolve(true);
   }
 }
 
