@@ -529,7 +529,7 @@ export default function Customers() {
                       </TableCell>
                       <TableCell>
                         <div
-                          className={`font-medium ${customer.balance > 0 ? "text-warning" : "text-muted-foreground"}`}
+                          className={`font-medium ${(customer.balance || 0) > 0 ? "text-warning" : "text-muted-foreground"}`}
                         >
                           {formatCurrency(customer.balance)}
                         </div>
