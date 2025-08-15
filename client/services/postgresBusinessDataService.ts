@@ -696,9 +696,7 @@ class PostgresBusinessDataService {
       return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       console.error("Failed to fetch activity log:", error);
-      console.log("Using fallback activity data");
-      // Return fallback activity data when API is unavailable
-      return this.getFallbackActivityLog();
+      throw new Error(`Failed to fetch activity log from database: ${error.message}`);
     }
   }
 
