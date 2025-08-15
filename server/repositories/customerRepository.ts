@@ -1,17 +1,19 @@
-import { BaseRepository, DatabaseUtils } from '../database';
-import { Customer } from '@shared/types';
+import { BaseRepository, DatabaseUtils } from "../database";
+import { Customer } from "@shared/types";
 
 export class CustomerRepository extends BaseRepository {
-  
-  async findAll(companyId: string, options: {
-    page?: number;
-    limit?: number;
-    search?: string;
-    isActive?: boolean;
-  } = {}): Promise<{ customers: Customer[]; total: number }> {
+  async findAll(
+    companyId: string,
+    options: {
+      page?: number;
+      limit?: number;
+      search?: string;
+      isActive?: boolean;
+    } = {},
+  ): Promise<{ customers: Customer[]; total: number }> {
     const { page = 1, limit = 10, search, isActive } = options;
-    
-    let whereClause = 'WHERE company_id = $1';
+
+    let whereClause = "WHERE company_id = $1";
     const params: any[] = [companyId];
     let paramIndex = 2;
 
@@ -44,9 +46,12 @@ export class CustomerRepository extends BaseRepository {
       ORDER BY name ASC
       ${this.buildPagination(page, limit)}
     `;
-    
+
     const result = await this.db.query(dataQuery, params);
-    const customers = this.toCamelCase(result.rows) as Customer[];
+    const customers = this.toCamelCase(result.rows).map((customer) => ({
+      ...customer,
+      balance: customer.currentBalance || 0, // Map current_balance to balance for frontend
+    })) as Customer[];
 
     return { customers, total };
   }
@@ -57,54 +62,77 @@ export class CustomerRepository extends BaseRepository {
       FROM customers
       WHERE id = $1 AND company_id = $2
     `;
-    
+
     const result = await this.db.query(query, [id, companyId]);
-    
+
     if (result.rows.length === 0) {
       return null;
     }
 
-    return this.toCamelCase(result.rows[0]) as Customer;
+    const customer = this.toCamelCase(result.rows[0]);
+    return {
+      ...customer,
+      balance: customer.currentBalance || 0, // Map current_balance to balance for frontend
+    } as Customer;
   }
 
-  async create(customerData: Omit<Customer, 'id' | 'createdAt' | 'updatedAt'>): Promise<Customer> {
+  async create(
+    customerData: Omit<Customer, "id" | "createdAt" | "updatedAt">,
+  ): Promise<Customer> {
+    // Map balance to current_balance for database compatibility
+    const { balance, ...restData } = customerData;
     const data = this.toSnakeCase({
-      id: 'uuid_generate_v4()',
-      ...customerData,
-      customerNumber: customerData.customerNumber || await this.generateCustomerNumber(customerData.companyId),
+      id: "uuid_generate_v4()",
+      ...restData,
+      currentBalance: balance || 0,
+      customerNumber:
+        customerData.customerNumber ||
+        (await this.generateCustomerNumber(customerData.companyId)),
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     });
 
     // Remove id from data and add it as DEFAULT
     delete data.id;
 
-    const { query, values } = DatabaseUtils.buildInsertQuery('customers', data);
-    const finalQuery = query.replace('uuid_generate_v4()', 'DEFAULT');
-    
+    const { query, values } = DatabaseUtils.buildInsertQuery("customers", data);
+    const finalQuery = query.replace("uuid_generate_v4()", "DEFAULT");
+
     const result = await this.db.query(finalQuery, values);
-    return this.toCamelCase(result.rows[0]) as Customer;
+    const customer = this.toCamelCase(result.rows[0]);
+    return {
+      ...customer,
+      balance: customer.currentBalance || 0, // Map current_balance to balance for frontend
+    } as Customer;
   }
 
-  async update(id: string, companyId: string, updateData: Partial<Customer>): Promise<Customer | null> {
+  async update(
+    id: string,
+    companyId: string,
+    updateData: Partial<Customer>,
+  ): Promise<Customer | null> {
     const data = this.toSnakeCase(updateData);
     delete data.id;
     delete data.created_at;
     delete data.updated_at;
 
     const { query, values } = DatabaseUtils.buildUpdateQuery(
-      'customers',
+      "customers",
       data,
-      { id, company_id: companyId }
+      { id, company_id: companyId },
     );
 
     const result = await this.db.query(query, values);
-    
+
     if (result.rows.length === 0) {
       return null;
     }
 
-    return this.toCamelCase(result.rows[0]) as Customer;
+    const customer = this.toCamelCase(result.rows[0]);
+    return {
+      ...customer,
+      balance: customer.currentBalance || 0, // Map current_balance to balance for frontend
+    } as Customer;
   }
 
   async delete(id: string, companyId: string): Promise<boolean> {
@@ -112,7 +140,7 @@ export class CustomerRepository extends BaseRepository {
       DELETE FROM customers
       WHERE id = $1 AND company_id = $2
     `;
-    
+
     const result = await this.db.query(query, [id, companyId]);
     return result.rowCount > 0;
   }
@@ -123,7 +151,7 @@ export class CustomerRepository extends BaseRepository {
       SET current_balance = current_balance + $1, updated_at = CURRENT_TIMESTAMP
       WHERE id = $2
     `;
-    
+
     await this.db.query(query, [amount, customerId]);
   }
 
@@ -133,7 +161,7 @@ export class CustomerRepository extends BaseRepository {
       FROM invoices
       WHERE customer_id = $1 AND status != 'cancelled' AND balance_due > 0
     `;
-    
+
     const result = await this.db.query(query, [customerId]);
     return parseFloat(result.rows[0].outstanding) || 0;
   }
@@ -145,12 +173,12 @@ export class CustomerRepository extends BaseRepository {
       WHERE company_id = $1 AND sequence_type = 'customer'
       RETURNING current_number
     `;
-    
+
     try {
       const result = await this.db.query(query, [companyId]);
       if (result.rows.length > 0) {
         const number = result.rows[0].current_number;
-        return `CUST-${String(number).padStart(3, '0')}`;
+        return `CUST-${String(number).padStart(3, "0")}`;
       }
     } catch (error) {
       // If sequence doesn't exist, create it
@@ -161,10 +189,10 @@ export class CustomerRepository extends BaseRepository {
         SET current_number = number_sequences.current_number + 1
         RETURNING current_number
       `;
-      
+
       const result = await this.db.query(insertQuery, [companyId]);
       const number = result.rows[0].current_number;
-      return `CUST-${String(number).padStart(3, '0')}`;
+      return `CUST-${String(number).padStart(3, "0")}`;
     }
 
     // Fallback

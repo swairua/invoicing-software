@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import {
@@ -53,15 +53,119 @@ import {
 import { Customer } from "@shared/types";
 import { getDataService } from "../services/dataServiceFactory";
 import { safeIncludes } from "../lib/search-utils";
+import { clearAllCache } from "../lib/cache-utils";
+import {
+  transformCustomerData,
+  safeFormatCurrency,
+  calculateCustomerTotals,
+} from "../lib/customer-data-hotfix";
 
 const dataService = getDataService();
 
 export default function Customers() {
+  const navigate = useNavigate();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isLoadingSampleData, setIsLoadingSampleData] = useState(false);
+  const [isRunningMigration, setIsRunningMigration] = useState(false);
+
+  // Run database migration
+  const runMigration = async () => {
+    try {
+      setIsRunningMigration(true);
+      setError(null);
+      console.log("Running database migration...");
+
+      const response = await fetch("/api/migration/run-migration", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to run migration");
+      }
+
+      const result = await response.json();
+      console.log("Migration completed:", result);
+
+      // Reload customers after migration
+      const rawData = await dataService.getCustomers();
+      const transformedData = transformCustomerData(rawData);
+      const normalizedData = normalizeCustomerData(transformedData);
+      setCustomers(normalizedData);
+
+      console.log("✅ Database migration completed successfully");
+    } catch (err) {
+      console.error("Failed to run migration:", err);
+      setError("Failed to run database migration");
+    } finally {
+      setIsRunningMigration(false);
+    }
+  };
+
+  // Load sample data function
+  const loadSampleData = async () => {
+    try {
+      setIsLoadingSampleData(true);
+      setError(null);
+      console.log("Loading sample data...");
+
+      const response = await fetch("/api/seed/sample-data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create sample data");
+      }
+
+      const result = await response.json();
+      console.log("Sample data created:", result);
+
+      // Reload customers
+      const rawData = await dataService.getCustomers();
+      const transformedData = transformCustomerData(rawData);
+      const normalizedData = normalizeCustomerData(transformedData);
+      setCustomers(normalizedData);
+    } catch (err) {
+      console.error("Failed to load sample data:", err);
+      setError("Failed to load sample data");
+    } finally {
+      setIsLoadingSampleData(false);
+    }
+  };
+
+  // Clear cache and reload data
+  const clearCacheAndReload = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      console.log("Clearing cache and reloading...");
+
+      await clearAllCache();
+
+      // Force reload customers from server
+      const rawData = await dataService.getCustomers();
+      console.log("Fresh customers loaded:", rawData);
+      const transformedData = transformCustomerData(rawData);
+      const normalizedData = normalizeCustomerData(transformedData);
+      setCustomers(normalizedData);
+
+      console.log("✅ Cache cleared and data reloaded");
+    } catch (err) {
+      console.error("Failed to clear cache and reload:", err);
+      setError("Failed to refresh data");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Load customers from database
   useEffect(() => {
@@ -70,9 +174,24 @@ export default function Customers() {
         setLoading(true);
         setError(null);
         console.log("Loading customers from data service...");
-        const data = await dataService.getCustomers();
-        console.log("Customers loaded:", data);
-        setCustomers(data);
+        const rawData = await dataService.getCustomers();
+        console.log("Raw customers loaded:", rawData);
+
+        // Apply production hotfix transformation
+        const transformedData = transformCustomerData(rawData);
+        console.log(
+          "Transformed customers:",
+          transformedData.map((c) => ({
+            name: c.name,
+            balance: c.balance,
+            creditLimit: c.creditLimit,
+            balanceType: typeof c.balance,
+            creditLimitType: typeof c.creditLimit,
+          })),
+        );
+
+        const normalizedData = normalizeCustomerData(transformedData);
+        setCustomers(normalizedData);
       } catch (err) {
         console.error("Failed to load customers:", err);
         setError("Failed to load customers from database");
@@ -91,6 +210,9 @@ export default function Customers() {
       safeIncludes(customer.kraPin, searchTerm),
   );
 
+  // Calculate safe totals for metrics
+  const customerTotals = calculateCustomerTotals(customers);
+
   const getCustomerInitials = (name: string) => {
     return name
       .split(" ")
@@ -100,12 +222,16 @@ export default function Customers() {
       .toUpperCase();
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-KE", {
-      style: "currency",
-      currency: "KES",
-      minimumFractionDigits: 0,
-    }).format(amount);
+  // Use the production-safe currency formatter
+  const formatCurrency = safeFormatCurrency;
+
+  // Normalize customer data to ensure valid numeric values
+  const normalizeCustomerData = (customers: Customer[]) => {
+    return customers.map((customer) => ({
+      ...customer,
+      balance: Number(customer.balance) || 0,
+      creditLimit: Number(customer.creditLimit) || 0,
+    }));
   };
 
   const handleCreateCustomer = async (e: React.FormEvent) => {
@@ -127,8 +253,17 @@ export default function Customers() {
       };
 
       const newCustomer = await dataService.createCustomer(customerData);
-      setCustomers([newCustomer, ...customers]);
+      console.log("Customer created:", newCustomer);
+
+      // Refresh the customers list from the server to ensure consistency
+      const rawData = await dataService.getCustomers();
+      const transformedData = transformCustomerData(rawData);
+      const normalizedData = normalizeCustomerData(transformedData);
+      setCustomers(normalizedData);
       setIsCreateDialogOpen(false);
+
+      // Show success message
+      console.log("Customer list updated with new customer");
     } catch (err) {
       console.error("Failed to create customer:", err);
       setError("Failed to create customer");
@@ -145,82 +280,122 @@ export default function Customers() {
             Manage your customer database and track relationships
           </p>
         </div>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Customer
+        <div className="flex gap-2">
+          {error && error.includes("database") && (
+            <Button
+              variant="outline"
+              onClick={runMigration}
+              disabled={isRunningMigration}
+              className="text-sm bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+            >
+              {isRunningMigration ? "Setting up..." : "Setup Database"}
             </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add New Customer</DialogTitle>
-              <DialogDescription>
-                Create a new customer profile. Fill in the details below.
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleCreateCustomer} className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+          )}
+          {customers.length === 0 && !loading && !error && (
+            <Button
+              variant="outline"
+              onClick={loadSampleData}
+              disabled={isLoadingSampleData}
+            >
+              {isLoadingSampleData ? "Loading..." : "Load Sample Data"}
+            </Button>
+          )}
+          <Button
+            variant="outline"
+            onClick={clearCacheAndReload}
+            disabled={loading}
+            className="text-sm"
+          >
+            {loading ? "Refreshing..." : "Clear Cache & Reload"}
+          </Button>
+          <Dialog
+            open={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
+          >
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Customer
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add New Customer</DialogTitle>
+                <DialogDescription>
+                  Create a new customer profile. Fill in the details below.
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleCreateCustomer} className="grid gap-4 py-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Company Name *</Label>
+                    <Input
+                      id="name"
+                      name="name"
+                      placeholder="Enter company name"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="kraPin">KRA PIN</Label>
+                    <Input
+                      id="kraPin"
+                      name="kraPin"
+                      placeholder="P051234567A"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder="contact@company.com"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone</Label>
+                    <Input
+                      id="phone"
+                      name="phone"
+                      placeholder="+254700123456"
+                    />
+                  </div>
+                </div>
                 <div className="space-y-2">
-                  <Label htmlFor="name">Company Name *</Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    placeholder="Enter company name"
-                    required
+                  <Label htmlFor="address">Address</Label>
+                  <Textarea
+                    id="address"
+                    name="address"
+                    placeholder="Enter business address"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="kraPin">KRA PIN</Label>
-                  <Input id="kraPin" name="kraPin" placeholder="P051234567A" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="creditLimit">Credit Limit (KES)</Label>
                   <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="contact@company.com"
+                    id="creditLimit"
+                    name="creditLimit"
+                    type="number"
+                    placeholder="500000"
+                    min="0"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input id="phone" name="phone" placeholder="+254700123456" />
+                <div className="flex justify-end gap-2 pt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsCreateDialogOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit">Create Customer</Button>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="address">Address</Label>
-                <Textarea
-                  id="address"
-                  name="address"
-                  placeholder="Enter business address"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="creditLimit">Credit Limit (KES)</Label>
-                <Input
-                  id="creditLimit"
-                  name="creditLimit"
-                  type="number"
-                  placeholder="500000"
-                  min="0"
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsCreateDialogOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit">Create Customer</Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* Metrics Cards */}
@@ -250,14 +425,16 @@ export default function Customers() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {customers.filter((c) => c.isActive).length}
+              {customerTotals.activeCustomers}
             </div>
             <p className="text-xs text-muted-foreground">
-              {Math.round(
-                (customers.filter((c) => c.isActive).length /
-                  customers.length) *
-                  100,
-              )}
+              {customerTotals.totalCustomers > 0
+                ? Math.round(
+                    (customerTotals.activeCustomers /
+                      customerTotals.totalCustomers) *
+                      100,
+                  )
+                : 0}
               % of total
             </p>
           </CardContent>
@@ -272,7 +449,7 @@ export default function Customers() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(customers.reduce((sum, c) => sum + c.balance, 0))}
+              {formatCurrency(customerTotals.totalBalance)}
             </div>
             <p className="text-xs text-muted-foreground">Total receivables</p>
           </CardContent>
@@ -285,9 +462,7 @@ export default function Customers() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(
-                customers.reduce((sum, c) => sum + c.creditLimit, 0),
-              )}
+              {formatCurrency(customerTotals.totalCreditLimit)}
             </div>
             <p className="text-xs text-muted-foreground">
               Total credit extended
@@ -397,7 +572,7 @@ export default function Customers() {
                       </TableCell>
                       <TableCell>
                         <div
-                          className={`font-medium ${customer.balance > 0 ? "text-warning" : "text-muted-foreground"}`}
+                          className={`font-medium ${(customer.balance || 0) > 0 ? "text-warning" : "text-muted-foreground"}`}
                         >
                           {formatCurrency(customer.balance)}
                         </div>
@@ -427,7 +602,7 @@ export default function Customers() {
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                window.location.href = `/customers/${customer.id}`;
+                                navigate(`/customers/${customer.id}`);
                               }}
                             >
                               <Eye className="mr-2 h-4 w-4" />
@@ -437,7 +612,7 @@ export default function Customers() {
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                window.location.href = `/customers/${customer.id}/edit`;
+                                navigate(`/customers/${customer.id}/edit`);
                               }}
                             >
                               <Edit className="mr-2 h-4 w-4" />
