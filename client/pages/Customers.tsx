@@ -146,7 +146,8 @@ export default function Customers() {
       // Force reload customers from server
       const data = await dataService.getCustomers();
       console.log("Fresh customers loaded:", data);
-      setCustomers(data);
+      const normalizedData = normalizeCustomerData(data);
+      setCustomers(normalizedData);
 
       console.log("✅ Cache cleared and data reloaded");
     } catch (err) {
