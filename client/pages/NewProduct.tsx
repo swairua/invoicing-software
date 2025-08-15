@@ -254,18 +254,36 @@ export default function NewProduct() {
     loadProduct();
   }, [isEditMode, id, dataService, navigate, toast]);
 
-  const categories = [
-    "Medical Supplies",
-    "Furniture",
-    "Electronics",
-    "Office Supplies",
-    "Cleaning Supplies",
-    "Food & Beverages",
-    "Automotive",
-    "Construction",
-    "Clothing & Textiles",
-    "Tools & Equipment",
-  ];
+  // Load categories and units
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [categoriesData, unitsData] = await Promise.all([
+          dataService.getCategories(),
+          // Get units from UnitConverter for now
+          Promise.resolve(UnitConverter.getAllUnits()),
+        ]);
+        setCategories(categoriesData || []);
+        setUnits(unitsData || []);
+      } catch (error) {
+        console.error("Error loading categories and units:", error);
+        toast({
+          title: "Warning",
+          description: "Could not load categories and units. Using defaults.",
+          variant: "destructive",
+        });
+        // Fallback to hardcoded categories if API fails
+        setCategories([
+          { id: "1", name: "Medical Supplies", companyId: "1" },
+          { id: "2", name: "Electronics", companyId: "1" },
+          { id: "3", name: "Office Furniture", companyId: "1" },
+          { id: "4", name: "Cleaning Supplies", companyId: "1" },
+        ]);
+        setUnits(UnitConverter.getAllUnits());
+      }
+    };
+    loadData();
+  }, [dataService, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
