@@ -47,6 +47,8 @@ import {
   AlertTriangle,
   DollarSign,
   Filter,
+  Tag,
+  Ruler,
 } from "lucide-react";
 import { Product } from "@shared/types";
 import { getDataService } from "../services/dataServiceFactory";
