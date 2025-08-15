@@ -929,8 +929,8 @@ export default function ProductDetails() {
                       {stockMovements.slice(0, 10).map((movement) => (
                         <TableRow key={movement.id}>
                           <TableCell>
-                            {movement.createdAt.toLocaleDateString()}{" "}
-                            {movement.createdAt.toLocaleTimeString()}
+                            {safeToLocaleDateString(movement.createdAt)}{" "}
+                            {safeToLocaleTimeString(movement.createdAt)}
                           </TableCell>
                           <TableCell>
                             <Badge
