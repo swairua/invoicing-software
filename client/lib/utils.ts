@@ -22,3 +22,40 @@ export function safeFilter<T>(
 ): T[] {
   return ensureArray(arr).filter(predicate);
 }
+
+/**
+ * Safely format a date with fallback for invalid dates
+ */
+export function safeFormatDate(
+  date: Date | string | null | undefined,
+  formatString: string = "PPP",
+  fallback: string = "Invalid date"
+): string {
+  if (!date) return fallback;
+
+  const dateObj = date instanceof Date ? date : new Date(date);
+  return isValid(dateObj) ? format(dateObj, formatString) : fallback;
+}
+
+/**
+ * Safely format relative time with fallback for invalid dates
+ */
+export function safeFormatDistanceToNow(
+  date: Date | string | null | undefined,
+  options: { addSuffix?: boolean } = { addSuffix: true },
+  fallback: string = "Unknown time"
+): string {
+  if (!date) return fallback;
+
+  const dateObj = date instanceof Date ? date : new Date(date);
+  return isValid(dateObj) ? formatDistanceToNow(dateObj, options) : fallback;
+}
+
+/**
+ * Safely check if a date value is valid
+ */
+export function isValidDate(date: Date | string | null | undefined): boolean {
+  if (!date) return false;
+  const dateObj = date instanceof Date ? date : new Date(date);
+  return isValid(dateObj);
+}
