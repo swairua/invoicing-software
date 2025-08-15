@@ -346,7 +346,7 @@ export default function NewQuotation() {
         description: "Quotation created successfully.",
       });
 
-      navigate("/quotations");
+      navigate("/quotations?refresh=true");
     } catch (error) {
       console.error("Error creating quotation:", error);
       toast({
