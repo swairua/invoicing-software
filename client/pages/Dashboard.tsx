@@ -499,7 +499,9 @@ export default function Dashboard() {
                     <TableCell>
                       <Badge variant="outline">{payment.method}</Badge>
                     </TableCell>
-                    <TableCell>{safeToLocaleDateString(payment.date)}</TableCell>
+                    <TableCell>
+                      {safeToLocaleDateString(payment.date)}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -658,7 +660,8 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {liveMetrics?.lowStockAlerts || fallbackMetrics.lowStockAlerts}
+                  {liveMetrics?.lowStockAlerts ||
+                    fallbackMetrics.lowStockAlerts}
                   {isSimulating && (
                     <Badge variant="secondary" className="ml-2 text-xs">
                       Live
@@ -702,7 +705,8 @@ export default function Dashboard() {
                 <div className="text-2xl font-bold">
                   KES{" "}
                   {(
-                    liveMetrics?.recentPayments || fallbackMetrics.recentPayments
+                    liveMetrics?.recentPayments ||
+                    fallbackMetrics.recentPayments
                   ).toLocaleString()}
                   {isSimulating && (
                     <Badge variant="secondary" className="ml-2 text-xs">

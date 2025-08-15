@@ -261,7 +261,9 @@ export default function Payments() {
     const matchesSearch =
       payment.reference?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       customer?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      invoice?.invoiceNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      invoice?.invoiceNumber
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
       false;
 
     const matchesMethod =
@@ -762,7 +764,7 @@ export default function Payments() {
                   <div className="flex items-center space-x-3">
                     <Avatar className="h-8 w-8">
                       <AvatarFallback className="text-xs">
-                        {(invoice.customer?.name || 'Unknown Customer')
+                        {(invoice.customer?.name || "Unknown Customer")
                           .split(" ")
                           .map((n) => n[0])
                           .join("")
@@ -772,7 +774,7 @@ export default function Payments() {
                     <div>
                       <div className="font-medium">{invoice.invoiceNumber}</div>
                       <div className="text-sm text-muted-foreground">
-                        {invoice.customer?.name || 'Unknown Customer'}
+                        {invoice.customer?.name || "Unknown Customer"}
                       </div>
                     </div>
                   </div>
