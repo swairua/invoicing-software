@@ -3,6 +3,13 @@ import { Link } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import {
   Card,
   CardContent,
   CardDescription,
@@ -50,9 +57,10 @@ import {
   Tag,
   Ruler,
 } from "lucide-react";
-import { Product } from "@shared/types";
+import { Product, ProductCategory } from "@shared/types";
 import { getDataService } from "../services/dataServiceFactory";
 import { safeIncludes } from "../lib/search-utils";
+import { UnitConverter, UnitOfMeasure } from "@shared/units";
 
 const dataService = getDataService();
 
@@ -62,6 +70,12 @@ export default function Products() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [categories, setCategories] = useState<ProductCategory[]>([]);
+  const [units, setUnits] = useState<UnitOfMeasure[]>([]);
+  const [categoryLoading, setCategoryLoading] = useState(false);
+  const [unitLoading, setUnitLoading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedUnit, setSelectedUnit] = useState<string>("");
 
   // Load products from database
   useEffect(() => {
@@ -84,6 +98,41 @@ export default function Products() {
     loadProducts();
   }, []);
 
+  // Load categories and units when dialog opens
+  useEffect(() => {
+    const loadCategoriesAndUnits = async () => {
+      if (!isCreateDialogOpen) return;
+
+      try {
+        setCategoryLoading(true);
+        setUnitLoading(true);
+
+        // Load categories from database
+        const categoriesData = await dataService.getCategories();
+        setCategories(categoriesData);
+
+        // Load units from shared units system (commonly used units)
+        const allUnits = UnitConverter.getAllUnits();
+        const commonUnits = [
+          ...UnitConverter.getUnitsByCategory('quantity'),
+          ...UnitConverter.getUnitsByCategory('weight'),
+          ...UnitConverter.getUnitsByCategory('volume'),
+          ...UnitConverter.getUnitsByCategory('length'),
+        ];
+        setUnits(commonUnits);
+
+      } catch (err) {
+        console.error("Failed to load categories or units:", err);
+        setError("Failed to load categories or units");
+      } finally {
+        setCategoryLoading(false);
+        setUnitLoading(false);
+      }
+    };
+
+    loadCategoriesAndUnits();
+  }, [isCreateDialogOpen]);
+
   const filteredProducts = products.filter(
     (product) =>
       safeIncludes(product.name, searchTerm) ||
@@ -105,12 +154,20 @@ export default function Products() {
     const formData = new FormData(form);
 
     try {
+      // Find the selected category name from the categories array
+      const selectedCategoryObj = categories.find(cat => cat.id === selectedCategory);
+      const categoryName = selectedCategoryObj ? selectedCategoryObj.name : selectedCategory;
+
+      // Find the selected unit symbol from the units array
+      const selectedUnitObj = units.find(unit => unit.id === selectedUnit);
+      const unitSymbol = selectedUnitObj ? selectedUnitObj.symbol : selectedUnit;
+
       const productData = {
         name: formData.get("name") as string,
         description: formData.get("description") as string,
         sku: formData.get("sku") as string,
-        category: formData.get("category") as string,
-        unit: formData.get("unit") as string,
+        category: categoryName,
+        unit: unitSymbol,
         purchasePrice: parseFloat(formData.get("purchasePrice") as string) || 0,
         sellingPrice: parseFloat(formData.get("sellingPrice") as string) || 0,
         minStock: parseInt(formData.get("minStock") as string) || 0,
@@ -124,6 +181,8 @@ export default function Products() {
       setProducts([newProduct, ...products]);
       setIsCreateDialogOpen(false);
       form.reset();
+      setSelectedCategory("");
+      setSelectedUnit("");
     } catch (err) {
       console.error("Failed to create product:", err);
       setError("Failed to create product");
@@ -188,16 +247,57 @@ export default function Products() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="category">Category</Label>
-                  <Input
-                    id="category"
-                    name="category"
-                    placeholder="Product category"
-                  />
+                  <Label htmlFor="category">Category *</Label>
+                  <Select value={selectedCategory} onValueChange={setSelectedCategory} required>
+                    <SelectTrigger>
+                      <SelectValue placeholder={categoryLoading ? "Loading categories..." : "Select category"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.length === 0 && !categoryLoading && (
+                        <SelectItem value="" disabled>
+                          No categories available - Create categories first
+                        </SelectItem>
+                      )}
+                      {categories.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                          {category.description && (
+                            <span className="text-muted-foreground text-xs ml-2">
+                              - {category.description}
+                            </span>
+                          )}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {categories.length === 0 && !categoryLoading && (
+                    <p className="text-xs text-muted-foreground">
+                      <Link to="/categories" className="text-primary hover:underline">
+                        Create categories first
+                      </Link>{" "}
+                      before adding products
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="unit">Unit</Label>
-                  <Input id="unit" name="unit" placeholder="piece, kg, liter" />
+                  <Label htmlFor="unit">Unit of Measure *</Label>
+                  <Select value={selectedUnit} onValueChange={setSelectedUnit} required>
+                    <SelectTrigger>
+                      <SelectValue placeholder={unitLoading ? "Loading units..." : "Select unit"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {units.map((unit) => (
+                        <SelectItem key={unit.id} value={unit.id}>
+                          {unit.name} ({unit.symbol})
+                          {unit.description && (
+                            <span className="text-muted-foreground text-xs ml-2">
+                              - {unit.description}
+                            </span>
+                          )}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -260,11 +360,20 @@ export default function Products() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setIsCreateDialogOpen(false)}
+                  onClick={() => {
+                    setIsCreateDialogOpen(false);
+                    setSelectedCategory("");
+                    setSelectedUnit("");
+                  }}
                 >
                   Cancel
                 </Button>
-                <Button type="submit">Create Product</Button>
+                <Button
+                  type="submit"
+                  disabled={!selectedCategory || !selectedUnit}
+                >
+                  Create Product
+                </Button>
               </div>
             </form>
           </DialogContent>
