@@ -630,7 +630,7 @@ export default function NewQuotation() {
                           const itemTotal = calculateItemTotal(item);
 
                           return (
-                            <TableRow key={index}>
+                            <TableRow key={`item-${item.productId || 'empty'}-${index}`}>
                               <TableCell>
                                 <div>
                                   <div className="font-medium">
