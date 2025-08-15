@@ -16,7 +16,7 @@ import {
   RefreshCw,
   Clock,
 } from "lucide-react";
-import { format, formatDistanceToNow } from "date-fns";
+import { format, formatDistanceToNow, isValid } from "date-fns";
 import { dataServiceFactory } from "@/services/dataServiceFactory";
 
 export interface ActivityLogEntry {
@@ -218,10 +218,13 @@ export default function ActivityLog({
                         <span>{activity.user}</span>
                         <span>•</span>
                         <Clock className="h-3 w-3" />
-                        <span title={format(activity.timestamp, "PPP p")}>
-                          {formatDistanceToNow(activity.timestamp, {
-                            addSuffix: true,
-                          })}
+                        <span title={isValid(new Date(activity.timestamp)) ? format(new Date(activity.timestamp), "PPP p") : "Invalid date"}>
+                          {isValid(new Date(activity.timestamp))
+                            ? formatDistanceToNow(new Date(activity.timestamp), {
+                                addSuffix: true,
+                              })
+                            : "Unknown time"
+                          }
                         </span>
                       </div>
                     </div>
