@@ -95,5 +95,9 @@ export function safeFormatDateGB(
   const dateObj = date instanceof Date ? date : new Date(date);
   if (!isValid(dateObj)) return fallback;
 
-  return dateObj.toLocaleDateString("en-GB");
+  try {
+    return dateObj.toLocaleDateString("en-GB");
+  } catch (error) {
+    return fallback;
+  }
 }
