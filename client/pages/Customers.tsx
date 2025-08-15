@@ -430,7 +430,7 @@ export default function Customers() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(customers.reduce((sum, c) => sum + (c.balance || 0), 0))}
+              {formatCurrency(customerTotals.totalBalance)}
             </div>
             <p className="text-xs text-muted-foreground">Total receivables</p>
           </CardContent>
