@@ -221,6 +221,14 @@ export default function Customers() {
               {isLoadingSampleData ? "Loading..." : "Load Sample Data"}
             </Button>
           )}
+          <Button
+            variant="outline"
+            onClick={clearCacheAndReload}
+            disabled={loading}
+            className="text-sm"
+          >
+            {loading ? "Refreshing..." : "Clear Cache & Reload"}
+          </Button>
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
               <Button>
