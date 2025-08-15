@@ -62,6 +62,40 @@ export default function Customers() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isLoadingSampleData, setIsLoadingSampleData] = useState(false);
+
+  // Load sample data function
+  const loadSampleData = async () => {
+    try {
+      setIsLoadingSampleData(true);
+      setError(null);
+      console.log("Loading sample data...");
+
+      const response = await fetch('/api/seed/sample-data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create sample data');
+      }
+
+      const result = await response.json();
+      console.log("Sample data created:", result);
+
+      // Reload customers
+      const data = await dataService.getCustomers();
+      setCustomers(data);
+
+    } catch (err) {
+      console.error("Failed to load sample data:", err);
+      setError("Failed to load sample data");
+    } finally {
+      setIsLoadingSampleData(false);
+    }
+  };
 
   // Load customers from database
   useEffect(() => {
