@@ -65,6 +65,7 @@ import { dataServiceFactory } from "../services/dataServiceFactory";
 import TemplateManager from "../services/templateManager";
 import PDFService from "../services/pdfService";
 import { useToast } from "../hooks/use-toast";
+import { safeFormatDateKE } from "@/lib/utils";
 
 export default function InvoiceDetails() {
   const { id } = useParams<{ id: string }>();
