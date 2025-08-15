@@ -252,11 +252,6 @@ export default function Products() {
                       <SelectValue placeholder={categoryLoading ? "Loading categories..." : "Select category"} />
                     </SelectTrigger>
                     <SelectContent>
-                      {categories.length === 0 && !categoryLoading && (
-                        <SelectItem value="" disabled>
-                          No categories available - Create categories first
-                        </SelectItem>
-                      )}
                       {categories.map((category) => (
                         <SelectItem key={category.id} value={category.id}>
                           {category.name}
