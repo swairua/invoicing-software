@@ -218,13 +218,8 @@ export default function ActivityLog({
                         <span>{activity.user}</span>
                         <span>•</span>
                         <Clock className="h-3 w-3" />
-                        <span title={isValid(new Date(activity.timestamp)) ? format(new Date(activity.timestamp), "PPP p") : "Invalid date"}>
-                          {isValid(new Date(activity.timestamp))
-                            ? formatDistanceToNow(new Date(activity.timestamp), {
-                                addSuffix: true,
-                              })
-                            : "Unknown time"
-                          }
+                        <span title={safeFormatDate(activity.timestamp, "PPP p")}>
+                          {safeFormatDistanceToNow(activity.timestamp)}
                         </span>
                       </div>
                     </div>
