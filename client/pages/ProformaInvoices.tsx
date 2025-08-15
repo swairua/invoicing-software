@@ -154,9 +154,8 @@ export default function ProformaInvoices() {
     }).format(amount);
   };
 
-  const formatDate = (date: Date | string): string => {
-    return new Date(date).toLocaleDateString("en-GB");
-  };
+  // Use safe date formatting to prevent RangeError: Invalid time value
+  const formatDate = safeFormatDateGB;
 
   const getStatusColor = (status: string): string => {
     switch (status) {
