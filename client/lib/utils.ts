@@ -59,3 +59,37 @@ export function isValidDate(date: Date | string | null | undefined): boolean {
   const dateObj = date instanceof Date ? date : new Date(date);
   return isValid(dateObj);
 }
+
+/**
+ * Safely format date using Kenya locale (en-KE)
+ */
+export function safeFormatDateKE(
+  date: Date | string | null | undefined,
+  fallback: string = "Invalid date"
+): string {
+  if (!date) return fallback;
+
+  const dateObj = date instanceof Date ? date : new Date(date);
+  if (!isValid(dateObj)) return fallback;
+
+  return new Intl.DateTimeFormat("en-KE", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).format(dateObj);
+}
+
+/**
+ * Safely format date using UK locale (en-GB)
+ */
+export function safeFormatDateGB(
+  date: Date | string | null | undefined,
+  fallback: string = "Invalid date"
+): string {
+  if (!date) return fallback;
+
+  const dateObj = date instanceof Date ? date : new Date(date);
+  if (!isValid(dateObj)) return fallback;
+
+  return dateObj.toLocaleDateString("en-GB");
+}
