@@ -49,6 +49,7 @@ import { useAuth } from "../hooks/use-auth";
 import ActivityLog from "../components/ActivityLog";
 import { DashboardMetrics } from "@shared/types";
 import { getDataService } from "../services/dataServiceFactory";
+import { safeToLocaleDateString } from "@/lib/utils";
 
 // Get business data service instance
 const businessData = getDataService();
