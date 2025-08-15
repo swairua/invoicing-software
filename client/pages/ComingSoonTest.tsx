@@ -227,7 +227,7 @@ export default function ComingSoonTest() {
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2">
             {partialItems.map((item, index) => (
-              <Card key={index} className="relative">
+              <Card key={item.name} className="relative">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
