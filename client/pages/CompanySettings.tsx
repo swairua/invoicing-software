@@ -502,7 +502,7 @@ export default function CompanySettingsPage() {
                 <Label>Terms and Conditions</Label>
                 <div className="space-y-2">
                   {settings.invoiceSettings.terms?.map((term, index) => (
-                    <div key={index} className="flex items-center space-x-2">
+                    <div key={`term-${index}-${term.substring(0, 10)}`} className="flex items-center space-x-2">
                       <Textarea
                         value={term}
                         onChange={(e) => {
