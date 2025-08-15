@@ -179,13 +179,23 @@ export default function Customers() {
             Manage your customer database and track relationships
           </p>
         </div>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Customer
+        <div className="flex gap-2">
+          {customers.length === 0 && !loading && (
+            <Button
+              variant="outline"
+              onClick={loadSampleData}
+              disabled={isLoadingSampleData}
+            >
+              {isLoadingSampleData ? "Loading..." : "Load Sample Data"}
             </Button>
-          </DialogTrigger>
+          )}
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Customer
+              </Button>
+            </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Add New Customer</DialogTitle>
@@ -255,6 +265,7 @@ export default function Customers() {
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {/* Metrics Cards */}
