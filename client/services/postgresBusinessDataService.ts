@@ -736,8 +736,7 @@ class PostgresBusinessDataService {
       return response.data;
     } catch (error) {
       console.error("Failed to fetch statement of account:", error);
-      console.log("Using fallback statement data");
-      return this.getFallbackStatementData(filter);
+      throw new Error(`Failed to fetch statement of account from database: ${error.message}`);
     }
   }
 
