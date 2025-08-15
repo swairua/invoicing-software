@@ -741,6 +741,60 @@ class PostgresBusinessDataService {
     }
   }
 
+  // Categories methods
+  public async getCategories(): Promise<ProductCategory[]> {
+    try {
+      const response = await this.apiCall("/categories");
+      return Array.isArray(response.data) ? response.data : [];
+    } catch (error) {
+      console.error("Failed to fetch categories:", error);
+      throw new Error(`Failed to fetch categories from database: ${error.message}`);
+    }
+  }
+
+  public async createCategory(
+    categoryData: Omit<ProductCategory, "id" | "createdAt" | "updatedAt">
+  ): Promise<ProductCategory> {
+    try {
+      const response = await this.apiCall("/categories", {
+        method: "POST",
+        body: JSON.stringify(categoryData),
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Failed to create category:", error);
+      throw error;
+    }
+  }
+
+  public async updateCategory(
+    id: string,
+    categoryData: Partial<ProductCategory>
+  ): Promise<ProductCategory | undefined> {
+    try {
+      const response = await this.apiCall(`/categories/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(categoryData),
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Failed to update category:", error);
+      throw error;
+    }
+  }
+
+  public async deleteCategory(id: string): Promise<boolean> {
+    try {
+      await this.apiCall(`/categories/${id}`, {
+        method: "DELETE",
+      });
+      return true;
+    } catch (error) {
+      console.error("Failed to delete category:", error);
+      return false;
+    }
+  }
+
 }
 
 export default PostgresBusinessDataService;
