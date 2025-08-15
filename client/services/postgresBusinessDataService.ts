@@ -8,6 +8,7 @@ import {
   DashboardMetrics,
   InvoiceItem,
   Supplier,
+  ProductCategory,
 } from "@shared/types";
 
 // PostgreSQL Business Data Service that connects to real database
