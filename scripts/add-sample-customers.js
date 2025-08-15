@@ -64,7 +64,7 @@ async function addSampleCustomers() {
         kra_pin: 'P051234567C',
         address: 'Industrial Area, Mombasa Road, Nairobi',
         credit_limit: 750000,
-        balance: 0,
+        current_balance: 0,
         is_active: true,
         company_id: '00000000-0000-0000-0000-000000000001'
       }
