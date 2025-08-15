@@ -426,7 +426,7 @@ export default function Settings() {
                 <div className="space-y-2">
                   <Label>Phone Numbers</Label>
                   {(companySettings.contact.phone || []).map((phone, index) => (
-                    <div key={index} className="flex space-x-2">
+                    <div key={`phone-${index}-${phone}`} className="flex space-x-2">
                       <Input
                         value={phone}
                         onChange={(e) =>
