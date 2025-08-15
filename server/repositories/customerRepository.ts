@@ -75,9 +75,12 @@ export class CustomerRepository extends BaseRepository {
   }
 
   async create(customerData: Omit<Customer, 'id' | 'createdAt' | 'updatedAt'>): Promise<Customer> {
+    // Map balance to current_balance for database compatibility
+    const { balance, ...restData } = customerData;
     const data = this.toSnakeCase({
       id: 'uuid_generate_v4()',
-      ...customerData,
+      ...restData,
+      currentBalance: balance || 0,
       customerNumber: customerData.customerNumber || await this.generateCustomerNumber(customerData.companyId),
       createdAt: new Date(),
       updatedAt: new Date()
