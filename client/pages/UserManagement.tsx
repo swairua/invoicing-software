@@ -59,6 +59,7 @@ import {
 import { User as UserType, UserRole } from "@shared/types";
 import { useToast } from "../hooks/use-toast";
 import { safeIncludes } from "../lib/search-utils";
+import { safeToLocaleDateString } from "@/lib/utils";
 import { useAuth } from "../hooks/use-auth";
 
 export default function UserManagement() {
