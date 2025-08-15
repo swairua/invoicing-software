@@ -68,9 +68,18 @@ class PostgresBusinessDataService {
           "PostgresBusinessDataService: customers API response:",
           response,
         );
-        const customers = Array.isArray(response.data) ? response.data : [];
+        const rawCustomers = Array.isArray(response.data) ? response.data : [];
+
+        // Transform data to handle currentBalance -> balance mapping and ensure numeric values
+        const customers = rawCustomers.map(customer => ({
+          ...customer,
+          balance: Number(customer.currentBalance || customer.balance || 0),
+          creditLimit: Number(customer.creditLimit || 0),
+          currentBalance: undefined // Remove to avoid confusion
+        }));
+
         console.log(
-          "PostgresBusinessDataService: returning customers:",
+          "PostgresBusinessDataService: transformed customers:",
           customers,
         );
         return customers;
