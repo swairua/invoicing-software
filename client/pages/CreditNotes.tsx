@@ -261,7 +261,9 @@ export default function CreditNotes() {
                         {creditNote.creditNumber}
                       </Link>
                     </TableCell>
-                    <TableCell>{creditNote.customer?.name || 'Unknown Customer'}</TableCell>
+                    <TableCell>
+                      {creditNote.customer?.name || "Unknown Customer"}
+                    </TableCell>
                     <TableCell className="max-w-[200px] truncate">
                       {creditNote.reason}
                     </TableCell>

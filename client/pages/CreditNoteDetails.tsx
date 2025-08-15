@@ -180,7 +180,7 @@ export default function CreditNoteDetails() {
               Credit Note {creditNote.creditNumber}
             </h1>
             <p className="text-muted-foreground">
-              Issued to {creditNote.customer?.name || 'Unknown Customer'}
+              Issued to {creditNote.customer?.name || "Unknown Customer"}
             </p>
           </div>
         </div>
@@ -338,7 +338,9 @@ export default function CreditNoteDetails() {
                     <TableRow key={item.id}>
                       <TableCell>
                         <div>
-                          <p className="font-medium">{item.product?.name || 'Unknown Product'}</p>
+                          <p className="font-medium">
+                            {item.product?.name || "Unknown Product"}
+                          </p>
                           <p className="text-sm text-muted-foreground">
                             SKU: {item.product.sku}
                           </p>
@@ -369,7 +371,9 @@ export default function CreditNoteDetails() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <h4 className="font-medium">{creditNote.customer?.name || 'Unknown Customer'}</h4>
+                <h4 className="font-medium">
+                  {creditNote.customer?.name || "Unknown Customer"}
+                </h4>
                 <p className="text-sm text-muted-foreground">
                   {creditNote.customer.email}
                 </p>

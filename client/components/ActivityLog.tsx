@@ -218,7 +218,9 @@ export default function ActivityLog({
                         <span>{activity.user}</span>
                         <span>•</span>
                         <Clock className="h-3 w-3" />
-                        <span title={safeFormatDate(activity.timestamp, "PPP p")}>
+                        <span
+                          title={safeFormatDate(activity.timestamp, "PPP p")}
+                        >
                           {safeFormatDistanceToNow(activity.timestamp)}
                         </span>
                       </div>

@@ -125,7 +125,7 @@ export default function InvoiceDetails() {
         setInvoice(foundInvoice);
 
         // Get payments for this invoice
-        const allPayments = await dataService.getPayments?.() || [];
+        const allPayments = (await dataService.getPayments?.()) || [];
         const invoicePayments = Array.isArray(allPayments)
           ? allPayments.filter((p) => p.invoiceId === id)
           : [];

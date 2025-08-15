@@ -18,7 +18,7 @@ export function ensureArray<T>(value: T[] | null | undefined): T[] {
  */
 export function safeFilter<T>(
   arr: T[] | null | undefined,
-  predicate: (item: T) => boolean
+  predicate: (item: T) => boolean,
 ): T[] {
   return ensureArray(arr).filter(predicate);
 }
@@ -29,7 +29,7 @@ export function safeFilter<T>(
 export function safeFormatDate(
   date: Date | string | null | undefined,
   formatString: string = "PPP",
-  fallback: string = "Invalid date"
+  fallback: string = "Invalid date",
 ): string {
   if (!date) return fallback;
 
@@ -43,7 +43,7 @@ export function safeFormatDate(
 export function safeFormatDistanceToNow(
   date: Date | string | null | undefined,
   options: { addSuffix?: boolean } = { addSuffix: true },
-  fallback: string = "Unknown time"
+  fallback: string = "Unknown time",
 ): string {
   if (!date) return fallback;
 
@@ -67,7 +67,7 @@ export function safeToLocaleDateString(
   date: Date | string | null | undefined,
   locale: string = "en-GB",
   options?: Intl.DateTimeFormatOptions,
-  fallback: string = "Invalid date"
+  fallback: string = "Invalid date",
 ): string {
   if (!date) return fallback;
 
@@ -88,7 +88,7 @@ export function safeToLocaleTimeString(
   date: Date | string | null | undefined,
   locale: string = "en-GB",
   options?: Intl.DateTimeFormatOptions,
-  fallback: string = "Invalid time"
+  fallback: string = "Invalid time",
 ): string {
   if (!date) return fallback;
 
@@ -107,7 +107,7 @@ export function safeToLocaleTimeString(
  */
 export function safeToISOString(
   date: Date | string | null | undefined,
-  fallback: string = ""
+  fallback: string = "",
 ): string {
   if (!date) return fallback;
 
@@ -126,7 +126,7 @@ export function safeToISOString(
  */
 export function safeToDateInputValue(
   date: Date | string | null | undefined,
-  fallback: string = ""
+  fallback: string = "",
 ): string {
   const isoString = safeToISOString(date, fallback);
   return isoString ? isoString.split("T")[0] : fallback;
@@ -137,7 +137,7 @@ export function safeToDateInputValue(
  */
 export function safeDateComparison(
   date1: Date | string | null | undefined,
-  date2: Date | string | null | undefined
+  date2: Date | string | null | undefined,
 ): number {
   const d1 = date1 instanceof Date ? date1 : new Date(date1 || 0);
   const d2 = date2 instanceof Date ? date2 : new Date(date2 || 0);
@@ -154,7 +154,7 @@ export function safeDateComparison(
  */
 export function safeFormatDateKE(
   date: Date | string | null | undefined,
-  fallback: string = "Invalid date"
+  fallback: string = "Invalid date",
 ): string {
   if (!date) return fallback;
 
@@ -177,7 +177,7 @@ export function safeFormatDateKE(
  */
 export function safeFormatDateGB(
   date: Date | string | null | undefined,
-  fallback: string = "Invalid date"
+  fallback: string = "Invalid date",
 ): string {
   if (!date) return fallback;
 

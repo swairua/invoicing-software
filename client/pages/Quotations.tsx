@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  useNavigate,
-  Link,
-  useSearchParams,
-} from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -48,11 +44,7 @@ import {
   ClipboardList,
   Clock,
 } from "lucide-react";
-import {
-  Customer,
-  Product,
-  Quotation,
-} from "@shared/types";
+import { Customer, Product, Quotation } from "@shared/types";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import { useToast } from "../hooks/use-toast";
 import { safeFormatDateGB } from "@/lib/utils";
@@ -107,16 +99,18 @@ export default function Quotations() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [quotationsData, customersData, productsData] = await Promise.all([
-          businessData.getQuotations(),
-          businessData.getCustomers(),
-          businessData.getProducts()
-        ]);
+        const [quotationsData, customersData, productsData] = await Promise.all(
+          [
+            businessData.getQuotations(),
+            businessData.getCustomers(),
+            businessData.getProducts(),
+          ],
+        );
         setQuotations(Array.isArray(quotationsData) ? quotationsData : []);
         setCustomers(Array.isArray(customersData) ? customersData : []);
         setProducts(Array.isArray(productsData) ? productsData : []);
       } catch (error) {
-        console.error('Error loading data:', error);
+        console.error("Error loading data:", error);
       }
     };
 
@@ -132,16 +126,18 @@ export default function Quotations() {
   useEffect(() => {
     const refreshInterval = setInterval(async () => {
       try {
-        const [quotationsData, customersData, productsData] = await Promise.all([
-          businessData.getQuotations(),
-          businessData.getCustomers(),
-          businessData.getProducts()
-        ]);
+        const [quotationsData, customersData, productsData] = await Promise.all(
+          [
+            businessData.getQuotations(),
+            businessData.getCustomers(),
+            businessData.getProducts(),
+          ],
+        );
         setQuotations(Array.isArray(quotationsData) ? quotationsData : []);
         setCustomers(Array.isArray(customersData) ? customersData : []);
         setProducts(Array.isArray(productsData) ? productsData : []);
       } catch (error) {
-        console.error('Error refreshing data:', error);
+        console.error("Error refreshing data:", error);
       }
     }, 5000); // Refresh every 5 seconds
 
@@ -150,10 +146,10 @@ export default function Quotations() {
 
   const filteredQuotations = quotations.filter((quotation) => {
     const matchesSearch =
-      quotation.quoteNumber
+      quotation.quoteNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      quotation.customer?.name
         ?.toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      quotation.customer?.name?.toLowerCase().includes(searchTerm.toLowerCase());
+        .includes(searchTerm.toLowerCase());
 
     const matchesStatus =
       statusFilter === "all" || quotation.status === statusFilter;
@@ -218,7 +214,8 @@ export default function Quotations() {
     if (quotation.status !== "accepted") {
       toast({
         title: "Cannot Convert",
-        description: "Only accepted quotations can be converted to proforma invoices.",
+        description:
+          "Only accepted quotations can be converted to proforma invoices.",
         variant: "destructive",
       });
       return;
@@ -226,8 +223,10 @@ export default function Quotations() {
 
     try {
       setIsLoading(true);
-      const proforma = await businessData.convertQuotationToProforma?.(quotation.id);
-      
+      const proforma = await businessData.convertQuotationToProforma?.(
+        quotation.id,
+      );
+
       if (proforma) {
         const quotationsData = await businessData.getQuotations();
         setQuotations(Array.isArray(quotationsData) ? quotationsData : []);
@@ -289,7 +288,10 @@ export default function Quotations() {
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <Dialog
+            open={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
+          >
             <DialogTrigger asChild>
               <Button>
                 <Plus className="mr-2 h-4 w-4" />
@@ -421,9 +423,7 @@ export default function Quotations() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(
-                quotations.reduce((sum, q) => sum + q.total, 0),
-              )}
+              {formatCurrency(quotations.reduce((sum, q) => sum + q.total, 0))}
             </div>
             <p className="text-xs text-muted-foreground">
               Total quotations value
@@ -526,7 +526,7 @@ export default function Quotations() {
                       <TableCell>
                         <div>
                           <div className="font-medium">
-                            {quotation.customer?.name || 'Unknown Customer'}
+                            {quotation.customer?.name || "Unknown Customer"}
                           </div>
                           <div className="text-xs text-muted-foreground">
                             {quotation.customer.email}
@@ -539,7 +539,9 @@ export default function Quotations() {
                         {formatCurrency(quotation.total)}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={getStatusColor(quotation.status) as any}>
+                        <Badge
+                          variant={getStatusColor(quotation.status) as any}
+                        >
                           {quotation.status.toUpperCase()}
                         </Badge>
                       </TableCell>
@@ -567,7 +569,9 @@ export default function Quotations() {
                             <DropdownMenuSeparator />
                             {quotation.status === "accepted" && (
                               <DropdownMenuItem
-                                onClick={() => handleConvertToProforma(quotation)}
+                                onClick={() =>
+                                  handleConvertToProforma(quotation)
+                                }
                                 disabled={isLoading}
                               >
                                 <FileEdit className="mr-2 h-4 w-4" />

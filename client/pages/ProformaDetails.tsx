@@ -182,7 +182,7 @@ export default function ProformaDetails() {
               {proforma.proformaNumber}
             </h1>
             <p className="text-muted-foreground">
-              {proforma.customer?.name || 'Unknown Customer'} • Created{" "}
+              {proforma.customer?.name || "Unknown Customer"} • Created{" "}
               {formatDate(proforma.issueDate)}
             </p>
           </div>
