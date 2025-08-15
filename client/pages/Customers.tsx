@@ -90,8 +90,9 @@ export default function Customers() {
       console.log("Migration completed:", result);
 
       // Reload customers after migration
-      const data = await dataService.getCustomers();
-      const normalizedData = normalizeCustomerData(data);
+      const rawData = await dataService.getCustomers();
+      const transformedData = transformCustomerData(rawData);
+      const normalizedData = normalizeCustomerData(transformedData);
       setCustomers(normalizedData);
 
       console.log("✅ Database migration completed successfully");
@@ -125,8 +126,9 @@ export default function Customers() {
       console.log("Sample data created:", result);
 
       // Reload customers
-      const data = await dataService.getCustomers();
-      const normalizedData = normalizeCustomerData(data);
+      const rawData = await dataService.getCustomers();
+      const transformedData = transformCustomerData(rawData);
+      const normalizedData = normalizeCustomerData(transformedData);
       setCustomers(normalizedData);
 
     } catch (err) {
@@ -147,9 +149,10 @@ export default function Customers() {
       await clearAllCache();
 
       // Force reload customers from server
-      const data = await dataService.getCustomers();
-      console.log("Fresh customers loaded:", data);
-      const normalizedData = normalizeCustomerData(data);
+      const rawData = await dataService.getCustomers();
+      console.log("Fresh customers loaded:", rawData);
+      const transformedData = transformCustomerData(rawData);
+      const normalizedData = normalizeCustomerData(transformedData);
       setCustomers(normalizedData);
 
       console.log("✅ Cache cleared and data reloaded");
@@ -244,8 +247,9 @@ export default function Customers() {
       console.log("Customer created:", newCustomer);
 
       // Refresh the customers list from the server to ensure consistency
-      const updatedCustomers = await dataService.getCustomers();
-      const normalizedData = normalizeCustomerData(updatedCustomers);
+      const rawData = await dataService.getCustomers();
+      const transformedData = transformCustomerData(rawData);
+      const normalizedData = normalizeCustomerData(transformedData);
       setCustomers(normalizedData);
       setIsCreateDialogOpen(false);
 
