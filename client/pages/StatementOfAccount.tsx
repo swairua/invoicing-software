@@ -41,6 +41,7 @@ import {
 import { getDataService } from "../services/dataServiceFactory";
 import { Customer, Invoice, Payment } from "@shared/types";
 import { CompanySettings, defaultCompanySettings } from "@shared/company";
+import { safeFormatDateGB } from "@/lib/utils";
 
 const dataService = getDataService();
 
