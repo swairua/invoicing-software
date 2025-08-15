@@ -1,19 +1,10 @@
-import BusinessDataService from "./businessDataService";
 import PostgresBusinessDataService from "./postgresBusinessDataService";
 
-// Configuration for data service
-const USE_POSTGRES = true; // Set to true to use PostgreSQL, false for mock data
-
-// Factory function to get the appropriate data service
+// Factory function to get the data service - LIVE DATABASE ONLY
 export function getDataService() {
-  if (USE_POSTGRES) {
-    console.log("✅ LIVE DATABASE MODE: Using PostgreSQL data service");
-    console.log("❌ Mock data disabled - All data from database");
-    return PostgresBusinessDataService.getInstance();
-  } else {
-    console.log("🎭 Using mock data service");
-    return BusinessDataService.getInstance();
-  }
+  console.log("✅ LIVE DATABASE MODE: Using PostgreSQL data service");
+  console.log("❌ Mock data permanently disabled - All data from database");
+  return PostgresBusinessDataService.getInstance();
 }
 
 // Export factory object for destructuring imports
