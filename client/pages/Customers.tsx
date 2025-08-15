@@ -443,9 +443,7 @@ export default function Customers() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(
-                customers.reduce((sum, c) => sum + (c.creditLimit || 0), 0),
-              )}
+              {formatCurrency(customerTotals.totalCreditLimit)}
             </div>
             <p className="text-xs text-muted-foreground">
               Total credit extended
