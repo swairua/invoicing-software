@@ -693,7 +693,7 @@ export default function Reports() {
                 <div className="space-y-4">
                   {mockStockReport.lowStockProducts.map((product, index) => (
                     <div
-                      key={index}
+                      key={product.name}
                       className="flex items-center justify-between p-3 border rounded-lg"
                     >
                       <div>
