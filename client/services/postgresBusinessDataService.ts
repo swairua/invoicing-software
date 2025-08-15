@@ -607,8 +607,7 @@ class PostgresBusinessDataService {
       return response.data;
     } catch (error) {
       console.error("Failed to fetch dashboard metrics:", error);
-      console.log("Using fallback dashboard metrics");
-      return this.getFallbackDashboardMetrics();
+      throw new Error(`Failed to fetch dashboard metrics from database: ${error.message}`);
     }
   }
 
