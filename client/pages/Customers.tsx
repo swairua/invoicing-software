@@ -473,7 +473,7 @@ export default function Customers() {
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                window.location.href = `/customers/${customer.id}`;
+                                navigate(`/customers/${customer.id}`);
                               }}
                             >
                               <Eye className="mr-2 h-4 w-4" />
@@ -483,7 +483,7 @@ export default function Customers() {
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                window.location.href = `/customers/${customer.id}/edit`;
+                                navigate(`/customers/${customer.id}/edit`);
                               }}
                             >
                               <Edit className="mr-2 h-4 w-4" />
