@@ -173,13 +173,7 @@ class PostgresBusinessDataService {
           "PostgresBusinessDataService: Failed to fetch products:",
           error,
         );
-        console.log("PostgresBusinessDataService: Using fallback product data");
-        const fallbackProducts = this.getFallbackProducts();
-        console.log(
-          "PostgresBusinessDataService: fallback products:",
-          fallbackProducts,
-        );
-        return fallbackProducts;
+        throw new Error(`Failed to fetch products from database: ${error.message}`);
       });
   }
 
