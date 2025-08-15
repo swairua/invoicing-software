@@ -96,7 +96,16 @@ class PostgresBusinessDataService {
   public async getCustomerById(id: string): Promise<Customer | undefined> {
     try {
       const response = await this.apiCall(`/customers/${id}`);
-      return response.data;
+      const customer = response.data;
+      if (!customer) return undefined;
+
+      // Transform data to handle currentBalance -> balance mapping
+      return {
+        ...customer,
+        balance: Number(customer.currentBalance || customer.balance || 0),
+        creditLimit: Number(customer.creditLimit || 0),
+        currentBalance: undefined // Remove to avoid confusion
+      };
     } catch (error) {
       console.error("Failed to fetch customer:", error);
       return undefined;
