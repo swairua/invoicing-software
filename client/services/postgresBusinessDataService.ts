@@ -326,8 +326,7 @@ class PostgresBusinessDataService {
       return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       console.error("Failed to fetch quotations:", error);
-      console.log("Using fallback quotation data");
-      return this.getFallbackQuotations();
+      throw new Error(`Failed to fetch quotations from database: ${error.message}`);
     }
   }
 
