@@ -168,17 +168,20 @@ export default function Customers() {
         setLoading(true);
         setError(null);
         console.log("Loading customers from data service...");
-        const data = await dataService.getCustomers();
-        console.log("Customers loaded:", data);
-        console.log("Customer balances:", data.map(c => ({
+        const rawData = await dataService.getCustomers();
+        console.log("Raw customers loaded:", rawData);
+
+        // Apply production hotfix transformation
+        const transformedData = transformCustomerData(rawData);
+        console.log("Transformed customers:", transformedData.map(c => ({
           name: c.name,
           balance: c.balance,
-          currentBalance: c.currentBalance,
           creditLimit: c.creditLimit,
           balanceType: typeof c.balance,
           creditLimitType: typeof c.creditLimit
         })));
-        const normalizedData = normalizeCustomerData(data);
+
+        const normalizedData = normalizeCustomerData(transformedData);
         setCustomers(normalizedData);
       } catch (err) {
         console.error("Failed to load customers:", err);
