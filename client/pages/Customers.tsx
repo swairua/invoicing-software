@@ -54,6 +54,7 @@ import { Customer } from "@shared/types";
 import { getDataService } from "../services/dataServiceFactory";
 import { safeIncludes } from "../lib/search-utils";
 import { clearAllCache } from "../lib/cache-utils";
+import { transformCustomerData, safeFormatCurrency, calculateCustomerTotals } from "../lib/customer-data-hotfix";
 
 const dataService = getDataService();
 
