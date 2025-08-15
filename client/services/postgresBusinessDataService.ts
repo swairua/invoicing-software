@@ -492,6 +492,49 @@ class PostgresBusinessDataService {
     }
   }
 
+  public async createPayment(
+    paymentData: Omit<Payment, "id" | "createdAt" | "updatedAt">,
+  ): Promise<Payment> {
+    try {
+      const response = await this.apiCall("/payments", {
+        method: "POST",
+        body: JSON.stringify(paymentData),
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Failed to create payment:", error);
+      throw error;
+    }
+  }
+
+  public async updatePayment(
+    id: string,
+    paymentData: Partial<Payment>,
+  ): Promise<Payment | undefined> {
+    try {
+      const response = await this.apiCall(`/payments/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(paymentData),
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Failed to update payment:", error);
+      throw error;
+    }
+  }
+
+  public async deletePayment(id: string): Promise<boolean> {
+    try {
+      await this.apiCall(`/payments/${id}`, {
+        method: "DELETE",
+      });
+      return true;
+    } catch (error) {
+      console.error("Failed to delete payment:", error);
+      return false;
+    }
+  }
+
   public async processPayment(
     invoiceId: string,
     amount: number,
