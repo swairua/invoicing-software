@@ -207,15 +207,8 @@ export default function Customers() {
       .toUpperCase();
   };
 
-  const formatCurrency = (amount: number | null | undefined) => {
-    // Handle null, undefined, or NaN values
-    const validAmount = amount && !isNaN(amount) ? amount : 0;
-    return new Intl.NumberFormat("en-KE", {
-      style: "currency",
-      currency: "KES",
-      minimumFractionDigits: 0,
-    }).format(validAmount);
-  };
+  // Use the production-safe currency formatter
+  const formatCurrency = safeFormatCurrency;
 
   // Normalize customer data to ensure valid numeric values
   const normalizeCustomerData = (customers: Customer[]) => {
