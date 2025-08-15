@@ -65,12 +65,18 @@ export default function CustomerDetails() {
       try {
         setLoading(true);
         const customers = await dataService.getCustomers();
+        console.log("All customers:", customers);
+        console.log("Looking for customer with ID:", id);
+
         const foundCustomer = customers.find((c) => c.id === id);
+        console.log("Found customer:", foundCustomer);
 
         if (!foundCustomer) {
+          console.error(`Customer with ID ${id} not found in:`, customers);
           toast({
             title: "Customer Not Found",
-            description: "The requested customer could not be found.",
+            description:
+              "The requested customer could not be found. Redirecting to customers list.",
             variant: "destructive",
           });
           navigate("/customers");
