@@ -579,7 +579,7 @@ export default function UserManagement() {
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell>{user.createdAt.toLocaleDateString()}</TableCell>
+                    <TableCell>{safeToLocaleDateString(user.createdAt)}</TableCell>
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
