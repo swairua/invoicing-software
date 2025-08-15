@@ -87,7 +87,7 @@ async function addSampleCustomers() {
           customer.address,
           customer.kra_pin,
           customer.credit_limit,
-          customer.balance,
+          customer.current_balance,
           customer.is_active
         ]);
         
