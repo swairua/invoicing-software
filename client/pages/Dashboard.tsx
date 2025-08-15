@@ -779,7 +779,7 @@ export default function Dashboard() {
                   return (
                     <div key={index} className="flex items-center space-x-3">
                       <div className="w-16 text-xs text-muted-foreground">
-                        {new Date(day.date).toLocaleDateString("en", {
+                        {safeToLocaleDateString(day.date, "en", {
                           weekday: "short",
                         })}
                       </div>
