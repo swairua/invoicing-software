@@ -39,6 +39,7 @@ import {
 import { ProformaInvoice } from "@shared/types";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import { useToast } from "../hooks/use-toast";
+import { safeFormatDateKE } from "@/lib/utils";
 
 export default function ProformaDetails() {
   const { id } = useParams<{ id: string }>();
