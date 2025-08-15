@@ -42,7 +42,7 @@ async function addSampleCustomers() {
         credit_limit: 500000,
         current_balance: 0,
         is_active: true,
-        company_id: '00000000-0000-0000-0000-000000000001'
+        company_id: '550e8400-e29b-41d4-a716-446655440000'
       },
       {
         id: 'c1234567-1234-1234-1234-123456789002',
@@ -54,7 +54,7 @@ async function addSampleCustomers() {
         credit_limit: 250000,
         current_balance: 0,
         is_active: true,
-        company_id: '00000000-0000-0000-0000-000000000001'
+        company_id: '550e8400-e29b-41d4-a716-446655440000'
       },
       {
         id: 'c1234567-1234-1234-1234-123456789003',
@@ -66,7 +66,7 @@ async function addSampleCustomers() {
         credit_limit: 750000,
         current_balance: 0,
         is_active: true,
-        company_id: '00000000-0000-0000-0000-000000000001'
+        company_id: '550e8400-e29b-41d4-a716-446655440000'
       }
     ];
 
