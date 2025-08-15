@@ -204,6 +204,9 @@ export default function Customers() {
       safeIncludes(customer.kraPin, searchTerm),
   );
 
+  // Calculate safe totals for metrics
+  const customerTotals = calculateCustomerTotals(customers);
+
   const getCustomerInitials = (name: string) => {
     return name
       .split(" ")
