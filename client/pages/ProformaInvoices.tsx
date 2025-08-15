@@ -46,6 +46,7 @@ import {
 import { Customer, Product, ProformaInvoice, Invoice } from "@shared/types";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import { useToast } from "../hooks/use-toast";
+import { safeFormatDateGB } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -153,9 +154,8 @@ export default function ProformaInvoices() {
     }).format(amount);
   };
 
-  const formatDate = (date: Date | string): string => {
-    return new Date(date).toLocaleDateString("en-GB");
-  };
+  // Use safe date formatting to prevent RangeError: Invalid time value
+  const formatDate = safeFormatDateGB;
 
   const getStatusColor = (status: string): string => {
     switch (status) {
