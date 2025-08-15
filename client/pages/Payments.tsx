@@ -905,10 +905,10 @@ export default function Payments() {
                       <TableCell>
                         <div>
                           <div className="font-medium">
-                            {new Date(payment.createdAt).toLocaleDateString()}
+                            {safeToLocaleDateString(payment.createdAt)}
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            {new Date(payment.createdAt).toLocaleTimeString()}
+                            {safeToLocaleTimeString(payment.createdAt)}
                           </div>
                         </div>
                       </TableCell>
