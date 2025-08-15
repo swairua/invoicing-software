@@ -247,7 +247,17 @@ export default function Customers() {
           </p>
         </div>
         <div className="flex gap-2">
-          {customers.length === 0 && !loading && (
+          {error && error.includes('database') && (
+            <Button
+              variant="outline"
+              onClick={runMigration}
+              disabled={isRunningMigration}
+              className="text-sm bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+            >
+              {isRunningMigration ? "Setting up..." : "Setup Database"}
+            </Button>
+          )}
+          {customers.length === 0 && !loading && !error && (
             <Button
               variant="outline"
               onClick={loadSampleData}
