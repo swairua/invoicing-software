@@ -192,7 +192,7 @@ export default function Reports() {
 
       doc.setFontSize(12);
       doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 50);
-      doc.text(`Report Period: ${dateRange.replace("_", " ")}`, 20, 60);
+      doc.text(`Report Period: ${dateRange ? dateRange.replace("_", " ") : "Unknown Period"}`, 20, 60);
 
       // Add report content based on type
       switch (reportType) {
