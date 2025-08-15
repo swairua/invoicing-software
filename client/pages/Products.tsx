@@ -60,7 +60,7 @@ import {
 import { Product, ProductCategory } from "@shared/types";
 import { getDataService } from "../services/dataServiceFactory";
 import { safeIncludes } from "../lib/search-utils";
-import { UnitConverter, UnitOfMeasure } from "@shared/units";
+import { UnitConverter, UnitOfMeasure, standardUnits } from "@shared/units";
 
 const dataService = getDataService();
 
