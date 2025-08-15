@@ -114,19 +114,10 @@ router.put('/:id', async (req, res) => {
     });
   } catch (error) {
     console.error('Error updating customer:', error);
-    console.log('Returning fallback updated customer response');
-
-    // Return fallback updated customer when database is unavailable
-    const fallbackUpdatedCustomer = {
-      id: req.params.id,
-      ...req.body,
-      companyId: req.headers['x-company-id'] as string || '550e8400-e29b-41d4-a716-446655440000',
-      updatedAt: new Date()
-    };
-
-    res.json({
-      success: true,
-      data: fallbackUpdatedCustomer
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update customer in database',
+      details: error.message
     });
   }
 });
