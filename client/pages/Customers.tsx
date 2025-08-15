@@ -385,11 +385,11 @@ export default function Customers() {
               {customers.filter((c) => c.isActive).length}
             </div>
             <p className="text-xs text-muted-foreground">
-              {Math.round(
+              {customers.length > 0 ? Math.round(
                 (customers.filter((c) => c.isActive).length /
                   customers.length) *
                   100,
-              )}
+              ) : 0}
               % of total
             </p>
           </CardContent>
