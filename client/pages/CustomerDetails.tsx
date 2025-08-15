@@ -47,6 +47,7 @@ import {
 import { Customer, Invoice, Payment, Quotation } from "@shared/types";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import { useToast } from "../hooks/use-toast";
+import { safeFormatDateKE } from "@/lib/utils";
 
 export default function CustomerDetails() {
   const { id } = useParams<{ id: string }>();
@@ -128,13 +129,8 @@ export default function CustomerDetails() {
     }).format(amount);
   };
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat("en-KE", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    }).format(new Date(date));
-  };
+  // Use safe date formatting to prevent RangeError: Invalid time value
+  const formatDate = safeFormatDateKE;
 
   const getStatusColor = (status: string) => {
     switch (status) {

@@ -890,11 +890,20 @@ export class PDFService {
   }
 
   private static formatDate(date: Date): string {
-    return new Intl.DateTimeFormat("en-GB", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    }).format(new Date(date));
+    if (!date) return "Invalid date";
+
+    const dateObj = date instanceof Date ? date : new Date(date);
+    if (isNaN(dateObj.getTime())) return "Invalid date";
+
+    try {
+      return new Intl.DateTimeFormat("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      }).format(dateObj);
+    } catch (error) {
+      return "Invalid date";
+    }
   }
 
   /**

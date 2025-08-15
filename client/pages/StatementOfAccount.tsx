@@ -41,6 +41,7 @@ import {
 import { getDataService } from "../services/dataServiceFactory";
 import { Customer, Invoice, Payment } from "@shared/types";
 import { CompanySettings, defaultCompanySettings } from "@shared/company";
+import { safeFormatDateGB } from "@/lib/utils";
 
 const dataService = getDataService();
 
@@ -342,9 +343,8 @@ export default function StatementOfAccount() {
     }).format(amount);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-GB");
-  };
+  // Use safe date formatting to prevent RangeError: Invalid time value
+  const formatDate = safeFormatDateGB;
 
   const getTotalDebits = () => {
     return statementEntries.reduce((sum, e) => sum + e.debit, 0);

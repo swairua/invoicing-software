@@ -63,6 +63,7 @@ import {
 import { Product, StockMovement } from "@shared/types";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import { useToast } from "../hooks/use-toast";
+import { safeToLocaleDateString, safeToLocaleTimeString } from "@/lib/utils";
 
 export default function ProductDetails() {
   const { id } = useParams<{ id: string }>();
@@ -928,8 +929,8 @@ export default function ProductDetails() {
                       {stockMovements.slice(0, 10).map((movement) => (
                         <TableRow key={movement.id}>
                           <TableCell>
-                            {movement.createdAt.toLocaleDateString()}{" "}
-                            {movement.createdAt.toLocaleTimeString()}
+                            {safeToLocaleDateString(movement.createdAt)}{" "}
+                            {safeToLocaleTimeString(movement.createdAt)}
                           </TableCell>
                           <TableCell>
                             <Badge

@@ -49,6 +49,7 @@ import { useAuth } from "../hooks/use-auth";
 import ActivityLog from "../components/ActivityLog";
 import { DashboardMetrics } from "@shared/types";
 import { getDataService } from "../services/dataServiceFactory";
+import { safeToLocaleDateString } from "@/lib/utils";
 
 // Get business data service instance
 const businessData = getDataService();
@@ -369,7 +370,7 @@ export default function Dashboard() {
                   className="flex justify-between items-center py-2 border-b"
                 >
                   <span className="text-sm">
-                    {new Date(day.date).toLocaleDateString()}
+                    {safeToLocaleDateString(day.date)}
                   </span>
                   <div className="text-right">
                     <div className="font-medium">
@@ -498,7 +499,9 @@ export default function Dashboard() {
                     <TableCell>
                       <Badge variant="outline">{payment.method}</Badge>
                     </TableCell>
-                    <TableCell>{payment.date.toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      {safeToLocaleDateString(payment.date)}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -657,7 +660,8 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {liveMetrics?.lowStockAlerts || fallbackMetrics.lowStockAlerts}
+                  {liveMetrics?.lowStockAlerts ||
+                    fallbackMetrics.lowStockAlerts}
                   {isSimulating && (
                     <Badge variant="secondary" className="ml-2 text-xs">
                       Live
@@ -701,7 +705,8 @@ export default function Dashboard() {
                 <div className="text-2xl font-bold">
                   KES{" "}
                   {(
-                    liveMetrics?.recentPayments || fallbackMetrics.recentPayments
+                    liveMetrics?.recentPayments ||
+                    fallbackMetrics.recentPayments
                   ).toLocaleString()}
                   {isSimulating && (
                     <Badge variant="secondary" className="ml-2 text-xs">
@@ -778,7 +783,7 @@ export default function Dashboard() {
                   return (
                     <div key={index} className="flex items-center space-x-3">
                       <div className="w-16 text-xs text-muted-foreground">
-                        {new Date(day.date).toLocaleDateString("en", {
+                        {safeToLocaleDateString(day.date, "en", {
                           weekday: "short",
                         })}
                       </div>

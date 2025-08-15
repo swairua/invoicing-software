@@ -68,6 +68,7 @@ import {
 import { Payment, Customer, Invoice } from "@shared/types";
 import PDFService from "../services/pdfService";
 import { useToast } from "../hooks/use-toast";
+import { safeToLocaleDateString, safeToLocaleTimeString } from "@/lib/utils";
 
 // Mock data
 const mockCustomers: Customer[] = [
@@ -260,7 +261,9 @@ export default function Payments() {
     const matchesSearch =
       payment.reference?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       customer?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      invoice?.invoiceNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      invoice?.invoiceNumber
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
       false;
 
     const matchesMethod =
@@ -761,7 +764,7 @@ export default function Payments() {
                   <div className="flex items-center space-x-3">
                     <Avatar className="h-8 w-8">
                       <AvatarFallback className="text-xs">
-                        {(invoice.customer?.name || 'Unknown Customer')
+                        {(invoice.customer?.name || "Unknown Customer")
                           .split(" ")
                           .map((n) => n[0])
                           .join("")
@@ -771,7 +774,7 @@ export default function Payments() {
                     <div>
                       <div className="font-medium">{invoice.invoiceNumber}</div>
                       <div className="text-sm text-muted-foreground">
-                        {invoice.customer?.name || 'Unknown Customer'}
+                        {invoice.customer?.name || "Unknown Customer"}
                       </div>
                     </div>
                   </div>
@@ -904,10 +907,10 @@ export default function Payments() {
                       <TableCell>
                         <div>
                           <div className="font-medium">
-                            {new Date(payment.createdAt).toLocaleDateString()}
+                            {safeToLocaleDateString(payment.createdAt)}
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            {new Date(payment.createdAt).toLocaleTimeString()}
+                            {safeToLocaleTimeString(payment.createdAt)}
                           </div>
                         </div>
                       </TableCell>
