@@ -241,7 +241,8 @@ export default function Customers() {
 
       // Refresh the customers list from the server to ensure consistency
       const updatedCustomers = await dataService.getCustomers();
-      setCustomers(updatedCustomers);
+      const normalizedData = normalizeCustomerData(updatedCustomers);
+      setCustomers(normalizedData);
       setIsCreateDialogOpen(false);
 
       // Show success message
