@@ -691,7 +691,7 @@ export default function NewInvoice() {
                           const itemTotal = calculateItemTotal(item);
 
                           return (
-                            <TableRow key={index}>
+                            <TableRow key={`item-${item.productId || 'empty'}-${index}`}>
                               <TableCell>
                                 <div>
                                   <div className="font-medium">

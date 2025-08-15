@@ -24,6 +24,7 @@ import CompanySettings from "./pages/CompanySettings";
 import UserManagement from "./pages/UserManagement";
 import Templates from "./pages/Templates";
 import UnitsOfMeasure from "./pages/UnitsOfMeasure";
+import ProductCategories from "./pages/ProductCategories";
 import PlaceholderPage from "./pages/PlaceholderPage";
 import ComingSoonTest from "./pages/ComingSoonTest";
 import ProductDetails from "./pages/ProductDetails";
@@ -177,6 +178,7 @@ const AppRoutes = () => (
       <Route path="settings/sample-data" element={<SampleDataCreator />} />
       <Route path="templates" element={<Templates />} />
       <Route path="units" element={<UnitsOfMeasure />} />
+      <Route path="categories" element={<ProductCategories />} />
       <Route path="coming-soon-test" element={<ComingSoonTest />} />
       <Route
         path="deliveries"

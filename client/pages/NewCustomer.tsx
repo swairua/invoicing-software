@@ -201,6 +201,7 @@ export default function NewCustomer() {
   };
 
   const formatKraPin = (value: string) => {
+    if (!value) return "";
     // Remove any non-alphanumeric characters and convert to uppercase
     const cleaned = value.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
 

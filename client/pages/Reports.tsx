@@ -192,7 +192,7 @@ export default function Reports() {
 
       doc.setFontSize(12);
       doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 50);
-      doc.text(`Report Period: ${dateRange.replace("_", " ")}`, 20, 60);
+      doc.text(`Report Period: ${dateRange ? dateRange.replace("_", " ") : "Unknown Period"}`, 20, 60);
 
       // Add report content based on type
       switch (reportType) {
@@ -413,7 +413,7 @@ export default function Reports() {
                 <div className="space-y-4">
                   {mockSalesData.topProducts.map((product, index) => (
                     <div
-                      key={index}
+                      key={product.name}
                       className="flex items-center justify-between"
                     >
                       <div className="flex items-center space-x-3">
@@ -447,7 +447,7 @@ export default function Reports() {
                 <div className="space-y-4">
                   {mockSalesData.topCustomers.map((customer, index) => (
                     <div
-                      key={index}
+                      key={customer.name}
                       className="flex items-center justify-between"
                     >
                       <div className="flex items-center space-x-3">
@@ -538,7 +538,7 @@ export default function Reports() {
                   </TableHeader>
                   <TableBody>
                     {mockAgedReceivables.map((customer, index) => (
-                      <TableRow key={index}>
+                      <TableRow key={customer.customerName}>
                         <TableCell className="font-medium">
                           {customer.customerName}
                         </TableCell>
@@ -693,7 +693,7 @@ export default function Reports() {
                 <div className="space-y-4">
                   {mockStockReport.lowStockProducts.map((product, index) => (
                     <div
-                      key={index}
+                      key={product.name}
                       className="flex items-center justify-between p-3 border rounded-lg"
                     >
                       <div>
@@ -726,7 +726,7 @@ export default function Reports() {
               <CardContent>
                 <div className="space-y-4">
                   {mockStockReport.categoryBreakdown.map((category, index) => (
-                    <div key={index} className="space-y-2">
+                    <div key={category.category} className="space-y-2">
                       <div className="flex justify-between">
                         <span className="font-medium">{category.category}</span>
                         <span className="text-sm font-medium">

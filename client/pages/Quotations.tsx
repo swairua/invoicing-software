@@ -144,6 +144,38 @@ export default function Quotations() {
     return () => clearInterval(refreshInterval);
   }, []);
 
+  // Refresh data when URL contains refresh parameter
+  useEffect(() => {
+    const refreshParam = searchParams.get("refresh");
+    if (refreshParam === "true") {
+      const loadData = async () => {
+        try {
+          console.log("Refreshing quotations data after creation...");
+          const [quotationsData, customersData, productsData] = await Promise.all(
+            [
+              businessData.getQuotations(),
+              businessData.getCustomers(),
+              businessData.getProducts(),
+            ],
+          );
+          setQuotations(Array.isArray(quotationsData) ? quotationsData : []);
+          setCustomers(Array.isArray(customersData) ? customersData : []);
+          setProducts(Array.isArray(productsData) ? productsData : []);
+          console.log("Quotations data refreshed successfully");
+        } catch (error) {
+          console.error("Error refreshing data:", error);
+        }
+      };
+
+      loadData();
+      
+      // Clear the refresh parameter from URL
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete("refresh");
+      navigate({ search: newSearchParams.toString() }, { replace: true });
+    }
+  }, [searchParams, navigate, businessData]);
+
   const filteredQuotations = quotations.filter((quotation) => {
     const matchesSearch =
       quotation.quoteNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||

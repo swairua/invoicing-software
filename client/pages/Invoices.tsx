@@ -622,7 +622,7 @@ export default function Invoices() {
 
                         return (
                           <div
-                            key={index}
+                            key={`item-${item.productId || 'empty'}-${index}`}
                             className="border rounded-lg p-4 space-y-3"
                           >
                             <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">

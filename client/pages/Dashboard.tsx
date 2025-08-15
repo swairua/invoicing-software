@@ -366,7 +366,7 @@ export default function Dashboard() {
               <h4 className="font-semibold">Daily Revenue Breakdown</h4>
               {fallbackMetrics.salesTrend.map((day, index) => (
                 <div
-                  key={index}
+                  key={day.date}
                   className="flex justify-between items-center py-2 border-b"
                 >
                   <span className="text-sm">
@@ -781,7 +781,7 @@ export default function Dashboard() {
                   const percentage = (day.amount / maxAmount) * 100;
 
                   return (
-                    <div key={index} className="flex items-center space-x-3">
+                    <div key={day.date} className="flex items-center space-x-3">
                       <div className="w-16 text-xs text-muted-foreground">
                         {safeToLocaleDateString(day.date, "en", {
                           weekday: "short",

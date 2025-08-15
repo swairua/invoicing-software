@@ -1532,7 +1532,7 @@ export default function Products() {
                             className={`h-2 w-2 rounded-full ${getStatusColor(product.status)}`}
                           />
                           <Badge variant="outline" className="capitalize">
-                            {product.status.replace("_", " ")}
+                            {product.status ? product.status.replace("_", " ") : "Unknown"}
                           </Badge>
                         </div>
                       </TableCell>

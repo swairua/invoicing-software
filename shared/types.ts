@@ -137,7 +137,10 @@ export interface ProductCategory {
   id: string;
   name: string;
   description?: string;
+  parentId?: string;
   companyId: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 // Stock Types

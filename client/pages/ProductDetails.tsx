@@ -437,7 +437,7 @@ export default function ProductDetails() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold capitalize">
-              {product.status.replace("_", " ")}
+              {product.status ? product.status.replace("_", " ") : "Unknown"}
             </div>
             <p className="text-xs text-muted-foreground">
               {product.isActive ? "Active" : "Inactive"}

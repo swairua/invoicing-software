@@ -573,7 +573,7 @@ export default function QuickActions() {
                   : 0;
 
                 return (
-                  <div key={index} className="border rounded-lg p-4 space-y-3">
+                  <div key={`product-${item.productId || 'empty'}-${index}`} className="border rounded-lg p-4 space-y-3">
                     <div className="flex items-start gap-3">
                       <div className="flex-1 space-y-3">
                         <div>
@@ -779,7 +779,7 @@ export default function QuickActions() {
             className="w-full sm:w-auto"
           >
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Create & Send {documentType.replace("New ", "")}
+            Create & Send {documentType ? documentType.replace("New ", "") : "Document"}
           </Button>
         </div>
       </div>
