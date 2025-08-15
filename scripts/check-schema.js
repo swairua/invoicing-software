@@ -6,7 +6,8 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const DATABASE_URL = process.env.DATABASE_URL ||
+const DATABASE_URL =
+  process.env.DATABASE_URL ||
   "postgresql://neondb_owner:npg_smrD4peod8xL@ep-delicate-shape-aewuio49-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
 
 async function checkSchema() {
@@ -30,7 +31,9 @@ async function checkSchema() {
 
     console.log("📋 Customers table columns:");
     customerColumns.rows.forEach((col) => {
-      console.log(`   • ${col.column_name} (${col.data_type}) ${col.is_nullable === 'NO' ? 'NOT NULL' : 'NULL'} ${col.column_default ? `DEFAULT ${col.column_default}` : ''}`);
+      console.log(
+        `   • ${col.column_name} (${col.data_type}) ${col.is_nullable === "NO" ? "NOT NULL" : "NULL"} ${col.column_default ? `DEFAULT ${col.column_default}` : ""}`,
+      );
     });
 
     client.release();

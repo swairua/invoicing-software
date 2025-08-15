@@ -11,7 +11,8 @@ import dotenv from "dotenv";
 // Load environment variables
 dotenv.config();
 
-const DATABASE_URL = process.env.DATABASE_URL ||
+const DATABASE_URL =
+  process.env.DATABASE_URL ||
   "postgresql://neondb_owner:npg_smrD4peod8xL@ep-delicate-shape-aewuio49-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
 
 async function fixDatabase() {
@@ -61,7 +62,7 @@ async function fixDatabase() {
 
     if (numberSeqCheck.rows.length === 0) {
       console.log("\n⚠️ number_sequences table missing, creating...");
-      
+
       // Create number_sequences table
       await client.query(`
         CREATE TABLE IF NOT EXISTS number_sequences (
@@ -93,12 +94,13 @@ async function fixDatabase() {
     }
 
     // Verify the fix by checking customer count
-    const customerCount = await client.query('SELECT COUNT(*) as count FROM customers');
+    const customerCount = await client.query(
+      "SELECT COUNT(*) as count FROM customers",
+    );
     console.log(`\n📊 Current customers: ${customerCount.rows[0].count}`);
 
     client.release();
     console.log("\n🎉 Database fix completed successfully!");
-    
   } catch (error) {
     console.error("❌ Database fix failed:", error.message);
     process.exit(1);

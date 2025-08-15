@@ -15,19 +15,19 @@ export const clearAllCache = async () => {
     }
 
     // Clear service worker cache if available
-    if ('serviceWorker' in navigator && 'caches' in window) {
+    if ("serviceWorker" in navigator && "caches" in window) {
       const cacheNames = await caches.keys();
       await Promise.all(
-        cacheNames.map(cacheName => caches.delete(cacheName))
+        cacheNames.map((cacheName) => caches.delete(cacheName)),
       );
       console.log("✅ Service worker caches cleared");
     }
 
     // Clear browser cache (this will force reload)
-    if ('serviceWorker' in navigator) {
+    if ("serviceWorker" in navigator) {
       const registrations = await navigator.serviceWorker.getRegistrations();
       await Promise.all(
-        registrations.map(registration => registration.unregister())
+        registrations.map((registration) => registration.unregister()),
       );
       console.log("✅ Service workers unregistered");
     }

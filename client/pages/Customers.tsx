@@ -54,7 +54,11 @@ import { Customer } from "@shared/types";
 import { getDataService } from "../services/dataServiceFactory";
 import { safeIncludes } from "../lib/search-utils";
 import { clearAllCache } from "../lib/cache-utils";
-import { transformCustomerData, safeFormatCurrency, calculateCustomerTotals } from "../lib/customer-data-hotfix";
+import {
+  transformCustomerData,
+  safeFormatCurrency,
+  calculateCustomerTotals,
+} from "../lib/customer-data-hotfix";
 
 const dataService = getDataService();
 
@@ -75,15 +79,15 @@ export default function Customers() {
       setError(null);
       console.log("Running database migration...");
 
-      const response = await fetch('/api/migration/run-migration', {
-        method: 'POST',
+      const response = await fetch("/api/migration/run-migration", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to run migration');
+        throw new Error("Failed to run migration");
       }
 
       const result = await response.json();
@@ -111,15 +115,15 @@ export default function Customers() {
       setError(null);
       console.log("Loading sample data...");
 
-      const response = await fetch('/api/seed/sample-data', {
-        method: 'POST',
+      const response = await fetch("/api/seed/sample-data", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create sample data');
+        throw new Error("Failed to create sample data");
       }
 
       const result = await response.json();
@@ -130,7 +134,6 @@ export default function Customers() {
       const transformedData = transformCustomerData(rawData);
       const normalizedData = normalizeCustomerData(transformedData);
       setCustomers(normalizedData);
-
     } catch (err) {
       console.error("Failed to load sample data:", err);
       setError("Failed to load sample data");
@@ -176,13 +179,16 @@ export default function Customers() {
 
         // Apply production hotfix transformation
         const transformedData = transformCustomerData(rawData);
-        console.log("Transformed customers:", transformedData.map(c => ({
-          name: c.name,
-          balance: c.balance,
-          creditLimit: c.creditLimit,
-          balanceType: typeof c.balance,
-          creditLimitType: typeof c.creditLimit
-        })));
+        console.log(
+          "Transformed customers:",
+          transformedData.map((c) => ({
+            name: c.name,
+            balance: c.balance,
+            creditLimit: c.creditLimit,
+            balanceType: typeof c.balance,
+            creditLimitType: typeof c.creditLimit,
+          })),
+        );
 
         const normalizedData = normalizeCustomerData(transformedData);
         setCustomers(normalizedData);
@@ -221,7 +227,7 @@ export default function Customers() {
 
   // Normalize customer data to ensure valid numeric values
   const normalizeCustomerData = (customers: Customer[]) => {
-    return customers.map(customer => ({
+    return customers.map((customer) => ({
       ...customer,
       balance: Number(customer.balance) || 0,
       creditLimit: Number(customer.creditLimit) || 0,
@@ -275,7 +281,7 @@ export default function Customers() {
           </p>
         </div>
         <div className="flex gap-2">
-          {error && error.includes('database') && (
+          {error && error.includes("database") && (
             <Button
               variant="outline"
               onClick={runMigration}
@@ -302,82 +308,93 @@ export default function Customers() {
           >
             {loading ? "Refreshing..." : "Clear Cache & Reload"}
           </Button>
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <Dialog
+            open={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
+          >
             <DialogTrigger asChild>
               <Button>
                 <Plus className="mr-2 h-4 w-4" />
                 Add Customer
               </Button>
             </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add New Customer</DialogTitle>
-              <DialogDescription>
-                Create a new customer profile. Fill in the details below.
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleCreateCustomer} className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add New Customer</DialogTitle>
+                <DialogDescription>
+                  Create a new customer profile. Fill in the details below.
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleCreateCustomer} className="grid gap-4 py-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Company Name *</Label>
+                    <Input
+                      id="name"
+                      name="name"
+                      placeholder="Enter company name"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="kraPin">KRA PIN</Label>
+                    <Input
+                      id="kraPin"
+                      name="kraPin"
+                      placeholder="P051234567A"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder="contact@company.com"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone</Label>
+                    <Input
+                      id="phone"
+                      name="phone"
+                      placeholder="+254700123456"
+                    />
+                  </div>
+                </div>
                 <div className="space-y-2">
-                  <Label htmlFor="name">Company Name *</Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    placeholder="Enter company name"
-                    required
+                  <Label htmlFor="address">Address</Label>
+                  <Textarea
+                    id="address"
+                    name="address"
+                    placeholder="Enter business address"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="kraPin">KRA PIN</Label>
-                  <Input id="kraPin" name="kraPin" placeholder="P051234567A" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="creditLimit">Credit Limit (KES)</Label>
                   <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="contact@company.com"
+                    id="creditLimit"
+                    name="creditLimit"
+                    type="number"
+                    placeholder="500000"
+                    min="0"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input id="phone" name="phone" placeholder="+254700123456" />
+                <div className="flex justify-end gap-2 pt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsCreateDialogOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit">Create Customer</Button>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="address">Address</Label>
-                <Textarea
-                  id="address"
-                  name="address"
-                  placeholder="Enter business address"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="creditLimit">Credit Limit (KES)</Label>
-                <Input
-                  id="creditLimit"
-                  name="creditLimit"
-                  type="number"
-                  placeholder="500000"
-                  min="0"
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsCreateDialogOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit">Create Customer</Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -411,9 +428,13 @@ export default function Customers() {
               {customerTotals.activeCustomers}
             </div>
             <p className="text-xs text-muted-foreground">
-              {customerTotals.totalCustomers > 0 ? Math.round(
-                (customerTotals.activeCustomers / customerTotals.totalCustomers) * 100,
-              ) : 0}
+              {customerTotals.totalCustomers > 0
+                ? Math.round(
+                    (customerTotals.activeCustomers /
+                      customerTotals.totalCustomers) *
+                      100,
+                  )
+                : 0}
               % of total
             </p>
           </CardContent>

@@ -71,11 +71,11 @@ class PostgresBusinessDataService {
         const rawCustomers = Array.isArray(response.data) ? response.data : [];
 
         // Transform data to handle currentBalance -> balance mapping and ensure numeric values
-        const customers = rawCustomers.map(customer => ({
+        const customers = rawCustomers.map((customer) => ({
           ...customer,
           balance: Number(customer.currentBalance || customer.balance || 0),
           creditLimit: Number(customer.creditLimit || 0),
-          currentBalance: undefined // Remove to avoid confusion
+          currentBalance: undefined, // Remove to avoid confusion
         }));
 
         console.log(
@@ -104,7 +104,7 @@ class PostgresBusinessDataService {
         ...customer,
         balance: Number(customer.currentBalance || customer.balance || 0),
         creditLimit: Number(customer.creditLimit || 0),
-        currentBalance: undefined // Remove to avoid confusion
+        currentBalance: undefined, // Remove to avoid confusion
       };
     } catch (error) {
       console.error("Failed to fetch customer:", error);

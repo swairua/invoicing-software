@@ -75,7 +75,8 @@ export default function CustomerDetails() {
           console.error(`Customer with ID ${id} not found in:`, customers);
           toast({
             title: "Customer Not Found",
-            description: "The requested customer could not be found. Redirecting to customers list.",
+            description:
+              "The requested customer could not be found. Redirecting to customers list.",
             variant: "destructive",
           });
           navigate("/customers");
