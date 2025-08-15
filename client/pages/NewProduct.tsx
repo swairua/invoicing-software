@@ -1297,7 +1297,7 @@ export default function NewProduct() {
                         <div className="space-y-2">
                           {variants.map((variant, index) => (
                             <div
-                              key={index}
+                              key={variant.sku || `variant-${index}`}
                               className="flex items-center gap-4 p-4 border rounded-lg"
                             >
                               <div className="flex-1">
