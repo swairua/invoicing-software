@@ -1313,7 +1313,7 @@ function TemplatePreview({ template }: { template: DocumentTemplate }) {
                 fontFamily: template.design.fonts.heading,
               }}
             >
-              {template.type.toUpperCase().replace("_", " ")}
+              {template.type ? template.type.toUpperCase().replace("_", " ") : "Unknown Template"}
             </h1>
           </div>
 
