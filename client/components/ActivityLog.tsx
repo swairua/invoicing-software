@@ -16,8 +16,8 @@ import {
   RefreshCw,
   Clock,
 } from "lucide-react";
-import { format, formatDistanceToNow, isValid } from "date-fns";
 import { dataServiceFactory } from "@/services/dataServiceFactory";
+import { safeFormatDate, safeFormatDistanceToNow } from "@/lib/utils";
 
 export interface ActivityLogEntry {
   id: string;
