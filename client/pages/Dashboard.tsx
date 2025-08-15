@@ -370,7 +370,7 @@ export default function Dashboard() {
                   className="flex justify-between items-center py-2 border-b"
                 >
                   <span className="text-sm">
-                    {new Date(day.date).toLocaleDateString()}
+                    {safeToLocaleDateString(day.date)}
                   </span>
                   <div className="text-right">
                     <div className="font-medium">
