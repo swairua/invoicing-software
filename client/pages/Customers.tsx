@@ -90,7 +90,8 @@ export default function Customers() {
 
       // Reload customers after migration
       const data = await dataService.getCustomers();
-      setCustomers(data);
+      const normalizedData = normalizeCustomerData(data);
+      setCustomers(normalizedData);
 
       console.log("✅ Database migration completed successfully");
     } catch (err) {
