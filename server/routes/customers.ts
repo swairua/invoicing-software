@@ -142,12 +142,10 @@ router.delete('/:id', async (req, res) => {
     });
   } catch (error) {
     console.error('Error deleting customer:', error);
-    console.log('Returning fallback delete response');
-
-    // Return success response when database is unavailable
-    res.json({
-      success: true,
-      message: 'Customer deleted successfully (fallback mode)'
+    res.status(500).json({
+      success: false,
+      error: 'Failed to delete customer from database',
+      details: error.message
     });
   }
 });
