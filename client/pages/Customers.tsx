@@ -65,6 +65,41 @@ export default function Customers() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isLoadingSampleData, setIsLoadingSampleData] = useState(false);
+  const [isRunningMigration, setIsRunningMigration] = useState(false);
+
+  // Run database migration
+  const runMigration = async () => {
+    try {
+      setIsRunningMigration(true);
+      setError(null);
+      console.log("Running database migration...");
+
+      const response = await fetch('/api/migration/run-migration', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to run migration');
+      }
+
+      const result = await response.json();
+      console.log("Migration completed:", result);
+
+      // Reload customers after migration
+      const data = await dataService.getCustomers();
+      setCustomers(data);
+
+      console.log("✅ Database migration completed successfully");
+    } catch (err) {
+      console.error("Failed to run migration:", err);
+      setError("Failed to run database migration");
+    } finally {
+      setIsRunningMigration(false);
+    }
+  };
 
   // Load sample data function
   const loadSampleData = async () => {
