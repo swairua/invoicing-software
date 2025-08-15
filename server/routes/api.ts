@@ -121,6 +121,7 @@ router.get("/dashboard/metrics", (req, res) => {
 // Route handlers
 router.use("/customers", customersRouter);
 router.use("/products", productsRouter);
+router.use("/categories", categoriesRouter);
 router.use("/invoices", invoicesRouter);
 router.use("/taxes", taxesRouter);
 router.use("/seed", seedRouter);
