@@ -28,7 +28,7 @@ import {
   Trash2,
   AlertCircle,
 } from "lucide-react";
-import { format } from "date-fns";
+import { safeFormatDate } from "@/lib/utils";
 import { CreditNote, Customer, Product } from "@shared/types";
 import { dataServiceFactory } from "@/services/dataServiceFactory";
 import { toast } from "@/hooks/use-toast";
@@ -266,7 +266,7 @@ export default function CreditNotes() {
                       {creditNote.reason}
                     </TableCell>
                     <TableCell>
-                      {format(new Date(creditNote.issueDate), "MMM dd, yyyy")}
+                      {safeFormatDate(creditNote.issueDate, "MMM dd, yyyy")}
                     </TableCell>
                     <TableCell>
                       KES {creditNote.total.toLocaleString()}
