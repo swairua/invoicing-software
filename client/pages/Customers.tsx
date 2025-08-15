@@ -205,6 +205,15 @@ export default function Customers() {
     }).format(validAmount);
   };
 
+  // Normalize customer data to ensure valid numeric values
+  const normalizeCustomerData = (customers: Customer[]) => {
+    return customers.map(customer => ({
+      ...customer,
+      balance: Number(customer.balance) || 0,
+      creditLimit: Number(customer.creditLimit) || 0,
+    }));
+  };
+
   const handleCreateCustomer = async (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
