@@ -779,7 +779,7 @@ export default function QuickActions() {
             className="w-full sm:w-auto"
           >
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Create & Send {documentType.replace("New ", "")}
+            Create & Send {documentType ? documentType.replace("New ", "") : "Document"}
           </Button>
         </div>
       </div>
