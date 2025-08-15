@@ -194,12 +194,14 @@ export default function Customers() {
       .toUpperCase();
   };
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number | null | undefined) => {
+    // Handle null, undefined, or NaN values
+    const validAmount = amount && !isNaN(amount) ? amount : 0;
     return new Intl.NumberFormat("en-KE", {
       style: "currency",
       currency: "KES",
       minimumFractionDigits: 0,
-    }).format(amount);
+    }).format(validAmount);
   };
 
   const handleCreateCustomer = async (e: React.FormEvent) => {
