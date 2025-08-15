@@ -455,8 +455,7 @@ class PostgresBusinessDataService {
       return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       console.error("Failed to fetch credit notes:", error);
-      console.log("Using fallback credit notes data");
-      return this.getFallbackCreditNotes();
+      throw new Error(`Failed to fetch credit notes from database: ${error.message}`);
     }
   }
 
