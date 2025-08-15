@@ -159,6 +159,8 @@ export default function NewProduct() {
     stock: "",
     isActive: true,
   });
+  const [categories, setCategories] = useState<ProductCategory[]>([]);
+  const [units, setUnits] = useState<any[]>([]);
 
   const dataService = dataServiceFactory.getDataService();
 
