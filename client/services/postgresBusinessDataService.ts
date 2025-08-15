@@ -339,6 +339,57 @@ class PostgresBusinessDataService {
     return this.getProformas();
   }
 
+  public async getProformaInvoiceById(id: string): Promise<ProformaInvoice | undefined> {
+    try {
+      const response = await this.apiCall(`/proformas/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("Failed to fetch proforma invoice:", error);
+      return undefined;
+    }
+  }
+
+  public async createProformaInvoice(proformaData: any): Promise<ProformaInvoice> {
+    try {
+      const response = await this.apiCall("/proformas", {
+        method: "POST",
+        body: JSON.stringify(proformaData),
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Failed to create proforma invoice:", error);
+      throw error;
+    }
+  }
+
+  public async updateProformaInvoice(
+    id: string,
+    proformaData: Partial<ProformaInvoice>,
+  ): Promise<ProformaInvoice | undefined> {
+    try {
+      const response = await this.apiCall(`/proformas/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(proformaData),
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Failed to update proforma invoice:", error);
+      throw error;
+    }
+  }
+
+  public async deleteProformaInvoice(id: string): Promise<boolean> {
+    try {
+      await this.apiCall(`/proformas/${id}`, {
+        method: "DELETE",
+      });
+      return true;
+    } catch (error) {
+      console.error("Failed to delete proforma invoice:", error);
+      return false;
+    }
+  }
+
   // Credit Notes methods
   public async getCreditNotes(): Promise<any[]> {
     try {
