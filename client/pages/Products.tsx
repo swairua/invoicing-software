@@ -112,7 +112,6 @@ export default function Products() {
         setCategories(categoriesData);
 
         // Load units from shared units system (commonly used units)
-        const allUnits = UnitConverter.getAllUnits();
         const commonUnits = [
           ...UnitConverter.getUnitsByCategory('quantity'),
           ...UnitConverter.getUnitsByCategory('weight'),
