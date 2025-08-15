@@ -298,6 +298,34 @@ class PostgresBusinessDataService {
     }
   }
 
+  public async updateInvoice(
+    id: string,
+    invoiceData: Partial<Invoice>,
+  ): Promise<Invoice | undefined> {
+    try {
+      const response = await this.apiCall(`/invoices/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(invoiceData),
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Failed to update invoice:", error);
+      throw error;
+    }
+  }
+
+  public async deleteInvoice(id: string): Promise<boolean> {
+    try {
+      await this.apiCall(`/invoices/${id}`, {
+        method: "DELETE",
+      });
+      return true;
+    } catch (error) {
+      console.error("Failed to delete invoice:", error);
+      return false;
+    }
+  }
+
   // Quotation methods
   public async getQuotations(): Promise<Quotation[]> {
     try {
