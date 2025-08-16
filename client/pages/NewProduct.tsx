@@ -383,9 +383,8 @@ export default function NewProduct() {
           updatedAt: new Date(),
         };
 
-        // Here you would normally call an update API
-        // For now, we'll simulate success
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        // Call the real update API
+        await dataService.updateProduct(product.id, updatedProduct);
 
         toast({
           title: "Product Updated",
