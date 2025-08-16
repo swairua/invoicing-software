@@ -275,10 +275,10 @@ router.get('/:id', async (req, res) => {
       },
       items: [
         {
-          id: '1',
-          productId: '1',
+          id: '00000000-0000-0000-0000-000000000001',
+          productId: '00000000-0000-0000-0000-000000000001',
           product: {
-            id: '1',
+            id: '00000000-0000-0000-0000-000000000001',
             name: 'Sample Product',
             sku: 'SAMPLE-001'
           },
