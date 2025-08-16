@@ -56,10 +56,9 @@ router.post('/sample-data', async (req, res) => {
         costPrice: 25000,
         category: 'Services',
         unit: 'Package',
-        stockQuantity: 100,
+        currentStock: 100,
         isActive: true,
-        companyId,
-        createdBy: userId
+        companyId
       },
       {
         name: 'Digital Marketing Campaign',
