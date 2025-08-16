@@ -163,38 +163,6 @@ export class CustomerRepository extends BaseRepository {
     return parseFloat(result.rows[0].outstanding) || 0;
   }
 
-  private async generateCustomerNumber(companyId: string): Promise<string> {
-    const query = `
-      UPDATE number_sequences
-      SET current_number = current_number + 1
-      WHERE company_id = $1 AND sequence_type = 'customer'
-      RETURNING current_number
-    `;
-
-    try {
-      const result = await this.db.query(query, [companyId]);
-      if (result.rows.length > 0) {
-        const number = result.rows[0].current_number;
-        return `CUST-${String(number).padStart(3, "0")}`;
-      }
-    } catch (error) {
-      // If sequence doesn't exist, create it
-      const insertQuery = `
-        INSERT INTO number_sequences (company_id, sequence_type, prefix, current_number)
-        VALUES ($1, 'customer', 'CUST', 1)
-        ON CONFLICT (company_id, sequence_type) DO UPDATE
-        SET current_number = number_sequences.current_number + 1
-        RETURNING current_number
-      `;
-
-      const result = await this.db.query(insertQuery, [companyId]);
-      const number = result.rows[0].current_number;
-      return `CUST-${String(number).padStart(3, "0")}`;
-    }
-
-    // Fallback
-    return `CUST-${Date.now()}`;
-  }
 }
 
 export default new CustomerRepository();
