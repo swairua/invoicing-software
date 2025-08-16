@@ -134,6 +134,13 @@ export class UnitConverter {
   }
 
   /**
+   * Get all units
+   */
+  static getAllUnits(): UnitOfMeasure[] {
+    return standardUnits;
+  }
+
+  /**
    * Search units by name or symbol
    */
   static searchUnits(query: string): UnitOfMeasure[] {
