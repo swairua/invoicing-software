@@ -325,7 +325,8 @@ export default function NewProduct() {
           description: formData.description,
           sku: formData.sku,
           barcode: formData.barcode,
-          category: formData.category,
+          category: formData.categoryName || formData.category,
+          categoryId: formData.category,
           subcategory:
             formData.subcategory === "none" ? "" : formData.subcategory,
           brand: formData.brand,
@@ -401,7 +402,8 @@ export default function NewProduct() {
           description: formData.description,
           sku: formData.sku,
           barcode: formData.barcode,
-          category: formData.category,
+          category: formData.categoryName || formData.category,
+          categoryId: formData.category,
           subcategory:
             formData.subcategory === "none" ? "" : formData.subcategory,
           brand: formData.brand,
