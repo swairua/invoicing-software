@@ -22,8 +22,7 @@ router.post('/sample-data', async (req, res) => {
         address: 'Westlands Avenue, Nairobi, Kenya',
         creditLimit: 500000,
         isActive: true,
-        companyId,
-        createdBy: userId
+        companyId
       },
       {
         name: 'Safari Digital Agency',
