@@ -42,7 +42,12 @@ import {
   Ruler,
   MapPin,
 } from "lucide-react";
-import { Product, ProductDimensions, ProductVariant, ProductCategory } from "@shared/types";
+import {
+  Product,
+  ProductDimensions,
+  ProductVariant,
+  ProductCategory,
+} from "@shared/types";
 import { UnitConverter } from "@shared/units";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import { useToast } from "../hooks/use-toast";
@@ -319,7 +324,8 @@ export default function NewProduct() {
           sku: formData.sku,
           barcode: formData.barcode,
           category: formData.category,
-          subcategory: formData.subcategory === "none" ? "" : formData.subcategory,
+          subcategory:
+            formData.subcategory === "none" ? "" : formData.subcategory,
           brand: formData.brand,
           supplier: formData.supplier,
           unit: formData.unit,
@@ -395,7 +401,8 @@ export default function NewProduct() {
           sku: formData.sku,
           barcode: formData.barcode,
           category: formData.category,
-          subcategory: formData.subcategory === "none" ? "" : formData.subcategory,
+          subcategory:
+            formData.subcategory === "none" ? "" : formData.subcategory,
           brand: formData.brand,
           supplier: formData.supplier,
           unit: formData.unit,
@@ -751,7 +758,10 @@ export default function NewProduct() {
                       <Select
                         value={formData.subcategory}
                         onValueChange={(value) =>
-                          setFormData((prev) => ({ ...prev, subcategory: value }))
+                          setFormData((prev) => ({
+                            ...prev,
+                            subcategory: value,
+                          }))
                         }
                       >
                         <SelectTrigger>
@@ -760,13 +770,21 @@ export default function NewProduct() {
                         <SelectContent>
                           <SelectItem value="none">No subcategory</SelectItem>
                           {categories
-                            .filter(cat => {
+                            .filter((cat) => {
                               // Show subcategories that belong to the selected category
-                              const selectedCategory = categories.find(c => c.name === formData.category);
-                              return selectedCategory && cat.parentId === selectedCategory.id;
+                              const selectedCategory = categories.find(
+                                (c) => c.name === formData.category,
+                              );
+                              return (
+                                selectedCategory &&
+                                cat.parentId === selectedCategory.id
+                              );
                             })
                             .map((subcategory) => (
-                              <SelectItem key={subcategory.id} value={subcategory.name}>
+                              <SelectItem
+                                key={subcategory.id}
+                                value={subcategory.name}
+                              >
                                 {subcategory.name}
                                 {subcategory.description && (
                                   <span className="text-xs text-muted-foreground ml-2">
@@ -1441,7 +1459,10 @@ export default function NewProduct() {
                         <div className="space-y-2">
                           <Label>Attributes</Label>
                           {newVariant.attributes.map((attr, index) => (
-                            <div key={`attr-${index}-${attr.key}`} className="flex gap-2">
+                            <div
+                              key={`attr-${index}-${attr.key}`}
+                              className="flex gap-2"
+                            >
                               <Input
                                 placeholder="Attribute name (e.g., Color)"
                                 value={attr.key}
