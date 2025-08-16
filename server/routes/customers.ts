@@ -88,7 +88,6 @@ router.post("/", async (req, res) => {
     const customerData = {
       ...req.body,
       companyId,
-      createdBy: userId,
     };
 
     const customer = await customerRepository.create(customerData);
