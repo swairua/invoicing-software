@@ -99,6 +99,7 @@ export default function NewProduct() {
   const location = useLocation();
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(false);
   const [product, setProduct] = useState<Product | null>(null);
