@@ -1,5 +1,5 @@
 import { Router } from "express";
-import Database from "../database";
+import Database, { Database as DatabaseClass } from "../database";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -11,7 +11,7 @@ router.post("/run-migration", async (req, res) => {
   try {
     console.log("🚀 Starting manual database migration...");
 
-    const db = Database.getInstance();
+    const db = Database;
 
     // Test connection first
     const connectionTest = await db.testConnection();
@@ -22,16 +22,36 @@ router.post("/run-migration", async (req, res) => {
       });
     }
 
-    // Check if tables exist
-    const tableCheck = await db.query(`
-      SELECT table_name 
-      FROM information_schema.tables 
-      WHERE table_schema = 'public' 
-      AND table_name IN ('companies', 'customers', 'products', 'invoices')
-    `);
+    // Check if ALL required tables exist
+    const requiredTables = [
+      "companies",
+      "customers",
+      "products",
+      "invoices",
+      "product_categories",
+      "invoice_items",
+      "stock_movements",
+    ];
 
-    if (tableCheck.rows.length === 0) {
-      console.log("📋 No schema found, running migration...");
+    const tableCheck = await db.query(
+      `
+      SELECT table_name
+      FROM information_schema.tables
+      WHERE table_schema = 'public'
+      AND table_name = ANY($1)
+    `,
+      [requiredTables],
+    );
+
+    const existingTables = tableCheck.rows.map((row) => row.table_name);
+    const missingTables = requiredTables.filter(
+      (table) => !existingTables.includes(table),
+    );
+
+    if (missingTables.length > 0) {
+      console.log(
+        `📋 Missing tables found: ${missingTables.join(", ")}, running migration...`,
+      );
 
       // Read migration file
       const __filename = fileURLToPath(import.meta.url);
@@ -101,7 +121,7 @@ router.post("/run-migration", async (req, res) => {
 // Check database status
 router.get("/status", async (req, res) => {
   try {
-    const db = Database.getInstance();
+    const db = Database;
 
     // Test connection
     const connectionTest = await db.testConnection();

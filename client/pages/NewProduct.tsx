@@ -51,13 +51,15 @@ import {
 import { UnitConverter } from "@shared/units";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import { useToast } from "../hooks/use-toast";
+import { useAuth } from "../hooks/use-auth";
 
 interface ProductFormData {
   name: string;
   description: string;
   sku: string;
   barcode: string;
-  category: string;
+  category: string; // Category ID
+  categoryName?: string; // Category name for display
   subcategory: string;
   brand: string;
   supplier: string;
@@ -98,6 +100,7 @@ export default function NewProduct() {
   const location = useLocation();
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(false);
   const [product, setProduct] = useState<Product | null>(null);
@@ -176,8 +179,7 @@ export default function NewProduct() {
 
       try {
         setLoading(true);
-        const products = await dataService.getProducts();
-        const foundProduct = products.find((p) => p.id === id);
+        const foundProduct = await dataService.getProductById?.(id);
 
         if (!foundProduct) {
           toast({
@@ -195,7 +197,8 @@ export default function NewProduct() {
           description: foundProduct.description || "",
           sku: foundProduct.sku,
           barcode: foundProduct.barcode || "",
-          category: foundProduct.category,
+          category: foundProduct.categoryId || foundProduct.category,
+          categoryName: foundProduct.category,
           subcategory: foundProduct.subcategory || "",
           brand: foundProduct.brand || "",
           supplier: foundProduct.supplier || "",
@@ -323,7 +326,8 @@ export default function NewProduct() {
           description: formData.description,
           sku: formData.sku,
           barcode: formData.barcode,
-          category: formData.category,
+          category: formData.categoryName || formData.category,
+          categoryId: formData.category,
           subcategory:
             formData.subcategory === "none" ? "" : formData.subcategory,
           brand: formData.brand,
@@ -383,9 +387,8 @@ export default function NewProduct() {
           updatedAt: new Date(),
         };
 
-        // Here you would normally call an update API
-        // For now, we'll simulate success
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        // Call the real update API
+        await dataService.updateProduct(product.id, updatedProduct);
 
         toast({
           title: "Product Updated",
@@ -400,7 +403,8 @@ export default function NewProduct() {
           description: formData.description,
           sku: formData.sku,
           barcode: formData.barcode,
-          category: formData.category,
+          category: formData.categoryName || formData.category,
+          categoryId: formData.category,
           subcategory:
             formData.subcategory === "none" ? "" : formData.subcategory,
           brand: formData.brand,
@@ -458,12 +462,11 @@ export default function NewProduct() {
           notes: formData.notes,
           isActive: true,
           status: formData.status,
-          companyId: "1",
+          companyId: user?.companyId || "00000000-0000-0000-0000-000000000001",
         };
 
-        // Here you would normally call a create API
-        // For now, we'll simulate success
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        // Call the real create API
+        await dataService.createProduct(newProduct);
 
         toast({
           title: "Product Created",
@@ -732,16 +735,23 @@ export default function NewProduct() {
                       <Label htmlFor="category">Category *</Label>
                       <Select
                         value={formData.category}
-                        onValueChange={(value) =>
-                          setFormData((prev) => ({ ...prev, category: value }))
-                        }
+                        onValueChange={(value) => {
+                          const selectedCategory = categories.find(
+                            (cat) => cat.id === value,
+                          );
+                          setFormData((prev) => ({
+                            ...prev,
+                            category: value,
+                            categoryName: selectedCategory?.name || "",
+                          }));
+                        }}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                         <SelectContent>
                           {categories.map((category) => (
-                            <SelectItem key={category.id} value={category.name}>
+                            <SelectItem key={category.id} value={category.id}>
                               {category.name}
                               {category.description && (
                                 <span className="text-xs text-muted-foreground ml-2">

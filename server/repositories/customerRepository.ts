@@ -48,10 +48,7 @@ export class CustomerRepository extends BaseRepository {
     `;
 
     const result = await this.db.query(dataQuery, params);
-    const customers = this.toCamelCase(result.rows).map((customer) => ({
-      ...customer,
-      balance: customer.currentBalance || 0, // Map current_balance to balance for frontend
-    })) as Customer[];
+    const customers = this.toCamelCase(result.rows) as Customer[];
 
     return { customers, total };
   }
@@ -69,22 +66,17 @@ export class CustomerRepository extends BaseRepository {
       return null;
     }
 
-    const customer = this.toCamelCase(result.rows[0]);
-    return {
-      ...customer,
-      balance: customer.currentBalance || 0, // Map current_balance to balance for frontend
-    } as Customer;
+    return this.toCamelCase(result.rows[0]) as Customer;
   }
 
   async create(
     customerData: Omit<Customer, "id" | "createdAt" | "updatedAt">,
   ): Promise<Customer> {
-    // Map balance to current_balance for database compatibility
-    const { balance, ...restData } = customerData;
+    // Use balance directly as it matches the database column
     const data = this.toSnakeCase({
       id: "uuid_generate_v4()",
-      ...restData,
-      currentBalance: balance || 0,
+      ...customerData,
+      balance: customerData.balance || 0,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -96,11 +88,7 @@ export class CustomerRepository extends BaseRepository {
     const finalQuery = query.replace("uuid_generate_v4()", "DEFAULT");
 
     const result = await this.db.query(finalQuery, values);
-    const customer = this.toCamelCase(result.rows[0]);
-    return {
-      ...customer,
-      balance: customer.currentBalance || 0, // Map current_balance to balance for frontend
-    } as Customer;
+    return this.toCamelCase(result.rows[0]) as Customer;
   }
 
   async update(
@@ -125,11 +113,7 @@ export class CustomerRepository extends BaseRepository {
       return null;
     }
 
-    const customer = this.toCamelCase(result.rows[0]);
-    return {
-      ...customer,
-      balance: customer.currentBalance || 0, // Map current_balance to balance for frontend
-    } as Customer;
+    return this.toCamelCase(result.rows[0]) as Customer;
   }
 
   async delete(id: string, companyId: string): Promise<boolean> {

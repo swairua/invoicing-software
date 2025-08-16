@@ -74,9 +74,11 @@ export interface Product {
   sku: string;
   barcode?: string;
   category: string;
+  categoryId?: string; // UUID reference to product_categories table
   subcategory?: string;
   brand?: string;
   supplier?: string;
+  supplierId?: string; // UUID reference to suppliers table
   unit: string;
   weight?: number;
   dimensions?: ProductDimensions;
@@ -106,6 +108,7 @@ export interface Product {
   isActive: boolean;
   status: ProductStatus;
   companyId: string;
+  createdBy?: string; // UUID reference to users table
   createdAt: Date;
   updatedAt: Date;
 }
