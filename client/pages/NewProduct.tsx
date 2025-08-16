@@ -740,7 +740,7 @@ export default function NewProduct() {
                         </SelectTrigger>
                         <SelectContent>
                           {categories.map((category) => (
-                            <SelectItem key={category.id} value={category.name}>
+                            <SelectItem key={category.id} value={category.id}>
                               {category.name}
                               {category.description && (
                                 <span className="text-xs text-muted-foreground ml-2">
