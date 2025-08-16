@@ -57,7 +57,7 @@ router.get('/', async (req, res) => {
         updatedAt: new Date()
       },
       {
-        id: '2',
+        id: '00000000-0000-0000-0000-000000000002',
         name: 'Digital Blood Pressure Monitor',
         description: 'Accurate digital blood pressure monitoring device',
         sku: 'DBP-001',
