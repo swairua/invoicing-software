@@ -732,9 +732,14 @@ export default function NewProduct() {
                       <Label htmlFor="category">Category *</Label>
                       <Select
                         value={formData.category}
-                        onValueChange={(value) =>
-                          setFormData((prev) => ({ ...prev, category: value }))
-                        }
+                        onValueChange={(value) => {
+                          const selectedCategory = categories.find(cat => cat.id === value);
+                          setFormData((prev) => ({
+                            ...prev,
+                            category: value,
+                            categoryName: selectedCategory?.name || ""
+                          }));
+                        }}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select category" />
