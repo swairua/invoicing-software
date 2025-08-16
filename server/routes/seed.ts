@@ -7,9 +7,23 @@ const router = Router();
 // Seed sample data endpoint
 router.post('/sample-data', async (req, res) => {
   try {
-    const companyId = req.headers['x-company-id'] as string || '550e8400-e29b-41d4-a716-446655440000';
+    let companyId = req.headers['x-company-id'] as string;
     const userId = req.headers['x-user-id'] as string || '550e8400-e29b-41d4-a716-446655440001';
-    
+
+    // If no company ID provided, get the first company from database
+    if (!companyId) {
+      const companyResult = await customerRepository.db.query('SELECT id FROM companies LIMIT 1');
+      if (companyResult.rows.length > 0) {
+        companyId = companyResult.rows[0].id;
+        console.log('🏢 Using existing company ID:', companyId);
+      } else {
+        return res.status(400).json({
+          success: false,
+          error: 'No company found in database. Please create a company first.'
+        });
+      }
+    }
+
     console.log('🚀 Starting sample data creation...');
     
     // Sample customers
