@@ -40,7 +40,7 @@ router.get('/', async (req, res) => {
     // Return fallback products when database is unavailable
     const fallbackProducts = [
       {
-        id: '1',
+        id: '00000000-0000-0000-0000-000000000001',
         name: 'Latex Rubber Gloves Bicolor Reusable XL',
         description: 'High-quality latex rubber gloves for medical and industrial use',
         sku: 'LRG-XL-001',
