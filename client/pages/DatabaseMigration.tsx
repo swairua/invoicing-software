@@ -1,66 +1,74 @@
 import React, { useState } from "react";
 import { Button } from "../components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import { Alert, AlertDescription } from "../components/ui/alert";
 import { CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 
 export default function DatabaseMigration() {
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [message, setMessage] = useState('');
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
+  const [message, setMessage] = useState("");
   const [details, setDetails] = useState<any>(null);
 
   const runMigration = async () => {
-    setStatus('loading');
-    setMessage('');
+    setStatus("loading");
+    setMessage("");
     setDetails(null);
 
     try {
-      const response = await fetch('/api/migration/run-migration', {
-        method: 'POST',
+      const response = await fetch("/api/migration/run-migration", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
       const data = await response.json();
 
       if (data.success) {
-        setStatus('success');
+        setStatus("success");
         setMessage(data.message);
         setDetails(data.data);
       } else {
-        setStatus('error');
-        setMessage(data.error || 'Migration failed');
+        setStatus("error");
+        setMessage(data.error || "Migration failed");
         setDetails(data.details);
       }
     } catch (error) {
-      setStatus('error');
-      setMessage('Failed to run migration');
+      setStatus("error");
+      setMessage("Failed to run migration");
       setDetails(error.message);
     }
   };
 
   const checkStatus = async () => {
-    setStatus('loading');
-    setMessage('');
+    setStatus("loading");
+    setMessage("");
     setDetails(null);
 
     try {
-      const response = await fetch('/api/migration/status');
+      const response = await fetch("/api/migration/status");
       const data = await response.json();
 
       if (data.success) {
-        setStatus('success');
-        setMessage('Database status checked successfully');
+        setStatus("success");
+        setMessage("Database status checked successfully");
         setDetails(data.data);
       } else {
-        setStatus('error');
-        setMessage(data.error || 'Status check failed');
+        setStatus("error");
+        setMessage(data.error || "Status check failed");
         setDetails(data.details);
       }
     } catch (error) {
-      setStatus('error');
-      setMessage('Failed to check database status');
+      setStatus("error");
+      setMessage("Failed to check database status");
       setDetails(error.message);
     }
   };
@@ -70,7 +78,8 @@ export default function DatabaseMigration() {
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Database Migration</h1>
         <p className="text-muted-foreground mt-2">
-          Run database migrations to create missing tables and fix product connectivity issues.
+          Run database migrations to create missing tables and fix product
+          connectivity issues.
         </p>
       </div>
 
@@ -79,45 +88,46 @@ export default function DatabaseMigration() {
           <CardHeader>
             <CardTitle>Database Migration</CardTitle>
             <CardDescription>
-              This will create all necessary database tables including products, categories, customers, and more.
+              This will create all necessary database tables including products,
+              categories, customers, and more.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex gap-4">
-              <Button 
-                onClick={runMigration} 
-                disabled={status === 'loading'}
+              <Button
+                onClick={runMigration}
+                disabled={status === "loading"}
                 className="flex items-center gap-2"
               >
-                {status === 'loading' ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                {status === "loading" ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : null}
                 Run Migration
               </Button>
-              <Button 
-                variant="outline" 
-                onClick={checkStatus} 
-                disabled={status === 'loading'}
+              <Button
+                variant="outline"
+                onClick={checkStatus}
+                disabled={status === "loading"}
                 className="flex items-center gap-2"
               >
-                {status === 'loading' ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                {status === "loading" ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : null}
                 Check Status
               </Button>
             </div>
 
-            {status === 'success' && (
+            {status === "success" && (
               <Alert>
                 <CheckCircle className="h-4 w-4" />
-                <AlertDescription>
-                  {message}
-                </AlertDescription>
+                <AlertDescription>{message}</AlertDescription>
               </Alert>
             )}
 
-            {status === 'error' && (
+            {status === "error" && (
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  {message}
-                </AlertDescription>
+                <AlertDescription>{message}</AlertDescription>
               </Alert>
             )}
 
@@ -142,11 +152,21 @@ export default function DatabaseMigration() {
           </CardHeader>
           <CardContent>
             <ul className="list-disc list-inside space-y-2 text-sm">
-              <li>Creates the missing <code>products</code> table for product storage</li>
-              <li>Creates the missing <code>product_categories</code> table for category dropdowns</li>
-              <li>Creates all other required tables (customers, invoices, etc.)</li>
+              <li>
+                Creates the missing <code>products</code> table for product
+                storage
+              </li>
+              <li>
+                Creates the missing <code>product_categories</code> table for
+                category dropdowns
+              </li>
+              <li>
+                Creates all other required tables (customers, invoices, etc.)
+              </li>
               <li>Fixes the "relation does not exist" errors in the logs</li>
-              <li>Connects the frontend product forms to the actual database</li>
+              <li>
+                Connects the frontend product forms to the actual database
+              </li>
               <li>Enables real product creation, editing, and storage</li>
             </ul>
           </CardContent>
