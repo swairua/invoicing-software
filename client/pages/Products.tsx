@@ -112,13 +112,20 @@ export default function Products() {
         setCategories(categoriesData);
 
         // Load units from shared units system (commonly used units)
-        const commonUnits = [
+        const allUnits = [
           ...UnitConverter.getUnitsByCategory('quantity'),
           ...UnitConverter.getUnitsByCategory('weight'),
           ...UnitConverter.getUnitsByCategory('volume'),
           ...UnitConverter.getUnitsByCategory('length'),
         ];
-        setUnits(commonUnits);
+
+        // Remove duplicates by creating a Map with unit.id as key
+        const uniqueUnitsMap = new Map();
+        allUnits.forEach(unit => {
+          uniqueUnitsMap.set(unit.id, unit);
+        });
+        const uniqueUnits = Array.from(uniqueUnitsMap.values());
+        setUnits(uniqueUnits);
 
       } catch (err) {
         console.error("Failed to load categories or units:", err);
