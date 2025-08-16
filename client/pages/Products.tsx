@@ -610,11 +610,22 @@ export default function Products() {
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 className="text-destructive cursor-pointer"
-                                onClick={(e) => {
+                                onClick={async (e) => {
                                   e.preventDefault();
                                   e.stopPropagation();
-                                  // TODO: Implement product deletion
-                                  console.log("Delete product:", product.id);
+
+                                  if (confirm(`Are you sure you want to delete "${product.name}"? This action cannot be undone.`)) {
+                                    try {
+                                      await dataService.deleteProduct(product.id);
+                                      // Refresh the products list
+                                      const data = await dataService.getProducts();
+                                      setProducts(data);
+                                      console.log(`Product "${product.name}" deleted successfully`);
+                                    } catch (error) {
+                                      console.error("Failed to delete product:", error);
+                                      setError("Failed to delete product");
+                                    }
+                                  }
                                 }}
                               >
                                 <Trash2 className="mr-2 h-4 w-4" />
