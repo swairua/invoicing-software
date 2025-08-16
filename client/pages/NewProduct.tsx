@@ -758,7 +758,7 @@ export default function NewProduct() {
                           <SelectValue placeholder="Select subcategory (optional)" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">No subcategory</SelectItem>
+                          <SelectItem value="none">No subcategory</SelectItem>
                           {categories
                             .filter(cat => {
                               // Show subcategories that belong to the selected category
