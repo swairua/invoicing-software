@@ -51,6 +51,7 @@ import {
 import { UnitConverter } from "@shared/units";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import { useToast } from "../hooks/use-toast";
+import { useAuth } from "../hooks/use-auth";
 
 interface ProductFormData {
   name: string;
