@@ -43,6 +43,7 @@ import ProformaDetails from "./pages/ProformaDetails";
 import NewProforma from "./pages/NewProforma";
 import StatementOfAccount from "./pages/StatementOfAccount";
 import SampleDataCreator from "./pages/SampleDataCreator";
+import DatabaseMigration from "./pages/DatabaseMigration";
 
 const queryClient = new QueryClient();
 
