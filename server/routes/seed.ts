@@ -32,8 +32,7 @@ router.post('/sample-data', async (req, res) => {
         address: 'Karen Road, Karen, Nairobi',
         creditLimit: 250000,
         isActive: true,
-        companyId,
-        createdBy: userId
+        companyId
       },
       {
         name: 'East Africa Logistics',
