@@ -39,7 +39,7 @@ router.post("/run-migration", async (req, res) => {
     const missingTables = requiredTables.filter(table => !existingTables.includes(table));
 
     if (missingTables.length > 0) {
-      console.log("📋 No schema found, running migration...");
+      console.log(`📋 Missing tables found: ${missingTables.join(', ')}, running migration...`);
 
       // Read migration file
       const __filename = fileURLToPath(import.meta.url);
