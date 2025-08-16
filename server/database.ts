@@ -209,6 +209,11 @@ export class BaseRepository {
       return obj.map((item) => this.toSnakeCase(item));
     }
 
+    // Handle Date objects - return them as-is, don't convert
+    if (obj instanceof Date) {
+      return obj;
+    }
+
     if (obj !== null && typeof obj === "object") {
       const converted: any = {};
       for (const key in obj) {
