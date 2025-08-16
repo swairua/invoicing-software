@@ -458,7 +458,7 @@ export default function NewProduct() {
           notes: formData.notes,
           isActive: true,
           status: formData.status,
-          companyId: "00000000-0000-0000-0000-000000000001",
+          companyId: user?.companyId || "00000000-0000-0000-0000-000000000001",
         };
 
         // Call the real create API
