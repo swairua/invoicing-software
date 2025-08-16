@@ -145,9 +145,8 @@ export default function NewCustomer() {
           updatedAt: new Date(),
         };
 
-        // Here you would normally call an update API
-        // For now, we'll simulate success
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        // Call the actual update API
+        await dataService.updateCustomer(updatedCustomer);
 
         toast({
           title: "Customer Updated",
@@ -169,9 +168,8 @@ export default function NewCustomer() {
           companyId: "1",
         };
 
-        // Here you would normally call a create API
-        // For now, we'll simulate success
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        // Call the actual create API
+        await dataService.createCustomer(newCustomer);
 
         toast({
           title: "Customer Created",

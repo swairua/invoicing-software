@@ -46,6 +46,7 @@ const navigation = [
   { name: "Payments", href: "/payments", icon: CreditCard },
   { name: "Credit Notes", href: "/credit-notes", icon: RefreshCw },
   { name: "Statement", href: "/statement-of-account", icon: FileText },
+  { name: "Remittance", href: "/remittance-advice", icon: Receipt },
   { name: "Reports", href: "/reports", icon: BarChart3 },
   { name: "Templates", href: "/templates", icon: Palette },
   { name: "Settings", href: "/settings", icon: Settings },
