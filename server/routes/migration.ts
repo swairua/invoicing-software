@@ -11,7 +11,7 @@ router.post("/run-migration", async (req, res) => {
   try {
     console.log("🚀 Starting manual database migration...");
 
-    const db = Database.getInstance();
+    const db = Database;
 
     // Test connection first
     const connectionTest = await db.testConnection();
@@ -101,7 +101,7 @@ router.post("/run-migration", async (req, res) => {
 // Check database status
 router.get("/status", async (req, res) => {
   try {
-    const db = Database.getInstance();
+    const db = Database;
 
     // Test connection
     const connectionTest = await db.testConnection();
