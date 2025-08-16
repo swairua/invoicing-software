@@ -460,9 +460,8 @@ export default function NewProduct() {
           companyId: "1",
         };
 
-        // Here you would normally call a create API
-        // For now, we'll simulate success
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        // Call the real create API
+        await dataService.createProduct(newProduct);
 
         toast({
           title: "Product Created",
