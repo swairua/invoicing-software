@@ -168,9 +168,8 @@ export default function NewCustomer() {
           companyId: "1",
         };
 
-        // Here you would normally call a create API
-        // For now, we'll simulate success
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        // Call the actual create API
+        await dataService.createCustomer(newCustomer);
 
         toast({
           title: "Customer Created",
