@@ -68,10 +68,9 @@ router.post('/sample-data', async (req, res) => {
         costPrice: 15000,
         category: 'Services',
         unit: 'Month',
-        stockQuantity: 50,
+        currentStock: 50,
         isActive: true,
-        companyId,
-        createdBy: userId
+        companyId
       },
       {
         name: 'Business Logo Design',
