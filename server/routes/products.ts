@@ -250,8 +250,7 @@ router.post('/', async (req, res) => {
     
     const productData = {
       ...req.body,
-      companyId,
-      createdBy: userId
+      companyId
     };
 
     const product = await productRepository.create(productData);
