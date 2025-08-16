@@ -85,9 +85,6 @@ export class CustomerRepository extends BaseRepository {
       id: "uuid_generate_v4()",
       ...restData,
       currentBalance: balance || 0,
-      customerNumber:
-        customerData.customerNumber ||
-        (await this.generateCustomerNumber(customerData.companyId)),
       createdAt: new Date(),
       updatedAt: new Date(),
     });
