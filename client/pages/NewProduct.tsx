@@ -58,7 +58,8 @@ interface ProductFormData {
   description: string;
   sku: string;
   barcode: string;
-  category: string;
+  category: string;        // Category ID
+  categoryName?: string;  // Category name for display
   subcategory: string;
   brand: string;
   supplier: string;
