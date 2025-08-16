@@ -80,10 +80,9 @@ router.post('/sample-data', async (req, res) => {
         costPrice: 4000,
         category: 'Design',
         unit: 'Piece',
-        stockQuantity: 200,
+        currentStock: 200,
         isActive: true,
-        companyId,
-        createdBy: userId
+        companyId
       }
     ];
 
