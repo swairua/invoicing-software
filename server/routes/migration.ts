@@ -22,15 +22,23 @@ router.post("/run-migration", async (req, res) => {
       });
     }
 
-    // Check if tables exist
-    const tableCheck = await db.query(`
-      SELECT table_name 
-      FROM information_schema.tables 
-      WHERE table_schema = 'public' 
-      AND table_name IN ('companies', 'customers', 'products', 'invoices')
-    `);
+    // Check if ALL required tables exist
+    const requiredTables = [
+      'companies', 'customers', 'products', 'invoices',
+      'product_categories', 'invoice_items', 'stock_movements'
+    ];
 
-    if (tableCheck.rows.length === 0) {
+    const tableCheck = await db.query(`
+      SELECT table_name
+      FROM information_schema.tables
+      WHERE table_schema = 'public'
+      AND table_name = ANY($1)
+    `, [requiredTables]);
+
+    const existingTables = tableCheck.rows.map(row => row.table_name);
+    const missingTables = requiredTables.filter(table => !existingTables.includes(table));
+
+    if (missingTables.length > 0) {
       console.log("📋 No schema found, running migration...");
 
       // Read migration file
