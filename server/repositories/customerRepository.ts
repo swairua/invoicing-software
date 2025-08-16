@@ -66,11 +66,7 @@ export class CustomerRepository extends BaseRepository {
       return null;
     }
 
-    const customer = this.toCamelCase(result.rows[0]);
-    return {
-      ...customer,
-      balance: customer.currentBalance || 0, // Map current_balance to balance for frontend
-    } as Customer;
+    return this.toCamelCase(result.rows[0]) as Customer;
   }
 
   async create(
@@ -92,11 +88,7 @@ export class CustomerRepository extends BaseRepository {
     const finalQuery = query.replace("uuid_generate_v4()", "DEFAULT");
 
     const result = await this.db.query(finalQuery, values);
-    const customer = this.toCamelCase(result.rows[0]);
-    return {
-      ...customer,
-      balance: customer.currentBalance || 0, // Map current_balance to balance for frontend
-    } as Customer;
+    return this.toCamelCase(result.rows[0]) as Customer;
   }
 
   async update(
@@ -121,11 +113,7 @@ export class CustomerRepository extends BaseRepository {
       return null;
     }
 
-    const customer = this.toCamelCase(result.rows[0]);
-    return {
-      ...customer,
-      balance: customer.currentBalance || 0, // Map current_balance to balance for frontend
-    } as Customer;
+    return this.toCamelCase(result.rows[0]) as Customer;
   }
 
   async delete(id: string, companyId: string): Promise<boolean> {
