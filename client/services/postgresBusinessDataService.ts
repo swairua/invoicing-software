@@ -32,8 +32,10 @@ class PostgresBusinessDataService {
     console.log(`Making API call to: ${url}`);
 
     // Get company ID from localStorage (stored by auth system)
-    const userData = localStorage.getItem('user_data');
-    const companyId = userData ? JSON.parse(userData).companyId : '00000000-0000-0000-0000-000000000001';
+    const userData = localStorage.getItem("user_data");
+    const companyId = userData
+      ? JSON.parse(userData).companyId
+      : "00000000-0000-0000-0000-000000000001";
 
     try {
       const response = await fetch(url, {
@@ -179,7 +181,9 @@ class PostgresBusinessDataService {
           "PostgresBusinessDataService: Failed to fetch products:",
           error,
         );
-        throw new Error(`Failed to fetch products from database: ${error.message}`);
+        throw new Error(
+          `Failed to fetch products from database: ${error.message}`,
+        );
       });
   }
 
@@ -270,7 +274,9 @@ class PostgresBusinessDataService {
       })
       .catch((error) => {
         console.error("Failed to fetch invoices:", error);
-        throw new Error(`Failed to fetch invoices from database: ${error.message}`);
+        throw new Error(
+          `Failed to fetch invoices from database: ${error.message}`,
+        );
       });
   }
 
@@ -332,7 +338,9 @@ class PostgresBusinessDataService {
       return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       console.error("Failed to fetch quotations:", error);
-      throw new Error(`Failed to fetch quotations from database: ${error.message}`);
+      throw new Error(
+        `Failed to fetch quotations from database: ${error.message}`,
+      );
     }
   }
 
@@ -403,7 +411,9 @@ class PostgresBusinessDataService {
     return this.getProformas();
   }
 
-  public async getProformaInvoiceById(id: string): Promise<ProformaInvoice | undefined> {
+  public async getProformaInvoiceById(
+    id: string,
+  ): Promise<ProformaInvoice | undefined> {
     try {
       const response = await this.apiCall(`/proformas/${id}`);
       return response.data;
@@ -413,7 +423,9 @@ class PostgresBusinessDataService {
     }
   }
 
-  public async createProformaInvoice(proformaData: any): Promise<ProformaInvoice> {
+  public async createProformaInvoice(
+    proformaData: any,
+  ): Promise<ProformaInvoice> {
     try {
       const response = await this.apiCall("/proformas", {
         method: "POST",
@@ -461,7 +473,9 @@ class PostgresBusinessDataService {
       return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       console.error("Failed to fetch credit notes:", error);
-      throw new Error(`Failed to fetch credit notes from database: ${error.message}`);
+      throw new Error(
+        `Failed to fetch credit notes from database: ${error.message}`,
+      );
     }
   }
 
@@ -471,7 +485,9 @@ class PostgresBusinessDataService {
       return response.data;
     } catch (error) {
       console.error("Failed to fetch credit note:", error);
-      throw new Error(`Failed to fetch credit note from database: ${error.message}`);
+      throw new Error(
+        `Failed to fetch credit note from database: ${error.message}`,
+      );
     }
   }
 
@@ -613,7 +629,9 @@ class PostgresBusinessDataService {
       return response.data;
     } catch (error) {
       console.error("Failed to fetch dashboard metrics:", error);
-      throw new Error(`Failed to fetch dashboard metrics from database: ${error.message}`);
+      throw new Error(
+        `Failed to fetch dashboard metrics from database: ${error.message}`,
+      );
     }
   }
 
@@ -702,7 +720,9 @@ class PostgresBusinessDataService {
       return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       console.error("Failed to fetch activity log:", error);
-      throw new Error(`Failed to fetch activity log from database: ${error.message}`);
+      throw new Error(
+        `Failed to fetch activity log from database: ${error.message}`,
+      );
     }
   }
 
@@ -742,7 +762,9 @@ class PostgresBusinessDataService {
       return response.data;
     } catch (error) {
       console.error("Failed to fetch statement of account:", error);
-      throw new Error(`Failed to fetch statement of account from database: ${error.message}`);
+      throw new Error(
+        `Failed to fetch statement of account from database: ${error.message}`,
+      );
     }
   }
 
@@ -753,12 +775,14 @@ class PostgresBusinessDataService {
       return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       console.error("Failed to fetch categories:", error);
-      throw new Error(`Failed to fetch categories from database: ${error.message}`);
+      throw new Error(
+        `Failed to fetch categories from database: ${error.message}`,
+      );
     }
   }
 
   public async createCategory(
-    categoryData: Omit<ProductCategory, "id" | "createdAt" | "updatedAt">
+    categoryData: Omit<ProductCategory, "id" | "createdAt" | "updatedAt">,
   ): Promise<ProductCategory> {
     try {
       const response = await this.apiCall("/categories", {
@@ -774,7 +798,7 @@ class PostgresBusinessDataService {
 
   public async updateCategory(
     id: string,
-    categoryData: Partial<ProductCategory>
+    categoryData: Partial<ProductCategory>,
   ): Promise<ProductCategory | undefined> {
     try {
       const response = await this.apiCall(`/categories/${id}`, {
@@ -799,7 +823,6 @@ class PostgresBusinessDataService {
       return false;
     }
   }
-
 }
 
 export default PostgresBusinessDataService;

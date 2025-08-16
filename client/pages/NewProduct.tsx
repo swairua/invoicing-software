@@ -58,8 +58,8 @@ interface ProductFormData {
   description: string;
   sku: string;
   barcode: string;
-  category: string;        // Category ID
-  categoryName?: string;  // Category name for display
+  category: string; // Category ID
+  categoryName?: string; // Category name for display
   subcategory: string;
   brand: string;
   supplier: string;
@@ -736,11 +736,13 @@ export default function NewProduct() {
                       <Select
                         value={formData.category}
                         onValueChange={(value) => {
-                          const selectedCategory = categories.find(cat => cat.id === value);
+                          const selectedCategory = categories.find(
+                            (cat) => cat.id === value,
+                          );
                           setFormData((prev) => ({
                             ...prev,
                             category: value,
-                            categoryName: selectedCategory?.name || ""
+                            categoryName: selectedCategory?.name || "",
                           }));
                         }}
                       >

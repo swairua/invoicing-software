@@ -79,7 +79,7 @@ export default function RemittanceAdvice() {
     companyPhone: "0131 874428",
     vatRegistration: "911 6271 56",
     remittanceNumber: "",
-    date: new Date().toISOString().split('T')[0],
+    date: new Date().toISOString().split("T")[0],
     accountNumber: "",
     items: [],
     totalPayment: 0,
@@ -114,9 +114,11 @@ export default function RemittanceAdvice() {
   const generateRemittanceNumber = () => {
     const now = new Date();
     const year = now.getFullYear().toString().slice(-2);
-    const month = (now.getMonth() + 1).toString().padStart(2, '0');
-    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-    setRemittanceData(prev => ({
+    const month = (now.getMonth() + 1).toString().padStart(2, "0");
+    const random = Math.floor(Math.random() * 1000)
+      .toString()
+      .padStart(3, "0");
+    setRemittanceData((prev) => ({
       ...prev,
       remittanceNumber: `RA${year}${month}${random}`,
     }));
@@ -125,48 +127,54 @@ export default function RemittanceAdvice() {
   const addRemittanceItem = () => {
     const newItem: RemittanceItem = {
       id: Date.now().toString(),
-      date: new Date().toISOString().split('T')[0],
+      date: new Date().toISOString().split("T")[0],
       reference: "",
       type: "invoice",
       paymentAmount: 0,
     };
-    
-    setRemittanceData(prev => ({
+
+    setRemittanceData((prev) => ({
       ...prev,
       items: [...prev.items, newItem],
     }));
   };
 
-  const updateRemittanceItem = (id: string, updates: Partial<RemittanceItem>) => {
-    setRemittanceData(prev => ({
+  const updateRemittanceItem = (
+    id: string,
+    updates: Partial<RemittanceItem>,
+  ) => {
+    setRemittanceData((prev) => ({
       ...prev,
-      items: prev.items.map(item => 
-        item.id === id ? { ...item, ...updates } : item
+      items: prev.items.map((item) =>
+        item.id === id ? { ...item, ...updates } : item,
       ),
     }));
     calculateTotal();
   };
 
   const removeRemittanceItem = (id: string) => {
-    setRemittanceData(prev => ({
+    setRemittanceData((prev) => ({
       ...prev,
-      items: prev.items.filter(item => item.id !== id),
+      items: prev.items.filter((item) => item.id !== id),
     }));
     calculateTotal();
   };
 
   const calculateTotal = () => {
     setTimeout(() => {
-      setRemittanceData(prev => ({
+      setRemittanceData((prev) => ({
         ...prev,
-        totalPayment: prev.items.reduce((sum, item) => sum + (item.paymentAmount || 0), 0),
+        totalPayment: prev.items.reduce(
+          (sum, item) => sum + (item.paymentAmount || 0),
+          0,
+        ),
       }));
     }, 0);
   };
 
   const handleCustomerChange = (customerId: string) => {
-    const customer = customers.find(c => c.id === customerId);
-    setRemittanceData(prev => ({
+    const customer = customers.find((c) => c.id === customerId);
+    setRemittanceData((prev) => ({
       ...prev,
       customer,
       accountNumber: customer?.kraPin || "",
@@ -174,9 +182,9 @@ export default function RemittanceAdvice() {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-KE', {
-      style: 'currency',
-      currency: 'KES',
+    return new Intl.NumberFormat("en-KE", {
+      style: "currency",
+      currency: "KES",
       minimumFractionDigits: 2,
     }).format(amount);
   };
@@ -193,16 +201,14 @@ export default function RemittanceAdvice() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate(-1)}
-          >
+          <Button variant="outline" size="sm" onClick={() => navigate(-1)}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Remittance Advice</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Remittance Advice
+            </h1>
             <p className="text-muted-foreground">
               Generate remittance advice for customer payments
             </p>
@@ -237,10 +243,12 @@ export default function RemittanceAdvice() {
                 <Input
                   id="companyName"
                   value={remittanceData.companyName}
-                  onChange={(e) => setRemittanceData(prev => ({
-                    ...prev,
-                    companyName: e.target.value,
-                  }))}
+                  onChange={(e) =>
+                    setRemittanceData((prev) => ({
+                      ...prev,
+                      companyName: e.target.value,
+                    }))
+                  }
                 />
               </div>
               <div>
@@ -248,10 +256,12 @@ export default function RemittanceAdvice() {
                 <Textarea
                   id="companyAddress"
                   value={remittanceData.companyAddress}
-                  onChange={(e) => setRemittanceData(prev => ({
-                    ...prev,
-                    companyAddress: e.target.value,
-                  }))}
+                  onChange={(e) =>
+                    setRemittanceData((prev) => ({
+                      ...prev,
+                      companyAddress: e.target.value,
+                    }))
+                  }
                   rows={3}
                 />
               </div>
@@ -261,10 +271,12 @@ export default function RemittanceAdvice() {
                   <Input
                     id="companyPhone"
                     value={remittanceData.companyPhone}
-                    onChange={(e) => setRemittanceData(prev => ({
-                      ...prev,
-                      companyPhone: e.target.value,
-                    }))}
+                    onChange={(e) =>
+                      setRemittanceData((prev) => ({
+                        ...prev,
+                        companyPhone: e.target.value,
+                      }))
+                    }
                   />
                 </div>
                 <div>
@@ -272,10 +284,12 @@ export default function RemittanceAdvice() {
                   <Input
                     id="vatRegistration"
                     value={remittanceData.vatRegistration}
-                    onChange={(e) => setRemittanceData(prev => ({
-                      ...prev,
-                      vatRegistration: e.target.value,
-                    }))}
+                    onChange={(e) =>
+                      setRemittanceData((prev) => ({
+                        ...prev,
+                        vatRegistration: e.target.value,
+                      }))
+                    }
                   />
                 </div>
               </div>
@@ -297,10 +311,12 @@ export default function RemittanceAdvice() {
                   <Input
                     id="remittanceNumber"
                     value={remittanceData.remittanceNumber}
-                    onChange={(e) => setRemittanceData(prev => ({
-                      ...prev,
-                      remittanceNumber: e.target.value,
-                    }))}
+                    onChange={(e) =>
+                      setRemittanceData((prev) => ({
+                        ...prev,
+                        remittanceNumber: e.target.value,
+                      }))
+                    }
                   />
                 </div>
                 <div>
@@ -309,10 +325,12 @@ export default function RemittanceAdvice() {
                     id="date"
                     type="date"
                     value={remittanceData.date}
-                    onChange={(e) => setRemittanceData(prev => ({
-                      ...prev,
-                      date: e.target.value,
-                    }))}
+                    onChange={(e) =>
+                      setRemittanceData((prev) => ({
+                        ...prev,
+                        date: e.target.value,
+                      }))
+                    }
                   />
                 </div>
               </div>
@@ -337,10 +355,12 @@ export default function RemittanceAdvice() {
                   <Input
                     id="accountNumber"
                     value={remittanceData.accountNumber}
-                    onChange={(e) => setRemittanceData(prev => ({
-                      ...prev,
-                      accountNumber: e.target.value,
-                    }))}
+                    onChange={(e) =>
+                      setRemittanceData((prev) => ({
+                        ...prev,
+                        accountNumber: e.target.value,
+                      }))
+                    }
                   />
                 </div>
               </div>
@@ -364,13 +384,20 @@ export default function RemittanceAdvice() {
             <CardContent>
               <div className="space-y-4">
                 {remittanceData.items.map((item) => (
-                  <div key={item.id} className="grid grid-cols-12 gap-2 items-end p-3 border rounded-lg">
+                  <div
+                    key={item.id}
+                    className="grid grid-cols-12 gap-2 items-end p-3 border rounded-lg"
+                  >
                     <div className="col-span-2">
                       <Label className="text-xs">Date</Label>
                       <Input
                         type="date"
                         value={item.date}
-                        onChange={(e) => updateRemittanceItem(item.id, { date: e.target.value })}
+                        onChange={(e) =>
+                          updateRemittanceItem(item.id, {
+                            date: e.target.value,
+                          })
+                        }
                         className="text-xs"
                       />
                     </div>
@@ -378,16 +405,20 @@ export default function RemittanceAdvice() {
                       <Label className="text-xs">Reference</Label>
                       <Input
                         value={item.reference}
-                        onChange={(e) => updateRemittanceItem(item.id, { reference: e.target.value })}
+                        onChange={(e) =>
+                          updateRemittanceItem(item.id, {
+                            reference: e.target.value,
+                          })
+                        }
                         placeholder="Invoice/Credit No."
                         className="text-xs"
                       />
                     </div>
                     <div className="col-span-2">
                       <Label className="text-xs">Type</Label>
-                      <Select 
-                        value={item.type} 
-                        onValueChange={(value: "invoice" | "credit-note") => 
+                      <Select
+                        value={item.type}
+                        onValueChange={(value: "invoice" | "credit-note") =>
                           updateRemittanceItem(item.id, { type: value })
                         }
                       >
@@ -396,7 +427,9 @@ export default function RemittanceAdvice() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="invoice">Invoice</SelectItem>
-                          <SelectItem value="credit-note">Credit Note</SelectItem>
+                          <SelectItem value="credit-note">
+                            Credit Note
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -404,13 +437,18 @@ export default function RemittanceAdvice() {
                       <Label className="text-xs">Amount</Label>
                       <Input
                         type="number"
-                        value={item.type === "invoice" ? item.invoiceAmount || "" : item.creditAmount || ""}
+                        value={
+                          item.type === "invoice"
+                            ? item.invoiceAmount || ""
+                            : item.creditAmount || ""
+                        }
                         onChange={(e) => {
                           const amount = parseFloat(e.target.value) || 0;
-                          updateRemittanceItem(item.id, 
-                            item.type === "invoice" 
-                              ? { invoiceAmount: amount } 
-                              : { creditAmount: amount }
+                          updateRemittanceItem(
+                            item.id,
+                            item.type === "invoice"
+                              ? { invoiceAmount: amount }
+                              : { creditAmount: amount },
                           );
                         }}
                         placeholder="0.00"
@@ -423,7 +461,9 @@ export default function RemittanceAdvice() {
                         type="number"
                         value={item.paymentAmount || ""}
                         onChange={(e) => {
-                          updateRemittanceItem(item.id, { paymentAmount: parseFloat(e.target.value) || 0 });
+                          updateRemittanceItem(item.id, {
+                            paymentAmount: parseFloat(e.target.value) || 0,
+                          });
                           calculateTotal();
                         }}
                         placeholder="0.00"
@@ -442,7 +482,7 @@ export default function RemittanceAdvice() {
                     </div>
                   </div>
                 ))}
-                
+
                 {remittanceData.items.length === 0 && (
                   <div className="text-center py-8 text-muted-foreground">
                     <Receipt className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
@@ -474,14 +514,27 @@ export default function RemittanceAdvice() {
                 {/* Company and Customer Info */}
                 <div className="grid grid-cols-2 gap-6">
                   <div>
-                    <div className="font-semibold">{remittanceData.companyName}</div>
-                    <div className="text-sm whitespace-pre-line">{remittanceData.companyAddress}</div>
-                    <div className="text-sm">Tel: {remittanceData.companyPhone}</div>
+                    <div className="font-semibold">
+                      {remittanceData.companyName}
+                    </div>
+                    <div className="text-sm whitespace-pre-line">
+                      {remittanceData.companyAddress}
+                    </div>
+                    <div className="text-sm">
+                      Tel: {remittanceData.companyPhone}
+                    </div>
                   </div>
                   <div className="text-right text-sm">
                     <div>VAT Reg: {remittanceData.vatRegistration}</div>
-                    <div>Remittance Advice: {remittanceData.remittanceNumber}</div>
-                    <div>Date: {new Date(remittanceData.date).toLocaleDateString('en-GB')}</div>
+                    <div>
+                      Remittance Advice: {remittanceData.remittanceNumber}
+                    </div>
+                    <div>
+                      Date:{" "}
+                      {new Date(remittanceData.date).toLocaleDateString(
+                        "en-GB",
+                      )}
+                    </div>
                     <div>Account Number: {remittanceData.accountNumber}</div>
                   </div>
                 </div>
@@ -489,8 +542,12 @@ export default function RemittanceAdvice() {
                 {/* Customer Details */}
                 {remittanceData.customer && (
                   <div>
-                    <div className="font-semibold">{remittanceData.customer.name}</div>
-                    <div className="text-sm">{remittanceData.customer.address}</div>
+                    <div className="font-semibold">
+                      {remittanceData.customer.name}
+                    </div>
+                    <div className="text-sm">
+                      {remittanceData.customer.address}
+                    </div>
                   </div>
                 )}
 
@@ -500,28 +557,38 @@ export default function RemittanceAdvice() {
                     <TableHeader>
                       <TableRow>
                         <TableHead className="text-xs">Date</TableHead>
-                        <TableHead className="text-xs">Invoice or credit note no.</TableHead>
-                        <TableHead className="text-xs text-right">Invoice</TableHead>
-                        <TableHead className="text-xs text-right">Credit note</TableHead>
-                        <TableHead className="text-xs text-right">Payment</TableHead>
+                        <TableHead className="text-xs">
+                          Invoice or credit note no.
+                        </TableHead>
+                        <TableHead className="text-xs text-right">
+                          Invoice
+                        </TableHead>
+                        <TableHead className="text-xs text-right">
+                          Credit note
+                        </TableHead>
+                        <TableHead className="text-xs text-right">
+                          Payment
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {remittanceData.items.map((item) => (
                         <TableRow key={item.id}>
                           <TableCell className="text-xs">
-                            {new Date(item.date).toLocaleDateString('en-GB')}
+                            {new Date(item.date).toLocaleDateString("en-GB")}
                           </TableCell>
-                          <TableCell className="text-xs">{item.reference}</TableCell>
-                          <TableCell className="text-xs text-right">
-                            {item.type === "invoice" && item.invoiceAmount ? 
-                              formatCurrency(item.invoiceAmount) : ""
-                            }
+                          <TableCell className="text-xs">
+                            {item.reference}
                           </TableCell>
                           <TableCell className="text-xs text-right">
-                            {item.type === "credit-note" && item.creditAmount ? 
-                              formatCurrency(item.creditAmount) : ""
-                            }
+                            {item.type === "invoice" && item.invoiceAmount
+                              ? formatCurrency(item.invoiceAmount)
+                              : ""}
+                          </TableCell>
+                          <TableCell className="text-xs text-right">
+                            {item.type === "credit-note" && item.creditAmount
+                              ? formatCurrency(item.creditAmount)
+                              : ""}
                           </TableCell>
                           <TableCell className="text-xs text-right">
                             {formatCurrency(item.paymentAmount)}
@@ -529,7 +596,10 @@ export default function RemittanceAdvice() {
                         </TableRow>
                       ))}
                       <TableRow>
-                        <TableCell colSpan={4} className="text-xs font-semibold text-right">
+                        <TableCell
+                          colSpan={4}
+                          className="text-xs font-semibold text-right"
+                        >
                           Total payment
                         </TableCell>
                         <TableCell className="text-xs font-semibold text-right">

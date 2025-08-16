@@ -614,15 +614,27 @@ export default function Products() {
                                   e.preventDefault();
                                   e.stopPropagation();
 
-                                  if (confirm(`Are you sure you want to delete "${product.name}"? This action cannot be undone.`)) {
+                                  if (
+                                    confirm(
+                                      `Are you sure you want to delete "${product.name}"? This action cannot be undone.`,
+                                    )
+                                  ) {
                                     try {
-                                      await dataService.deleteProduct(product.id);
+                                      await dataService.deleteProduct(
+                                        product.id,
+                                      );
                                       // Refresh the products list
-                                      const data = await dataService.getProducts();
+                                      const data =
+                                        await dataService.getProducts();
                                       setProducts(data);
-                                      console.log(`Product "${product.name}" deleted successfully`);
+                                      console.log(
+                                        `Product "${product.name}" deleted successfully`,
+                                      );
                                     } catch (error) {
-                                      console.error("Failed to delete product:", error);
+                                      console.error(
+                                        "Failed to delete product:",
+                                        error,
+                                      );
                                       setError("Failed to delete product");
                                     }
                                   }

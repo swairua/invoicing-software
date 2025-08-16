@@ -24,22 +24,34 @@ router.post("/run-migration", async (req, res) => {
 
     // Check if ALL required tables exist
     const requiredTables = [
-      'companies', 'customers', 'products', 'invoices',
-      'product_categories', 'invoice_items', 'stock_movements'
+      "companies",
+      "customers",
+      "products",
+      "invoices",
+      "product_categories",
+      "invoice_items",
+      "stock_movements",
     ];
 
-    const tableCheck = await db.query(`
+    const tableCheck = await db.query(
+      `
       SELECT table_name
       FROM information_schema.tables
       WHERE table_schema = 'public'
       AND table_name = ANY($1)
-    `, [requiredTables]);
+    `,
+      [requiredTables],
+    );
 
-    const existingTables = tableCheck.rows.map(row => row.table_name);
-    const missingTables = requiredTables.filter(table => !existingTables.includes(table));
+    const existingTables = tableCheck.rows.map((row) => row.table_name);
+    const missingTables = requiredTables.filter(
+      (table) => !existingTables.includes(table),
+    );
 
     if (missingTables.length > 0) {
-      console.log(`📋 Missing tables found: ${missingTables.join(', ')}, running migration...`);
+      console.log(
+        `📋 Missing tables found: ${missingTables.join(", ")}, running migration...`,
+      );
 
       // Read migration file
       const __filename = fileURLToPath(import.meta.url);
