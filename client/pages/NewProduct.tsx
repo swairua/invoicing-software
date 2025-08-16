@@ -395,7 +395,7 @@ export default function NewProduct() {
           sku: formData.sku,
           barcode: formData.barcode,
           category: formData.category,
-          subcategory: formData.subcategory,
+          subcategory: formData.subcategory === "none" ? "" : formData.subcategory,
           brand: formData.brand,
           supplier: formData.supplier,
           unit: formData.unit,
