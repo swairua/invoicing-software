@@ -53,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     lastName: "Doe",
     role: "admin",
     isActive: true,
-    companyId: "1",
+    companyId: "00000000-0000-0000-0000-000000000001",
     createdAt: new Date(),
     updatedAt: new Date(),
   };
