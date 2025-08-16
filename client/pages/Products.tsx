@@ -113,20 +113,19 @@ export default function Products() {
 
         // Load units from shared units system (commonly used units)
         const allUnits = [
-          ...UnitConverter.getUnitsByCategory('quantity'),
-          ...UnitConverter.getUnitsByCategory('weight'),
-          ...UnitConverter.getUnitsByCategory('volume'),
-          ...UnitConverter.getUnitsByCategory('length'),
+          ...UnitConverter.getUnitsByCategory("quantity"),
+          ...UnitConverter.getUnitsByCategory("weight"),
+          ...UnitConverter.getUnitsByCategory("volume"),
+          ...UnitConverter.getUnitsByCategory("length"),
         ];
 
         // Remove duplicates by creating a Map with unit.id as key
         const uniqueUnitsMap = new Map();
-        allUnits.forEach(unit => {
+        allUnits.forEach((unit) => {
           uniqueUnitsMap.set(unit.id, unit);
         });
         const uniqueUnits = Array.from(uniqueUnitsMap.values());
         setUnits(uniqueUnits);
-
       } catch (err) {
         console.error("Failed to load categories or units:", err);
         setError("Failed to load categories or units");
@@ -161,12 +160,18 @@ export default function Products() {
 
     try {
       // Find the selected category name from the categories array
-      const selectedCategoryObj = categories.find(cat => cat.id === selectedCategory);
-      const categoryName = selectedCategoryObj ? selectedCategoryObj.name : selectedCategory;
+      const selectedCategoryObj = categories.find(
+        (cat) => cat.id === selectedCategory,
+      );
+      const categoryName = selectedCategoryObj
+        ? selectedCategoryObj.name
+        : selectedCategory;
 
       // Find the selected unit symbol from the units array
-      const selectedUnitObj = units.find(unit => unit.id === selectedUnit);
-      const unitSymbol = selectedUnitObj ? selectedUnitObj.symbol : selectedUnit;
+      const selectedUnitObj = units.find((unit) => unit.id === selectedUnit);
+      const unitSymbol = selectedUnitObj
+        ? selectedUnitObj.symbol
+        : selectedUnit;
 
       const productData = {
         name: formData.get("name") as string,
@@ -254,9 +259,19 @@ export default function Products() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="category">Category *</Label>
-                  <Select value={selectedCategory} onValueChange={setSelectedCategory} required>
+                  <Select
+                    value={selectedCategory}
+                    onValueChange={setSelectedCategory}
+                    required
+                  >
                     <SelectTrigger>
-                      <SelectValue placeholder={categoryLoading ? "Loading categories..." : "Select category"} />
+                      <SelectValue
+                        placeholder={
+                          categoryLoading
+                            ? "Loading categories..."
+                            : "Select category"
+                        }
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       {categories.map((category) => (
@@ -273,7 +288,10 @@ export default function Products() {
                   </Select>
                   {categories.length === 0 && !categoryLoading && (
                     <p className="text-xs text-muted-foreground">
-                      <Link to="/categories" className="text-primary hover:underline">
+                      <Link
+                        to="/categories"
+                        className="text-primary hover:underline"
+                      >
                         Create categories first
                       </Link>{" "}
                       before adding products
@@ -282,9 +300,17 @@ export default function Products() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="unit">Unit of Measure *</Label>
-                  <Select value={selectedUnit} onValueChange={setSelectedUnit} required>
+                  <Select
+                    value={selectedUnit}
+                    onValueChange={setSelectedUnit}
+                    required
+                  >
                     <SelectTrigger>
-                      <SelectValue placeholder={unitLoading ? "Loading units..." : "Select unit"} />
+                      <SelectValue
+                        placeholder={
+                          unitLoading ? "Loading units..." : "Select unit"
+                        }
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       {units.map((unit) => (

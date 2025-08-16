@@ -162,7 +162,6 @@ export class CustomerRepository extends BaseRepository {
     const result = await this.db.query(query, [customerId]);
     return parseFloat(result.rows[0].outstanding) || 0;
   }
-
 }
 
 export default new CustomerRepository();
