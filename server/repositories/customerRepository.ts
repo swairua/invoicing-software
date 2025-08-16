@@ -48,10 +48,7 @@ export class CustomerRepository extends BaseRepository {
     `;
 
     const result = await this.db.query(dataQuery, params);
-    const customers = this.toCamelCase(result.rows).map((customer) => ({
-      ...customer,
-      balance: customer.currentBalance || 0, // Map current_balance to balance for frontend
-    })) as Customer[];
+    const customers = this.toCamelCase(result.rows) as Customer[];
 
     return { customers, total };
   }
