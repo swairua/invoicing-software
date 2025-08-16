@@ -31,10 +31,15 @@ class PostgresBusinessDataService {
     const url = `${this.baseUrl}${endpoint}`;
     console.log(`Making API call to: ${url}`);
 
+    // Get company ID from localStorage (stored by auth system)
+    const userData = localStorage.getItem('user');
+    const companyId = userData ? JSON.parse(userData).companyId : '550e8400-e29b-41d4-a716-446655440000';
+
     try {
       const response = await fetch(url, {
         headers: {
           "Content-Type": "application/json",
+          "x-company-id": companyId,
           ...options.headers,
         },
         ...options,
