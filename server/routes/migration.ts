@@ -1,5 +1,5 @@
 import { Router } from "express";
-import Database from "../database";
+import Database, { Database as DatabaseClass } from "../database";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
