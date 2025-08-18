@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useLocation, Outlet } from "react-router-dom";
+import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { useAuth } from "../hooks/use-auth";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
