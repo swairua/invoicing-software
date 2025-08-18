@@ -229,7 +229,7 @@ router.post("/create-sample-data", async (req, res) => {
 
         if (categoryResult.rows.length > 0) {
           results.categories.push(categoryResult.rows[0]);
-          console.log(`��� Created category: ${categoryData.name}`);
+          console.log(`✅ Created category: ${categoryData.name}`);
         }
       } catch (error) {
         console.error(
@@ -509,12 +509,11 @@ router.post("/quotations", async (req, res) => {
         ],
       );
 
-      // Get the created quotation ID
+      // Get the created quotation
       const [createdQuotationRows] = await connection.execute(
-        `SELECT * FROM quotations WHERE quote_number = ? AND company_id = ?`,
-        [quoteNumber, companyId],
+        `SELECT * FROM quotations WHERE id = ?`,
+        [quotationId],
       );
-      const quotationId = (createdQuotationRows as any[])[0].id;
 
       // Insert quotation items
       if (quotationData.items && quotationData.items.length > 0) {
