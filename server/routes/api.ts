@@ -135,13 +135,13 @@ router.get("/quotations", async (req, res) => {
 
     const result = await Database.query(
       `
-      SELECT 
+      SELECT
         q.*,
         c.name as customer_name,
         c.email as customer_email
       FROM quotations q
       JOIN customers c ON q.customer_id = c.id
-      WHERE q.company_id = $1
+      WHERE q.company_id = ?
       ORDER BY q.created_at DESC
       LIMIT 50
     `,
