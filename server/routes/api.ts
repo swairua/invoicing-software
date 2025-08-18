@@ -455,13 +455,11 @@ router.post("/quotations", async (req, res) => {
     const quoteNumber = `QUO-${new Date().getFullYear()}-${String(Date.now()).slice(-3).padStart(3, '0')}`;
 
     // Start transaction to create quotation and items
-    const client = await Database.getInstance().getClient();
-
     try {
-      await client.query('BEGIN');
+      await Database.query('START TRANSACTION');
 
       // Insert quotation (using correct column names)
-      const quotationResult = await client.query(
+      const quotationResult = await Database.query(
         `INSERT INTO quotations
          (id, quote_number, customer_id, subtotal, vat_amount, discount_amount, total_amount,
           status, valid_until, issue_date, notes, company_id, created_by)
