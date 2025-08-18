@@ -68,17 +68,25 @@ export class CustomerRepository extends BaseRepository {
     customerData: Omit<Customer, "id" | "createdAt" | "updatedAt">,
   ): Promise<Customer> {
     const data = this.toSnakeCase(customerData);
-    data.id = null; // Let MySQL generate the UUID
+    delete data.id; // Let MySQL generate the UUID
     delete data.created_at;
     delete data.updated_at;
 
-    const { query, values } = DatabaseUtils.buildInsertQuery("customers", data);
+    // Add UUID generation explicitly
+    const insertQuery = `
+      INSERT INTO customers (id, ${Object.keys(data).join(', ')})
+      VALUES (UUID(), ${Object.keys(data).map(() => '?').join(', ')})
+    `;
 
-    const result = await this.db.query(query, values);
-    
-    // For MySQL, we need to fetch the created record
-    const insertedId = result.insertId || data.id;
-    return this.findById(insertedId, customerData.companyId) as Promise<Customer>;
+    const result = await this.db.query(insertQuery, Object.values(data));
+
+    // Get the inserted record by finding the most recent one for this company
+    const recentCustomer = await this.db.query(
+      'SELECT * FROM customers WHERE company_id = ? ORDER BY created_at DESC LIMIT 1',
+      [customerData.companyId]
+    );
+
+    return this.toCamelCase(recentCustomer.rows[0]) as Customer;
   }
 
   async update(
