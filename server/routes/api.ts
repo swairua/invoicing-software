@@ -160,7 +160,33 @@ router.post("/create-sample-data", async (req, res) => {
       }
     ];
 
-    const results = { customers: [], products: [] };
+    const results = { customers: [], products: [], categories: [] };
+
+    // Create categories first
+    console.log("📁 Creating sample categories...");
+    for (const categoryData of sampleCategories) {
+      try {
+        const { default: Database } = await import("../database.js");
+        const insertResult = await Database.query(
+          `INSERT INTO product_categories (id, name, description, is_active, company_id, created_at, updated_at)
+           VALUES (UUID(), ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+          [categoryData.name, categoryData.description, categoryData.isActive, categoryData.companyId]
+        );
+
+        // Get the created category
+        const categoryResult = await Database.query(
+          `SELECT * FROM product_categories WHERE company_id = ? AND name = ? ORDER BY created_at DESC LIMIT 1`,
+          [categoryData.companyId, categoryData.name]
+        );
+
+        if (categoryResult.rows.length > 0) {
+          results.categories.push(categoryResult.rows[0]);
+          console.log(`✅ Created category: ${categoryData.name}`);
+        }
+      } catch (error) {
+        console.error(`❌ Failed to create category ${categoryData.name}:`, error);
+      }
+    }
 
     // Create customers using the same logic as forms
     console.log("👥 Creating sample customers...");
