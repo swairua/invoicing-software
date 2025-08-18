@@ -98,13 +98,8 @@ class PostgresBusinessDataService {
   }
 
   // Customer methods
-  public async getCustomers(): Promise<Customer[]> {
+  public getCustomers(): Promise<Customer[]> {
     console.log("PostgresBusinessDataService: getCustomers() called");
-
-    // Test basic connectivity first
-    const isConnected = await this.testBasicConnectivity();
-    console.log("🧪 Basic connectivity test result:", isConnected);
-
     return this.apiCall("/customers")
       .then((response) => {
         console.log(
