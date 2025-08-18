@@ -69,16 +69,41 @@ export class CustomerRepository extends BaseRepository {
   async create(
     customerData: Omit<Customer, "id" | "createdAt" | "updatedAt">,
   ): Promise<Customer> {
-    const data = this.toSnakeCase(customerData);
+    console.log("📝 Customer creation data received:", customerData);
+
+    // Handle field mappings for MySQL schema
+    const mappedData = { ...customerData };
+
+    // If there's an 'address' field, map it to address_line1
+    if (mappedData.address && !mappedData.addressLine1) {
+      mappedData.addressLine1 = mappedData.address;
+      delete mappedData.address;
+    }
+
+    // Ensure required fields have default values
+    if (!mappedData.creditLimit) mappedData.creditLimit = 0;
+    if (!mappedData.currentBalance) mappedData.currentBalance = 0;
+    if (!mappedData.paymentTerms) mappedData.paymentTerms = 30;
+    if (mappedData.isActive === undefined) mappedData.isActive = true;
+
+    console.log("📝 Mapped customer data:", mappedData);
+
+    const data = this.toSnakeCase(mappedData);
     delete data.id; // Let MySQL generate the UUID
     delete data.created_at;
     delete data.updated_at;
+
+    console.log("📝 Snake case data:", data);
+    console.log("📝 Data keys:", Object.keys(data));
 
     // Add UUID generation explicitly
     const insertQuery = `
       INSERT INTO customers (id, ${Object.keys(data).join(', ')})
       VALUES (UUID(), ${Object.keys(data).map(() => '?').join(', ')})
     `;
+
+    console.log("📝 Insert query:", insertQuery);
+    console.log("📝 Insert values:", Object.values(data));
 
     const result = await this.db.query(insertQuery, Object.values(data));
 
