@@ -640,10 +640,24 @@ router.put("/:id", async (req, res) => {
     });
   } catch (error) {
     console.error("Error updating product:", error);
+
+    let errorMessage = "Failed to update product";
+    let details = error.message;
+
+    // Handle specific database errors
+    if (error.code === 'ER_NO_REFERENCED_ROW_2') {
+      errorMessage = "Invalid category selected";
+      details = "The selected category does not exist. Please choose a valid category.";
+    } else if (error.code === 'ER_DUP_ENTRY') {
+      errorMessage = "Duplicate entry";
+      details = "A product with this SKU already exists.";
+    }
+
     res.status(500).json({
       success: false,
-      error: "Failed to update product",
-      details: error.message,
+      error: errorMessage,
+      details: details,
+      code: error.code || 'UNKNOWN_ERROR'
     });
   }
 });
