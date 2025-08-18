@@ -173,12 +173,11 @@ export default function NewProduct() {
           description: productData.description || "",
           sku: productData.sku,
           barcode: productData.barcode || "",
-          category: productData.categoryId || "",
-          categoryId: productData.categoryId || "",
+          category: productData.categoryId || productData.category || "",
           subcategory: productData.subcategory || "",
           brand: productData.brand || "",
           supplier: productData.supplier || "",
-          unit: productData.unitOfMeasure || "piece",
+          unit: productData.unitOfMeasure || productData.unit || "piece",
           weight: Number(productData.weight) || 0,
           dimensions: productData.dimensions || {
             length: Number(productData.length) || 0,
@@ -243,6 +242,7 @@ export default function NewProduct() {
 
         const updateData = {
           ...data,
+          categoryId: data.category, // Map category field to categoryId for backend
           id: product.id,
           companyId: product.companyId,
           createdAt: product.createdAt,
@@ -267,6 +267,7 @@ export default function NewProduct() {
 
         const createData = {
           ...data,
+          categoryId: data.category, // Map category field to categoryId for backend
           companyId: user?.companyId || "",
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -430,7 +431,7 @@ export default function NewProduct() {
                           <FormLabel>Category *</FormLabel>
                           <Select
                             onValueChange={field.onChange}
-                            value={field.value}
+                            value={field.value || ""}
                           >
                             <FormControl>
                               <SelectTrigger>
@@ -438,11 +439,17 @@ export default function NewProduct() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {categories.map((cat) => (
-                                <SelectItem key={cat.id} value={cat.id}>
-                                  {cat.name}
+                              {categories.length === 0 ? (
+                                <SelectItem value="" disabled>
+                                  No categories available
                                 </SelectItem>
-                              ))}
+                              ) : (
+                                categories.map((cat) => (
+                                  <SelectItem key={cat.id} value={cat.id}>
+                                    {cat.name}
+                                  </SelectItem>
+                                ))
+                              )}
                             </SelectContent>
                           </Select>
                           <FormMessage />
