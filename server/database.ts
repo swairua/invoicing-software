@@ -199,6 +199,68 @@ export class Database {
       console.error("❌ Failed to create quotations table:", error);
     }
   }
+
+  // Helper method to add sample customers
+  private async addSampleCustomers(): Promise<void> {
+    try {
+      const companyId = '550e8400-e29b-41d4-a716-446655440000';
+
+      const sampleCustomers = [
+        {
+          name: 'ABC Electronics Ltd',
+          email: 'orders@abcelectronics.co.ke',
+          phone: '+254712345678',
+          kra_pin: 'P051234567A',
+          address_line1: '123 Industrial Area',
+          city: 'Nairobi',
+          country: 'Kenya',
+          credit_limit: 100000,
+          current_balance: 15000
+        },
+        {
+          name: 'Digital Solutions Co',
+          email: 'info@digitalsolutions.co.ke',
+          phone: '+254723456789',
+          address_line1: '456 Westlands Road',
+          city: 'Nairobi',
+          country: 'Kenya',
+          credit_limit: 50000,
+          current_balance: 5000
+        },
+        {
+          name: 'Kenyan Medical Supplies',
+          email: 'procurement@kenyamed.co.ke',
+          phone: '+254734567890',
+          kra_pin: 'P051234567B',
+          address_line1: '789 Hospital Road',
+          city: 'Nairobi',
+          country: 'Kenya',
+          credit_limit: 200000,
+          current_balance: 0
+        }
+      ];
+
+      for (const customer of sampleCustomers) {
+        await this.query(`
+          INSERT INTO customers (
+            id, company_id, name, email, phone, kra_pin,
+            address_line1, city, country, credit_limit, current_balance,
+            is_active, created_at, updated_at
+          ) VALUES (
+            UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, NOW(), NOW()
+          )
+        `, [
+          companyId, customer.name, customer.email, customer.phone,
+          customer.kra_pin || null, customer.address_line1, customer.city,
+          customer.country, customer.credit_limit, customer.current_balance
+        ]);
+      }
+
+      console.log(`✅ Added ${sampleCustomers.length} sample customers`);
+    } catch (error) {
+      console.error("❌ Failed to add sample customers:", error);
+    }
+  }
 }
 
 // Export default instance
