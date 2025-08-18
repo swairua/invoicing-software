@@ -499,7 +499,7 @@ router.post("/quotations", async (req, res) => {
                  ${quotationData.subtotal || 0}, ${quotationData.vatAmount || 0},
                  ${quotationData.discountAmount || 0}, ${quotationData.total || 0},
                  '${quotationData.status || "draft"}', '${validUntil}', '${issueDate}',
-                 '${notes}', '${companyId}', '${quotationData.createdBy || "1"}')`,
+                 '${notes}', '${companyId}', NULL)`,
       );
 
       // Insert quotation items
