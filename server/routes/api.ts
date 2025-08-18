@@ -66,7 +66,11 @@ router.get("/test-sample-data", (req, res) => {
 router.post("/create-sample-direct", async (req, res) => {
   try {
     console.log("🚀 Creating sample data directly via database...");
+    console.log("📍 Request received at create-sample-direct endpoint");
+
     await Database.createSampleData();
+
+    console.log("✅ Sample data creation completed successfully");
     res.json({
       success: true,
       message: "Sample data created successfully via database method"
