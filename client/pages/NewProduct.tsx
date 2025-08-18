@@ -204,6 +204,7 @@ export default function NewProduct() {
   };
 
   const onSubmit = async (data: ProductFormData) => {
+    console.log("🎯 onSubmit called with data:", data);
     try {
       setLoading(true);
 
