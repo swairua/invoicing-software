@@ -131,7 +131,7 @@ router.get("/quotations", async (req, res) => {
   try {
     const companyId =
       (req.headers["x-company-id"] as string) ||
-      "550e8400-e29b-41d4-a716-446655440000";
+      "00000000-0000-0000-0000-000000000001";
 
     const result = await Database.query(
       `
@@ -321,7 +321,7 @@ router.get("/proformas", async (req, res) => {
   try {
     const companyId =
       (req.headers["x-company-id"] as string) ||
-      "550e8400-e29b-41d4-a716-446655440000";
+      "00000000-0000-0000-0000-000000000001";
 
     const result = await Database.query(
       `
@@ -386,7 +386,7 @@ router.get("/payments", async (req, res) => {
   try {
     const companyId =
       (req.headers["x-company-id"] as string) ||
-      "550e8400-e29b-41d4-a716-446655440000";
+      "00000000-0000-0000-0000-000000000001";
 
     const result = await Database.query(
       `
@@ -475,7 +475,7 @@ router.get("/credit-notes", async (req, res) => {
   try {
     const companyId =
       (req.headers["x-company-id"] as string) ||
-      "550e8400-e29b-41d4-a716-446655440000";
+      "00000000-0000-0000-0000-000000000001";
 
     // Query for credit notes (this will fail since table doesn't exist)
     const result = await Database.query(
@@ -591,7 +591,7 @@ router.get("/credit-notes/:id", async (req, res) => {
     const { id } = req.params;
     const companyId =
       (req.headers["x-company-id"] as string) ||
-      "550e8400-e29b-41d4-a716-446655440000";
+      "00000000-0000-0000-0000-000000000001";
 
     // Query for specific credit note (this will fail since table doesn't exist)
     const result = await Database.query(
@@ -721,7 +721,7 @@ router.get("/stock-movements", async (req, res) => {
   try {
     const companyId =
       (req.headers["x-company-id"] as string) ||
-      "550e8400-e29b-41d4-a716-446655440000";
+      "00000000-0000-0000-0000-000000000001";
 
     // For now, return mock stock movement data since we don't have stock movements in the database yet
     const mockStockMovements = [
@@ -798,7 +798,7 @@ router.get("/activity-log", async (req, res) => {
   try {
     const companyId =
       (req.headers["x-company-id"] as string) ||
-      "550e8400-e29b-41d4-a716-446655440000";
+      "00000000-0000-0000-0000-000000000001";
     const limit = parseInt(req.query.limit as string) || 50;
 
     console.log(
@@ -860,7 +860,7 @@ router.get("/statement-of-account", async (req, res) => {
   try {
     const companyId =
       (req.headers["x-company-id"] as string) ||
-      "550e8400-e29b-41d4-a716-446655440000";
+      "00000000-0000-0000-0000-000000000001";
     const { customerId, startDate, endDate, status, aging } = req.query;
 
     console.log(`Fetching statement of account for customer: ${customerId}`);
