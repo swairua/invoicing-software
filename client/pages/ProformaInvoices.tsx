@@ -510,7 +510,7 @@ export default function ProformaInvoices() {
                     <TableRow key={proforma.id}>
                       <TableCell className="font-medium">
                         <Link
-                          to={`/proformas/${proforma.id}`}
+                          to={`/proforma/${proforma.id}`}
                           className="text-primary hover:underline"
                         >
                           {proforma.proformaNumber}
