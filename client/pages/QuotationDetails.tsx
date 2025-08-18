@@ -41,7 +41,7 @@ import { dataServiceFactory } from "../services/dataServiceFactory";
 import { useToast } from "../hooks/use-toast";
 import { safeFormatDateKE } from "@/lib/utils";
 import PDFService from "../services/pdfService";
-import TemplateManager from "../components/TemplateManager";
+import TemplateManager from "../services/templateManager";
 
 export default function QuotationDetails() {
   const { id } = useParams<{ id: string }>();
