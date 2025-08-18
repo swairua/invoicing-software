@@ -205,7 +205,7 @@ export default function NewProduct() {
         return;
       }
 
-      console.log("��� Category ID:", productData.categoryId);
+      console.log("🔍 Category ID:", productData.categoryId);
       console.log("🔍 Unit of Measure:", productData.unitOfMeasure);
       console.log("🔍 Available fields:", Object.keys(productData));
 
@@ -536,7 +536,6 @@ export default function NewProduct() {
                           <Select
                             onValueChange={field.onChange}
                             value={field.value || ""}
-                            defaultValue={field.value || ""}
                           >
                             <FormControl>
                               <SelectTrigger>
