@@ -179,13 +179,8 @@ export default function QuotationDetails() {
 
   const handleEditQuotation = () => {
     if (!quotation) return;
-    // Navigate to new quotation page with existing data for editing
-    navigate("/quotations/new", {
-      state: {
-        editMode: true,
-        existingQuotation: quotation,
-      },
-    });
+    // Navigate to edit route
+    navigate(`/quotations/${quotation.id}/edit`);
   };
 
   const duplicateQuotation = () => {
