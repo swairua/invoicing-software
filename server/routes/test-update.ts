@@ -6,16 +6,19 @@ const router = Router();
 // Test product update with forced null category
 router.put("/:id", async (req, res) => {
   console.log("🧪 TEST UPDATE endpoint called for product:", req.params.id);
-  
+
   try {
     const companyId =
       (req.headers["x-company-id"] as string) ||
       "00000000-0000-0000-0000-000000000001";
 
     console.log("🧪 TEST: Request body fields:", Object.keys(req.body));
-    
+
     // Get current product first
-    const currentProduct = await productRepository.findById(req.params.id, companyId);
+    const currentProduct = await productRepository.findById(
+      req.params.id,
+      companyId,
+    );
     if (!currentProduct) {
       return res.status(404).json({
         success: false,
@@ -35,7 +38,10 @@ router.put("/:id", async (req, res) => {
       currentStock: req.body.currentStock || currentProduct.currentStock,
       minStock: req.body.minStock || currentProduct.minStock,
       maxStock: req.body.maxStock || currentProduct.maxStock,
-      isActive: req.body.isActive !== undefined ? req.body.isActive : currentProduct.isActive,
+      isActive:
+        req.body.isActive !== undefined
+          ? req.body.isActive
+          : currentProduct.isActive,
       status: req.body.status || currentProduct.status,
     };
 
@@ -45,7 +51,7 @@ router.put("/:id", async (req, res) => {
     const updatedProduct = await productRepository.update(
       req.params.id,
       companyId,
-      updateData
+      updateData,
     );
 
     if (!updatedProduct) {

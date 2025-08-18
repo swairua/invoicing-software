@@ -146,7 +146,8 @@ export default function NewProduct() {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "x-company-id": user?.companyId || "00000000-0000-0000-0000-000000000001",
+              "x-company-id":
+                user?.companyId || "00000000-0000-0000-0000-000000000001",
             },
           });
 
@@ -206,7 +207,8 @@ export default function NewProduct() {
         console.log("❌ No product data received");
         toast({
           title: "Product Not Found",
-          description: "The requested product could not be found. Redirecting to products list.",
+          description:
+            "The requested product could not be found. Redirecting to products list.",
           variant: "destructive",
         });
         navigate("/products");
@@ -287,7 +289,7 @@ export default function NewProduct() {
           console.log("🔄 Forced field updates completed");
 
           // Force re-render of Select components by triggering state change
-          setProduct({...productData});
+          setProduct({ ...productData });
         }, 200);
       }
     } catch (error) {
@@ -502,8 +504,20 @@ export default function NewProduct() {
                       control={form.control}
                       name="category"
                       render={({ field }) => {
-                        const categoryValue = field.value && field.value !== "" && field.value !== "null" ? field.value : undefined;
-                        console.log("🏷️ Category field render - field.value:", field.value, "categoryValue:", categoryValue, "categories:", categories.length);
+                        const categoryValue =
+                          field.value &&
+                          field.value !== "" &&
+                          field.value !== "null"
+                            ? field.value
+                            : undefined;
+                        console.log(
+                          "🏷️ Category field render - field.value:",
+                          field.value,
+                          "categoryValue:",
+                          categoryValue,
+                          "categories:",
+                          categories.length,
+                        );
 
                         return (
                           <FormItem>
@@ -560,7 +574,12 @@ export default function NewProduct() {
                       name="unit"
                       render={({ field }) => {
                         const unitValue = field.value || "piece"; // Default to "piece" if no value
-                        console.log("📦 Unit field render - field.value:", field.value, "unitValue:", unitValue);
+                        console.log(
+                          "📦 Unit field render - field.value:",
+                          field.value,
+                          "unitValue:",
+                          unitValue,
+                        );
 
                         return (
                           <FormItem>

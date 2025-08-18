@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 
 interface Product {
@@ -42,7 +47,7 @@ export default function ProductTest() {
       console.log("🔍 Testing product:", productId);
       const product = await dataService.getProductById(productId);
       console.log("📦 Product result:", product);
-      alert(`Product ${productId}: ${product ? 'Found' : 'Not found'}`);
+      alert(`Product ${productId}: ${product ? "Found" : "Not found"}`);
     } catch (error) {
       console.error("Error testing product:", error);
       alert(`Error: ${error.message}`);
@@ -60,7 +65,7 @@ export default function ProductTest() {
   return (
     <div className="container mx-auto py-6">
       <h1 className="text-2xl font-bold mb-4">Product Database Test</h1>
-      
+
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
           {error}
@@ -77,33 +82,33 @@ export default function ProductTest() {
           ) : (
             <div className="space-y-2">
               {products.map((product) => (
-                <div key={product.id} className="flex items-center justify-between border p-3 rounded">
+                <div
+                  key={product.id}
+                  className="flex items-center justify-between border p-3 rounded"
+                >
                   <div>
                     <div className="font-semibold">{product.name}</div>
                     <div className="text-sm text-gray-600">
                       ID: {product.id} | SKU: {product.sku}
                     </div>
                     <div className="text-sm text-gray-500">
-                      Category: {product.category || product.categoryId || 'None'}
+                      Category:{" "}
+                      {product.category || product.categoryId || "None"}
                     </div>
                   </div>
                   <div className="space-x-2">
-                    <Button 
-                      size="sm" 
+                    <Button
+                      size="sm"
                       variant="outline"
                       onClick={() => testProductById(product.id)}
                     >
                       Test API
                     </Button>
                     <Button size="sm" asChild>
-                      <Link to={`/products/${product.id}/edit`}>
-                        Edit
-                      </Link>
+                      <Link to={`/products/${product.id}/edit`}>Edit</Link>
                     </Button>
                     <Button size="sm" variant="secondary" asChild>
-                      <Link to={`/products/${product.id}`}>
-                        View
-                      </Link>
+                      <Link to={`/products/${product.id}`}>View</Link>
                     </Button>
                   </div>
                 </div>
@@ -124,9 +129,11 @@ export default function ProductTest() {
           <Button variant="secondary" asChild>
             <Link to="/products">View All Products</Link>
           </Button>
-          <Button 
-            variant="outline" 
-            onClick={() => testProductById("00000000-0000-0000-0000-000000000001")}
+          <Button
+            variant="outline"
+            onClick={() =>
+              testProductById("00000000-0000-0000-0000-000000000001")
+            }
           >
             Test Missing Product ID
           </Button>

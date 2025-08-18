@@ -12,12 +12,12 @@ router.get("/debug/list", async (req, res) => {
 
     const result = await productRepository.findAll(companyId, { limit: 10 });
 
-    const productList = result.products.map(p => ({
+    const productList = result.products.map((p) => ({
       id: p.id,
       name: p.name,
       sku: p.sku,
       categoryId: p.categoryId,
-      categoryName: p.category
+      categoryName: p.category,
     }));
 
     res.json({
@@ -281,22 +281,38 @@ router.get("/:id", async (req, res) => {
     } else {
       console.log("❌ Product not found, checking available products...");
       // Log available products for debugging
-      const allProducts = await productRepository.findAll(companyId, { limit: 5 });
-      console.log("📋 Available products:", allProducts.products.map(p => ({ id: p.id, name: p.name })));
+      const allProducts = await productRepository.findAll(companyId, {
+        limit: 5,
+      });
+      console.log(
+        "📋 Available products:",
+        allProducts.products.map((p) => ({ id: p.id, name: p.name })),
+      );
     }
 
     if (!product) {
-      console.log("❌ Product not found, trying to return first available product...");
+      console.log(
+        "❌ Product not found, trying to return first available product...",
+      );
 
       // Try to get the first available product instead of returning 404
       try {
-        const availableProducts = await productRepository.findAll(companyId, { limit: 1 });
+        const availableProducts = await productRepository.findAll(companyId, {
+          limit: 1,
+        });
         if (availableProducts.products.length > 0) {
           const firstProduct = availableProducts.products[0];
-          console.log("✅ Returning first available product:", firstProduct.name, "ID:", firstProduct.id);
+          console.log(
+            "✅ Returning first available product:",
+            firstProduct.name,
+            "ID:",
+            firstProduct.id,
+          );
 
           // Get variants for this product too
-          const variants = await productRepository.getProductVariants(firstProduct.id);
+          const variants = await productRepository.getProductVariants(
+            firstProduct.id,
+          );
 
           return res.json({
             success: true,
@@ -429,11 +445,17 @@ router.post("/", async (req, res) => {
     });
 
     // Handle empty or invalid categoryId to prevent FK errors
-    if (dbCreateData.categoryId === "" || dbCreateData.categoryId === "null" || dbCreateData.categoryId === undefined) {
+    if (
+      dbCreateData.categoryId === "" ||
+      dbCreateData.categoryId === "null" ||
+      dbCreateData.categoryId === undefined
+    ) {
       console.log("🔧 SAFETY: Setting empty categoryId to null");
       dbCreateData.categoryId = null;
     } else if (dbCreateData.categoryId) {
-      console.log("🔧 SAFETY: Temporarily setting categoryId to null to prevent FK constraint errors");
+      console.log(
+        "🔧 SAFETY: Temporarily setting categoryId to null to prevent FK constraint errors",
+      );
       console.log("🔧 Original categoryId was:", dbCreateData.categoryId);
       // TODO: Remove this after categories are properly set up
       dbCreateData.categoryId = null;
@@ -462,13 +484,16 @@ router.post("/", async (req, res) => {
 
     // Validate category_id if provided
     if (dbCreateData.categoryId) {
-      console.log("🔍 Validating category ID for create:", dbCreateData.categoryId);
+      console.log(
+        "🔍 Validating category ID for create:",
+        dbCreateData.categoryId,
+      );
 
       // Check if category exists
       const { default: Database } = await import("../database.js");
       const categoryCheck = await Database.query(
         "SELECT id FROM product_categories WHERE id = ? AND company_id = ?",
-        [dbCreateData.categoryId, companyId]
+        [dbCreateData.categoryId, companyId],
       );
 
       if (categoryCheck.rows.length === 0) {
@@ -509,10 +534,11 @@ router.post("/", async (req, res) => {
     let details = error.message;
 
     // Handle specific database errors
-    if (error.code === 'ER_NO_REFERENCED_ROW_2') {
+    if (error.code === "ER_NO_REFERENCED_ROW_2") {
       errorMessage = "Invalid category selected";
-      details = "The selected category does not exist. Please choose a valid category.";
-    } else if (error.code === 'ER_DUP_ENTRY') {
+      details =
+        "The selected category does not exist. Please choose a valid category.";
+    } else if (error.code === "ER_DUP_ENTRY") {
       errorMessage = "Duplicate entry";
       details = "A product with this SKU already exists.";
     }
@@ -521,7 +547,7 @@ router.post("/", async (req, res) => {
       success: false,
       error: errorMessage,
       details: details,
-      code: error.code || 'UNKNOWN_ERROR'
+      code: error.code || "UNKNOWN_ERROR",
     });
   }
 });
@@ -590,11 +616,17 @@ router.put("/:id", async (req, res) => {
     });
 
     // Handle empty or invalid categoryId to prevent FK errors
-    if (dbUpdateData.categoryId === "" || dbUpdateData.categoryId === "null" || dbUpdateData.categoryId === undefined) {
+    if (
+      dbUpdateData.categoryId === "" ||
+      dbUpdateData.categoryId === "null" ||
+      dbUpdateData.categoryId === undefined
+    ) {
       console.log("🔧 SAFETY: Setting empty categoryId to null");
       dbUpdateData.categoryId = null;
     } else if (dbUpdateData.categoryId) {
-      console.log("🔧 SAFETY: Temporarily setting categoryId to null to prevent FK constraint errors");
+      console.log(
+        "🔧 SAFETY: Temporarily setting categoryId to null to prevent FK constraint errors",
+      );
       console.log("🔧 Original categoryId was:", dbUpdateData.categoryId);
       // TODO: Remove this after categories are properly set up
       dbUpdateData.categoryId = null;
@@ -622,20 +654,34 @@ router.put("/:id", async (req, res) => {
     }
 
     // Validate category_id if provided
-    console.log("🔍 Category validation - dbUpdateData.categoryId:", dbUpdateData.categoryId);
-    console.log("🔍 Category validation - type:", typeof dbUpdateData.categoryId);
+    console.log(
+      "🔍 Category validation - dbUpdateData.categoryId:",
+      dbUpdateData.categoryId,
+    );
+    console.log(
+      "🔍 Category validation - type:",
+      typeof dbUpdateData.categoryId,
+    );
 
-    if (dbUpdateData.categoryId && dbUpdateData.categoryId !== "" && dbUpdateData.categoryId !== "null") {
+    if (
+      dbUpdateData.categoryId &&
+      dbUpdateData.categoryId !== "" &&
+      dbUpdateData.categoryId !== "null"
+    ) {
       console.log("🔍 Validating category ID:", dbUpdateData.categoryId);
 
       // Check if category exists
       const { default: Database } = await import("../database.js");
       const categoryCheck = await Database.query(
         "SELECT id FROM product_categories WHERE id = ? AND company_id = ?",
-        [dbUpdateData.categoryId, companyId]
+        [dbUpdateData.categoryId, companyId],
       );
 
-      console.log("📋 Category check result:", categoryCheck.rows.length, "rows found");
+      console.log(
+        "📋 Category check result:",
+        categoryCheck.rows.length,
+        "rows found",
+      );
 
       if (categoryCheck.rows.length === 0) {
         console.log("❌ Category ID not found, setting to NULL");
@@ -666,7 +712,9 @@ router.put("/:id", async (req, res) => {
     console.log("  Cleaned update data fields:", Object.keys(dbUpdateData));
 
     // EMERGENCY FIX: Force category_id to null to prevent FK constraint errors
-    console.log("🚨 EMERGENCY: Forcing category_id to null to prevent FK errors");
+    console.log(
+      "🚨 EMERGENCY: Forcing category_id to null to prevent FK errors",
+    );
     console.log("🚨 Original categoryId was:", dbUpdateData.categoryId);
     dbUpdateData.categoryId = null;
     console.log("🚨 Set categoryId to:", dbUpdateData.categoryId);
@@ -695,10 +743,11 @@ router.put("/:id", async (req, res) => {
     let details = error.message;
 
     // Handle specific database errors
-    if (error.code === 'ER_NO_REFERENCED_ROW_2') {
+    if (error.code === "ER_NO_REFERENCED_ROW_2") {
       errorMessage = "Invalid category selected";
-      details = "The selected category does not exist. Please choose a valid category.";
-    } else if (error.code === 'ER_DUP_ENTRY') {
+      details =
+        "The selected category does not exist. Please choose a valid category.";
+    } else if (error.code === "ER_DUP_ENTRY") {
       errorMessage = "Duplicate entry";
       details = "A product with this SKU already exists.";
     }
@@ -707,7 +756,7 @@ router.put("/:id", async (req, res) => {
       success: false,
       error: errorMessage,
       details: details,
-      code: error.code || 'UNKNOWN_ERROR'
+      code: error.code || "UNKNOWN_ERROR",
     });
   }
 });

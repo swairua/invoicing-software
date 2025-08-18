@@ -15,10 +15,19 @@ router.post("/setup", async (req, res) => {
 
     // Always create categories, but avoid duplicates
     const sampleCategories = [
-      { name: 'General', description: 'General products and items' },
-      { name: 'Medical Supplies', description: 'Basic medical supplies and consumables' },
-      { name: 'Medical Equipment', description: 'Medical devices and equipment' },
-      { name: 'Electronics', description: 'Electronic devices and accessories' },
+      { name: "General", description: "General products and items" },
+      {
+        name: "Medical Supplies",
+        description: "Basic medical supplies and consumables",
+      },
+      {
+        name: "Medical Equipment",
+        description: "Medical devices and equipment",
+      },
+      {
+        name: "Electronics",
+        description: "Electronic devices and accessories",
+      },
     ];
 
     const createdCategories = [];
@@ -27,7 +36,7 @@ router.post("/setup", async (req, res) => {
       // Check if category already exists
       const existing = await Database.query(
         `SELECT * FROM product_categories WHERE company_id = ? AND name = ?`,
-        [companyId, category.name]
+        [companyId, category.name],
       );
 
       if (existing.rows.length === 0) {
@@ -35,13 +44,13 @@ router.post("/setup", async (req, res) => {
         await Database.query(
           `INSERT INTO product_categories (id, name, description, company_id, is_active, created_at, updated_at)
            VALUES (UUID(), ?, ?, ?, TRUE, NOW(), NOW())`,
-          [category.name, category.description, companyId]
+          [category.name, category.description, companyId],
         );
 
         // Get the created category
         const created = await Database.query(
           `SELECT * FROM product_categories WHERE company_id = ? AND name = ? ORDER BY created_at DESC LIMIT 1`,
-          [companyId, category.name]
+          [companyId, category.name],
         );
 
         if (created.rows[0]) {
@@ -56,7 +65,7 @@ router.post("/setup", async (req, res) => {
     // Get all categories for this company
     const allCategories = await Database.query(
       "SELECT * FROM product_categories WHERE company_id = ? ORDER BY name",
-      [companyId]
+      [companyId],
     );
 
     res.json({
@@ -64,7 +73,7 @@ router.post("/setup", async (req, res) => {
       message: `Setup complete. ${createdCategories.length} categories ready.`,
       data: allCategories.rows,
       created: createdCategories.length,
-      total: allCategories.rows.length
+      total: allCategories.rows.length,
     });
   } catch (error) {
     console.error("Error setting up categories:", error);
@@ -85,12 +94,12 @@ router.get("/", async (req, res) => {
 
     // Import database here to avoid circular dependency issues
     const { default: Database } = await import("../database.js");
-    
+
     const result = await Database.query(
       `SELECT * FROM product_categories 
        WHERE company_id = ? 
        ORDER BY name ASC`,
-      [companyId]
+      [companyId],
     );
 
     res.json({
@@ -108,7 +117,9 @@ router.get("/", async (req, res) => {
         name: "General",
         description: "General products",
         parentId: null,
-        companyId: (req.headers["x-company-id"] as string) || "00000000-0000-0000-0000-000000000001",
+        companyId:
+          (req.headers["x-company-id"] as string) ||
+          "00000000-0000-0000-0000-000000000001",
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -117,7 +128,9 @@ router.get("/", async (req, res) => {
         name: "Medical Supplies",
         description: "Medical and healthcare supplies",
         parentId: null,
-        companyId: (req.headers["x-company-id"] as string) || "00000000-0000-0000-0000-000000000001",
+        companyId:
+          (req.headers["x-company-id"] as string) ||
+          "00000000-0000-0000-0000-000000000001",
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -126,7 +139,9 @@ router.get("/", async (req, res) => {
         name: "Medical Equipment",
         description: "Medical devices and equipment",
         parentId: null,
-        companyId: (req.headers["x-company-id"] as string) || "00000000-0000-0000-0000-000000000001",
+        companyId:
+          (req.headers["x-company-id"] as string) ||
+          "00000000-0000-0000-0000-000000000001",
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -135,7 +150,9 @@ router.get("/", async (req, res) => {
         name: "Electronics",
         description: "Electronic devices and accessories",
         parentId: null,
-        companyId: (req.headers["x-company-id"] as string) || "00000000-0000-0000-0000-000000000001",
+        companyId:
+          (req.headers["x-company-id"] as string) ||
+          "00000000-0000-0000-0000-000000000001",
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -168,13 +185,13 @@ router.post("/", async (req, res) => {
     const result = await Database.query(
       `INSERT INTO product_categories (id, name, description, parent_id, company_id, created_at, updated_at) 
        VALUES (UUID(), ?, ?, ?, ?, NOW(), NOW())`,
-      [name, description, parentId || null, companyId]
+      [name, description, parentId || null, companyId],
     );
 
     // Get the created category
     const createdCategory = await Database.query(
       `SELECT * FROM product_categories WHERE company_id = ? AND name = ? ORDER BY created_at DESC LIMIT 1`,
-      [companyId, name]
+      [companyId, name],
     );
 
     res.status(201).json({
@@ -206,20 +223,20 @@ router.put("/:id", async (req, res) => {
       `UPDATE product_categories 
        SET name = ?, description = ?, parent_id = ?, updated_at = NOW()
        WHERE id = ? AND company_id = ?`,
-      [name, description, parentId || null, id, companyId]
+      [name, description, parentId || null, id, companyId],
     );
 
     if (result.affectedRows === 0) {
       return res.status(404).json({
         success: false,
-        error: "Category not found"
+        error: "Category not found",
       });
     }
 
     // Get the updated category
     const updatedCategory = await Database.query(
       `SELECT * FROM product_categories WHERE id = ? AND company_id = ?`,
-      [id, companyId]
+      [id, companyId],
     );
 
     res.json({
@@ -250,13 +267,13 @@ router.delete("/:id", async (req, res) => {
     const subcategoriesResult = await Database.query(
       `SELECT COUNT(*) as count FROM product_categories 
        WHERE parent_id = ? AND company_id = ?`,
-      [id, companyId]
+      [id, companyId],
     );
 
     if (subcategoriesResult.rows[0].count > 0) {
       return res.status(400).json({
         success: false,
-        error: "Cannot delete category with subcategories"
+        error: "Cannot delete category with subcategories",
       });
     }
 
@@ -264,26 +281,26 @@ router.delete("/:id", async (req, res) => {
     const productsResult = await Database.query(
       `SELECT COUNT(*) as count FROM products 
        WHERE category_id = ? AND company_id = ?`,
-      [id, companyId]
+      [id, companyId],
     );
 
     if (productsResult.rows[0].count > 0) {
       return res.status(400).json({
         success: false,
-        error: "Cannot delete category that is used by products"
+        error: "Cannot delete category that is used by products",
       });
     }
 
     const result = await Database.query(
       `DELETE FROM product_categories 
        WHERE id = ? AND company_id = ?`,
-      [id, companyId]
+      [id, companyId],
     );
 
     if (result.affectedRows === 0) {
       return res.status(404).json({
         success: false,
-        error: "Category not found"
+        error: "Category not found",
       });
     }
 

@@ -27,7 +27,9 @@ async function deployToRender() {
 
   if (!dbHost || !dbPort || !dbUser || !dbPassword || !dbName) {
     console.log("⚠️ MySQL database environment variables not found");
-    console.log("🔧 Required variables: DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME");
+    console.log(
+      "🔧 Required variables: DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME",
+    );
     console.log("📋 Database tables will need to be created manually");
     console.log("⏳ This may take a few minutes...\n");
     return;
@@ -55,24 +57,32 @@ async function deployToRender() {
     console.log("✅ MySQL connection successful!");
 
     // Test basic query
-    const [result] = await connection.execute("SELECT NOW() AS server_time, VERSION() AS db_version");
+    const [result] = await connection.execute(
+      "SELECT NOW() AS server_time, VERSION() AS db_version",
+    );
     console.log("🕐 Server time:", result[0].server_time);
     console.log("🗄️ MySQL version:", result[0].db_version.split("-")[0]);
 
     // Check if tables exist
-    const [tables] = await connection.execute(`
+    const [tables] = await connection.execute(
+      `
       SELECT table_name 
       FROM information_schema.tables 
       WHERE table_schema = ?
       ORDER BY table_name
-    `, [dbName]);
+    `,
+      [dbName],
+    );
 
     if (tables.length === 0) {
       console.log("⚠️ No tables found - running migration...");
-      
+
       // Read and execute migration
-      const migrationPath = path.join(__dirname, "../database/mysql/migrations/001_initial_schema.sql");
-      
+      const migrationPath = path.join(
+        __dirname,
+        "../database/mysql/migrations/001_initial_schema.sql",
+      );
+
       if (fs.existsSync(migrationPath)) {
         const migrationSQL = fs.readFileSync(migrationPath, "utf8");
         await connection.query(migrationSQL);
@@ -82,7 +92,7 @@ async function deployToRender() {
       }
     } else {
       console.log(`📋 Found ${tables.length} existing tables:`);
-      tables.slice(0, 5).forEach(table => {
+      tables.slice(0, 5).forEach((table) => {
         console.log(`   - ${table.table_name}`);
       });
       if (tables.length > 5) {
@@ -93,14 +103,19 @@ async function deployToRender() {
     // Verify core tables exist
     const coreTableChecks = ["companies", "users", "products", "customers"];
     for (const tableName of coreTableChecks) {
-      const [tableExists] = await connection.execute(`
+      const [tableExists] = await connection.execute(
+        `
         SELECT COUNT(*) as count 
         FROM information_schema.tables 
         WHERE table_schema = ? AND table_name = ?
-      `, [dbName, tableName]);
-      
+      `,
+        [dbName, tableName],
+      );
+
       if (tableExists[0].count > 0) {
-        const [recordCount] = await connection.execute(`SELECT COUNT(*) as count FROM ${tableName}`);
+        const [recordCount] = await connection.execute(
+          `SELECT COUNT(*) as count FROM ${tableName}`,
+        );
         console.log(`✅ Table '${tableName}': ${recordCount[0].count} records`);
       } else {
         console.log(`❌ Table '${tableName}': Missing`);
@@ -109,12 +124,11 @@ async function deployToRender() {
 
     await connection.end();
     console.log("🎉 Database verification completed successfully!\n");
-
   } catch (error) {
     console.error("❌ Database connection failed:", error.message);
     console.log("🔧 Please check your MySQL connection details");
     console.log("📞 Contact support if this error persists\n");
-    
+
     // Don't fail the deployment, just warn
     console.log("⚠️  Continuing deployment without database verification...");
   }

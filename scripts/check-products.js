@@ -6,7 +6,9 @@ async function checkProducts() {
   console.log("🔍 Checking available products in database...\n");
 
   const connection = await mysql.createConnection({
-    host: process.env.DB_HOST || "mysql-242eb3d7-invoicing-software.c.aivencloud.com",
+    host:
+      process.env.DB_HOST ||
+      "mysql-242eb3d7-invoicing-software.c.aivencloud.com",
     port: parseInt(process.env.DB_PORT || "11397"),
     user: process.env.DB_USER || "avnadmin",
     password: process.env.DB_PASSWORD || "AVNS_x9WdjKNy72pMT6Zr90I",
@@ -32,8 +34,8 @@ async function checkProducts() {
     `);
 
     console.log("📦 Available Products:");
-    console.log("=" .repeat(80));
-    
+    console.log("=".repeat(80));
+
     if (products.length === 0) {
       console.log("❌ No products found in database");
     } else {
@@ -41,7 +43,7 @@ async function checkProducts() {
         console.log(`${index + 1}. ${product.name}`);
         console.log(`   ID: ${product.id}`);
         console.log(`   SKU: ${product.sku}`);
-        console.log(`   Category: ${product.category_name || 'None'}`);
+        console.log(`   Category: ${product.category_name || "None"}`);
         console.log(`   Company: ${product.company_id}`);
         console.log("");
       });
@@ -55,8 +57,8 @@ async function checkProducts() {
     `);
 
     console.log("📁 Available Categories:");
-    console.log("=" .repeat(80));
-    
+    console.log("=".repeat(80));
+
     if (categories.length === 0) {
       console.log("❌ No categories found in database");
     } else {
@@ -64,7 +66,6 @@ async function checkProducts() {
         console.log(`${index + 1}. ${cat.name} (ID: ${cat.id})`);
       });
     }
-
   } catch (error) {
     console.error("❌ Error:", error.message);
   } finally {
