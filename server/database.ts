@@ -188,6 +188,13 @@ export class Database {
       await this.query('CREATE INDEX idx_quotation_items_product ON quotation_items (product_id)');
 
       console.log("✅ Quotations tables created successfully");
+
+      // Add sample customers if none exist
+      const customerCount = await this.query('SELECT COUNT(*) as count FROM customers');
+      if (customerCount.rows[0].count === 0) {
+        console.log("📋 Adding sample customers...");
+        await this.addSampleCustomers();
+      }
     } catch (error) {
       console.error("❌ Failed to create quotations table:", error);
     }
