@@ -156,6 +156,16 @@ export default function QuotationDetails() {
     });
   };
 
+  const handleDuplicate = () => {
+    if (!quotation) return;
+
+    navigate("/quotations/new", {
+      state: {
+        duplicateFrom: quotation,
+      },
+    });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -204,12 +214,12 @@ export default function QuotationDetails() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" asChild>
-            <Link to={`/quotations/edit/${quotation.id}`}>
+            <Link to={`/quotations/${quotation.id}/edit`}>
               <Edit className="mr-2 h-4 w-4" />
-              Edit
+              Edit Quotation ✏️
             </Link>
           </Button>
-          <Button variant="outline">
+          <Button variant="outline" onClick={handleDuplicate}>
             <Copy className="mr-2 h-4 w-4" />
             Duplicate
           </Button>
