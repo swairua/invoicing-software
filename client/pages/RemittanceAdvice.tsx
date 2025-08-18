@@ -69,7 +69,14 @@ const dataService = getDataService();
 
 export default function RemittanceAdvice() {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const location = useLocation();
   const { toast } = useToast();
+
+  // Determine the mode based on the current route
+  const isEdit = location.pathname.includes('/edit');
+  const isNew = location.pathname.includes('/new') || !id;
+  const isView = !isNew && !isEdit;
   const [loading, setLoading] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
