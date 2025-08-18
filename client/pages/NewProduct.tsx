@@ -233,7 +233,8 @@ export default function NewProduct() {
           description: `Product "${data.name}" has been updated successfully.`,
         });
 
-        navigate(`/products/${product.id}`);
+        // Refresh the product data to show updated values
+        await loadProduct(product.id);
       } else {
         console.log("➕ Creating new product");
 
