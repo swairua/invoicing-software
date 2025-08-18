@@ -11,25 +11,27 @@ router.post("/setup", async (req, res) => {
 
     const { default: Database } = await import("../database.js");
 
-    // Check if categories exist
-    const existingCategories = await Database.query(
-      "SELECT COUNT(*) as count FROM product_categories WHERE company_id = ?",
-      [companyId]
-    );
+    console.log("🔧 Setting up categories for company:", companyId);
 
-    if (existingCategories.rows[0].count === 0) {
-      console.log("🔧 Creating sample categories...");
+    // Always create categories, but avoid duplicates
+    const sampleCategories = [
+      { name: 'General', description: 'General products and items' },
+      { name: 'Medical Supplies', description: 'Basic medical supplies and consumables' },
+      { name: 'Medical Equipment', description: 'Medical devices and equipment' },
+      { name: 'Electronics', description: 'Electronic devices and accessories' },
+    ];
 
-      const sampleCategories = [
-        { name: 'Medical Supplies', description: 'Basic medical supplies and consumables' },
-        { name: 'Medical Equipment', description: 'Medical devices and equipment' },
-        { name: 'Electronics', description: 'Electronic devices and accessories' },
-        { name: 'General', description: 'General products and items' },
-      ];
+    const createdCategories = [];
 
-      const createdCategories = [];
+    for (const category of sampleCategories) {
+      // Check if category already exists
+      const existing = await Database.query(
+        `SELECT * FROM product_categories WHERE company_id = ? AND name = ?`,
+        [companyId, category.name]
+      );
 
-      for (const category of sampleCategories) {
+      if (existing.rows.length === 0) {
+        console.log(`➕ Creating category: ${category.name}`);
         await Database.query(
           `INSERT INTO product_categories (id, name, description, company_id, is_active, created_at, updated_at)
            VALUES (UUID(), ?, ?, ?, TRUE, NOW(), NOW())`,
@@ -45,25 +47,30 @@ router.post("/setup", async (req, res) => {
         if (created.rows[0]) {
           createdCategories.push(created.rows[0]);
         }
+      } else {
+        console.log(`✅ Category already exists: ${category.name}`);
+        createdCategories.push(existing.rows[0]);
       }
-
-      res.json({
-        success: true,
-        message: `Created ${createdCategories.length} sample categories`,
-        data: createdCategories,
-      });
-    } else {
-      res.json({
-        success: true,
-        message: "Categories already exist",
-        count: existingCategories.rows[0].count,
-      });
     }
+
+    // Get all categories for this company
+    const allCategories = await Database.query(
+      "SELECT * FROM product_categories WHERE company_id = ? ORDER BY name",
+      [companyId]
+    );
+
+    res.json({
+      success: true,
+      message: `Setup complete. ${createdCategories.length} categories ready.`,
+      data: allCategories.rows,
+      created: createdCategories.length,
+      total: allCategories.rows.length
+    });
   } catch (error) {
-    console.error("Error creating sample categories:", error);
+    console.error("Error setting up categories:", error);
     res.status(500).json({
       success: false,
-      error: "Failed to create sample categories",
+      error: "Failed to setup categories",
       details: error.message,
     });
   }
