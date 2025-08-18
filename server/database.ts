@@ -347,14 +347,14 @@ export class Database {
   private async checkAndAddSampleData(): Promise<void> {
     try {
       // Add sample customers if none exist for the main company
-      const customerCount = await this.query('SELECT COUNT(*) as count FROM customers WHERE company_id = ?', ['550e8400-e29b-41d4-a716-446655440000']);
+      const customerCount = await this.query('SELECT COUNT(*) as count FROM customers WHERE company_id = ?', ['00000000-0000-0000-0000-000000000001']);
       if (customerCount.rows[0].count === 0) {
         console.log("📋 Adding sample customers...");
         await this.addSampleCustomers();
       }
 
       // Add sample products if none exist for the main company
-      const productCount = await this.query('SELECT COUNT(*) as count FROM products WHERE company_id = ?', ['550e8400-e29b-41d4-a716-446655440000']);
+      const productCount = await this.query('SELECT COUNT(*) as count FROM products WHERE company_id = ?', ['00000000-0000-0000-0000-000000000001']);
       if (productCount.rows[0].count === 0) {
         console.log("📋 Adding sample products...");
         await this.addSampleProducts();
