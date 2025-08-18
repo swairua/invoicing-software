@@ -188,13 +188,13 @@ export default function NewProduct() {
           binLocation: productData.binLocation || "",
           tags: Array.isArray(productData.tags) ? productData.tags.join(", ") :
                 typeof productData.tags === 'string' ? productData.tags : "",
-          taxable: Boolean(productData.isTaxable ?? productData.taxable ?? true),
+          taxable: toBool(productData.isTaxable ?? productData.taxable, true),
           taxRate: Number(productData.taxRate) || 16,
-          trackInventory: Boolean(productData.trackInventory ?? true),
-          allowBackorders: Boolean(productData.allowBackorders ?? false),
-          hasVariants: Boolean(productData.hasVariants ?? false),
+          trackInventory: toBool(productData.trackInventory, true),
+          allowBackorders: toBool(productData.allowBackorders, false),
+          hasVariants: toBool(productData.hasVariants, false),
           status: productData.status || "active",
-          isActive: Boolean(productData.isActive ?? true),
+          isActive: toBool(productData.isActive, true),
           notes: productData.notes || "",
         };
 
