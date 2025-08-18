@@ -42,6 +42,7 @@ import NewQuotation from "./pages/NewQuotation";
 import ProformaDetails from "./pages/ProformaDetails";
 import NewProforma from "./pages/NewProforma";
 import StatementOfAccount from "./pages/StatementOfAccount";
+import RemittanceList from "./pages/RemittanceList";
 import RemittanceAdvice from "./pages/RemittanceAdvice";
 import SampleDataCreator from "./pages/SampleDataCreator";
 import DatabaseMigration from "./pages/DatabaseMigration";
