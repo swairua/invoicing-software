@@ -278,12 +278,98 @@ router.post("/", async (req, res) => {
       (req.headers["x-user-id"] as string) ||
       "550e8400-e29b-41d4-a716-446655440001";
 
-    const productData = {
-      ...req.body,
-      companyId,
+    console.log("🔍 Product creation request:");
+    console.log("  Company ID:", companyId);
+    console.log("  Request body fields:", Object.keys(req.body));
+
+    // Map frontend fields to database schema fields (same as update)
+    const {
+      id,
+      createdAt,
+      updatedAt,
+      categoryName,
+      supplierName,
+      variants, // Handle separately
+      ...requestBody
+    } = req.body;
+
+    // Build the create data object with proper field mapping
+    const dbCreateData: any = { companyId };
+
+    // Direct field mappings (frontend -> database)
+    const fieldMappings = {
+      name: 'name',
+      description: 'description',
+      sku: 'sku',
+      barcode: 'barcode',
+      brand: 'brand',
+      categoryId: 'categoryId',
+      supplierId: 'supplierId',
+      purchasePrice: 'purchasePrice',
+      sellingPrice: 'sellingPrice',
+      wholesalePrice: 'wholesalePrice',
+      retailPrice: 'retailPrice',
+      costPrice: 'costPrice',
+      markup: 'markup',
+      minStock: 'minStock',
+      maxStock: 'maxStock',
+      currentStock: 'currentStock',
+      reservedStock: 'reservedStock',
+      reorderLevel: 'reorderLevel',
+      location: 'location',
+      binLocation: 'binLocation',
+      tags: 'tags',
+      notes: 'notes',
+      trackInventory: 'trackInventory',
+      isActive: 'isActive',
+      status: 'status',
+      weight: 'weight'
     };
 
-    const product = await productRepository.create(productData);
+    // Map frontend fields to database fields
+    Object.entries(fieldMappings).forEach(([frontendField, dbField]) => {
+      if (requestBody[frontendField] !== undefined) {
+        dbCreateData[dbField] = requestBody[frontendField];
+      }
+    });
+
+    // Handle special field mappings (frontend -> database schema)
+    if (requestBody.unit !== undefined) {
+      dbCreateData.unitOfMeasure = requestBody.unit; // unit -> unit_of_measure
+    }
+
+    if (requestBody.taxable !== undefined) {
+      dbCreateData.isTaxable = requestBody.taxable; // taxable -> is_taxable
+    }
+
+    if (requestBody.taxRate !== undefined) {
+      dbCreateData.taxRate = requestBody.taxRate; // taxRate -> tax_rate
+    }
+
+    if (requestBody.allowBackorders !== undefined) {
+      dbCreateData.allowBackorders = requestBody.allowBackorders; // allowBackorders -> allow_backorders
+    }
+
+    if (requestBody.hasVariants !== undefined) {
+      dbCreateData.hasVariants = requestBody.hasVariants; // hasVariants -> has_variants
+    }
+
+    // Handle dimensions properly
+    if (requestBody.dimensions) {
+      dbCreateData.length = requestBody.dimensions.length || null;
+      dbCreateData.width = requestBody.dimensions.width || null;
+      dbCreateData.height = requestBody.dimensions.height || null;
+      dbCreateData.dimensionUnit = requestBody.dimensions.unit || "cm";
+    }
+
+    // Handle individual dimension fields (for backward compatibility)
+    if (requestBody.length !== undefined) dbCreateData.length = requestBody.length;
+    if (requestBody.width !== undefined) dbCreateData.width = requestBody.width;
+    if (requestBody.height !== undefined) dbCreateData.height = requestBody.height;
+
+    console.log("  Mapped create data fields:", Object.keys(dbCreateData));
+
+    const product = await productRepository.create(dbCreateData);
 
     res.status(201).json({
       success: true,
@@ -291,32 +377,10 @@ router.post("/", async (req, res) => {
     });
   } catch (error) {
     console.error("Error creating product:", error);
-    console.log("Returning fallback created product response");
-
-    // Return a fallback created product response when database is unavailable
-    const fallbackProduct = {
-      id: `fallback-${Date.now()}`,
-      name: req.body.name || "Sample Product",
-      description: req.body.description || "Sample product description",
-      sku: req.body.sku || `SKU-${Date.now()}`,
-      category: req.body.category || "General",
-      unit: req.body.unit || "Piece",
-      purchasePrice: req.body.purchasePrice || 0,
-      sellingPrice: req.body.sellingPrice || 0,
-      minStock: req.body.minStock || 0,
-      maxStock: req.body.maxStock || 1000,
-      currentStock: req.body.currentStock || 0,
-      isActive: true,
-      companyId:
-        (req.headers["x-company-id"] as string) ||
-        "550e8400-e29b-41d4-a716-446655440000",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    res.status(201).json({
-      success: true,
-      data: fallbackProduct,
+    res.status(500).json({
+      success: false,
+      error: "Failed to create product",
+      details: error.message
     });
   }
 });
