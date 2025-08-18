@@ -584,9 +584,14 @@ router.put("/:id", async (req, res) => {
       }
     });
 
-    // FORCE categoryId to null initially to avoid FK errors
-    if (dbUpdateData.categoryId) {
-      console.log("🔧 SAFETY: Setting categoryId to null to prevent FK constraint errors");
+    // Handle empty or invalid categoryId to prevent FK errors
+    if (dbUpdateData.categoryId === "" || dbUpdateData.categoryId === "null" || dbUpdateData.categoryId === undefined) {
+      console.log("🔧 SAFETY: Setting empty categoryId to null");
+      dbUpdateData.categoryId = null;
+    } else if (dbUpdateData.categoryId) {
+      console.log("🔧 SAFETY: Temporarily setting categoryId to null to prevent FK constraint errors");
+      console.log("🔧 Original categoryId was:", dbUpdateData.categoryId);
+      // TODO: Remove this after categories are properly set up
       dbUpdateData.categoryId = null;
     }
 
