@@ -42,16 +42,16 @@ import { LineItemFormData } from "@shared/validation";
 export interface LineItem {
   id: string;
   productId: string;
-  quantity: string;
-  unitPrice: string;
-  discount: string;
+  quantity: number;
+  unitPrice: number;
+  discount: number;
   lineItemTaxes?: LineItemTax[];
 }
 
 interface DynamicLineItemsProps {
-  items: LineItem[];
+  control: Control<any>;
+  name: string;
   products: Product[];
-  onItemsChange: (items: LineItem[]) => void;
   formatCurrency: (amount: number) => string;
   calculateItemTotal: (item: LineItem) => number;
 }
