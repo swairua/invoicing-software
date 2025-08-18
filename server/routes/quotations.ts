@@ -3,6 +3,8 @@ import Database from "../database";
 
 const router = Router();
 
+console.log("🔧 Quotations router loaded successfully");
+
 // Get all quotations
 router.get("/", async (req, res) => {
   try {
