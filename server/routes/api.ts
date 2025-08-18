@@ -241,7 +241,7 @@ router.post("/create-sample-data", async (req, res) => {
         results.products.push(product);
         console.log(`✅ Created product: ${product.name}`);
       } catch (error) {
-        console.error(`��� Failed to create product ${productData.name}:`, error);
+        console.error(`❌ Failed to create product ${productData.name}:`, error);
       }
     }
 
@@ -527,7 +527,7 @@ router.post("/quotations", async (req, res) => {
 
       res.status(201).json({
         success: true,
-        data: quotationResult.rows[0]
+        data: createdQuotationResult.rows[0]
       });
     } catch (error) {
       await client.query('ROLLBACK');
