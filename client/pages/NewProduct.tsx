@@ -270,6 +270,7 @@ export default function NewProduct() {
         console.log("📦 Unit mapped to form:", formData.unit);
 
         // Populate form with existing product data
+        console.log("🔄 Resetting form with data:", formData);
         form.reset(formData);
 
         // Force Select components to update after form reset
@@ -278,9 +279,16 @@ export default function NewProduct() {
           console.log("🏷️ Category field value:", form.getValues("category"));
           console.log("📦 Unit field value:", form.getValues("unit"));
 
+          // Manually trigger field updates to ensure Select components refresh
+          const currentValues = form.getValues();
+          form.setValue("category", currentValues.category);
+          form.setValue("unit", currentValues.unit);
+
+          console.log("🔄 Forced field updates completed");
+
           // Force re-render of Select components by triggering state change
           setProduct({...productData});
-        }, 100);
+        }, 200);
       }
     } catch (error) {
       console.error("❌ Failed to load product:", error);
