@@ -493,36 +493,44 @@ export default function NewProduct() {
                     <FormField
                       control={form.control}
                       name="category"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Category *</FormLabel>
-                          <Select
-                            key={`category-${field.value}-${categories.length}`}
-                            onValueChange={field.onChange}
-                            value={field.value || ""}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select category" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {categories.length === 0 ? (
-                                <SelectItem value="" disabled>
-                                  No categories available
-                                </SelectItem>
-                              ) : (
-                                categories.map((cat) => (
-                                  <SelectItem key={cat.id} value={cat.id}>
-                                    {cat.name}
+                      render={({ field }) => {
+                        const categoryValue = field.value && field.value !== "" && field.value !== "null" ? field.value : undefined;
+                        console.log("🏷️ Category field render - field.value:", field.value, "categoryValue:", categoryValue, "categories:", categories.length);
+
+                        return (
+                          <FormItem>
+                            <FormLabel>Category *</FormLabel>
+                            <Select
+                              key={`category-${field.value}-${categories.length}-${Date.now()}`}
+                              onValueChange={(value) => {
+                                console.log("🏷️ Category changed to:", value);
+                                field.onChange(value);
+                              }}
+                              value={categoryValue}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select category" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {categories.length === 0 ? (
+                                  <SelectItem value="no-categories" disabled>
+                                    No categories available
                                   </SelectItem>
-                                ))
-                              )}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                                ) : (
+                                  categories.map((cat) => (
+                                    <SelectItem key={cat.id} value={cat.id}>
+                                      {cat.name}
+                                    </SelectItem>
+                                  ))
+                                )}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        );
+                      }}
                     />
 
                     <FormField
@@ -542,42 +550,50 @@ export default function NewProduct() {
                     <FormField
                       control={form.control}
                       name="unit"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Unit *</FormLabel>
-                          <Select
-                            key={`unit-${field.value}`}
-                            onValueChange={field.onChange}
-                            value={field.value || ""}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select unit" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="piece">Piece</SelectItem>
-                              <SelectItem value="kg">Kilogram</SelectItem>
-                              <SelectItem value="g">Gram</SelectItem>
-                              <SelectItem value="l">Liter</SelectItem>
-                              <SelectItem value="ml">Milliliter</SelectItem>
-                              <SelectItem value="m">Meter</SelectItem>
-                              <SelectItem value="cm">Centimeter</SelectItem>
-                              <SelectItem value="box">Box</SelectItem>
-                              <SelectItem value="bx">Box (bx)</SelectItem>
-                              <SelectItem value="pack">Pack</SelectItem>
-                              <SelectItem value="pair">Pair</SelectItem>
-                              <SelectItem value="set">Set</SelectItem>
-                              <SelectItem value="dozen">Dozen</SelectItem>
-                              <SelectItem value="unit">Unit</SelectItem>
-                              <SelectItem value="bottle">Bottle</SelectItem>
-                              <SelectItem value="tube">Tube</SelectItem>
-                              <SelectItem value="roll">Roll</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                      render={({ field }) => {
+                        const unitValue = field.value || "piece"; // Default to "piece" if no value
+                        console.log("📦 Unit field render - field.value:", field.value, "unitValue:", unitValue);
+
+                        return (
+                          <FormItem>
+                            <FormLabel>Unit *</FormLabel>
+                            <Select
+                              key={`unit-${field.value}-${Date.now()}`}
+                              onValueChange={(value) => {
+                                console.log("📦 Unit changed to:", value);
+                                field.onChange(value);
+                              }}
+                              value={unitValue}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select unit" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="piece">Piece</SelectItem>
+                                <SelectItem value="kg">Kilogram</SelectItem>
+                                <SelectItem value="g">Gram</SelectItem>
+                                <SelectItem value="l">Liter</SelectItem>
+                                <SelectItem value="ml">Milliliter</SelectItem>
+                                <SelectItem value="m">Meter</SelectItem>
+                                <SelectItem value="cm">Centimeter</SelectItem>
+                                <SelectItem value="box">Box</SelectItem>
+                                <SelectItem value="bx">Box (bx)</SelectItem>
+                                <SelectItem value="pack">Pack</SelectItem>
+                                <SelectItem value="pair">Pair</SelectItem>
+                                <SelectItem value="set">Set</SelectItem>
+                                <SelectItem value="dozen">Dozen</SelectItem>
+                                <SelectItem value="unit">Unit</SelectItem>
+                                <SelectItem value="bottle">Bottle</SelectItem>
+                                <SelectItem value="tube">Tube</SelectItem>
+                                <SelectItem value="roll">Roll</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        );
+                      }}
                     />
                   </div>
                 </CardContent>
