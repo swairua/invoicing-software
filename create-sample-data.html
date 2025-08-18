@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Sample Data</title>
+    <script>
+        async function createSampleData() {
+            console.log('🚀 Creating sample data...');
+            
+            try {
+                const response = await fetch('/api/create-sample-data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-company-id': '00000000-0000-0000-0000-000000000001'
+                    }
+                });
+                
+                const result = await response.json();
+                console.log('📊 Result:', result);
+                
+                if (response.ok) {
+                    alert(`✅ Sample data created successfully!
+Categories: ${result.summary.categoriesCreated}
+Customers: ${result.summary.customersCreated}
+Products: ${result.summary.productsCreated}`);
+                } else {
+                    alert('❌ Failed to create sample data: ' + result.error);
+                }
+            } catch (error) {
+                console.error('❌ Error:', error);
+                alert('❌ Network error: ' + error.message);
+            }
+        }
+        
+        // Auto-create when page loads
+        window.onload = createSampleData;
+    </script>
+</head>
+<body>
+    <h1>Creating Sample Data...</h1>
+    <p>Check the browser console and wait for the alert.</p>
+</body>
+</html>
