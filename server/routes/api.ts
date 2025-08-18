@@ -519,9 +519,9 @@ router.post("/quotations", async (req, res) => {
           await connection.query(
             `INSERT INTO quotation_items
              (id, quotation_id, product_id, description, quantity, unit_price,
-              discount_percentage, vat_rate, vat_amount, line_total, sort_order)
+              discount_percentage, discount_amount, tax_rate, tax_amount, line_total, sort_order)
              VALUES ('${itemId}', '${quotationId}', '${item.productId}', '${description}',
-                     ${item.quantity}, ${item.unitPrice}, ${item.discount || 0},
+                     ${item.quantity}, ${item.unitPrice}, ${item.discount || 0}, ${discountAmount},
                      ${item.vatRate || 0}, ${vatAmount}, ${item.total}, ${i})`,
           );
         }
