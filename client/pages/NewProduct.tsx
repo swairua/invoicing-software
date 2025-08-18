@@ -137,7 +137,7 @@ export default function NewProduct() {
   const loadProduct = async (productId: string) => {
     try {
       setLoading(true);
-      const productData = await dataService.getProduct(productId);
+      const productData = await dataService.getProductById(productId);
       if (productData) {
         setProduct(productData);
         
