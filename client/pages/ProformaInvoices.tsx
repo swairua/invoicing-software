@@ -190,7 +190,7 @@ export default function ProformaInvoices() {
   };
 
   const handleDuplicate = (proforma: ProformaInvoice) => {
-    navigate("/proformas/new", {
+    navigate("/proforma/new", {
       state: {
         duplicateFrom: proforma,
       },
