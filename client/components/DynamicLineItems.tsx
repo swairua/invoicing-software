@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useFieldArray, Control } from "react-hook-form";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -25,11 +26,18 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "./ui/form";
 import { Plus, Trash2, Search, Package } from "lucide-react";
 import { Product, LineItemTax } from "@shared/types";
 import LineItemTaxSelector from "./LineItemTaxSelector";
 import { getAvailableTaxes } from "@shared/taxUtils";
 import { useToast } from "../hooks/use-toast";
+import { LineItemFormData } from "@shared/validation";
 
 export interface LineItem {
   id: string;
