@@ -166,6 +166,7 @@ const AppRoutes = () => (
       <Route path="admin/test-update" element={<TestUpdate />} />
       <Route path="quotations" element={<Quotations />} />
       <Route path="quotations/:id" element={<QuotationDetails />} />
+      <Route path="quotations/:id/edit" element={<NewQuotation />} />
       <Route path="quotations/new" element={<NewQuotation />} />
       <Route path="proforma" element={<ProformaInvoices />} />
       <Route path="proforma/:id" element={<ProformaDetails />} />

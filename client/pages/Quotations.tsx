@@ -80,7 +80,15 @@ export default function Quotations() {
             businessData.getProducts(),
           ],
         );
-        setQuotations(Array.isArray(quotationsData) ? quotationsData : []);
+
+        const quotationsArray = Array.isArray(quotationsData) ? quotationsData : [];
+        console.log("📋 Initial quotations loaded in component:", quotationsArray);
+        console.log("📋 Initial quotations count:", quotationsArray.length);
+        if (quotationsArray.length > 0) {
+          console.log("📋 First quotation sample:", quotationsArray[0]);
+        }
+
+        setQuotations(quotationsArray);
         setCustomers(Array.isArray(customersData) ? customersData : []);
         setProducts(Array.isArray(productsData) ? productsData : []);
       } catch (error) {
@@ -334,7 +342,10 @@ export default function Quotations() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(quotations.reduce((sum, q) => sum + q.total, 0))}
+              {formatCurrency(quotations.reduce((sum, q) => {
+                const total = parseFloat(q.total?.toString() || "0") || 0;
+                return sum + total;
+              }, 0))}
             </div>
             <p className="text-xs text-muted-foreground">
               Total quotations value

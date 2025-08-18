@@ -4,6 +4,7 @@ import {
   useLocation,
   Link,
   useSearchParams,
+  useParams,
 } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -44,12 +45,7 @@ import {
   Trash2,
   Search,
 } from "lucide-react";
-import {
-  Customer,
-  Product,
-  Quotation,
-  InvoiceItem,
-} from "@shared/types";
+import { Customer, Product, Quotation, InvoiceItem } from "@shared/types";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import TemplateSelector from "../components/TemplateSelector";
 import LineItemVATSelector from "../components/LineItemVATSelector";
@@ -75,30 +71,35 @@ export default function NewQuotation() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
+  const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingQuotation, setIsLoadingQuotation] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [productSearch, setProductSearch] = useState("");
 
+  const isEditMode = !!id;
   const duplicateData = location.state?.duplicateFrom;
   const preselectedCustomerId = searchParams.get("customer");
   const formDataFromState = location.state?.formData;
 
   const [formData, setFormData] = useState<QuotationFormData>({
-    customerId: preselectedCustomerId ||
-                formDataFromState?.customerId ||
-                duplicateData?.customerId || "",
-    issueDate: formDataFromState?.issueDate ||
-               new Date().toISOString().split("T")[0],
-    validUntil: formDataFromState?.validUntil ||
-                new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-                  .toISOString()
-                  .split("T")[0], // 30 days from now
-    notes: formDataFromState?.notes ||
-           duplicateData?.notes || "",
+    customerId:
+      preselectedCustomerId ||
+      formDataFromState?.customerId ||
+      duplicateData?.customerId ||
+      "",
+    issueDate:
+      formDataFromState?.issueDate || new Date().toISOString().split("T")[0],
+    validUntil:
+      formDataFromState?.validUntil ||
+      new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0], // 30 days from now
+    notes: formDataFromState?.notes || duplicateData?.notes || "",
   });
 
   const [items, setItems] = useState<QuotationItemFormData[]>(
@@ -146,6 +147,62 @@ export default function NewQuotation() {
     loadData();
   }, [dataService, toast]);
 
+  // Load existing quotation data for edit mode
+  useEffect(() => {
+    const loadQuotationData = async () => {
+      if (!isEditMode || !id) return;
+
+      try {
+        setIsLoadingQuotation(true);
+        const quotations = await dataService.getQuotations();
+        const existingQuotation = quotations.find((q) => q.id === id);
+
+        if (!existingQuotation) {
+          toast({
+            title: "Quotation Not Found",
+            description:
+              "The quotation you're trying to edit could not be found.",
+            variant: "destructive",
+          });
+          navigate("/quotations");
+          return;
+        }
+
+        // Populate form data
+        setFormData({
+          customerId: existingQuotation.customerId,
+          issueDate: existingQuotation.issueDate.toString().split("T")[0],
+          validUntil: existingQuotation.validUntil.toString().split("T")[0],
+          notes: existingQuotation.notes || "",
+        });
+
+        // Populate items
+        if (existingQuotation.items && existingQuotation.items.length > 0) {
+          const formattedItems = existingQuotation.items.map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity.toString(),
+            unitPrice: item.unitPrice.toString(),
+            discount: item.discount.toString(),
+            vatEnabled: item.vatRate > 0,
+            vatRate: item.vatRate,
+          }));
+          setItems(formattedItems);
+        }
+      } catch (error) {
+        console.error("Error loading quotation:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load quotation data.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoadingQuotation(false);
+      }
+    };
+
+    loadQuotationData();
+  }, [isEditMode, id, dataService, toast, navigate]);
+
   useEffect(() => {
     if (productSearch) {
       const filtered = products.filter(
@@ -177,7 +234,7 @@ export default function NewQuotation() {
     const afterDiscount = subtotal - discountAmount;
 
     // Use line item VAT settings instead of product defaults
-    const vatRate = item.vatEnabled ? (item.vatRate || 16) : 0;
+    const vatRate = item.vatEnabled ? item.vatRate || 16 : 0;
     const vatAmount = (afterDiscount * vatRate) / 100;
 
     return afterDiscount + vatAmount;
@@ -201,7 +258,7 @@ export default function NewQuotation() {
 
       const afterDiscount = itemSubtotal - itemDiscountAmount;
       // Use line item VAT settings instead of product defaults
-      const vatRate = item.vatEnabled ? (item.vatRate || 16) : 0;
+      const vatRate = item.vatEnabled ? item.vatRate || 16 : 0;
       const itemVatAmount = (afterDiscount * vatRate) / 100;
       vatAmount += itemVatAmount;
     });
@@ -310,7 +367,7 @@ export default function NewQuotation() {
         const quantity = parseFloat(item.quantity);
         const unitPrice = parseFloat(item.unitPrice);
         const discount = parseFloat(item.discount);
-        const vatRate = item.vatEnabled ? (item.vatRate || 16) : 0;
+        const vatRate = item.vatEnabled ? item.vatRate || 16 : 0;
 
         const subtotal = quantity * unitPrice;
         const discountAmount = (subtotal * discount) / 100;
@@ -345,19 +402,29 @@ export default function NewQuotation() {
         status: "draft",
       };
 
-      await dataService.createQuotation(quotationData);
-
-      toast({
-        title: "Success",
-        description: "Quotation created successfully.",
-      });
-
-      navigate("/quotations?refresh=true");
+      if (isEditMode && id) {
+        await dataService.updateQuotation(id, quotationData);
+        toast({
+          title: "Success",
+          description: "Quotation updated successfully.",
+        });
+        navigate(`/quotations/${id}`);
+      } else {
+        await dataService.createQuotation(quotationData);
+        toast({
+          title: "Success",
+          description: "Quotation created successfully.",
+        });
+        navigate("/quotations?refresh=true");
+      }
     } catch (error) {
-      console.error("Error creating quotation:", error);
+      console.error(
+        `Error ${isEditMode ? "updating" : "creating"} quotation:`,
+        error,
+      );
       toast({
         title: "Error",
-        description: "Failed to create quotation. Please try again.",
+        description: `Failed to ${isEditMode ? "update" : "create"} quotation. Please try again.`,
         variant: "destructive",
       });
     } finally {
@@ -366,6 +433,20 @@ export default function NewQuotation() {
   };
 
   const totals = calculateTotals();
+
+  // Show loading state while fetching quotation data in edit mode
+  if (isEditMode && isLoadingQuotation) {
+    return (
+      <div className="container mx-auto py-6">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="flex items-center space-x-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <span>Loading quotation...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-6 space-y-6">
@@ -378,9 +459,13 @@ export default function NewQuotation() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">New Quotation</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              {isEditMode ? "Edit Quotation" : "New Quotation"}
+            </h1>
             <p className="text-muted-foreground">
-              Create a new quotation for your customer
+              {isEditMode
+                ? "Update quotation details and items"
+                : "Create a new quotation for your customer"}
             </p>
           </div>
         </div>
@@ -390,22 +475,38 @@ export default function NewQuotation() {
       <Card className="border-blue-200 bg-blue-50">
         <CardContent className="pt-6">
           <div className="flex items-center space-x-4">
-            <div className={`flex items-center space-x-2 ${formData.customerId ? 'text-green-600' : 'text-blue-600'}`}>
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${formData.customerId ? 'bg-green-100' : 'bg-blue-100'}`}>
-                {formData.customerId ? '✓' : '1'}
+            <div
+              className={`flex items-center space-x-2 ${formData.customerId ? "text-green-600" : "text-blue-600"}`}
+            >
+              <div
+                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${formData.customerId ? "bg-green-100" : "bg-blue-100"}`}
+              >
+                {formData.customerId ? "✓" : "1"}
               </div>
               <span className="text-sm font-medium">Select Customer</span>
             </div>
-            <div className={`w-8 h-px ${formData.customerId ? 'bg-green-300' : 'bg-gray-300'}`}></div>
-            <div className={`flex items-center space-x-2 ${items.length > 0 ? 'text-green-600' : formData.customerId ? 'text-blue-600' : 'text-gray-400'}`}>
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${items.length > 0 ? 'bg-green-100' : formData.customerId ? 'bg-blue-100' : 'bg-gray-100'}`}>
-                {items.length > 0 ? '✓' : '2'}
+            <div
+              className={`w-8 h-px ${formData.customerId ? "bg-green-300" : "bg-gray-300"}`}
+            ></div>
+            <div
+              className={`flex items-center space-x-2 ${items.length > 0 ? "text-green-600" : formData.customerId ? "text-blue-600" : "text-gray-400"}`}
+            >
+              <div
+                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${items.length > 0 ? "bg-green-100" : formData.customerId ? "bg-blue-100" : "bg-gray-100"}`}
+              >
+                {items.length > 0 ? "✓" : "2"}
               </div>
               <span className="text-sm font-medium">Add Items</span>
             </div>
-            <div className={`w-8 h-px ${items.length > 0 ? 'bg-green-300' : 'bg-gray-300'}`}></div>
-            <div className={`flex items-center space-x-2 ${items.length > 0 && formData.customerId ? 'text-blue-600' : 'text-gray-400'}`}>
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${items.length > 0 && formData.customerId ? 'bg-blue-100' : 'bg-gray-100'}`}>
+            <div
+              className={`w-8 h-px ${items.length > 0 ? "bg-green-300" : "bg-gray-300"}`}
+            ></div>
+            <div
+              className={`flex items-center space-x-2 ${items.length > 0 && formData.customerId ? "text-blue-600" : "text-gray-400"}`}
+            >
+              <div
+                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${items.length > 0 && formData.customerId ? "bg-blue-100" : "bg-gray-100"}`}
+              >
                 3
               </div>
               <span className="text-sm font-medium">Create Quotation</span>
@@ -438,8 +539,20 @@ export default function NewQuotation() {
                         setFormData((prev) => ({ ...prev, customerId: value }))
                       }
                     >
-                      <SelectTrigger className={!formData.customerId ? "border-orange-300 bg-orange-50" : ""}>
-                        <SelectValue placeholder={!formData.customerId ? "👆 Please select a customer first" : "Select customer"} />
+                      <SelectTrigger
+                        className={
+                          !formData.customerId
+                            ? "border-orange-300 bg-orange-50"
+                            : ""
+                        }
+                      >
+                        <SelectValue
+                          placeholder={
+                            !formData.customerId
+                              ? "👆 Please select a customer first"
+                              : "Select customer"
+                          }
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         {customers.map((customer) => (
@@ -521,7 +634,11 @@ export default function NewQuotation() {
                     : "Select a customer first to add products"}
                 </CardDescription>
               </CardHeader>
-              <CardContent className={!formData.customerId ? "opacity-50 pointer-events-none" : ""}>
+              <CardContent
+                className={
+                  !formData.customerId ? "opacity-50 pointer-events-none" : ""
+                }
+              >
                 <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
                   <div className="space-y-2 md:col-span-2">
                     <Label>Product *</Label>
@@ -674,7 +791,9 @@ export default function NewQuotation() {
                           const itemTotal = calculateItemTotal(item);
 
                           return (
-                            <TableRow key={`item-${item.productId || 'empty'}-${index}`}>
+                            <TableRow
+                              key={`item-${item.productId || "empty"}-${index}`}
+                            >
                               <TableCell>
                                 <div>
                                   <div className="font-medium">
@@ -690,7 +809,11 @@ export default function NewQuotation() {
                                   type="number"
                                   value={item.quantity}
                                   onChange={(e) =>
-                                    updateItem(index, "quantity", e.target.value)
+                                    updateItem(
+                                      index,
+                                      "quantity",
+                                      e.target.value,
+                                    )
                                   }
                                   className="w-20"
                                   min="1"
@@ -702,7 +825,11 @@ export default function NewQuotation() {
                                   type="number"
                                   value={item.unitPrice}
                                   onChange={(e) =>
-                                    updateItem(index, "unitPrice", e.target.value)
+                                    updateItem(
+                                      index,
+                                      "unitPrice",
+                                      e.target.value,
+                                    )
                                   }
                                   className="w-24"
                                   min="0"
@@ -715,7 +842,11 @@ export default function NewQuotation() {
                                     type="number"
                                     value={item.discount}
                                     onChange={(e) =>
-                                      updateItem(index, "discount", e.target.value)
+                                      updateItem(
+                                        index,
+                                        "discount",
+                                        e.target.value,
+                                      )
                                     }
                                     className="w-16"
                                     min="0"
@@ -804,7 +935,9 @@ export default function NewQuotation() {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={isSubmitting || items.length === 0 || !formData.customerId}
+                disabled={
+                  isSubmitting || items.length === 0 || !formData.customerId
+                }
               >
                 <Save className="mr-2 h-4 w-4" />
                 {isSubmitting
