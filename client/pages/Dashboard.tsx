@@ -548,6 +548,15 @@ export default function Dashboard() {
         </div>
         <div className="flex items-center space-x-2">
           <Button
+            variant="outline"
+            size="sm"
+            onClick={createSampleData}
+            disabled={isCreatingSampleData}
+          >
+            <Package className="mr-2 h-4 w-4" />
+            {isCreatingSampleData ? "Creating..." : "Create Sample Data"}
+          </Button>
+          <Button
             variant={isSimulating ? "destructive" : "default"}
             size="sm"
             onClick={toggleSimulation}
