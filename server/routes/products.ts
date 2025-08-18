@@ -600,7 +600,10 @@ router.put("/:id", async (req, res) => {
     }
 
     // Validate category_id if provided
-    if (dbUpdateData.categoryId) {
+    console.log("🔍 Category validation - dbUpdateData.categoryId:", dbUpdateData.categoryId);
+    console.log("🔍 Category validation - type:", typeof dbUpdateData.categoryId);
+
+    if (dbUpdateData.categoryId && dbUpdateData.categoryId !== "" && dbUpdateData.categoryId !== "null") {
       console.log("🔍 Validating category ID:", dbUpdateData.categoryId);
 
       // Check if category exists
@@ -610,12 +613,17 @@ router.put("/:id", async (req, res) => {
         [dbUpdateData.categoryId, companyId]
       );
 
+      console.log("📋 Category check result:", categoryCheck.rows.length, "rows found");
+
       if (categoryCheck.rows.length === 0) {
         console.log("❌ Category ID not found, setting to NULL");
         dbUpdateData.categoryId = null; // Set to null if category doesn't exist
       } else {
         console.log("✅ Category ID validated successfully");
       }
+    } else {
+      console.log("🔍 No category ID provided or empty, setting to NULL");
+      dbUpdateData.categoryId = null;
     }
 
     // Handle dimensions properly
