@@ -254,13 +254,6 @@ router.get("/:id", async (req, res) => {
       [id]
     );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        error: "Invoice not found",
-      });
-    }
-
     const row = result.rows[0];
     const invoice = {
       id: row.id,
@@ -271,13 +264,27 @@ router.get("/:id", async (req, res) => {
         email: row.customer_email,
         phone: row.customer_phone,
       },
-      items: row.items.filter((item) => item.id !== null),
-      subtotal: parseFloat(row.subtotal),
-      vatAmount: parseFloat(row.vat_amount),
-      discountAmount: parseFloat(row.discount_amount),
-      total: parseFloat(row.total_amount),
-      amountPaid: parseFloat(row.amount_paid),
-      balance: parseFloat(row.balance_due),
+      items: itemsResult.rows.map((item) => ({
+        id: item.id,
+        productId: item.product_id,
+        product: {
+          id: item.product_id,
+          name: item.product_name,
+          sku: item.product_sku,
+        },
+        description: item.description,
+        quantity: parseFloat(item.quantity),
+        unitPrice: parseFloat(item.unit_price),
+        discount: parseFloat(item.discount_amount || 0),
+        vatRate: parseFloat(item.vat_rate),
+        total: parseFloat(item.line_total),
+      })),
+      subtotal: parseFloat(row.subtotal || 0),
+      vatAmount: parseFloat(row.vat_amount || 0),
+      discountAmount: parseFloat(row.discount_amount || 0),
+      total: parseFloat(row.total_amount || 0),
+      amountPaid: parseFloat(row.amount_paid || 0),
+      balance: parseFloat(row.balance_due || 0),
       status: row.status,
       dueDate: new Date(row.due_date),
       issueDate: new Date(row.issue_date),
