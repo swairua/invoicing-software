@@ -811,7 +811,15 @@ export default function NewProduct() {
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button
+              type="submit"
+              disabled={loading}
+              onClick={() => {
+                console.log("🖱️ Submit button clicked!");
+                console.log("📝 Form state:", form.formState);
+                console.log("📝 Form errors:", form.formState.errors);
+              }}
+            >
               <Save className="mr-2 h-4 w-4" />
               {loading ? "Saving..." : isEditMode ? "Update Product" : "Create Product"}
             </Button>
