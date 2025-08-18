@@ -12,39 +12,48 @@ router.get("/", async (req, res) => {
 
     const result = await Database.query(
       `
-      SELECT 
+      SELECT
         i.*,
         c.name as customer_name,
         c.email as customer_email,
         c.phone as customer_phone,
-        c.kra_pin as customer_kra_pin,
-        json_agg(
-          json_build_object(
-            'id', ii.id,
-            'product_id', ii.product_id,
-            'product_name', p.name,
-            'product_sku', p.sku,
-            'description', ii.description,
-            'quantity', ii.quantity,
-            'unit_price', ii.unit_price,
-            'discount_amount', ii.discount_amount,
-            'discount_percentage', ii.discount_percentage,
-            'vat_rate', ii.vat_rate,
-            'vat_amount', ii.vat_amount,
-            'line_total', ii.line_total
-          ) ORDER BY ii.sort_order
-        ) as items
+        c.kra_pin as customer_kra_pin
       FROM invoices i
       JOIN customers c ON i.customer_id = c.id
-      LEFT JOIN invoice_items ii ON i.id = ii.invoice_id
-      LEFT JOIN products p ON ii.product_id = p.id
-      WHERE i.company_id = $1
-      GROUP BY i.id, c.name, c.email, c.phone, c.kra_pin
+      WHERE i.company_id = ?
       ORDER BY i.created_at DESC
       LIMIT 100
     `,
       [companyId],
     );
+
+    // Get items separately for each invoice
+    const invoiceIds = result.rows.map(row => row.id);
+    let itemsMap = {};
+
+    if (invoiceIds.length > 0) {
+      const itemsResult = await Database.query(
+        `
+        SELECT
+          ii.*,
+          p.name as product_name,
+          p.sku as product_sku
+        FROM invoice_items ii
+        LEFT JOIN products p ON ii.product_id = p.id
+        WHERE ii.invoice_id IN (${invoiceIds.map(() => '?').join(',')})
+        ORDER BY ii.sort_order
+        `,
+        invoiceIds
+      );
+
+      // Group items by invoice_id
+      itemsResult.rows.forEach(item => {
+        if (!itemsMap[item.invoice_id]) {
+          itemsMap[item.invoice_id] = [];
+        }
+        itemsMap[item.invoice_id].push(item);
+      });
+    }
 
     // Format the data to match the frontend expectations
     const invoices = result.rows.map((row) => ({
