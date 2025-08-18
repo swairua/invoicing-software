@@ -486,16 +486,11 @@ export default function Quotations() {
                               </Link>
                             </DropdownMenuItem>
                             {quotation.status === "draft" && (
-                              <DropdownMenuItem
-                                onClick={() => navigate("/quotations/new", {
-                                  state: {
-                                    editMode: true,
-                                    existingQuotation: quotation,
-                                  },
-                                })}
-                              >
-                                <FileEdit className="mr-2 h-4 w-4" />
-                                Edit
+                              <DropdownMenuItem asChild>
+                                <Link to={`/quotations/${quotation.id}/edit`}>
+                                  <FileEdit className="mr-2 h-4 w-4" />
+                                  Edit
+                                </Link>
                               </DropdownMenuItem>
                             )}
                             <DropdownMenuItem
