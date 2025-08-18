@@ -503,7 +503,8 @@ export default function NewProduct() {
                           <FormLabel>Unit *</FormLabel>
                           <Select
                             onValueChange={field.onChange}
-                            value={field.value}
+                            value={field.value || ""}
+                            defaultValue={field.value || ""}
                           >
                             <FormControl>
                               <SelectTrigger>
