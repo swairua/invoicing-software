@@ -463,10 +463,9 @@ router.post("/quotations", async (req, res) => {
       // Insert quotation (using correct column names)
       const quotationResult = await client.query(
         `INSERT INTO quotations
-         (quote_number, customer_id, subtotal, vat_amount, discount_amount, total_amount,
+         (id, quote_number, customer_id, subtotal, vat_amount, discount_amount, total_amount,
           status, valid_until, issue_date, notes, company_id, created_by)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-         RETURNING *`,
+         VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           quoteNumber,
           quotationData.customerId,
