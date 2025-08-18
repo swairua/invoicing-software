@@ -8,7 +8,7 @@ router.get("/", async (req, res) => {
   try {
     const companyId =
       (req.headers["x-company-id"] as string) ||
-      "550e8400-e29b-41d4-a716-446655440000";
+      "00000000-0000-0000-0000-000000000001";
 
     const result = await Database.query(
       `
@@ -209,7 +209,7 @@ router.get("/:id", async (req, res) => {
     const { id } = req.params;
     const companyId =
       (req.headers["x-company-id"] as string) ||
-      "550e8400-e29b-41d4-a716-446655440000";
+      "00000000-0000-0000-0000-000000000001";
 
     const result = await Database.query(
       `
@@ -336,7 +336,7 @@ router.post("/", async (req, res) => {
   try {
     const companyId =
       (req.headers["x-company-id"] as string) ||
-      "550e8400-e29b-41d4-a716-446655440000";
+      "00000000-0000-0000-0000-000000000001";
     const userId =
       (req.headers["x-user-id"] as string) ||
       "550e8400-e29b-41d4-a716-446655440001";
@@ -575,7 +575,7 @@ router.patch("/:id/status", async (req, res) => {
     const { status } = req.body;
     const companyId =
       (req.headers["x-company-id"] as string) ||
-      "550e8400-e29b-41d4-a716-446655440000";
+      "00000000-0000-0000-0000-000000000001";
 
     const result = await Database.query(
       `
@@ -613,7 +613,7 @@ router.post("/:id/payments", async (req, res) => {
     const { id } = req.params;
     const companyId =
       (req.headers["x-company-id"] as string) ||
-      "550e8400-e29b-41d4-a716-446655440000";
+      "00000000-0000-0000-0000-000000000001";
     const userId =
       (req.headers["x-user-id"] as string) ||
       "550e8400-e29b-41d4-a716-446655440001";
