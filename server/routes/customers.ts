@@ -18,14 +18,16 @@ router.get("/", async (req, res) => {
       ? req.query.isActive === "true"
       : undefined;
 
+    console.log("📋 Calling customerRepository.findAll...");
     const result = await customerRepository.findAll(companyId, {
       page,
       limit,
       search,
       isActive,
     });
+    console.log("✅ Repository call successful, customers found:", result.customers.length);
 
-    res.json({
+    const response = {
       success: true,
       data: result.customers,
       meta: {
@@ -34,7 +36,10 @@ router.get("/", async (req, res) => {
         limit,
         totalPages: Math.ceil(result.total / limit),
       },
-    });
+    };
+
+    console.log("📤 Sending response:", JSON.stringify(response, null, 2));
+    res.json(response);
   } catch (error) {
     console.error("Error fetching customers:", error);
     res.status(500).json({
