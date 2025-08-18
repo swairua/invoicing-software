@@ -129,7 +129,37 @@ export default function NewProduct() {
     try {
       const categoriesData = await dataService.getCategories();
       console.log("📦 Categories loaded:", categoriesData);
-      setCategories(categoriesData || []);
+
+      // If no categories, try to set them up automatically
+      if (!categoriesData || categoriesData.length === 0) {
+        console.log("🔧 No categories found, setting up sample categories...");
+        try {
+          const setupResponse = await fetch("/api/categories/setup", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-company-id": user?.companyId || "00000000-0000-0000-0000-000000000001",
+            },
+          });
+
+          if (setupResponse.ok) {
+            const setupData = await setupResponse.json();
+            console.log("✅ Categories setup result:", setupData);
+
+            // Reload categories after setup
+            const newCategoriesData = await dataService.getCategories();
+            setCategories(newCategoriesData || []);
+          } else {
+            console.log("❌ Failed to setup categories");
+            setCategories([]);
+          }
+        } catch (setupError) {
+          console.error("Failed to setup categories:", setupError);
+          setCategories([]);
+        }
+      } else {
+        setCategories(categoriesData);
+      }
     } catch (error) {
       console.error("Failed to load categories:", error);
       // Set empty array as fallback
