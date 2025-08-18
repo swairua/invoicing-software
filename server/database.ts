@@ -195,6 +195,13 @@ export class Database {
         console.log("📋 Adding sample customers...");
         await this.addSampleCustomers();
       }
+
+      // Add sample products if none exist
+      const productCount = await this.query('SELECT COUNT(*) as count FROM products');
+      if (productCount.rows[0].count === 0) {
+        console.log("📋 Adding sample products...");
+        await this.addSampleProducts();
+      }
     } catch (error) {
       console.error("❌ Failed to create quotations table:", error);
     }
