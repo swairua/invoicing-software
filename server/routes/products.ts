@@ -333,76 +333,90 @@ router.put("/:id", async (req, res) => {
     console.log("  Company ID:", companyId);
     console.log("  Request body fields:", Object.keys(req.body));
 
-    // Clean the request body - remove fields that shouldn't be sent to database
+    // Map frontend fields to database schema fields
     const {
       id,
       createdAt,
       updatedAt,
       categoryName,
       supplierName,
-      variants,
-      length,
-      width,
-      height,
-      allowBackorders, // Remove this as it doesn't exist in schema
-      hasVariants, // Remove this as it doesn't exist in schema
-      taxable, // Handle separately
-      unit, // Handle separately
-      dimensions, // Remove dimensions object
-      ...cleanBody
+      variants, // Handle separately
+      ...requestBody
     } = req.body;
 
-    // Build the update data object with explicit field mapping
+    // Build the update data object with proper field mapping
     const dbUpdateData: any = {};
 
-    // Copy safe fields that actually exist in the current PostgreSQL database
-    // Using only fields that we know exist based on the actual running database
-    const safeFields = [
-      "name",
-      "description",
-      "sku",
-      "barcode",
-      "category",
-      "subcategory",
-      "brand",
-      "supplier",
-      "purchasePrice",
-      "sellingPrice",
-      "markup",
-      "costPrice",
-      "minStock",
-      "maxStock",
-      "currentStock",
-      "reservedStock",
-      "availableStock",
-      "reorderLevel",
-      "location",
-      "binLocation",
-      "tags",
-      "taxRate",
-      "trackInventory",
-      "isActive",
-      "notes",
-      "categoryId",
-      "supplierId",
-    ];
+    // Direct field mappings (frontend -> database)
+    const fieldMappings = {
+      name: 'name',
+      description: 'description',
+      sku: 'sku',
+      barcode: 'barcode',
+      brand: 'brand',
+      categoryId: 'categoryId',
+      supplierId: 'supplierId',
+      purchasePrice: 'purchasePrice',
+      sellingPrice: 'sellingPrice',
+      wholesalePrice: 'wholesalePrice',
+      retailPrice: 'retailPrice',
+      costPrice: 'costPrice',
+      markup: 'markup',
+      minStock: 'minStock',
+      maxStock: 'maxStock',
+      currentStock: 'currentStock',
+      reservedStock: 'reservedStock',
+      reorderLevel: 'reorderLevel',
+      location: 'location',
+      binLocation: 'binLocation',
+      tags: 'tags',
+      notes: 'notes',
+      trackInventory: 'trackInventory',
+      isActive: 'isActive',
+      status: 'status',
+      weight: 'weight'
+    };
 
-    safeFields.forEach((field) => {
-      if (cleanBody[field] !== undefined) {
-        dbUpdateData[field] = cleanBody[field];
+    // Map frontend fields to database fields
+    Object.entries(fieldMappings).forEach(([frontendField, dbField]) => {
+      if (requestBody[frontendField] !== undefined) {
+        dbUpdateData[dbField] = requestBody[frontendField];
       }
     });
 
-    // Don't map unit and taxable fields until we verify what columns exist
-    // The database schema seems to be different from the migration files
+    // Handle special field mappings (frontend -> database schema)
+    if (requestBody.unit !== undefined) {
+      dbUpdateData.unitOfMeasure = requestBody.unit; // unit -> unit_of_measure
+    }
+
+    if (requestBody.taxable !== undefined) {
+      dbUpdateData.isTaxable = requestBody.taxable; // taxable -> is_taxable
+    }
+
+    if (requestBody.taxRate !== undefined) {
+      dbUpdateData.taxRate = requestBody.taxRate; // taxRate -> tax_rate
+    }
+
+    if (requestBody.allowBackorders !== undefined) {
+      dbUpdateData.allowBackorders = requestBody.allowBackorders; // allowBackorders -> allow_backorders
+    }
+
+    if (requestBody.hasVariants !== undefined) {
+      dbUpdateData.hasVariants = requestBody.hasVariants; // hasVariants -> has_variants
+    }
 
     // Handle dimensions properly
-    if (req.body.dimensions) {
-      dbUpdateData.length = req.body.dimensions.length || null;
-      dbUpdateData.width = req.body.dimensions.width || null;
-      dbUpdateData.height = req.body.dimensions.height || null;
-      dbUpdateData.dimensionUnit = req.body.dimensions.unit || "cm";
+    if (requestBody.dimensions) {
+      dbUpdateData.length = requestBody.dimensions.length || null;
+      dbUpdateData.width = requestBody.dimensions.width || null;
+      dbUpdateData.height = requestBody.dimensions.height || null;
+      dbUpdateData.dimensionUnit = requestBody.dimensions.unit || "cm";
     }
+
+    // Handle individual dimension fields (for backward compatibility)
+    if (requestBody.length !== undefined) dbUpdateData.length = requestBody.length;
+    if (requestBody.width !== undefined) dbUpdateData.width = requestBody.width;
+    if (requestBody.height !== undefined) dbUpdateData.height = requestBody.height;
 
     console.log("  Cleaned update data fields:", Object.keys(dbUpdateData));
 
@@ -425,21 +439,10 @@ router.put("/:id", async (req, res) => {
     });
   } catch (error) {
     console.error("Error updating product:", error);
-    console.log("Returning fallback updated product response");
-
-    // Return fallback updated product when database is unavailable
-    const fallbackUpdatedProduct = {
-      id: req.params.id,
-      ...req.body,
-      companyId:
-        (req.headers["x-company-id"] as string) ||
-        "550e8400-e29b-41d4-a716-446655440000",
-      updatedAt: new Date(),
-    };
-
-    res.json({
-      success: true,
-      data: fallbackUpdatedProduct,
+    res.status(500).json({
+      success: false,
+      error: "Failed to update product",
+      details: error.message
     });
   }
 });
