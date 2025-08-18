@@ -26,6 +26,7 @@
     "deploy-check-strict": "npm run typecheck && npm run build && npm run check-env",
     "postinstall": "npm run build",
     "db:setup": "node scripts/deploy-render.js",
+    "db:migrate": "node scripts/migrate-mysql.js",
     "db:check": "node scripts/check-database.js",
     "db:test": "node scripts/test-connection.js",
     "db:fix": "node scripts/fix-database.js",
