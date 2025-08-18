@@ -82,6 +82,7 @@ function NavigationItems({ mobile = false }: { mobile?: boolean }) {
 
 export default function Layout() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
