@@ -80,7 +80,15 @@ export default function Quotations() {
             businessData.getProducts(),
           ],
         );
-        setQuotations(Array.isArray(quotationsData) ? quotationsData : []);
+
+        const quotationsArray = Array.isArray(quotationsData) ? quotationsData : [];
+        console.log("📋 Initial quotations loaded in component:", quotationsArray);
+        console.log("📋 Initial quotations count:", quotationsArray.length);
+        if (quotationsArray.length > 0) {
+          console.log("📋 First quotation sample:", quotationsArray[0]);
+        }
+
+        setQuotations(quotationsArray);
         setCustomers(Array.isArray(customersData) ? customersData : []);
         setProducts(Array.isArray(productsData) ? productsData : []);
       } catch (error) {
