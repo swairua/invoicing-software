@@ -98,9 +98,11 @@ export default function NewInvoice() {
   const preselectedCustomerId = searchParams.get("customer");
 
   const [formData, setFormData] = useState<InvoiceFormData>({
-    customerId: preselectedCustomerId ||
-                conversionData?.customerId ||
-                duplicateData?.customerId || "",
+    customerId:
+      preselectedCustomerId ||
+      conversionData?.customerId ||
+      duplicateData?.customerId ||
+      "",
     issueDate: new Date().toISOString().split("T")[0],
     dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
       .toISOString()
@@ -118,15 +120,16 @@ export default function NewInvoice() {
       vatEnabled: item.vatRate > 0,
       vatRate: item.vatRate || 16,
     })) ||
-    duplicateData?.items?.map((item: any) => ({
-      productId: item.productId,
-      quantity: item.quantity.toString(),
-      unitPrice: item.unitPrice.toString(),
-      discount: item.discount.toString(),
-      lineItemTaxes: item.lineItemTaxes || [],
-      vatEnabled: item.vatRate > 0,
-      vatRate: item.vatRate || 16,
-    })) || [],
+      duplicateData?.items?.map((item: any) => ({
+        productId: item.productId,
+        quantity: item.quantity.toString(),
+        unitPrice: item.unitPrice.toString(),
+        discount: item.discount.toString(),
+        lineItemTaxes: item.lineItemTaxes || [],
+        vatEnabled: item.vatRate > 0,
+        vatRate: item.vatRate || 16,
+      })) ||
+      [],
   );
 
   const [newItem, setNewItem] = useState<InvoiceItemFormData>({
@@ -199,7 +202,7 @@ export default function NewInvoice() {
     const afterDiscount = subtotal - discountAmount;
 
     // Use line item VAT settings instead of product defaults
-    const vatRate = item.vatEnabled ? (item.vatRate || 16) : 0;
+    const vatRate = item.vatEnabled ? item.vatRate || 16 : 0;
     const vatAmount = (afterDiscount * vatRate) / 100;
 
     return afterDiscount + vatAmount;
@@ -224,7 +227,7 @@ export default function NewInvoice() {
 
       const afterDiscount = itemSubtotal - itemDiscountAmount;
       // Use line item VAT settings instead of product defaults
-      const vatRate = item.vatEnabled ? (item.vatRate || 16) : 0;
+      const vatRate = item.vatEnabled ? item.vatRate || 16 : 0;
       const itemVatAmount = (afterDiscount * vatRate) / 100;
       vatAmount += itemVatAmount;
 
@@ -375,7 +378,7 @@ export default function NewInvoice() {
         const unitPrice = parseFloat(item.unitPrice);
         const discount = parseFloat(item.discount);
         // Use line item VAT settings instead of product defaults
-        const vatRate = item.vatEnabled ? (item.vatRate || 16) : 0;
+        const vatRate = item.vatEnabled ? item.vatRate || 16 : 0;
 
         const subtotal = quantity * unitPrice;
         const discountAmount = (subtotal * discount) / 100;
@@ -704,7 +707,9 @@ export default function NewInvoice() {
                           const itemTotal = calculateItemTotal(item);
 
                           return (
-                            <TableRow key={`item-${item.productId || 'empty'}-${index}`}>
+                            <TableRow
+                              key={`item-${item.productId || "empty"}-${index}`}
+                            >
                               <TableCell>
                                 <div>
                                   <div className="font-medium">
@@ -720,7 +725,11 @@ export default function NewInvoice() {
                                   type="number"
                                   value={item.quantity}
                                   onChange={(e) =>
-                                    updateItem(index, "quantity", e.target.value)
+                                    updateItem(
+                                      index,
+                                      "quantity",
+                                      e.target.value,
+                                    )
                                   }
                                   className="w-20"
                                   min="1"
@@ -732,7 +741,11 @@ export default function NewInvoice() {
                                   type="number"
                                   value={item.unitPrice}
                                   onChange={(e) =>
-                                    updateItem(index, "unitPrice", e.target.value)
+                                    updateItem(
+                                      index,
+                                      "unitPrice",
+                                      e.target.value,
+                                    )
                                   }
                                   className="w-24"
                                   min="0"
@@ -745,7 +758,11 @@ export default function NewInvoice() {
                                     type="number"
                                     value={item.discount}
                                     onChange={(e) =>
-                                      updateItem(index, "discount", e.target.value)
+                                      updateItem(
+                                        index,
+                                        "discount",
+                                        e.target.value,
+                                      )
                                     }
                                     className="w-16"
                                     min="0"

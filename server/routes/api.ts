@@ -41,7 +41,7 @@ router.post("/database/execute", async (req, res) => {
     if (!query) {
       return res.status(400).json({
         success: false,
-        error: "Query is required"
+        error: "Query is required",
       });
     }
 
@@ -53,13 +53,14 @@ router.post("/database/execute", async (req, res) => {
     res.json({
       success: true,
       data: result,
-      rowsAffected: result.rowsAffected || result.affectedRows || 0
+      rowsAffected: result.rowsAffected || result.affectedRows || 0,
     });
   } catch (error) {
     console.error("Database execute error:", error);
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Database execution failed"
+      error:
+        error instanceof Error ? error.message : "Database execution failed",
     });
   }
 });
@@ -757,7 +758,6 @@ router.use("/taxes", taxesRouter);
 router.use("/seed", seedRouter);
 router.use("/migration", migrationRouter);
 router.use("/test-update", testUpdateRouter);
-
 
 router.get("/proformas", async (req, res) => {
   try {
