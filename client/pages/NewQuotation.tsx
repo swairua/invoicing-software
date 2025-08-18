@@ -131,6 +131,7 @@ export default function NewQuotation() {
   useEffect(() => {
     const loadData = async () => {
       try {
+        setLoading(true);
         const [customerData, productData] = await Promise.all([
           dataService.getCustomers(),
           dataService.getProducts(),
@@ -138,18 +139,38 @@ export default function NewQuotation() {
         setCustomers(Array.isArray(customerData) ? customerData : []);
         setProducts(Array.isArray(productData) ? productData : []);
         setFilteredProducts(Array.isArray(productData) ? productData : []);
+
+        // If in edit mode, load the existing quotation
+        if (isEditMode && id) {
+          const quotations = await dataService.getQuotations();
+          const quotation = quotations.find((q) => q.id === id);
+
+          if (!quotation) {
+            toast({
+              title: "Quotation Not Found",
+              description: "The requested quotation could not be found.",
+              variant: "destructive",
+            });
+            navigate("/quotations");
+            return;
+          }
+
+          setExistingQuotation(quotation);
+        }
       } catch (error) {
         console.error("Error loading data:", error);
         toast({
           title: "Error",
-          description: "Failed to load customers and products.",
+          description: "Failed to load data.",
           variant: "destructive",
         });
+      } finally {
+        setLoading(false);
       }
     };
 
     loadData();
-  }, [dataService, toast]);
+  }, [dataService, toast, isEditMode, id, navigate]);
 
   useEffect(() => {
     if (productSearch) {
