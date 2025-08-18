@@ -591,6 +591,12 @@ router.put("/quotations/:id", async (req, res) => {
   }
 });
 
+// Test route to verify our routes are working
+router.get("/test-quotations", (req, res) => {
+  console.log("🧪 Test quotations route called!");
+  res.json({ message: "Quotations route is working", timestamp: Date.now() });
+});
+
 // Quotations routes - defined inline
 router.get("/quotations", async (req, res) => {
   try {
