@@ -249,11 +249,17 @@ export default function QuotationDetails() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">
+          {quotation.status === "draft" && (
+            <Button variant="outline" onClick={handleEditQuotation}>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit
+            </Button>
+          )}
+          <Button variant="outline" onClick={duplicateQuotation}>
             <Copy className="mr-2 h-4 w-4" />
             Duplicate
           </Button>
-          <Button variant="outline">
+          <Button variant="outline" onClick={handleDownloadPDF}>
             <Download className="mr-2 h-4 w-4" />
             PDF
           </Button>
