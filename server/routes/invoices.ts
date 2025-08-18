@@ -700,7 +700,7 @@ router.post("/:id/payments", async (req, res) => {
 
     res.status(201).json({
       success: true,
-      data: paymentResult.rows[0],
+      data: createdPaymentResult.rows[0] || { id: 'created', amount, method, reference },
     });
   } catch (error) {
     console.error("Error processing payment:", error);
