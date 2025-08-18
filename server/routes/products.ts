@@ -355,14 +355,14 @@ router.put("/:id", async (req, res) => {
     // Build the update data object with explicit field mapping
     const dbUpdateData: any = {};
 
-    // Copy safe fields that actually exist in the PostgreSQL database
+    // Copy safe fields that actually exist in the current PostgreSQL database
+    // Using only fields that we know exist based on the actual running database
     const safeFields = [
       'name', 'description', 'sku', 'barcode', 'category', 'subcategory',
       'brand', 'supplier', 'purchasePrice', 'sellingPrice', 'markup', 'costPrice',
       'minStock', 'maxStock', 'currentStock', 'reservedStock', 'availableStock',
       'reorderLevel', 'location', 'binLocation', 'tags', 'taxRate',
       'trackInventory', 'isActive', 'notes', 'categoryId', 'supplierId'
-      // Removed 'status' as it doesn't exist in the current PostgreSQL schema
     ];
 
     safeFields.forEach(field => {
@@ -371,14 +371,8 @@ router.put("/:id", async (req, res) => {
       }
     });
 
-    // Handle special field mappings
-    if (req.body.unit !== undefined) {
-      dbUpdateData.unitOfMeasure = req.body.unit;
-    }
-
-    if (req.body.taxable !== undefined) {
-      dbUpdateData.isTaxable = req.body.taxable;
-    }
+    // Don't map unit and taxable fields until we verify what columns exist
+    // The database schema seems to be different from the migration files
 
     // Handle dimensions properly
     if (req.body.dimensions) {
