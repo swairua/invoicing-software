@@ -13,20 +13,17 @@ export class CustomerRepository extends BaseRepository {
   ): Promise<{ customers: Customer[]; total: number }> {
     const { page = 1, limit = 10, search, isActive } = options;
 
-    let whereClause = "WHERE company_id = $1";
+    let whereClause = "WHERE company_id = ?";
     const params: any[] = [companyId];
-    let paramIndex = 2;
 
     if (isActive !== undefined) {
-      whereClause += ` AND is_active = $${paramIndex}`;
+      whereClause += ` AND is_active = ?`;
       params.push(isActive);
-      paramIndex++;
     }
 
     if (search) {
-      whereClause += ` AND (name ILIKE $${paramIndex} OR email ILIKE $${paramIndex} OR phone ILIKE $${paramIndex})`;
-      params.push(`%${search}%`);
-      paramIndex++;
+      whereClause += ` AND (name LIKE ? OR email LIKE ? OR phone LIKE ?)`;
+      params.push(`%${search}%`, `%${search}%`, `%${search}%`);
     }
 
     // Get total count
@@ -39,27 +36,25 @@ export class CustomerRepository extends BaseRepository {
     const total = parseInt(countResult.rows[0].total);
 
     // Get paginated results
+    const offset = (page - 1) * limit;
     const dataQuery = `
       SELECT *
       FROM customers
       ${whereClause}
       ORDER BY name ASC
-      ${this.buildPagination(page, limit)}
+      LIMIT ? OFFSET ?
     `;
 
-    const result = await this.db.query(dataQuery, params);
-    const customers = this.toCamelCase(result.rows) as Customer[];
+    const result = await this.db.query(dataQuery, [...params, limit, offset]);
 
-    return { customers, total };
+    return {
+      customers: this.toCamelCase(result.rows) as Customer[],
+      total,
+    };
   }
 
   async findById(id: string, companyId: string): Promise<Customer | null> {
-    const query = `
-      SELECT *
-      FROM customers
-      WHERE id = $1 AND company_id = $2
-    `;
-
+    const query = "SELECT * FROM customers WHERE id = ? AND company_id = ?";
     const result = await this.db.query(query, [id, companyId]);
 
     if (result.rows.length === 0) {
@@ -72,23 +67,18 @@ export class CustomerRepository extends BaseRepository {
   async create(
     customerData: Omit<Customer, "id" | "createdAt" | "updatedAt">,
   ): Promise<Customer> {
-    // Use balance directly as it matches the database column
-    const data = this.toSnakeCase({
-      id: "uuid_generate_v4()",
-      ...customerData,
-      balance: customerData.balance || 0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-
-    // Remove id from data and add it as DEFAULT
-    delete data.id;
+    const data = this.toSnakeCase(customerData);
+    data.id = null; // Let MySQL generate the UUID
+    delete data.created_at;
+    delete data.updated_at;
 
     const { query, values } = DatabaseUtils.buildInsertQuery("customers", data);
-    const finalQuery = query.replace("uuid_generate_v4()", "DEFAULT");
 
-    const result = await this.db.query(finalQuery, values);
-    return this.toCamelCase(result.rows[0]) as Customer;
+    const result = await this.db.query(query, values);
+    
+    // For MySQL, we need to fetch the created record
+    const insertedId = result.insertId || data.id;
+    return this.findById(insertedId, customerData.companyId) as Promise<Customer>;
   }
 
   async update(
@@ -96,72 +86,65 @@ export class CustomerRepository extends BaseRepository {
     companyId: string,
     updateData: Partial<Customer>,
   ): Promise<Customer | null> {
-    console.log("CustomerRepository.update - id:", id, "companyId:", companyId);
-    console.log("CustomerRepository.update - updateData:", updateData);
-
     const data = this.toSnakeCase(updateData);
     delete data.id;
     delete data.created_at;
     delete data.updated_at;
 
-    // Filter out undefined values to prevent SQL syntax errors
-    const cleanData: Record<string, any> = {};
-    for (const [key, value] of Object.entries(data)) {
-      if (value !== undefined) {
-        cleanData[key] = value;
-      }
-    }
-
-    console.log("CustomerRepository.update - processed data:", data);
-    console.log("CustomerRepository.update - cleaned data:", cleanData);
-
     const { query, values } = DatabaseUtils.buildUpdateQuery(
       "customers",
-      cleanData,
+      data,
       { id, company_id: companyId },
     );
 
-    console.log("CustomerRepository.update - generated query:", query);
-    console.log("CustomerRepository.update - query values:", values);
-
     const result = await this.db.query(query, values);
 
-    if (result.rows.length === 0) {
+    if (result.affectedRows === 0) {
       return null;
     }
 
-    return this.toCamelCase(result.rows[0]) as Customer;
+    return this.findById(id, companyId);
   }
 
   async delete(id: string, companyId: string): Promise<boolean> {
     const query = `
-      DELETE FROM customers
-      WHERE id = $1 AND company_id = $2
+      UPDATE customers 
+      SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP 
+      WHERE id = ? AND company_id = ?
     `;
 
     const result = await this.db.query(query, [id, companyId]);
-    return result.rowCount > 0;
+    return result.affectedRows > 0;
   }
 
-  async updateBalance(customerId: string, amount: number): Promise<void> {
+  async getOutstandingBalance(
+    customerId: string,
+    companyId: string,
+  ): Promise<number> {
     const query = `
-      UPDATE customers
-      SET current_balance = current_balance + $1, updated_at = CURRENT_TIMESTAMP
-      WHERE id = $2
-    `;
-
-    await this.db.query(query, [amount, customerId]);
-  }
-
-  async getOutstandingBalance(customerId: string): Promise<number> {
-    const query = `
-      SELECT COALESCE(SUM(balance_due), 0) as outstanding
+      SELECT COALESCE(SUM(balance_due), 0) as outstanding_balance
       FROM invoices
-      WHERE customer_id = $1 AND status != 'cancelled' AND balance_due > 0
+      WHERE customer_id = ? AND company_id = ? AND status != 'cancelled'
     `;
 
-    const result = await this.db.query(query, [customerId]);
-    return parseFloat(result.rows[0].outstanding) || 0;
+    const result = await this.db.query(query, [customerId, companyId]);
+    return parseFloat(result.rows[0].outstanding_balance) || 0;
+  }
+
+  async updateBalance(
+    customerId: string,
+    companyId: string,
+    amount: number,
+    operation: "increase" | "decrease",
+  ): Promise<void> {
+    const operator = operation === "increase" ? "+" : "-";
+    const query = `
+      UPDATE customers 
+      SET current_balance = current_balance ${operator} ?, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ? AND company_id = ?
+    `;
+
+    await this.db.query(query, [Math.abs(amount), customerId, companyId]);
   }
 }
 
