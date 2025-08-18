@@ -160,8 +160,14 @@ export default function QuotationDetails() {
         dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
       };
 
-      const activeTemplate = TemplateManager.getActiveTemplate("quotation") || TemplateManager.getActiveTemplate("invoice");
-      await PDFService.generateInvoicePDF(invoiceData, true, activeTemplate?.id);
+      const activeTemplate =
+        TemplateManager.getActiveTemplate("quotation") ||
+        TemplateManager.getActiveTemplate("invoice");
+      await PDFService.generateInvoicePDF(
+        invoiceData,
+        true,
+        activeTemplate?.id,
+      );
 
       toast({
         title: "Success",

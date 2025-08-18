@@ -125,13 +125,12 @@ export default function Quotations() {
       const loadData = async () => {
         try {
           console.log("Refreshing quotations data after creation...");
-          const [quotationsData, customersData, productsData] = await Promise.all(
-            [
+          const [quotationsData, customersData, productsData] =
+            await Promise.all([
               businessData.getQuotations(),
               businessData.getCustomers(),
               businessData.getProducts(),
-            ],
-          );
+            ]);
           setQuotations(Array.isArray(quotationsData) ? quotationsData : []);
           setCustomers(Array.isArray(customersData) ? customersData : []);
           setProducts(Array.isArray(productsData) ? productsData : []);
@@ -142,7 +141,7 @@ export default function Quotations() {
       };
 
       loadData();
-      
+
       // Clear the refresh parameter from URL
       const newSearchParams = new URLSearchParams(searchParams);
       newSearchParams.delete("refresh");
@@ -190,7 +189,6 @@ export default function Quotations() {
         return "secondary";
     }
   };
-
 
   const handleDuplicate = (quotation: Quotation) => {
     navigate("/quotations/new", {
@@ -289,11 +287,14 @@ export default function Quotations() {
 
       {/* Statistics Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => {
-          // Show all quotations when clicking total
-          setSearchTerm("");
-          setStatusFilter("all");
-        }}>
+        <Card
+          className="cursor-pointer hover:bg-accent/50 transition-colors"
+          onClick={() => {
+            // Show all quotations when clicking total
+            setSearchTerm("");
+            setStatusFilter("all");
+          }}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Total Quotations
@@ -307,11 +308,14 @@ export default function Quotations() {
             </p>
           </CardContent>
         </Card>
-        <Card className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => {
-          // Filter to show only accepted quotations
-          setSearchTerm("");
-          setStatusFilter("accepted");
-        }}>
+        <Card
+          className="cursor-pointer hover:bg-accent/50 transition-colors"
+          onClick={() => {
+            // Filter to show only accepted quotations
+            setSearchTerm("");
+            setStatusFilter("accepted");
+          }}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Accepted</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
@@ -323,11 +327,14 @@ export default function Quotations() {
             </p>
           </CardContent>
         </Card>
-        <Card className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => {
-          // Filter to show only pending quotations
-          setSearchTerm("");
-          setStatusFilter("sent");
-        }}>
+        <Card
+          className="cursor-pointer hover:bg-accent/50 transition-colors"
+          onClick={() => {
+            // Filter to show only pending quotations
+            setSearchTerm("");
+            setStatusFilter("sent");
+          }}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pending</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
@@ -339,18 +346,23 @@ export default function Quotations() {
             </p>
           </CardContent>
         </Card>
-        <Card className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => {
-          // Reset filters to show all quotations when clicking total value
-          setSearchTerm("");
-          setStatusFilter("all");
-        }}>
+        <Card
+          className="cursor-pointer hover:bg-accent/50 transition-colors"
+          onClick={() => {
+            // Reset filters to show all quotations when clicking total value
+            setSearchTerm("");
+            setStatusFilter("all");
+          }}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Value</CardTitle>
             <Calculator className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(quotations.reduce((sum, q) => sum + (q.total || 0), 0))}
+              {formatCurrency(
+                quotations.reduce((sum, q) => sum + (q.total || 0), 0),
+              )}
             </div>
             <p className="text-xs text-muted-foreground">
               Total quotations value • Click to view all

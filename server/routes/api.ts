@@ -399,10 +399,11 @@ router.get("/quotations", async (req, res) => {
     );
 
     // Transform database rows to match frontend interface and fetch items
-    const transformedQuotations = await Promise.all(result.rows.map(async (row: any) => {
-      // Fetch quotation items
-      const itemsResult = await Database.query(
-        `SELECT
+    const transformedQuotations = await Promise.all(
+      result.rows.map(async (row: any) => {
+        // Fetch quotation items
+        const itemsResult = await Database.query(
+          `SELECT
            qi.*,
            p.name as product_name,
            p.sku as product_sku
@@ -410,48 +411,49 @@ router.get("/quotations", async (req, res) => {
          LEFT JOIN products p ON qi.product_id = p.id
          WHERE qi.quotation_id = ?
          ORDER BY qi.sort_order`,
-        [row.id]
-      );
+          [row.id],
+        );
 
-      const items = itemsResult.rows.map((item: any) => ({
-        id: item.id,
-        productId: item.product_id,
-        product: {
-          id: item.product_id,
-          name: item.product_name || item.description,
-          sku: item.product_sku || '',
-        },
-        quantity: parseFloat(item.quantity || 0),
-        unitPrice: parseFloat(item.unit_price || 0),
-        discount: parseFloat(item.discount_percentage || 0),
-        vatRate: parseFloat(item.tax_rate || 0),
-        total: parseFloat(item.line_total || 0),
-      }));
+        const items = itemsResult.rows.map((item: any) => ({
+          id: item.id,
+          productId: item.product_id,
+          product: {
+            id: item.product_id,
+            name: item.product_name || item.description,
+            sku: item.product_sku || "",
+          },
+          quantity: parseFloat(item.quantity || 0),
+          unitPrice: parseFloat(item.unit_price || 0),
+          discount: parseFloat(item.discount_percentage || 0),
+          vatRate: parseFloat(item.tax_rate || 0),
+          total: parseFloat(item.line_total || 0),
+        }));
 
-      return {
-        id: row.id,
-        quoteNumber: row.quote_number,
-        customerId: row.customer_id,
-        customer: {
-          id: row.customer_id,
-          name: row.customer_name,
-          email: row.customer_email,
-        },
-        items,
-        subtotal: parseFloat(row.subtotal || 0),
-        vatAmount: parseFloat(row.tax_amount || 0),
-        discountAmount: parseFloat(row.discount_amount || 0),
-        total: parseFloat(row.total_amount || 0),
-        status: row.status,
-        validUntil: row.valid_until,
-        issueDate: row.issue_date,
-        notes: row.notes,
-        companyId: row.company_id,
-        createdBy: row.created_by,
-        createdAt: row.created_at,
-        updatedAt: row.updated_at,
-      };
-    }));
+        return {
+          id: row.id,
+          quoteNumber: row.quote_number,
+          customerId: row.customer_id,
+          customer: {
+            id: row.customer_id,
+            name: row.customer_name,
+            email: row.customer_email,
+          },
+          items,
+          subtotal: parseFloat(row.subtotal || 0),
+          vatAmount: parseFloat(row.tax_amount || 0),
+          discountAmount: parseFloat(row.discount_amount || 0),
+          total: parseFloat(row.total_amount || 0),
+          status: row.status,
+          validUntil: row.valid_until,
+          issueDate: row.issue_date,
+          notes: row.notes,
+          companyId: row.company_id,
+          createdBy: row.created_by,
+          createdAt: row.created_at,
+          updatedAt: row.updated_at,
+        };
+      }),
+    );
 
     res.json({
       success: true,
@@ -542,8 +544,13 @@ router.post("/quotations", async (req, res) => {
     const connection = await Database.getConnection();
     try {
       // Insert quotation using string formatting to avoid prepared statement issues
-      const validUntil = quotationData.validUntil || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-      const issueDate = quotationData.issueDate || new Date().toISOString().split('T')[0];
+      const validUntil =
+        quotationData.validUntil ||
+        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0];
+      const issueDate =
+        quotationData.issueDate || new Date().toISOString().split("T")[0];
       const notes = (quotationData.notes || "").replace(/'/g, "''"); // Escape single quotes
 
       await connection.query(
