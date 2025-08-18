@@ -219,11 +219,20 @@ router.get("/search", async (req, res) => {
 
 // Get product by ID
 router.get("/:id", async (req, res) => {
+  console.log("🔍 GET /api/products/:id endpoint called for ID:", req.params.id);
   try {
     const companyId =
       (req.headers["x-company-id"] as string) ||
       "00000000-0000-0000-0000-000000000001";
+    console.log("🏢 Company ID:", companyId);
+
     const product = await productRepository.findById(req.params.id, companyId);
+    console.log("📦 Product found:", !!product);
+    if (product) {
+      console.log("📋 Product fields:", Object.keys(product));
+      console.log("🔍 Category ID:", product.categoryId);
+      console.log("🔍 Unit of Measure:", product.unitOfMeasure);
+    }
 
     if (!product) {
       return res.status(404).json({
