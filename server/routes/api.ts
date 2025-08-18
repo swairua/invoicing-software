@@ -530,8 +530,9 @@ router.post("/quotations", async (req, res) => {
             `INSERT INTO quotation_items
              (id, quotation_id, product_id, description, quantity, unit_price,
               discount_percentage, vat_rate, vat_amount, line_total, sort_order)
-             VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
+              randomUUID(),
               quotationId,
               item.productId,
               item.product?.name || "",
