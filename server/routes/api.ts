@@ -33,6 +33,37 @@ router.get("/health", async (req, res) => {
   }
 });
 
+// Database execute endpoint for testing
+router.post("/database/execute", async (req, res) => {
+  try {
+    const { query, params = [] } = req.body;
+
+    if (!query) {
+      return res.status(400).json({
+        success: false,
+        error: "Query is required"
+      });
+    }
+
+    console.log("🔍 Executing query:", query);
+    console.log("���� With params:", params);
+
+    const result = await Database.query(query, params);
+
+    res.json({
+      success: true,
+      data: result,
+      rowsAffected: result.rowsAffected || result.affectedRows || 0
+    });
+  } catch (error) {
+    console.error("Database execute error:", error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : "Database execution failed"
+    });
+  }
+});
+
 // Simple test endpoint
 router.get("/test", (req, res) => {
   console.log(
