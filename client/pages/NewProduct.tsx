@@ -177,7 +177,7 @@ export default function NewProduct() {
           tags: Array.isArray(productData.tags) ? productData.tags.join(", ") :
                 typeof productData.tags === 'string' ? productData.tags : "",
           taxable: productData.isTaxable ?? productData.taxable ?? true,
-          taxRate: productData.taxRate || 16,
+          taxRate: Number(productData.taxRate) || 16,
           trackInventory: productData.trackInventory ?? true,
           allowBackorders: productData.allowBackorders ?? false,
           hasVariants: productData.hasVariants ?? false,
