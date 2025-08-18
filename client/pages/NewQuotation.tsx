@@ -61,6 +61,7 @@ interface QuotationFormData {
   issueDate: string;
   validUntil: string;
   notes: string;
+  status: string;
 }
 
 interface QuotationItemFormData {
