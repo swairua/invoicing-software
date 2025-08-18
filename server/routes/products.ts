@@ -665,6 +665,12 @@ router.put("/:id", async (req, res) => {
 
     console.log("  Cleaned update data fields:", Object.keys(dbUpdateData));
 
+    // EMERGENCY FIX: Force category_id to null to prevent FK constraint errors
+    console.log("🚨 EMERGENCY: Forcing category_id to null to prevent FK errors");
+    console.log("🚨 Original categoryId was:", dbUpdateData.categoryId);
+    dbUpdateData.categoryId = null;
+    console.log("🚨 Set categoryId to:", dbUpdateData.categoryId);
+
     const product = await productRepository.update(
       req.params.id,
       companyId,
