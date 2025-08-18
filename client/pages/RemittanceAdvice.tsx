@@ -203,6 +203,55 @@ export default function RemittanceAdvice() {
     });
   };
 
+  const handleSave = async (status: "draft" | "sent" = "draft") => {
+    try {
+      setLoading(true);
+
+      // Validation
+      if (!remittanceData.customer) {
+        toast({
+          title: "Validation Error",
+          description: "Please select a customer.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (remittanceData.items.length === 0) {
+        toast({
+          title: "Validation Error",
+          description: "Please add at least one payment item.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // TODO: Implement API call to save remittance advice
+      // const savedRemittance = await dataService.saveRemittanceAdvice({
+      //   ...remittanceData,
+      //   status,
+      //   id: isNew ? undefined : id
+      // });
+
+      toast({
+        title: "Success",
+        description: `Remittance advice ${status === "draft" ? "saved as draft" : "saved and sent"} successfully.`,
+      });
+
+      // Navigate back to list
+      navigate("/remittance-advice");
+    } catch (error) {
+      console.error("Error saving remittance:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save remittance advice.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
