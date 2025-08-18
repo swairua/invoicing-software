@@ -50,6 +50,144 @@ router.get("/ping", (req, res) => {
   res.json({ pong: true, timestamp: Date.now() });
 });
 
+// Create sample data endpoint (simulates form submissions)
+router.post("/create-sample-data", async (req, res) => {
+  try {
+    console.log("📋 Creating sample data via API calls...");
+    const companyId = req.headers["x-company-id"] as string || "00000000-0000-0000-0000-000000000001";
+
+    // Sample customers data
+    const sampleCustomers = [
+      {
+        name: 'Nairobi Medical Center',
+        email: 'procurement@nairobimedical.co.ke',
+        phone: '+254-700-123456',
+        kraPin: 'P051234567X',
+        addressLine1: '123 Uhuru Highway',
+        addressLine2: 'Medical Plaza, 5th Floor',
+        city: 'Nairobi',
+        postalCode: '00100',
+        country: 'Kenya',
+        creditLimit: 500000,
+        paymentTerms: 30,
+        isActive: true,
+        companyId
+      },
+      {
+        name: 'Coast General Hospital',
+        email: 'supplies@coastgeneral.co.ke',
+        phone: '+254-722-987654',
+        kraPin: 'P052345678Y',
+        addressLine1: '456 Moi Avenue',
+        addressLine2: 'Hospital Complex',
+        city: 'Mombasa',
+        postalCode: '80100',
+        country: 'Kenya',
+        creditLimit: 300000,
+        paymentTerms: 14,
+        isActive: true,
+        companyId
+      }
+    ];
+
+    // Sample products data
+    const sampleProducts = [
+      {
+        name: 'Latex Rubber Gloves Bicolor Reusable XL',
+        description: 'High-quality latex rubber gloves for medical and industrial use. Bicolor design for enhanced grip and visibility.',
+        sku: 'LRG-XL-001',
+        barcode: '1234567890123',
+        unit: 'Pair',
+        purchasePrice: 400,
+        sellingPrice: 500,
+        wholesalePrice: 450,
+        retailPrice: 500,
+        minStock: 50,
+        maxStock: 1000,
+        currentStock: 450,
+        reorderLevel: 100,
+        location: 'A1-B2',
+        trackInventory: true,
+        taxable: true,
+        taxRate: 16,
+        isActive: true,
+        hasVariants: false,
+        allowBackorders: true,
+        weight: 0.15,
+        companyId
+      },
+      {
+        name: 'Digital Blood Pressure Monitor',
+        description: 'Accurate digital blood pressure monitoring device with large LCD display and memory function.',
+        sku: 'DBP-001',
+        barcode: '2345678901234',
+        unit: 'Piece',
+        purchasePrice: 2500,
+        sellingPrice: 3500,
+        wholesalePrice: 3000,
+        retailPrice: 3500,
+        minStock: 5,
+        maxStock: 100,
+        currentStock: 25,
+        reorderLevel: 10,
+        location: 'B2-C3',
+        trackInventory: true,
+        taxable: true,
+        taxRate: 16,
+        isActive: true,
+        hasVariants: false,
+        allowBackorders: false,
+        weight: 0.8,
+        companyId
+      }
+    ];
+
+    const results = { customers: [], products: [] };
+
+    // Create customers using the same logic as forms
+    console.log("👥 Creating sample customers...");
+    for (const customerData of sampleCustomers) {
+      try {
+        const customer = await customerRepository.create(customerData);
+        results.customers.push(customer);
+        console.log(`✅ Created customer: ${customer.name}`);
+      } catch (error) {
+        console.error(`❌ Failed to create customer ${customerData.name}:`, error);
+      }
+    }
+
+    // Create products using the same logic as forms
+    console.log("🏥 Creating sample products...");
+    for (const productData of sampleProducts) {
+      try {
+        const product = await productRepository.create(productData);
+        results.products.push(product);
+        console.log(`✅ Created product: ${product.name}`);
+      } catch (error) {
+        console.error(`❌ Failed to create product ${productData.name}:`, error);
+      }
+    }
+
+    res.json({
+      success: true,
+      message: "Sample data created successfully",
+      data: results,
+      summary: {
+        customersCreated: results.customers.length,
+        productsCreated: results.products.length
+      }
+    });
+
+  } catch (error) {
+    console.error("❌ Error creating sample data:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to create sample data",
+      details: error.message
+    });
+  }
+});
+
 // Database test endpoint
 router.get("/test-db", async (req, res) => {
   try {
