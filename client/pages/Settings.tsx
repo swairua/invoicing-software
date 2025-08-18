@@ -46,6 +46,7 @@ import { CompanySettings, defaultCompanySettings } from "@shared/company";
 import PDFService from "../services/pdfService";
 
 export default function Settings() {
+  const navigate = useNavigate();
   const [companySettings, setCompanySettings] = useState<CompanySettings>(
     defaultCompanySettings,
   );
