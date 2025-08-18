@@ -415,10 +415,10 @@ export default function NewQuotation() {
 
       navigate("/quotations?refresh=true");
     } catch (error) {
-      console.error("Error creating quotation:", error);
+      console.error(`Error ${isEditMode ? 'updating' : 'creating'} quotation:`, error);
       toast({
         title: "Error",
-        description: "Failed to create quotation. Please try again.",
+        description: `Failed to ${isEditMode ? 'update' : 'create'} quotation. Please try again.`,
         variant: "destructive",
       });
     } finally {
