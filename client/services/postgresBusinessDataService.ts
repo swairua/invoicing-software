@@ -412,6 +412,9 @@ class PostgresBusinessDataService {
         createdAt: new Date(q.created_at),
         updatedAt: new Date(q.updated_at),
       }));
+
+      console.log("✨ Transformed quotations:", transformedQuotations);
+      return transformedQuotations;
     } catch (error) {
       console.error("Failed to fetch quotations:", error);
       throw new Error(
