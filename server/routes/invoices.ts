@@ -220,31 +220,38 @@ router.get("/:id", async (req, res) => {
 
     const result = await Database.query(
       `
-      SELECT 
+      SELECT
         i.*,
         c.name as customer_name,
         c.email as customer_email,
-        c.phone as customer_phone,
-        json_agg(
-          json_build_object(
-            'id', ii.id,
-            'product_id', ii.product_id,
-            'product_name', p.name,
-            'quantity', ii.quantity,
-            'unit_price', ii.unit_price,
-            'vat_rate', ii.vat_rate,
-            'vat_amount', ii.vat_amount,
-            'line_total', ii.line_total
-          ) ORDER BY ii.sort_order
-        ) as items
+        c.phone as customer_phone
       FROM invoices i
       JOIN customers c ON i.customer_id = c.id
-      LEFT JOIN invoice_items ii ON i.id = ii.invoice_id
-      LEFT JOIN products p ON ii.product_id = p.id
-      WHERE i.id = $1 AND i.company_id = $2
-      GROUP BY i.id, c.name, c.email, c.phone
+      WHERE i.id = ? AND i.company_id = ?
     `,
       [id, companyId],
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Invoice not found",
+      });
+    }
+
+    // Get invoice items separately
+    const itemsResult = await Database.query(
+      `
+      SELECT
+        ii.*,
+        p.name as product_name,
+        p.sku as product_sku
+      FROM invoice_items ii
+      LEFT JOIN products p ON ii.product_id = p.id
+      WHERE ii.invoice_id = ?
+      ORDER BY ii.sort_order
+      `,
+      [id]
     );
 
     if (result.rows.length === 0) {
