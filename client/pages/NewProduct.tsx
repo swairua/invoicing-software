@@ -385,9 +385,8 @@ export default function NewProduct() {
           updatedAt: new Date(),
         };
 
-        // Call the real update API - remove fields that shouldn't be sent to backend
-        const { categoryName, ...cleanUpdatedProduct } = updatedProduct;
-        await dataService.updateProduct(product.id, cleanUpdatedProduct);
+        // Call the real update API
+        await dataService.updateProduct(product.id, updatedProduct);
 
         toast({
           title: "Product Updated",
