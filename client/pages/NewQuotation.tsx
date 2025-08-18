@@ -895,12 +895,12 @@ export default function NewQuotation() {
               >
                 <Save className="mr-2 h-4 w-4" />
                 {isSubmitting
-                  ? "Creating..."
+                  ? isEditMode ? "Updating..." : "Creating..."
                   : !formData.customerId
                     ? "Select Customer First"
                     : items.length === 0
                       ? "Add Items to Continue"
-                      : "Create Quotation"}
+                      : isEditMode ? "Update Quotation" : "Create Quotation"}
               </Button>
             </div>
           </div>
