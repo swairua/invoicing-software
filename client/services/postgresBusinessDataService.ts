@@ -29,7 +29,11 @@ class PostgresBusinessDataService {
     options: RequestInit = {},
   ): Promise<any> {
     const url = `${this.baseUrl}${endpoint}`;
-    console.log(`Making API call to: ${url}`);
+    console.log(`🌐 Making API call to: ${url}`);
+    console.log(`🌐 Base URL: ${this.baseUrl}`);
+    console.log(`🌐 Endpoint: ${endpoint}`);
+    console.log(`🌐 Full URL: ${url}`);
+    console.log(`🌐 Current window location:`, window.location.href);
 
     // Get company ID from localStorage (stored by auth system)
     const userData = localStorage.getItem("user_data");
@@ -37,32 +41,53 @@ class PostgresBusinessDataService {
       ? JSON.parse(userData).companyId
       : "00000000-0000-0000-0000-000000000001";
 
-    try {
-      const response = await fetch(url, {
-        headers: {
-          "Content-Type": "application/json",
-          "x-company-id": companyId,
-          ...options.headers,
-        },
-        ...options,
-      });
+    console.log(`🏢 Using company ID: ${companyId}`);
 
-      console.log(
-        `API response status: ${response.status} ${response.statusText}`,
-      );
+    const requestOptions = {
+      headers: {
+        "Content-Type": "application/json",
+        "x-company-id": companyId,
+        ...options.headers,
+      },
+      ...options,
+    };
+
+    console.log(`📤 Request options:`, requestOptions);
+
+    try {
+      console.log(`🔄 Starting fetch request to ${url}...`);
+      const response = await fetch(url, requestOptions);
+
+      console.log(`📥 Response received:`, {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+        headers: Object.fromEntries([...response.headers.entries()]),
+        url: response.url,
+        type: response.type,
+        redirected: response.redirected
+      });
 
       if (!response.ok) {
         console.error(
-          `API call failed: ${response.status} ${response.statusText}`,
+          `❌ API call failed: ${response.status} ${response.statusText}`,
         );
+        const responseText = await response.text();
+        console.error(`❌ Response body:`, responseText);
         throw new Error(`API call failed: ${response.statusText}`);
       }
 
       const data = await response.json();
-      console.log(`API call successful for ${endpoint}`);
+      console.log(`✅ API call successful for ${endpoint}`, data);
       return data;
     } catch (error) {
-      console.error(`API call error for ${endpoint}:`, error);
+      console.error(`💥 API call error for ${endpoint}:`, error);
+      console.error(`💥 Error details:`, {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+        cause: error.cause
+      });
       throw error;
     }
   }
