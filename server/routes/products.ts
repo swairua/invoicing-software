@@ -9,7 +9,7 @@ router.get("/", async (req, res) => {
   try {
     const companyId =
       (req.headers["x-company-id"] as string) ||
-      "550e8400-e29b-41d4-a716-446655440000";
+      "00000000-0000-0000-0000-000000000001";
     console.log("🏢 Company ID:", companyId);
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 50;
@@ -107,7 +107,7 @@ router.get("/low-stock", async (req, res) => {
   try {
     const companyId =
       (req.headers["x-company-id"] as string) ||
-      "550e8400-e29b-41d4-a716-446655440000";
+      "00000000-0000-0000-0000-000000000001";
     const products = await productRepository.getLowStockProducts(companyId);
 
     res.json({
@@ -154,7 +154,7 @@ router.get("/search", async (req, res) => {
   try {
     const companyId =
       (req.headers["x-company-id"] as string) ||
-      "550e8400-e29b-41d4-a716-446655440000";
+      "00000000-0000-0000-0000-000000000001";
     const searchTerm = req.query.q as string;
     const limit = parseInt(req.query.limit as string) || 10;
 
@@ -222,7 +222,7 @@ router.get("/:id", async (req, res) => {
   try {
     const companyId =
       (req.headers["x-company-id"] as string) ||
-      "550e8400-e29b-41d4-a716-446655440000";
+      "00000000-0000-0000-0000-000000000001";
     const product = await productRepository.findById(req.params.id, companyId);
 
     if (!product) {
@@ -280,7 +280,7 @@ router.post("/", async (req, res) => {
   try {
     const companyId =
       (req.headers["x-company-id"] as string) ||
-      "550e8400-e29b-41d4-a716-446655440000";
+      "00000000-0000-0000-0000-000000000001";
     const userId =
       (req.headers["x-user-id"] as string) ||
       "550e8400-e29b-41d4-a716-446655440001";
@@ -397,7 +397,7 @@ router.put("/:id", async (req, res) => {
   try {
     const companyId =
       (req.headers["x-company-id"] as string) ||
-      "550e8400-e29b-41d4-a716-446655440000";
+      "00000000-0000-0000-0000-000000000001";
 
     console.log("🔍 Product update request:");
     console.log("  Product ID:", req.params.id);
@@ -636,7 +636,7 @@ router.delete("/:id", async (req, res) => {
   try {
     const companyId =
       (req.headers["x-company-id"] as string) ||
-      "550e8400-e29b-41d4-a716-446655440000";
+      "00000000-0000-0000-0000-000000000001";
 
     const success = await productRepository.delete(req.params.id, companyId);
 
