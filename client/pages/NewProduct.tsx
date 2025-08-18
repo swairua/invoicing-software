@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation, Link, useParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useForm, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -24,6 +26,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../components/ui/form";
 import { Switch } from "../components/ui/switch";
 import { Badge } from "../components/ui/badge";
 import {
@@ -35,68 +46,24 @@ import {
   Tag,
   Plus,
   X,
-  Upload,
-  Image as ImageIcon,
   Barcode,
   Weight,
   Ruler,
   MapPin,
 } from "lucide-react";
-import {
-  Product,
-  ProductDimensions,
-  ProductVariant,
-  ProductCategory,
-} from "@shared/types";
-import { UnitConverter } from "@shared/units";
+import { Product, ProductCategory } from "@shared/types";
+import { productSchema, ProductFormData, productVariantSchema, ProductVariantFormData } from "@shared/validation";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import { useToast } from "../hooks/use-toast";
 import { useAuth } from "../hooks/use-auth";
 
-interface ProductFormData {
-  name: string;
-  description: string;
-  sku: string;
-  barcode: string;
-  category: string; // Category ID
-  subcategory: string;
-  brand: string;
-  supplier: string;
-  unit: string;
-  weight: string;
-  dimensions: ProductDimensions;
-  purchasePrice: string;
-  sellingPrice: string;
-  wholesalePrice: string;
-  retailPrice: string;
-  minStock: string;
-  maxStock: string;
-  currentStock: string;
-  reorderLevel: string;
-  location: string;
-  binLocation: string;
-  tags: string;
-  taxable: boolean;
-  taxRate: string;
-  trackInventory: boolean;
-  allowBackorders: boolean;
-  hasVariants: boolean;
-  notes: string;
-  status: "active" | "inactive" | "discontinued" | "out_of_stock";
-}
-
-interface VariantFormData {
-  name: string;
-  sku: string;
-  attributes: Array<{ key: string; value: string }>;
-  price: string;
-  stock: string;
-  isActive: boolean;
+interface ProductFormProps {
+  isEditMode?: boolean;
+  product?: Product;
 }
 
 export default function NewProduct() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
   const { user } = useAuth();
