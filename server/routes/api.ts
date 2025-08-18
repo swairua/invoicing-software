@@ -716,7 +716,7 @@ router.get("/credit-notes", async (req, res) => {
         c.email as customer_email
       FROM credit_notes cn
       JOIN customers c ON cn.customer_id = c.id
-      WHERE cn.company_id = $1
+      WHERE cn.company_id = ?
       ORDER BY cn.created_at DESC
       LIMIT 50
     `,
