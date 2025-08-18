@@ -125,6 +125,14 @@ export default function NewProduct() {
     }
   }, [id]);
 
+  // Setup categories if none exist
+  useEffect(() => {
+    if (categories.length === 0) {
+      console.log("🔧 Setting up categories automatically...");
+      loadCategories();
+    }
+  }, [categories.length]);
+
   const loadCategories = async () => {
     try {
       const categoriesData = await dataService.getCategories();
