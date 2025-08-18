@@ -674,11 +674,10 @@ router.post("/:id/payments", async (req, res) => {
     const paymentResult = await Database.query(
       `
       INSERT INTO payments (
-        company_id, customer_id, invoice_id, amount, payment_method,
+        id, company_id, customer_id, invoice_id, amount, payment_method,
         reference_number, payment_date, notes, created_by
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-      RETURNING *
+      VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
       [
         companyId,
@@ -691,6 +690,12 @@ router.post("/:id/payments", async (req, res) => {
         notes,
         userId,
       ],
+    );
+
+    // Get the created payment
+    const createdPaymentResult = await Database.query(
+      `SELECT * FROM payments WHERE invoice_id = ? AND amount = ? AND payment_date >= ? ORDER BY created_at DESC LIMIT 1`,
+      [id, amount, new Date()]
     );
 
     res.status(201).json({
