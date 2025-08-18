@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Quotation Items</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; background: #f9f9f9; }
+        .result { background: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 3px; white-space: pre-wrap; font-family: monospace; max-height: 300px; overflow-y: auto; }
+        button { padding: 8px 16px; margin: 5px; background: #007cba; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #005a8b; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .error { background: #ffe6e6; border-left: 4px solid #ff0000; }
+        .success { background: #e6ffe6; border-left: 4px solid #00ff00; }
+        .warning { background: #fff3cd; border-left: 4px solid #ffc107; }
+        .step { margin: 10px 0; padding: 10px; background: white; border-radius: 5px; }
+        .progress { text-align: center; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <h1>🛠️ Add Items to Existing Quotations</h1>
+    <p><strong>This tool will add sample items to existing quotations that don't have any items.</strong></p>
+    
+    <div class="progress">
+        <div id="overall-status">Ready to start...</div>
+    </div>
+
+    <div class="section">
+        <h3>Step 1: Load Quotations and Products</h3>
+        <button onclick="loadData()" id="load-btn">Load Data</button>
+        <div id="load-result" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h3>Step 2: Add Items to Quotations</h3>
+        <button onclick="addItemsToAll()" id="add-btn" disabled>Add Items to All Quotations</button>
+        <div id="add-result" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h3>Step 3: Verify Results</h3>
+        <button onclick="verifyResults()" id="verify-btn" disabled>Verify Quotations Have Items</button>
+        <div id="verify-result" class="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        const COMPANY_ID = '00000000-0000-0000-0000-000000000001';
+        
+        let quotations = [];
+        let products = [];
+        let processedCount = 0;
+
+        function updateStatus(message) {
+            document.getElementById('overall-status').textContent = message;
+        }
+
+        function logResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            element.textContent += `[${timestamp}] ${message}\n`;
+            element.className = `result ${type}`;
+            element.scrollTop = element.scrollHeight;
+        }
+
+        async function apiCall(endpoint, options = {}) {
+            const url = API_BASE + endpoint;
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-company-id': COMPANY_ID,
+                    ...options.headers
+                },
+                ...options
+            };
+            
+            const response = await fetch(url, config);
+            const result = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(`API Error: ${result.error || response.statusText}`);
+            }
+            
+            return result;
+        }
+
+        async function loadData() {
+            try {
+                updateStatus('Loading quotations and products...');
+                document.getElementById('load-btn').disabled = true;
+                logResult('load-result', 'Starting data load...', 'info');
+
+                // Load quotations
+                logResult('load-result', 'Fetching quotations...', 'info');
+                const quotationsResult = await apiCall('/quotations');
+                quotations = quotationsResult.data || [];
+                logResult('load-result', `✅ Loaded ${quotations.length} quotations`, 'success');
+
+                // Load products
+                logResult('load-result', 'Fetching products...', 'info');
+                const productsResult = await apiCall('/products');
+                products = productsResult.data || [];
+                logResult('load-result', `✅ Loaded ${products.length} products`, 'success');
+
+                if (quotations.length === 0) {
+                    logResult('load-result', '❌ No quotations found!', 'error');
+                    return;
+                }
+
+                if (products.length === 0) {
+                    logResult('load-result', '❌ No products found!', 'error');
+                    return;
+                }
+
+                // Check which quotations need items
+                let needItems = 0;
+                for (const quotation of quotations) {
+                    try {
+                        const details = await apiCall(`/quotations/${quotation.id}`);
+                        if (!details.data.items || details.data.items.length === 0) {
+                            needItems++;
+                        }
+                    } catch (error) {
+                        logResult('load-result', `⚠️ Could not check quotation ${quotation.quote_number}: ${error.message}`, 'warning');
+                    }
+                }
+
+                logResult('load-result', `📊 ${needItems} quotations need items`, 'info');
+                logResult('load-result', '✅ Ready to add items!', 'success');
+
+                document.getElementById('add-btn').disabled = false;
+                updateStatus(`Ready: ${quotations.length} quotations, ${products.length} products loaded`);
+
+            } catch (error) {
+                logResult('load-result', `❌ Error loading data: ${error.message}`, 'error');
+                updateStatus('Error loading data');
+            } finally {
+                document.getElementById('load-btn').disabled = false;
+            }
+        }
+
+        async function addItemsToAll() {
+            try {
+                updateStatus('Adding items to quotations...');
+                document.getElementById('add-btn').disabled = true;
+                logResult('add-result', 'Starting to add items to quotations...', 'info');
+
+                processedCount = 0;
+                let successCount = 0;
+                let skipCount = 0;
+
+                for (const quotation of quotations) {
+                    try {
+                        // Check if quotation already has items
+                        const details = await apiCall(`/quotations/${quotation.id}`);
+                        if (details.data.items && details.data.items.length > 0) {
+                            logResult('add-result', `⏭️ Skipping ${quotation.quote_number} - already has items`, 'warning');
+                            skipCount++;
+                            continue;
+                        }
+
+                        // Add 1-3 random items
+                        const numItems = Math.floor(Math.random() * 3) + 1;
+                        const selectedProducts = products.slice(0, numItems);
+                        
+                        logResult('add-result', `➕ Adding ${numItems} items to ${quotation.quote_number}...`, 'info');
+
+                        let totalAmount = 0;
+                        let totalVat = 0;
+
+                        for (let i = 0; i < selectedProducts.length; i++) {
+                            const product = selectedProducts[i];
+                            const quantity = Math.floor(Math.random() * 5) + 1;
+                            const unitPrice = parseFloat(product.sellingPrice) || 100;
+                            const vatRate = 16;
+                            
+                            const subtotal = quantity * unitPrice;
+                            const vatAmount = (subtotal * vatRate) / 100;
+                            const lineTotal = subtotal + vatAmount;
+                            
+                            totalAmount += lineTotal;
+                            totalVat += vatAmount;
+
+                            // Insert item using database execute endpoint
+                            await apiCall('/database/execute', {
+                                method: 'POST',
+                                body: JSON.stringify({
+                                    query: `INSERT INTO quotation_items (
+                                        id, quotation_id, product_id, description, quantity, 
+                                        unit_price, discount_percentage, discount_amount, 
+                                        tax_rate, tax_amount, line_total, sort_order
+                                    ) VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                                    params: [
+                                        quotation.id,
+                                        product.id,
+                                        product.name,
+                                        quantity,
+                                        unitPrice,
+                                        0, // discount_percentage
+                                        0, // discount_amount
+                                        vatRate,
+                                        vatAmount,
+                                        lineTotal,
+                                        i + 1
+                                    ]
+                                })
+                            });
+
+                            logResult('add-result', `   ✅ ${quantity}x ${product.name} @ ${unitPrice} = ${lineTotal.toFixed(2)}`, 'success');
+                        }
+
+                        // Update quotation totals
+                        const subtotal = totalAmount - totalVat;
+                        await apiCall('/database/execute', {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                query: 'UPDATE quotations SET subtotal = ?, tax_amount = ?, total_amount = ? WHERE id = ?',
+                                params: [subtotal, totalVat, totalAmount, quotation.id]
+                            })
+                        });
+
+                        logResult('add-result', `💰 Updated ${quotation.quote_number}: Subtotal: ${subtotal.toFixed(2)}, VAT: ${totalVat.toFixed(2)}, Total: ${totalAmount.toFixed(2)}`, 'success');
+                        successCount++;
+
+                    } catch (error) {
+                        logResult('add-result', `❌ Error processing ${quotation.quote_number}: ${error.message}`, 'error');
+                    }
+
+                    processedCount++;
+                    updateStatus(`Processing quotations: ${processedCount}/${quotations.length}`);
+                }
+
+                logResult('add-result', `\n🎉 Finished! Successfully processed ${successCount} quotations, skipped ${skipCount}`, 'success');
+                updateStatus(`Completed: ${successCount} quotations updated`);
+
+                document.getElementById('verify-btn').disabled = false;
+
+            } catch (error) {
+                logResult('add-result', `❌ Error adding items: ${error.message}`, 'error');
+                updateStatus('Error adding items');
+            } finally {
+                document.getElementById('add-btn').disabled = false;
+            }
+        }
+
+        async function verifyResults() {
+            try {
+                updateStatus('Verifying results...');
+                document.getElementById('verify-btn').disabled = true;
+                logResult('verify-result', 'Verifying quotations have items...', 'info');
+
+                let withItems = 0;
+                let withoutItems = 0;
+
+                for (const quotation of quotations) {
+                    try {
+                        const details = await apiCall(`/quotations/${quotation.id}`);
+                        const itemCount = details.data.items ? details.data.items.length : 0;
+                        
+                        if (itemCount > 0) {
+                            withItems++;
+                            logResult('verify-result', `✅ ${quotation.quote_number}: ${itemCount} items, Total: ${details.data.total_amount || 0}`, 'success');
+                        } else {
+                            withoutItems++;
+                            logResult('verify-result', `❌ ${quotation.quote_number}: No items`, 'error');
+                        }
+                    } catch (error) {
+                        logResult('verify-result', `❌ Error checking ${quotation.quote_number}: ${error.message}`, 'error');
+                        withoutItems++;
+                    }
+                }
+
+                logResult('verify-result', `\n📊 Summary: ${withItems} quotations with items, ${withoutItems} without items`, 'info');
+                updateStatus(`Verification complete: ${withItems}/${quotations.length} have items`);
+
+            } catch (error) {
+                logResult('verify-result', `❌ Error verifying: ${error.message}`, 'error');
+                updateStatus('Error during verification');
+            } finally {
+                document.getElementById('verify-btn').disabled = false;
+            }
+        }
+
+        // Auto-start
+        window.onload = function() {
+            updateStatus('Ready to load data');
+        };
+    </script>
+</body>
+</html>
