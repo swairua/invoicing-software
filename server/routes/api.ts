@@ -529,8 +529,7 @@ router.post("/quotations", async (req, res) => {
 
       // Get the created quotation
       const [createdQuotationRows] = await connection.query(
-        `SELECT * FROM quotations WHERE id = ?`,
-        [quotationId],
+        `SELECT * FROM quotations WHERE id = '${quotationId}'`,
       );
 
       const result = (createdQuotationRows as any[])[0];
