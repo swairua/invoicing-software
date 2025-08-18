@@ -57,8 +57,36 @@
             }
         }
         
+        async function createSampleDataDirect() {
+            addResult('<h3>🚀 Creating sample data directly...</h3>');
+
+            try {
+                const response = await fetch('/api/create-sample-direct', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-company-id': '00000000-0000-0000-0000-000000000001'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    addResult(`
+                        <h3>✅ Sample data created successfully! (Direct Method)</h3>
+                        <p>${result.message}</p>
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                    `);
+                } else {
+                    addResult(`<h3>❌ Failed to create sample data (Direct)</h3><pre>${JSON.stringify(result, null, 2)}</pre>`, true);
+                }
+            } catch (error) {
+                addResult(`<h3>❌ Network error creating sample data (Direct)</h3><p>${error.message}</p>`, true);
+            }
+        }
+
         async function createSampleData() {
-            addResult('<h3>🚀 Creating sample data...</h3>');
+            addResult('<h3>🚀 Creating sample data via API...</h3>');
             
             try {
                 const response = await fetch('/api/create-sample-data', {
