@@ -4,6 +4,7 @@ import {
   useLocation,
   Link,
   useSearchParams,
+  useParams,
 } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
