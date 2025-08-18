@@ -48,7 +48,7 @@ router.get("/test", (req, res) => {
 
 // Simple ping endpoint for connectivity testing
 router.get("/ping", (req, res) => {
-  console.log("🏓 Ping endpoint called");
+  console.log("�� Ping endpoint called");
   res.json({ pong: true, timestamp: Date.now() });
 });
 
@@ -481,7 +481,7 @@ router.post("/quotations", async (req, res) => {
       );
 
       // Get the created quotation ID
-      const createdQuotationResult = await client.query(
+      const createdQuotationResult = await Database.query(
         `SELECT * FROM quotations WHERE quote_number = ? AND company_id = ?`,
         [quoteNumber, companyId]
       );
@@ -498,7 +498,7 @@ router.post("/quotations", async (req, res) => {
           const afterDiscount = subtotal - discountAmount;
           const vatAmount = (afterDiscount * (item.vatRate || 0)) / 100;
 
-          await client.query(
+          await Database.query(
             `INSERT INTO quotation_items
              (id, quotation_id, product_id, description, quantity, unit_price,
               discount_percentage, vat_rate, vat_amount, line_total, sort_order)
