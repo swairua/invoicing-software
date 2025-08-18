@@ -269,7 +269,9 @@ router.get("/:id", async (req, res) => {
       description: "Sample product description",
       sku: `SKU-${req.params.id}`,
       category: "General",
-      unit: "Piece",
+      categoryId: "00000000-0000-0000-0000-000000000001", // General category ID
+      unitOfMeasure: "piece",
+      unit: "piece",
       purchasePrice: 500,
       sellingPrice: 750,
       minStock: 10,
