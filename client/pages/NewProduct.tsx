@@ -535,6 +535,7 @@ export default function NewProduct() {
                         <FormItem>
                           <FormLabel>Unit *</FormLabel>
                           <Select
+                            key={`unit-${field.value}`}
                             onValueChange={field.onChange}
                             value={field.value || ""}
                           >
