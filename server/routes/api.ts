@@ -482,7 +482,12 @@ router.post("/quotations", async (req, res) => {
         ]
       );
 
-      const quotationId = quotationResult.rows[0].id;
+      // Get the created quotation ID
+      const createdQuotationResult = await client.query(
+        `SELECT * FROM quotations WHERE quote_number = ? AND company_id = ?`,
+        [quoteNumber, companyId]
+      );
+      const quotationId = createdQuotationResult.rows[0].id;
 
       // Insert quotation items
       if (quotationData.items && quotationData.items.length > 0) {
