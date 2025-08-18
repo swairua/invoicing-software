@@ -122,7 +122,7 @@ export default function NewProduct() {
 
   const loadCategories = async () => {
     try {
-      const categoriesData = await dataService.getProductCategories();
+      const categoriesData = await dataService.getCategories();
       setCategories(categoriesData);
     } catch (error) {
       console.error("Failed to load categories:", error);
