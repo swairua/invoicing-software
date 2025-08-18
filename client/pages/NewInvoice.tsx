@@ -93,18 +93,31 @@ export default function NewInvoice() {
   const [productSearch, setProductSearch] = useState("");
 
   const duplicateData = location.state?.duplicateFrom;
+  const conversionData = location.state?.sourceData; // Data from quotation conversion
+  const isConverting = location.state?.convertFrom === "quotation";
   const preselectedCustomerId = searchParams.get("customer");
 
   const [formData, setFormData] = useState<InvoiceFormData>({
-    customerId: preselectedCustomerId || duplicateData?.customerId || "",
+    customerId: preselectedCustomerId ||
+                conversionData?.customerId ||
+                duplicateData?.customerId || "",
     issueDate: new Date().toISOString().split("T")[0],
     dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
       .toISOString()
       .split("T")[0], // 30 days from now
-    notes: duplicateData?.notes || "",
+    notes: conversionData?.notes || duplicateData?.notes || "",
   });
 
   const [items, setItems] = useState<InvoiceItemFormData[]>(
+    conversionData?.items?.map((item: any) => ({
+      productId: item.productId,
+      quantity: item.quantity.toString(),
+      unitPrice: item.unitPrice.toString(),
+      discount: item.discount.toString(),
+      lineItemTaxes: item.lineItemTaxes || [],
+      vatEnabled: item.vatRate > 0,
+      vatRate: item.vatRate || 16,
+    })) ||
     duplicateData?.items?.map((item: any) => ({
       productId: item.productId,
       quantity: item.quantity.toString(),
