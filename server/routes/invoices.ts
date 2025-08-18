@@ -604,7 +604,7 @@ router.patch("/:id/status", async (req, res) => {
       [id, companyId]
     );
 
-    if (result.rows.length === 0) {
+    if (updatedResult.rows.length === 0) {
       return res.status(404).json({
         success: false,
         error: "Invoice not found",
@@ -613,7 +613,7 @@ router.patch("/:id/status", async (req, res) => {
 
     res.json({
       success: true,
-      data: result.rows[0],
+      data: updatedResult.rows[0],
     });
   } catch (error) {
     console.error("Error updating invoice status:", error);
