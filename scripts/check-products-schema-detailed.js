@@ -38,10 +38,15 @@ async function checkProductsSchemaDetailed() {
 
     console.log("📋 Products table columns (detailed):");
     productColumns.rows.forEach((col) => {
-      const length = col.character_maximum_length ? `(${col.character_maximum_length})` : '';
-      const precision = col.numeric_precision && col.numeric_scale ? `(${col.numeric_precision},${col.numeric_scale})` : '';
+      const length = col.character_maximum_length
+        ? `(${col.character_maximum_length})`
+        : "";
+      const precision =
+        col.numeric_precision && col.numeric_scale
+          ? `(${col.numeric_precision},${col.numeric_scale})`
+          : "";
       const typeInfo = `${col.data_type}${length}${precision}`;
-      
+
       console.log(
         `   • ${col.column_name}: ${typeInfo} ${col.is_nullable === "NO" ? "NOT NULL" : "NULL"} ${col.column_default ? `DEFAULT ${col.column_default}` : ""}`,
       );
@@ -69,9 +74,24 @@ async function checkProductsSchemaDetailed() {
 
     if (sampleProduct.rows.length > 0) {
       console.log("\n📄 Sample product data:");
-      console.log("   ID:", typeof sampleProduct.rows[0].id, "->", sampleProduct.rows[0].id);
-      console.log("   Name:", typeof sampleProduct.rows[0].name, "->", sampleProduct.rows[0].name);
-      console.log("   Company ID:", typeof sampleProduct.rows[0].company_id, "->", sampleProduct.rows[0].company_id);
+      console.log(
+        "   ID:",
+        typeof sampleProduct.rows[0].id,
+        "->",
+        sampleProduct.rows[0].id,
+      );
+      console.log(
+        "   Name:",
+        typeof sampleProduct.rows[0].name,
+        "->",
+        sampleProduct.rows[0].name,
+      );
+      console.log(
+        "   Company ID:",
+        typeof sampleProduct.rows[0].company_id,
+        "->",
+        sampleProduct.rows[0].company_id,
+      );
     }
 
     client.release();

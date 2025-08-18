@@ -358,14 +358,36 @@ router.put("/:id", async (req, res) => {
     // Copy safe fields that actually exist in the current PostgreSQL database
     // Using only fields that we know exist based on the actual running database
     const safeFields = [
-      'name', 'description', 'sku', 'barcode', 'category', 'subcategory',
-      'brand', 'supplier', 'purchasePrice', 'sellingPrice', 'markup', 'costPrice',
-      'minStock', 'maxStock', 'currentStock', 'reservedStock', 'availableStock',
-      'reorderLevel', 'location', 'binLocation', 'tags', 'taxRate',
-      'trackInventory', 'isActive', 'notes', 'categoryId', 'supplierId'
+      "name",
+      "description",
+      "sku",
+      "barcode",
+      "category",
+      "subcategory",
+      "brand",
+      "supplier",
+      "purchasePrice",
+      "sellingPrice",
+      "markup",
+      "costPrice",
+      "minStock",
+      "maxStock",
+      "currentStock",
+      "reservedStock",
+      "availableStock",
+      "reorderLevel",
+      "location",
+      "binLocation",
+      "tags",
+      "taxRate",
+      "trackInventory",
+      "isActive",
+      "notes",
+      "categoryId",
+      "supplierId",
     ];
 
-    safeFields.forEach(field => {
+    safeFields.forEach((field) => {
       if (cleanBody[field] !== undefined) {
         dbUpdateData[field] = cleanBody[field];
       }
