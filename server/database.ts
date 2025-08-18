@@ -391,9 +391,12 @@ export class Database {
 
       // Add sample categories first
       const categoryCount = await this.query('SELECT COUNT(*) as count FROM product_categories WHERE company_id = ?', [companyId]);
+      console.log(`📁 Found ${categoryCount.rows[0].count} categories for company ${companyId}`);
       if (categoryCount.rows[0].count === 0) {
         console.log("📁 Adding sample categories...");
         await this.addSampleCategories();
+      } else {
+        console.log("✅ Categories already exist, skipping creation");
       }
 
       // Add sample customers if none exist for the main company
