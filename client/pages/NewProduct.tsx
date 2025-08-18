@@ -463,9 +463,8 @@ export default function NewProduct() {
           companyId: user?.companyId || "00000000-0000-0000-0000-000000000001",
         };
 
-        // Call the real create API - remove fields that shouldn't be sent to backend
-        const { categoryName: newCategoryName, ...cleanNewProduct } = newProduct;
-        await dataService.createProduct(cleanNewProduct);
+        // Call the real create API
+        await dataService.createProduct(newProduct);
 
         toast({
           title: "Product Created",
