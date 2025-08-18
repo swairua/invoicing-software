@@ -257,28 +257,53 @@ export default function RemittanceAdvice() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <Button variant="outline" size="sm" onClick={() => navigate(-1)}>
+          <Button variant="outline" size="sm" onClick={() => navigate("/remittance-advice")}>
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
+            Back to List
           </Button>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              Remittance Advice
+              {isNew ? "New " : isEdit ? "Edit " : ""}Remittance Advice
             </h1>
             <p className="text-muted-foreground">
-              Generate remittance advice for customer payments
+              {isView
+                ? "View remittance advice details"
+                : "Create remittance advice for customer payments"
+              }
             </p>
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={generatePDF}>
-            <Download className="mr-2 h-4 w-4" />
-            Download PDF
-          </Button>
-          <Button onClick={generateRemittanceNumber}>
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Generate New
-          </Button>
+          {isView && (
+            <>
+              <Button variant="outline" onClick={generatePDF}>
+                <Download className="mr-2 h-4 w-4" />
+                Download PDF
+              </Button>
+              <Button onClick={() => navigate(`/remittance-advice/${id}/edit`)}>
+                <FileEdit className="mr-2 h-4 w-4" />
+                Edit
+              </Button>
+            </>
+          )}
+          {(isNew || isEdit) && (
+            <>
+              <Button variant="outline" onClick={generatePDF}>
+                <Download className="mr-2 h-4 w-4" />
+                Preview PDF
+              </Button>
+              <Button variant="outline" onClick={() => handleSave("draft")} disabled={loading}>
+                Save Draft
+              </Button>
+              <Button onClick={() => handleSave("sent")} disabled={loading}>
+                Save & Send
+              </Button>
+              <Button variant="outline" onClick={generateRemittanceNumber}>
+                <RefreshCw className="mr-2 h-4 w-4" />
+                New Number
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
