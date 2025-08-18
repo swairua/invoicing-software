@@ -229,7 +229,7 @@ router.post("/create-sample-data", async (req, res) => {
 
         if (categoryResult.rows.length > 0) {
           results.categories.push(categoryResult.rows[0]);
-          console.log(`✅ Created category: ${categoryData.name}`);
+          console.log(`��� Created category: ${categoryData.name}`);
         }
       } catch (error) {
         console.error(
@@ -482,13 +482,17 @@ router.post("/quotations", async (req, res) => {
 
     // Use MySQL transaction with Database instance
     const result = await Database.transaction(async (connection) => {
+      // Generate UUID for quotation
+      const quotationId = randomUUID();
+
       // Insert quotation (using correct column names)
       const quotationResult = await connection.execute(
         `INSERT INTO quotations
          (id, quote_number, customer_id, subtotal, vat_amount, discount_amount, total_amount,
           status, valid_until, issue_date, notes, company_id, created_by)
-         VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
+          quotationId,
           quoteNumber,
           quotationData.customerId,
           quotationData.subtotal || 0,
