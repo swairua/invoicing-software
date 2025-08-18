@@ -37,6 +37,7 @@ import {
   Hash,
   Receipt,
   RefreshCw,
+  FileEdit,
 } from "lucide-react";
 import { Customer, Invoice } from "@shared/types";
 import { getDataService } from "../services/dataServiceFactory";
