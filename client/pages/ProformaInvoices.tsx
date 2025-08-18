@@ -546,7 +546,7 @@ export default function ProformaInvoices() {
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuItem asChild>
-                              <Link to={`/proformas/${proforma.id}`}>
+                              <Link to={`/proforma/${proforma.id}`}>
                                 <Eye className="mr-2 h-4 w-4" />
                                 View Details
                               </Link>
