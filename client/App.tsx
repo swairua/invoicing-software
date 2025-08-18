@@ -45,6 +45,7 @@ import StatementOfAccount from "./pages/StatementOfAccount";
 import RemittanceAdvice from "./pages/RemittanceAdvice";
 import SampleDataCreator from "./pages/SampleDataCreator";
 import DatabaseMigration from "./pages/DatabaseMigration";
+import ProductTest from "./pages/ProductTest";
 
 const queryClient = new QueryClient();
 
