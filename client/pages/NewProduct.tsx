@@ -261,7 +261,7 @@ export default function NewProduct() {
       console.log("📦 Product:", product);
 
       if (isEditMode && product) {
-        console.log("✏️ Updating existing product:", product.id);
+        console.log("��️ Updating existing product:", product.id);
 
         const updateData = {
           ...data,
@@ -518,7 +518,15 @@ export default function NewProduct() {
                               <SelectItem value="m">Meter</SelectItem>
                               <SelectItem value="cm">Centimeter</SelectItem>
                               <SelectItem value="box">Box</SelectItem>
+                              <SelectItem value="bx">Box (bx)</SelectItem>
                               <SelectItem value="pack">Pack</SelectItem>
+                              <SelectItem value="pair">Pair</SelectItem>
+                              <SelectItem value="set">Set</SelectItem>
+                              <SelectItem value="dozen">Dozen</SelectItem>
+                              <SelectItem value="unit">Unit</SelectItem>
+                              <SelectItem value="bottle">Bottle</SelectItem>
+                              <SelectItem value="tube">Tube</SelectItem>
+                              <SelectItem value="roll">Roll</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
