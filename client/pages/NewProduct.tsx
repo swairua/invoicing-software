@@ -195,44 +195,69 @@ export default function NewProduct() {
   const onSubmit = async (data: ProductFormData) => {
     try {
       setLoading(true);
-      
+
+      console.log("🚀 Form submission started");
+      console.log("📊 Form data:", data);
+      console.log("🔧 Is edit mode:", isEditMode);
+      console.log("📦 Product:", product);
+
       if (isEditMode && product) {
-        // Update existing product
-        await dataService.updateProduct(product.id, {
+        console.log("✏️ Updating existing product:", product.id);
+
+        const updateData = {
           ...data,
           id: product.id,
           companyId: product.companyId,
           createdAt: product.createdAt,
           updatedAt: new Date(),
-        });
-        
+        };
+
+        console.log("📤 Update data:", updateData);
+
+        const result = await dataService.updateProduct(product.id, updateData);
+
+        console.log("✅ Update result:", result);
+
         toast({
           title: "Product Updated",
           description: `Product "${data.name}" has been updated successfully.`,
         });
-        
+
         navigate(`/products/${product.id}`);
       } else {
-        // Create new product
-        const newProduct = await dataService.createProduct({
+        console.log("➕ Creating new product");
+
+        const createData = {
           ...data,
           companyId: user?.companyId || "",
           createdAt: new Date(),
           updatedAt: new Date(),
-        });
-        
+        };
+
+        console.log("📤 Create data:", createData);
+
+        const newProduct = await dataService.createProduct(createData);
+
+        console.log("✅ Create result:", newProduct);
+
         toast({
           title: "Product Created",
           description: `Product "${data.name}" has been created successfully.`,
         });
-        
+
         navigate(`/products/${newProduct.id}`);
       }
     } catch (error) {
-      console.error("Failed to save product:", error);
+      console.error("❌ Failed to save product:", error);
+      console.error("❌ Error details:", {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+
       toast({
         title: "Error",
-        description: "Failed to save product. Please try again.",
+        description: `Failed to save product: ${error.message}`,
         variant: "destructive",
       });
     } finally {
