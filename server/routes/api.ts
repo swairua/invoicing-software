@@ -3,6 +3,7 @@ import customersRouter from "./customers";
 import productsRouter from "./products";
 import categoriesRouter from "./categories";
 import invoicesRouter from "./invoices";
+import quotationsRouter from "./quotations";
 import taxesRouter from "./taxes";
 import seedRouter from "./seed";
 import migrationRouter from "./migration";
