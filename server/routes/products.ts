@@ -566,6 +566,25 @@ router.put("/:id", async (req, res) => {
       dbUpdateData.hasVariants = requestBody.hasVariants; // hasVariants -> has_variants
     }
 
+    // Validate category_id if provided
+    if (dbUpdateData.categoryId) {
+      console.log("🔍 Validating category ID:", dbUpdateData.categoryId);
+
+      // Check if category exists
+      const { default: Database } = await import("../database.js");
+      const categoryCheck = await Database.query(
+        "SELECT id FROM product_categories WHERE id = ? AND company_id = ?",
+        [dbUpdateData.categoryId, companyId]
+      );
+
+      if (categoryCheck.rows.length === 0) {
+        console.log("❌ Category ID not found, setting to NULL");
+        dbUpdateData.categoryId = null; // Set to null if category doesn't exist
+      } else {
+        console.log("✅ Category ID validated successfully");
+      }
+    }
+
     // Handle dimensions properly
     if (requestBody.dimensions) {
       dbUpdateData.length = requestBody.dimensions.length || null;
