@@ -105,6 +105,7 @@ export default function NewQuotation() {
                   .split("T")[0], // 30 days from now
     notes: formDataFromState?.notes ||
            duplicateData?.notes || "",
+    status: duplicateData?.status || "draft",
   });
 
   const [items, setItems] = useState<QuotationItemFormData[]>(
