@@ -486,6 +486,7 @@ export default function NewProduct() {
                         <FormItem>
                           <FormLabel>Category *</FormLabel>
                           <Select
+                            key={`category-${field.value}-${categories.length}`}
                             onValueChange={field.onChange}
                             value={field.value || ""}
                           >
