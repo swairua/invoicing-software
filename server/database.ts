@@ -1,29 +1,22 @@
-import { Pool, PoolClient } from "pg";
+import mysql from "mysql2/promise";
 
-// Database configuration - Force Neon connection
-const DATABASE_URL =
-  process.env.DATABASE_URL ||
-  "postgresql://neondb_owner:npg_smrD4peod8xL@ep-delicate-shape-aewuio49-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+// Database configuration - MySQL connection
+const DATABASE_CONFIG = {
+  host: process.env.DB_HOST || "mysql-242eb3d7-invoicing-software.c.aivencloud.com",
+  port: parseInt(process.env.DB_PORT || "11397"),
+  user: process.env.DB_USER || "avnadmin",
+  password: process.env.DB_PASSWORD || "AVNS_x9WdjKNy72pMT6Zr90I",
+  database: process.env.DB_NAME || "defaultdb",
+  ssl: {
+    rejectUnauthorized: false,
+  },
+  connectionLimit: 10,
+  acquireTimeout: 20000,
+  timeout: 20000,
+};
 
 // Create connection pool
-const pool = new Pool({
-  connectionString: DATABASE_URL,
-  ssl:
-    DATABASE_URL &&
-    (DATABASE_URL.includes("neon.tech") ||
-      DATABASE_URL.includes("supabase.co") ||
-      DATABASE_URL.includes("render.com"))
-      ? {
-          rejectUnauthorized: false,
-        }
-      : false,
-  max: 10, // Connection pool size
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 20000,
-  acquireTimeoutMillis: 20000,
-  createTimeoutMillis: 20000,
-  application_name: "fusion-invoicing-neon",
-});
+const pool = mysql.createPool(DATABASE_CONFIG);
 
 // Database connection wrapper
 export class Database {
@@ -36,37 +29,41 @@ export class Database {
     return Database.instance;
   }
 
-  // Get a client from the pool
-  async getClient(): Promise<PoolClient> {
-    return await pool.connect();
+  // Get a connection from the pool
+  async getConnection(): Promise<mysql.PoolConnection> {
+    return await pool.getConnection();
   }
 
-  // Execute a query with automatic client management
+  // Execute a query with automatic connection management
   async query(text: string, params?: any[]): Promise<any> {
-    const client = await this.getClient();
+    const connection = await this.getConnection();
     try {
-      const result = await client.query(text, params);
-      return result;
+      const [rows, fields] = await connection.execute(text, params || []);
+      return {
+        rows: Array.isArray(rows) ? rows : [rows],
+        rowCount: Array.isArray(rows) ? rows.length : 1,
+        fields
+      };
     } finally {
-      client.release();
+      connection.release();
     }
   }
 
   // Execute multiple queries in a transaction
   async transaction(
-    callback: (client: PoolClient) => Promise<any>,
+    callback: (connection: mysql.PoolConnection) => Promise<any>,
   ): Promise<any> {
-    const client = await this.getClient();
+    const connection = await this.getConnection();
     try {
-      await client.query("BEGIN");
-      const result = await callback(client);
-      await client.query("COMMIT");
+      await connection.beginTransaction();
+      const result = await callback(connection);
+      await connection.commit();
       return result;
     } catch (error) {
-      await client.query("ROLLBACK");
+      await connection.rollback();
       throw error;
     } finally {
-      client.release();
+      connection.release();
     }
   }
 
@@ -77,28 +74,19 @@ export class Database {
 
   // Test connection with fallback
   async testConnection(): Promise<boolean> {
-    const dbUrl = DATABASE_URL;
-
-    if (!dbUrl) {
-      console.log("❌ No DATABASE_URL configured");
-      return false;
-    }
-
-    // Log connection details (safely)
-    const urlParts = dbUrl.includes("@") ? dbUrl.split("@")[1] : "unknown";
-    console.log(`🔌 Connecting to: ${urlParts}`);
-    console.log("🗄️ Using LIVE DATABASE - No mock data");
-
     try {
-      console.log("⏳ Testing database connection...");
+      console.log("⏳ Testing MySQL database connection...");
+      console.log(`🔌 Connecting to: ${DATABASE_CONFIG.host}:${DATABASE_CONFIG.port}`);
+      console.log("🗄️ Using LIVE MYSQL DATABASE - No mock data");
+      
       const result = await this.query(
-        "SELECT NOW() as current_time, version() as version",
+        "SELECT NOW() as current_time, VERSION() as version",
       );
-      console.log("✅ LIVE DATABASE CONNECTION SUCCESSFUL!");
+      console.log("✅ LIVE MYSQL DATABASE CONNECTION SUCCESSFUL!");
       console.log("🕐 Server time:", result.rows[0].current_time);
       console.log(
-        "🗄️ PostgreSQL version:",
-        result.rows[0].version.split(" ")[0],
+        "🗄️ MySQL version:",
+        result.rows[0].version.split("-")[0],
       );
 
       // Test if we can query tables
@@ -112,9 +100,9 @@ export class Database {
 
         const tableCheck = await this.query(`
           SELECT table_name FROM information_schema.tables
-          WHERE table_schema = 'public'
+          WHERE table_schema = ?
           ORDER BY table_name
-        `);
+        `, [DATABASE_CONFIG.database]);
         console.log(`📋 Available tables: ${tableCheck.rows.length} total`);
       } catch (schemaError) {
         console.log("⚠️ Database schema not found - needs migration");
@@ -123,8 +111,8 @@ export class Database {
 
       return true;
     } catch (error: any) {
-      console.error("❌ LIVE DATABASE CONNECTION FAILED:", error.message);
-      console.log("🔧 Check Neon connection string and permissions");
+      console.error("❌ LIVE MYSQL DATABASE CONNECTION FAILED:", error.message);
+      console.log("🔧 Check MySQL connection string and permissions");
       return false;
     }
   }
@@ -141,8 +129,6 @@ export interface DatabaseRow {
 export interface QueryResult {
   rows: DatabaseRow[];
   rowCount: number;
-  command: string;
-  oid: number;
   fields: any[];
 }
 
@@ -154,7 +140,7 @@ export class BaseRepository {
     this.db = Database.getInstance();
   }
 
-  // Helper method to build WHERE clauses
+  // Helper method to build WHERE clauses (MySQL style)
   protected buildWhereClause(conditions: Record<string, any>): {
     where: string;
     params: any[];
@@ -166,8 +152,11 @@ export class BaseRepository {
       return { where: "", params: [] };
     }
 
-    const whereClauses = keys.map((key, index) => `${key} = $${index + 1}`);
-    const params = keys.map((key) => conditions[key]);
+    const whereClauses = keys.map(() => `? = ?`);
+    const params: any[] = [];
+    keys.forEach(key => {
+      params.push(key, conditions[key]);
+    });
 
     return {
       where: `WHERE ${whereClauses.join(" AND ")}`,
@@ -237,47 +226,46 @@ export class BaseRepository {
   }
 }
 
-// Utility functions for common database patterns
+// Utility functions for common database patterns (MySQL compatible)
 export const DatabaseUtils = {
-  // Generate UUID for new records
+  // Generate UUID for new records (MySQL uses UUID() function)
   generateId(): string {
-    return "uuid_generate_v4()";
+    return "UUID()";
   },
 
-  // Format date for PostgreSQL
+  // Format date for MySQL
   formatDate(date: Date): string {
     return date.toISOString().split("T")[0];
   },
 
-  // Format timestamp for PostgreSQL
+  // Format timestamp for MySQL
   formatTimestamp(date: Date): string {
-    return date.toISOString();
+    return date.toISOString().slice(0, 19).replace('T', ' ');
   },
 
-  // Escape SQL identifiers
+  // Escape SQL identifiers (MySQL style)
   escapeIdentifier(identifier: string): string {
-    return `"${identifier.replace(/"/g, '""')}"`;
+    return `\`${identifier.replace(/`/g, '``')}\``;
   },
 
-  // Build INSERT query
+  // Build INSERT query (MySQL style with ? placeholders)
   buildInsertQuery(
     table: string,
     data: Record<string, any>,
   ): { query: string; values: any[] } {
     const keys = Object.keys(data);
-    const placeholders = keys.map((_, index) => `$${index + 1}`);
+    const placeholders = keys.map(() => "?");
     const values = keys.map((key) => data[key]);
 
     const query = `
       INSERT INTO ${table} (${keys.join(", ")})
       VALUES (${placeholders.join(", ")})
-      RETURNING *
     `;
 
     return { query, values };
   },
 
-  // Build UPDATE query
+  // Build UPDATE query (MySQL style with ? placeholders)
   buildUpdateQuery(
     table: string,
     data: Record<string, any>,
@@ -291,10 +279,10 @@ export const DatabaseUtils = {
     }
 
     const setClause = updateKeys
-      .map((key, index) => `${key} = $${index + 1}`)
+      .map((key) => `${key} = ?`)
       .join(", ");
     const whereClause = whereKeys
-      .map((key, index) => `${key} = $${updateKeys.length + index + 1}`)
+      .map((key) => `${key} = ?`)
       .join(" AND ");
 
     const values = [
@@ -306,7 +294,6 @@ export const DatabaseUtils = {
       UPDATE ${table}
       SET ${setClause}, updated_at = CURRENT_TIMESTAMP
       WHERE ${whereClause}
-      RETURNING *
     `;
 
     return { query, values };
