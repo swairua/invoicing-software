@@ -561,7 +561,7 @@ router.get("/proformas", async (req, res) => {
         c.email as customer_email
       FROM proforma_invoices p
       JOIN customers c ON p.customer_id = c.id
-      WHERE p.company_id = $1
+      WHERE p.company_id = ?
       ORDER BY p.created_at DESC
       LIMIT 50
     `,
