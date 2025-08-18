@@ -152,11 +152,8 @@ export class BaseRepository {
       return { where: "", params: [] };
     }
 
-    const whereClauses = keys.map(() => `? = ?`);
-    const params: any[] = [];
-    keys.forEach(key => {
-      params.push(key, conditions[key]);
-    });
+    const whereClauses = keys.map((key) => `${key} = ?`);
+    const params = keys.map((key) => conditions[key]);
 
     return {
       where: `WHERE ${whereClauses.join(" AND ")}`,
