@@ -52,10 +52,19 @@ export default function ProformaDetails() {
 
   useEffect(() => {
     const loadProformaData = async () => {
+      if (!id) {
+        toast({
+          title: "Invalid Proforma",
+          description: "No proforma ID provided.",
+          variant: "destructive",
+        });
+        navigate("/proforma");
+        return;
+      }
+
       try {
         setLoading(true);
-        const proformas = await dataService.getProformas();
-        const foundProforma = proformas.find((p) => p.id === id);
+        const foundProforma = await dataService.getProformaInvoiceById(id);
 
         if (!foundProforma) {
           toast({
@@ -75,14 +84,13 @@ export default function ProformaDetails() {
           description: "Failed to load proforma details.",
           variant: "destructive",
         });
+        navigate("/proforma");
       } finally {
         setLoading(false);
       }
     };
 
-    if (id) {
-      loadProformaData();
-    }
+    loadProformaData();
   }, [id, dataService, navigate, toast]);
 
   const formatCurrency = (amount: number) => {

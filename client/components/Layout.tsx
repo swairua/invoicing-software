@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useLocation, Outlet } from "react-router-dom";
+import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { useAuth } from "../hooks/use-auth";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
@@ -82,6 +82,7 @@ function NavigationItems({ mobile = false }: { mobile?: boolean }) {
 
 export default function Layout() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -202,20 +203,16 @@ export default function Layout() {
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => (window.location.href = "/settings")}
-                  >
+                  <DropdownMenuItem onClick={() => navigate("/settings")}>
                     <User className="mr-2 h-4 w-4" />
                     Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => (window.location.href = "/settings")}
-                  >
+                  <DropdownMenuItem onClick={() => navigate("/settings")}>
                     <Settings className="mr-2 h-4 w-4" />
                     Settings
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => (window.location.href = "/settings/company")}
+                    onClick={() => navigate("/settings/company")}
                   >
                     <Building2 className="mr-2 h-4 w-4" />
                     Company Settings
@@ -224,9 +221,7 @@ export default function Layout() {
                     <>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
-                        onClick={() =>
-                          (window.location.href = "/settings/users")
-                        }
+                        onClick={() => navigate("/settings/users")}
                       >
                         <User className="mr-2 h-4 w-4" />
                         Manage Users
