@@ -32,8 +32,21 @@ function expressPlugin(): Plugin {
     configureServer(server) {
       const app = createServer();
 
-      // Add Express app as middleware to Vite dev server
-      server.middlewares.use(app);
+      // Add Express app as middleware to Vite dev server with proper path handling
+      server.middlewares.use("/api", (req, res, next) => {
+        console.log(`🔧 Vite middleware intercepted: ${req.method} ${req.url}`);
+        app(req, res, next);
+      });
+
+      // Fallback for any other API routes
+      server.middlewares.use((req, res, next) => {
+        if (req.url?.startsWith('/api')) {
+          console.log(`🔧 Vite fallback middleware: ${req.method} ${req.url}`);
+          app(req, res, next);
+        } else {
+          next();
+        }
+      });
     },
   };
 }
