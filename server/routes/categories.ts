@@ -7,7 +7,7 @@ router.get("/", async (req, res) => {
   try {
     const companyId =
       (req.headers["x-company-id"] as string) ||
-      "550e8400-e29b-41d4-a716-446655440000";
+      "00000000-0000-0000-0000-000000000001";
 
     // Import database here to avoid circular dependency issues
     const { default: Database } = await import("../database.js");
@@ -38,7 +38,7 @@ router.post("/", async (req, res) => {
   try {
     const companyId =
       (req.headers["x-company-id"] as string) ||
-      "550e8400-e29b-41d4-a716-446655440000";
+      "00000000-0000-0000-0000-000000000001";
     const { name, description, parentId } = req.body;
 
     if (!name) {
@@ -81,7 +81,7 @@ router.put("/:id", async (req, res) => {
   try {
     const companyId =
       (req.headers["x-company-id"] as string) ||
-      "550e8400-e29b-41d4-a716-446655440000";
+      "00000000-0000-0000-0000-000000000001";
     const { id } = req.params;
     const { name, description, parentId } = req.body;
 
@@ -126,7 +126,7 @@ router.delete("/:id", async (req, res) => {
   try {
     const companyId =
       (req.headers["x-company-id"] as string) ||
-      "550e8400-e29b-41d4-a716-446655440000";
+      "00000000-0000-0000-0000-000000000001";
     const { id } = req.params;
 
     const { default: Database } = await import("../database.js");
