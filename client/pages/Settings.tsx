@@ -273,7 +273,7 @@ export default function Settings() {
 
         <Card
           className="cursor-pointer hover:bg-accent/5 transition-colors"
-          onClick={() => (window.location.href = "/units")}
+          onClick={() => navigate("/units")}
         >
           <CardContent className="pt-6">
             <div className="flex items-center space-x-4">
