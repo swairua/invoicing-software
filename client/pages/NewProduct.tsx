@@ -306,7 +306,14 @@ export default function NewProduct() {
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          console.log("❌ Form validation errors:", errors);
+          toast({
+            title: "Validation Error",
+            description: "Please check the form for errors and try again.",
+            variant: "destructive",
+          });
+        })} className="space-y-6">
           <Tabs defaultValue="basic" className="w-full">
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="basic">
