@@ -591,12 +591,17 @@ router.patch("/:id/status", async (req, res) => {
 
     const result = await Database.query(
       `
-      UPDATE invoices 
-      SET status = $1, updated_at = NOW()
-      WHERE id = $2 AND company_id = $3
-      RETURNING *
+      UPDATE invoices
+      SET status = ?, updated_at = NOW()
+      WHERE id = ? AND company_id = ?
     `,
       [status, id, companyId],
+    );
+
+    // Get updated invoice
+    const updatedResult = await Database.query(
+      `SELECT * FROM invoices WHERE id = ? AND company_id = ?`,
+      [id, companyId]
     );
 
     if (result.rows.length === 0) {
