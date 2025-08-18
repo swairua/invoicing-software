@@ -147,6 +147,50 @@ export default function QuotationDetails() {
     });
   };
 
+  const handleDownloadPDF = async () => {
+    if (!quotation) return;
+
+    try {
+      // Convert quotation to invoice format for PDF generation
+      const invoiceData = {
+        ...quotation,
+        invoiceNumber: quotation.quoteNumber,
+        amountPaid: 0,
+        balance: quotation.total,
+        dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+      };
+
+      const activeTemplate = TemplateManager.getActiveTemplate("quotation") || TemplateManager.getActiveTemplate("invoice");
+      await PDFService.generateInvoicePDF(invoiceData, true, activeTemplate?.id);
+
+      toast({
+        title: "Success",
+        description: "Quotation PDF downloaded successfully",
+      });
+    } catch (error) {
+      console.error("Error generating quotation PDF:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate quotation PDF",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEditQuotation = () => {
+    if (!quotation) return;
+    navigate(`/quotations/${quotation.id}/edit`);
+  };
+
+  const duplicateQuotation = () => {
+    if (!quotation) return;
+    navigate("/quotations/new", {
+      state: {
+        duplicateFrom: quotation,
+      },
+    });
+  };
+
   const convertToProforma = () => {
     if (!quotation) return;
 
