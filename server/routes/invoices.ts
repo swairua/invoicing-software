@@ -12,39 +12,48 @@ router.get("/", async (req, res) => {
 
     const result = await Database.query(
       `
-      SELECT 
+      SELECT
         i.*,
         c.name as customer_name,
         c.email as customer_email,
         c.phone as customer_phone,
-        c.kra_pin as customer_kra_pin,
-        json_agg(
-          json_build_object(
-            'id', ii.id,
-            'product_id', ii.product_id,
-            'product_name', p.name,
-            'product_sku', p.sku,
-            'description', ii.description,
-            'quantity', ii.quantity,
-            'unit_price', ii.unit_price,
-            'discount_amount', ii.discount_amount,
-            'discount_percentage', ii.discount_percentage,
-            'vat_rate', ii.vat_rate,
-            'vat_amount', ii.vat_amount,
-            'line_total', ii.line_total
-          ) ORDER BY ii.sort_order
-        ) as items
+        c.kra_pin as customer_kra_pin
       FROM invoices i
       JOIN customers c ON i.customer_id = c.id
-      LEFT JOIN invoice_items ii ON i.id = ii.invoice_id
-      LEFT JOIN products p ON ii.product_id = p.id
-      WHERE i.company_id = $1
-      GROUP BY i.id, c.name, c.email, c.phone, c.kra_pin
+      WHERE i.company_id = ?
       ORDER BY i.created_at DESC
       LIMIT 100
     `,
       [companyId],
     );
+
+    // Get items separately for each invoice
+    const invoiceIds = result.rows.map((row) => row.id);
+    let itemsMap = {};
+
+    if (invoiceIds.length > 0) {
+      const itemsResult = await Database.query(
+        `
+        SELECT
+          ii.*,
+          p.name as product_name,
+          p.sku as product_sku
+        FROM invoice_items ii
+        LEFT JOIN products p ON ii.product_id = p.id
+        WHERE ii.invoice_id IN (${invoiceIds.map(() => "?").join(",")})
+        ORDER BY ii.sort_order
+        `,
+        invoiceIds,
+      );
+
+      // Group items by invoice_id
+      itemsResult.rows.forEach((item) => {
+        if (!itemsMap[item.invoice_id]) {
+          itemsMap[item.invoice_id] = [];
+        }
+        itemsMap[item.invoice_id].push(item);
+      });
+    }
 
     // Format the data to match the frontend expectations
     const invoices = result.rows.map((row) => ({
@@ -58,29 +67,27 @@ router.get("/", async (req, res) => {
         phone: row.customer_phone,
         kraPin: row.customer_kra_pin,
       },
-      items: row.items
-        .filter((item) => item.id !== null)
-        .map((item) => ({
-          id: item.id,
-          productId: item.product_id,
-          product: {
-            id: item.product_id,
-            name: item.product_name,
-            sku: item.product_sku,
-          },
-          description: item.description,
-          quantity: parseFloat(item.quantity),
-          unitPrice: parseFloat(item.unit_price),
-          discount: parseFloat(item.discount_amount),
-          vatRate: parseFloat(item.vat_rate),
-          total: parseFloat(item.line_total),
-        })),
-      subtotal: parseFloat(row.subtotal),
-      vatAmount: parseFloat(row.vat_amount),
-      discountAmount: parseFloat(row.discount_amount),
-      total: parseFloat(row.total_amount),
-      amountPaid: parseFloat(row.amount_paid),
-      balance: parseFloat(row.balance_due),
+      items: (itemsMap[row.id] || []).map((item) => ({
+        id: item.id,
+        productId: item.product_id,
+        product: {
+          id: item.product_id,
+          name: item.product_name,
+          sku: item.product_sku,
+        },
+        description: item.description,
+        quantity: parseFloat(item.quantity),
+        unitPrice: parseFloat(item.unit_price),
+        discount: parseFloat(item.discount_amount || 0),
+        vatRate: parseFloat(item.vat_rate),
+        total: parseFloat(item.line_total),
+      })),
+      subtotal: parseFloat(row.subtotal || 0),
+      vatAmount: parseFloat(row.vat_amount || 0),
+      discountAmount: parseFloat(row.discount_amount || 0),
+      total: parseFloat(row.total_amount || 0),
+      amountPaid: parseFloat(row.amount_paid || 0),
+      balance: parseFloat(row.balance_due || 0),
       status: row.status,
       paymentStatus: row.payment_status,
       etimsStatus: row.etims_status,
@@ -213,29 +220,14 @@ router.get("/:id", async (req, res) => {
 
     const result = await Database.query(
       `
-      SELECT 
+      SELECT
         i.*,
         c.name as customer_name,
         c.email as customer_email,
-        c.phone as customer_phone,
-        json_agg(
-          json_build_object(
-            'id', ii.id,
-            'product_id', ii.product_id,
-            'product_name', p.name,
-            'quantity', ii.quantity,
-            'unit_price', ii.unit_price,
-            'vat_rate', ii.vat_rate,
-            'vat_amount', ii.vat_amount,
-            'line_total', ii.line_total
-          ) ORDER BY ii.sort_order
-        ) as items
+        c.phone as customer_phone
       FROM invoices i
       JOIN customers c ON i.customer_id = c.id
-      LEFT JOIN invoice_items ii ON i.id = ii.invoice_id
-      LEFT JOIN products p ON ii.product_id = p.id
-      WHERE i.id = $1 AND i.company_id = $2
-      GROUP BY i.id, c.name, c.email, c.phone
+      WHERE i.id = ? AND i.company_id = ?
     `,
       [id, companyId],
     );
@@ -247,6 +239,21 @@ router.get("/:id", async (req, res) => {
       });
     }
 
+    // Get invoice items separately
+    const itemsResult = await Database.query(
+      `
+      SELECT
+        ii.*,
+        p.name as product_name,
+        p.sku as product_sku
+      FROM invoice_items ii
+      LEFT JOIN products p ON ii.product_id = p.id
+      WHERE ii.invoice_id = ?
+      ORDER BY ii.sort_order
+      `,
+      [id],
+    );
+
     const row = result.rows[0];
     const invoice = {
       id: row.id,
@@ -257,13 +264,27 @@ router.get("/:id", async (req, res) => {
         email: row.customer_email,
         phone: row.customer_phone,
       },
-      items: row.items.filter((item) => item.id !== null),
-      subtotal: parseFloat(row.subtotal),
-      vatAmount: parseFloat(row.vat_amount),
-      discountAmount: parseFloat(row.discount_amount),
-      total: parseFloat(row.total_amount),
-      amountPaid: parseFloat(row.amount_paid),
-      balance: parseFloat(row.balance_due),
+      items: itemsResult.rows.map((item) => ({
+        id: item.id,
+        productId: item.product_id,
+        product: {
+          id: item.product_id,
+          name: item.product_name,
+          sku: item.product_sku,
+        },
+        description: item.description,
+        quantity: parseFloat(item.quantity),
+        unitPrice: parseFloat(item.unit_price),
+        discount: parseFloat(item.discount_amount || 0),
+        vatRate: parseFloat(item.vat_rate),
+        total: parseFloat(item.line_total),
+      })),
+      subtotal: parseFloat(row.subtotal || 0),
+      vatAmount: parseFloat(row.vat_amount || 0),
+      discountAmount: parseFloat(row.discount_amount || 0),
+      total: parseFloat(row.total_amount || 0),
+      amountPaid: parseFloat(row.amount_paid || 0),
+      balance: parseFloat(row.balance_due || 0),
       status: row.status,
       dueDate: new Date(row.due_date),
       issueDate: new Date(row.issue_date),
@@ -357,12 +378,12 @@ router.post("/", async (req, res) => {
       // Get next invoice number
       const sequenceResult = await Database.query(
         `
-        SELECT 
+        SELECT
           COALESCE(prefix, 'INV') as prefix,
           current_number,
           padding_length
-        FROM number_sequences 
-        WHERE company_id = $1 AND sequence_type = 'invoice'
+        FROM number_sequences
+        WHERE company_id = ? AND sequence_type = 'invoice'
       `,
         [companyId],
       );
@@ -379,9 +400,9 @@ router.post("/", async (req, res) => {
         // Update sequence
         await Database.query(
           `
-          UPDATE number_sequences 
+          UPDATE number_sequences
           SET current_number = current_number + 1, updated_at = NOW()
-          WHERE company_id = $1 AND sequence_type = 'invoice'
+          WHERE company_id = ? AND sequence_type = 'invoice'
         `,
           [companyId],
         );
@@ -391,7 +412,7 @@ router.post("/", async (req, res) => {
         await Database.query(
           `
           INSERT INTO number_sequences (company_id, sequence_type, prefix, current_number, padding_length)
-          VALUES ($1, 'invoice', 'INV', 2, 3)
+          VALUES (?, 'invoice', 'INV', 2, 3)
         `,
           [companyId],
         );
@@ -403,14 +424,8 @@ router.post("/", async (req, res) => {
 
       for (const item of items) {
         const lineSubtotal = item.unitPrice * item.quantity;
-        const taxRate = await Database.query(
-          `
-          SELECT get_applicable_tax_rate($1, $2, $3, $4) as tax_rate
-        `,
-          [companyId, item.productId, customerId, new Date()],
-        );
-
-        const vatRate = parseFloat(taxRate.rows[0].tax_rate);
+        // Use default VAT rate of 16% if not specified
+        const vatRate = item.vatRate || 16;
         const vatAmount = (lineSubtotal * vatRate) / 100;
 
         subtotal += lineSubtotal;
@@ -423,11 +438,10 @@ router.post("/", async (req, res) => {
       const invoiceResult = await Database.query(
         `
         INSERT INTO invoices (
-          company_id, customer_id, invoice_number, subtotal, vat_amount, 
+          id, company_id, customer_id, invoice_number, subtotal, vat_amount,
           total_amount, balance_due, issue_date, due_date, notes, created_by
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-        RETURNING *
+        VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
         [
           companyId,
@@ -444,31 +458,29 @@ router.post("/", async (req, res) => {
         ],
       );
 
-      const invoice = invoiceResult.rows[0];
+      // Get the created invoice ID
+      const createdInvoiceResult = await Database.query(
+        `SELECT * FROM invoices WHERE invoice_number = ? AND company_id = ?`,
+        [invoiceNumber, companyId],
+      );
+
+      const invoice = createdInvoiceResult.rows[0];
 
       // Create invoice items
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
         const lineSubtotal = item.unitPrice * item.quantity;
-
-        const taxRate = await Database.query(
-          `
-          SELECT get_applicable_tax_rate($1, $2, $3, $4) as tax_rate
-        `,
-          [companyId, item.productId, customerId, new Date()],
-        );
-
-        const vatRate = parseFloat(taxRate.rows[0].tax_rate);
+        const vatRate = item.vatRate || 16;
         const vatAmount = (lineSubtotal * vatRate) / 100;
         const lineTotal = lineSubtotal + vatAmount;
 
         await Database.query(
           `
           INSERT INTO invoice_items (
-            invoice_id, product_id, quantity, unit_price, vat_rate, 
+            id, invoice_id, product_id, quantity, unit_price, vat_rate,
             vat_amount, line_total, sort_order
           )
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+          VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?)
         `,
           [
             invoice.id,
@@ -488,13 +500,13 @@ router.post("/", async (req, res) => {
       // Fetch the complete invoice with items
       const completeInvoiceResult = await Database.query(
         `
-        SELECT 
+        SELECT
           i.*,
           c.name as customer_name,
           c.email as customer_email
         FROM invoices i
         JOIN customers c ON i.customer_id = c.id
-        WHERE i.id = $1
+        WHERE i.id = ?
       `,
         [invoice.id],
       );
@@ -579,15 +591,20 @@ router.patch("/:id/status", async (req, res) => {
 
     const result = await Database.query(
       `
-      UPDATE invoices 
-      SET status = $1, updated_at = NOW()
-      WHERE id = $2 AND company_id = $3
-      RETURNING *
+      UPDATE invoices
+      SET status = ?, updated_at = NOW()
+      WHERE id = ? AND company_id = ?
     `,
       [status, id, companyId],
     );
 
-    if (result.rows.length === 0) {
+    // Get updated invoice
+    const updatedResult = await Database.query(
+      `SELECT * FROM invoices WHERE id = ? AND company_id = ?`,
+      [id, companyId],
+    );
+
+    if (updatedResult.rows.length === 0) {
       return res.status(404).json({
         success: false,
         error: "Invoice not found",
@@ -596,7 +613,7 @@ router.patch("/:id/status", async (req, res) => {
 
     res.json({
       success: true,
-      data: result.rows[0],
+      data: updatedResult.rows[0],
     });
   } catch (error) {
     console.error("Error updating invoice status:", error);
@@ -631,8 +648,8 @@ router.post("/:id/payments", async (req, res) => {
     const invoiceResult = await Database.query(
       `
       SELECT customer_id, balance_due
-      FROM invoices 
-      WHERE id = $1 AND company_id = $2
+      FROM invoices
+      WHERE id = ? AND company_id = ?
     `,
       [id, companyId],
     );
@@ -657,11 +674,10 @@ router.post("/:id/payments", async (req, res) => {
     const paymentResult = await Database.query(
       `
       INSERT INTO payments (
-        company_id, customer_id, invoice_id, amount, payment_method,
+        id, company_id, customer_id, invoice_id, amount, payment_method,
         reference_number, payment_date, notes, created_by
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-      RETURNING *
+      VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
       [
         companyId,
@@ -676,9 +692,20 @@ router.post("/:id/payments", async (req, res) => {
       ],
     );
 
+    // Get the created payment
+    const createdPaymentResult = await Database.query(
+      `SELECT * FROM payments WHERE invoice_id = ? AND amount = ? AND payment_date >= ? ORDER BY created_at DESC LIMIT 1`,
+      [id, amount, new Date()],
+    );
+
     res.status(201).json({
       success: true,
-      data: paymentResult.rows[0],
+      data: createdPaymentResult.rows[0] || {
+        id: "created",
+        amount,
+        method,
+        reference,
+      },
     });
   } catch (error) {
     console.error("Error processing payment:", error);

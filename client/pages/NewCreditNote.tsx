@@ -187,7 +187,10 @@ export default function NewCreditNote() {
       > = {
         customerId: selectedCustomerId,
         customer,
-        invoiceId: selectedInvoiceId || undefined,
+        invoiceId:
+          selectedInvoiceId && selectedInvoiceId !== "none"
+            ? selectedInvoiceId
+            : undefined,
         items,
         subtotal,
         vatAmount,
@@ -294,7 +297,7 @@ export default function NewCreditNote() {
                       <SelectValue placeholder="Select an invoice" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">No related invoice</SelectItem>
+                      <SelectItem value="none">No related invoice</SelectItem>
                       {customerInvoices.map((invoice) => (
                         <SelectItem key={invoice.id} value={invoice.id}>
                           {invoice.invoiceNumber} - KES{" "}
@@ -403,7 +406,9 @@ export default function NewCreditNote() {
                   <TableBody>
                     {items.map((item) => (
                       <TableRow key={item.id}>
-                        <TableCell>{item.product?.name || 'Unknown Product'}</TableCell>
+                        <TableCell>
+                          {item.product?.name || "Unknown Product"}
+                        </TableCell>
                         <TableCell>
                           <Input
                             type="number"
