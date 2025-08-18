@@ -182,6 +182,7 @@ export default function NewQuotation() {
         issueDate: new Date(existingQuotation.issueDate).toISOString().split("T")[0],
         validUntil: new Date(existingQuotation.validUntil).toISOString().split("T")[0],
         notes: existingQuotation.notes || "",
+        status: existingQuotation.status,
       });
 
       // Set items from existing quotation
