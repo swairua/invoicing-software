@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Create/Edit APIs</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        button { padding: 10px 20px; margin: 5px; font-size: 14px; cursor: pointer; }
+        .success { background: #e6ffe6; border: 1px solid #99ff99; }
+        .error { background: #ffe6e6; border: 1px solid #ff9999; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        .step { border: 1px solid #ddd; margin: 10px 0; padding: 15px; border-radius: 5px; }
+        .step h3 { margin-top: 0; }
+        .loading { color: #666; font-style: italic; }
+    </style>
+</head>
+<body>
+    <h1>🧪 API Testing Suite - Create & Edit</h1>
+    
+    <div class="step">
+        <h3>Step 1: Create Sample Data</h3>
+        <button onclick="createSampleData()">Create Sample Data</button>
+        <button onclick="checkData()">Check Current Data</button>
+        <div id="sampleResults"></div>
+    </div>
+    
+    <div class="step">
+        <h3>Step 2: Test Create APIs</h3>
+        <button onclick="createTestCustomer()">Create Test Customer</button>
+        <button onclick="createTestProduct()">Create Test Product</button>
+        <button onclick="createTestCategory()">Create Test Category</button>
+        <div id="createResults"></div>
+    </div>
+    
+    <div class="step">
+        <h3>Step 3: Test Edit APIs</h3>
+        <button onclick="listProducts()">List Products</button>
+        <button onclick="editFirstProduct()">Edit First Product</button>
+        <button onclick="listCustomers()">List Customers</button>
+        <button onclick="editFirstCustomer()">Edit First Customer</button>
+        <div id="editResults"></div>
+    </div>
+    
+    <div class="step">
+        <h3>Step 4: Test Product Details</h3>
+        <button onclick="getProductDetails()">Get Product Details</button>
+        <div id="detailsResults"></div>
+    </div>
+
+    <script>
+        const companyId = '00000000-0000-0000-0000-000000000001';
+        
+        function addResult(containerId, content, isError = false) {
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = `result ${isError ? 'error' : 'success'}`;
+            div.innerHTML = content;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        function addLoading(containerId, message) {
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = 'loading';
+            div.textContent = message;
+            container.appendChild(div);
+            return div;
+        }
+        
+        // Step 1: Sample Data
+        async function createSampleData() {
+            const loading = addLoading('sampleResults', '🚀 Creating sample data...');
+            
+            try {
+                const response = await fetch('/api/create-sample-direct', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-company-id': companyId
+                    }
+                });
+                
+                const result = await response.json();
+                loading.remove();
+                
+                if (response.ok) {
+                    addResult('sampleResults', `
+                        <h4>✅ Sample Data Created Successfully!</h4>
+                        <p>${result.message}</p>
+                    `);
+                } else {
+                    addResult('sampleResults', `<h4>❌ Failed to create sample data</h4><pre>${JSON.stringify(result, null, 2)}</pre>`, true);
+                }
+            } catch (error) {
+                loading.remove();
+                addResult('sampleResults', `<h4>❌ Network error</h4><p>${error.message}</p>`, true);
+            }
+        }
+        
+        async function checkData() {
+            const loading = addLoading('sampleResults', '📊 Checking current data...');
+            
+            try {
+                const headers = { 'x-company-id': companyId };
+                const [categoriesRes, customersRes, productsRes] = await Promise.all([
+                    fetch('/api/categories', { headers }),
+                    fetch('/api/customers', { headers }),
+                    fetch('/api/products', { headers })
+                ]);
+                
+                const [categories, customers, products] = await Promise.all([
+                    categoriesRes.json(),
+                    customersRes.json(),
+                    productsRes.json()
+                ]);
+                
+                loading.remove();
+                addResult('sampleResults', `
+                    <h4>📊 Current Data Count</h4>
+                    <ul>
+                        <li>Categories: ${categories.data?.length || 0}</li>
+                        <li>Customers: ${customers.data?.length || 0} (total: ${customers.meta?.total || 0})</li>
+                        <li>Products: ${products.data?.length || 0} (total: ${products.meta?.total || 0})</li>
+                    </ul>
+                `);
+            } catch (error) {
+                loading.remove();
+                addResult('sampleResults', `<h4>❌ Failed to check data</h4><p>${error.message}</p>`, true);
+            }
+        }
+        
+        // Step 2: Create APIs
+        async function createTestCustomer() {
+            const loading = addLoading('createResults', '👥 Creating test customer...');
+            
+            const customerData = {
+                name: 'Test Hospital Ltd',
+                email: 'test@testhospital.co.ke',
+                phone: '+254-700-999888',
+                kraPin: 'P999888777Z',
+                addressLine1: '999 Test Street',
+                city: 'Test City',
+                postalCode: '99999',
+                country: 'Kenya',
+                creditLimit: 100000,
+                paymentTerms: 30,
+                isActive: true
+            };
+            
+            try {
+                const response = await fetch('/api/customers', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-company-id': companyId
+                    },
+                    body: JSON.stringify(customerData)
+                });
+                
+                const result = await response.json();
+                loading.remove();
+                
+                if (response.ok) {
+                    addResult('createResults', `
+                        <h4>✅ Customer Created Successfully!</h4>
+                        <p><strong>Name:</strong> ${result.data.name}</p>
+                        <p><strong>ID:</strong> ${result.data.id}</p>
+                        <p><strong>Email:</strong> ${result.data.email}</p>
+                    `);
+                } else {
+                    addResult('createResults', `<h4>❌ Failed to create customer</h4><pre>${JSON.stringify(result, null, 2)}</pre>`, true);
+                }
+            } catch (error) {
+                loading.remove();
+                addResult('createResults', `<h4>❌ Network error creating customer</h4><p>${error.message}</p>`, true);
+            }
+        }
+        
+        async function createTestProduct() {
+            const loading = addLoading('createResults', '🏥 Creating test product...');
+            
+            const productData = {
+                name: 'Test Digital Thermometer',
+                description: 'High-precision digital thermometer for medical use',
+                sku: 'TEST-THERM-001',
+                barcode: '9999888777666',
+                unit: 'Piece',
+                purchasePrice: 800,
+                sellingPrice: 1200,
+                wholesalePrice: 1000,
+                retailPrice: 1200,
+                minStock: 10,
+                maxStock: 200,
+                currentStock: 50,
+                reorderLevel: 20,
+                location: 'TEST-A1',
+                trackInventory: true,
+                taxable: true,
+                taxRate: 16,
+                isActive: true,
+                hasVariants: false,
+                allowBackorders: true,
+                weight: 0.3
+            };
+            
+            try {
+                const response = await fetch('/api/products', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-company-id': companyId
+                    },
+                    body: JSON.stringify(productData)
+                });
+                
+                const result = await response.json();
+                loading.remove();
+                
+                if (response.ok) {
+                    addResult('createResults', `
+                        <h4>✅ Product Created Successfully!</h4>
+                        <p><strong>Name:</strong> ${result.data.name}</p>
+                        <p><strong>ID:</strong> ${result.data.id}</p>
+                        <p><strong>SKU:</strong> ${result.data.sku}</p>
+                        <p><strong>Price:</strong> KES ${result.data.sellingPrice}</p>
+                    `);
+                } else {
+                    addResult('createResults', `<h4>❌ Failed to create product</h4><pre>${JSON.stringify(result, null, 2)}</pre>`, true);
+                }
+            } catch (error) {
+                loading.remove();
+                addResult('createResults', `<h4>❌ Network error creating product</h4><p>${error.message}</p>`, true);
+            }
+        }
+        
+        async function createTestCategory() {
+            const loading = addLoading('createResults', '📁 Creating test category...');
+            
+            const categoryData = {
+                name: 'Test Equipment',
+                description: 'Testing equipment and devices',
+                isActive: true
+            };
+            
+            try {
+                const response = await fetch('/api/categories', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-company-id': companyId
+                    },
+                    body: JSON.stringify(categoryData)
+                });
+                
+                const result = await response.json();
+                loading.remove();
+                
+                if (response.ok) {
+                    addResult('createResults', `
+                        <h4>✅ Category Created Successfully!</h4>
+                        <p><strong>Name:</strong> ${result.data?.name || categoryData.name}</p>
+                        <p><strong>Description:</strong> ${result.data?.description || categoryData.description}</p>
+                    `);
+                } else {
+                    addResult('createResults', `<h4>❌ Failed to create category</h4><pre>${JSON.stringify(result, null, 2)}</pre>`, true);
+                }
+            } catch (error) {
+                loading.remove();
+                addResult('createResults', `<h4>❌ Network error creating category</h4><p>${error.message}</p>`, true);
+            }
+        }
+        
+        // Step 3: Edit APIs
+        let products = [];
+        let customers = [];
+        
+        async function listProducts() {
+            const loading = addLoading('editResults', '📋 Listing products...');
+            
+            try {
+                const response = await fetch('/api/products', {
+                    headers: { 'x-company-id': companyId }
+                });
+                
+                const result = await response.json();
+                loading.remove();
+                
+                if (response.ok) {
+                    products = result.data || [];
+                    addResult('editResults', `
+                        <h4>📋 Products List (${products.length} found)</h4>
+                        <ul>
+                            ${products.map(p => `<li>${p.name} (ID: ${p.id}, SKU: ${p.sku})</li>`).join('')}
+                        </ul>
+                    `);
+                } else {
+                    addResult('editResults', `<h4>❌ Failed to list products</h4><pre>${JSON.stringify(result, null, 2)}</pre>`, true);
+                }
+            } catch (error) {
+                loading.remove();
+                addResult('editResults', `<h4>❌ Network error listing products</h4><p>${error.message}</p>`, true);
+            }
+        }
+        
+        async function editFirstProduct() {
+            if (products.length === 0) {
+                addResult('editResults', '<h4>⚠️ No products found. List products first.</h4>', true);
+                return;
+            }
+            
+            const loading = addLoading('editResults', '✏️ Editing first product...');
+            const product = products[0];
+            
+            const updateData = {
+                ...product,
+                sellingPrice: product.sellingPrice + 100, // Increase price by 100
+                description: product.description + ' [UPDATED]'
+            };
+            
+            try {
+                const response = await fetch(`/api/products/${product.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-company-id': companyId
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                const result = await response.json();
+                loading.remove();
+                
+                if (response.ok) {
+                    addResult('editResults', `
+                        <h4>✅ Product Updated Successfully!</h4>
+                        <p><strong>Name:</strong> ${result.data.name}</p>
+                        <p><strong>Old Price:</strong> KES ${product.sellingPrice}</p>
+                        <p><strong>New Price:</strong> KES ${result.data.sellingPrice}</p>
+                        <p><strong>Description:</strong> ${result.data.description}</p>
+                    `);
+                } else {
+                    addResult('editResults', `<h4>❌ Failed to update product</h4><pre>${JSON.stringify(result, null, 2)}</pre>`, true);
+                }
+            } catch (error) {
+                loading.remove();
+                addResult('editResults', `<h4>❌ Network error updating product</h4><p>${error.message}</p>`, true);
+            }
+        }
+        
+        async function listCustomers() {
+            const loading = addLoading('editResults', '👥 Listing customers...');
+            
+            try {
+                const response = await fetch('/api/customers', {
+                    headers: { 'x-company-id': companyId }
+                });
+                
+                const result = await response.json();
+                loading.remove();
+                
+                if (response.ok) {
+                    customers = result.data || [];
+                    addResult('editResults', `
+                        <h4>👥 Customers List (${customers.length} found)</h4>
+                        <ul>
+                            ${customers.map(c => `<li>${c.name} (ID: ${c.id}, Email: ${c.email})</li>`).join('')}
+                        </ul>
+                    `);
+                } else {
+                    addResult('editResults', `<h4>❌ Failed to list customers</h4><pre>${JSON.stringify(result, null, 2)}</pre>`, true);
+                }
+            } catch (error) {
+                loading.remove();
+                addResult('editResults', `<h4>❌ Network error listing customers</h4><p>${error.message}</p>`, true);
+            }
+        }
+        
+        async function editFirstCustomer() {
+            if (customers.length === 0) {
+                addResult('editResults', '<h4>⚠️ No customers found. List customers first.</h4>', true);
+                return;
+            }
+            
+            const loading = addLoading('editResults', '✏️ Editing first customer...');
+            const customer = customers[0];
+            
+            const updateData = {
+                ...customer,
+                creditLimit: customer.creditLimit + 50000, // Increase credit by 50,000
+                phone: customer.phone + ' [UPDATED]'
+            };
+            
+            try {
+                const response = await fetch(`/api/customers/${customer.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-company-id': companyId
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                const result = await response.json();
+                loading.remove();
+                
+                if (response.ok) {
+                    addResult('editResults', `
+                        <h4>✅ Customer Updated Successfully!</h4>
+                        <p><strong>Name:</strong> ${result.data.name}</p>
+                        <p><strong>Old Credit Limit:</strong> KES ${customer.creditLimit}</p>
+                        <p><strong>New Credit Limit:</strong> KES ${result.data.creditLimit}</p>
+                        <p><strong>Phone:</strong> ${result.data.phone}</p>
+                    `);
+                } else {
+                    addResult('editResults', `<h4>❌ Failed to update customer</h4><pre>${JSON.stringify(result, null, 2)}</pre>`, true);
+                }
+            } catch (error) {
+                loading.remove();
+                addResult('editResults', `<h4>❌ Network error updating customer</h4><p>${error.message}</p>`, true);
+            }
+        }
+        
+        // Step 4: Product Details
+        async function getProductDetails() {
+            if (products.length === 0) {
+                addResult('detailsResults', '<h4>⚠️ No products found. List products first in Step 3.</h4>', true);
+                return;
+            }
+            
+            const loading = addLoading('detailsResults', '🔍 Getting product details...');
+            const product = products[0];
+            
+            try {
+                const response = await fetch(`/api/products/${product.id}`, {
+                    headers: { 'x-company-id': companyId }
+                });
+                
+                const result = await response.json();
+                loading.remove();
+                
+                if (response.ok) {
+                    addResult('detailsResults', `
+                        <h4>🔍 Product Details Retrieved</h4>
+                        <p><strong>Name:</strong> ${result.data.name}</p>
+                        <p><strong>SKU:</strong> ${result.data.sku}</p>
+                        <p><strong>Price:</strong> KES ${result.data.sellingPrice}</p>
+                        <p><strong>Stock:</strong> ${result.data.currentStock}</p>
+                        <p><strong>Location:</strong> ${result.data.location}</p>
+                        <p><strong>Variants:</strong> ${result.data.variants?.length || 0} found</p>
+                    `);
+                } else {
+                    addResult('detailsResults', `<h4>❌ Failed to get product details</h4><pre>${JSON.stringify(result, null, 2)}</pre>`, true);
+                }
+            } catch (error) {
+                loading.remove();
+                addResult('detailsResults', `<h4>❌ Network error getting product details</h4><p>${error.message}</p>`, true);
+            }
+        }
+    </script>
+</body>
+</html>
