@@ -47,6 +47,7 @@ import SampleDataCreator from "./pages/SampleDataCreator";
 import DatabaseMigration from "./pages/DatabaseMigration";
 import ProductTest from "./pages/ProductTest";
 import AdminSetup from "./pages/AdminSetup";
+import ProductEditTest from "./pages/ProductEditTest";
 
 const queryClient = new QueryClient();
 
