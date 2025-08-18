@@ -513,24 +513,16 @@ router.post("/quotations", async (req, res) => {
           const afterDiscount = subtotal - discountAmount;
           const vatAmount = (afterDiscount * (item.vatRate || 0)) / 100;
 
+          const itemId = randomUUID();
+          const description = (item.product?.name || "").replace(/'/g, "''"); // Escape single quotes
+
           await connection.query(
             `INSERT INTO quotation_items
              (id, quotation_id, product_id, description, quantity, unit_price,
               discount_percentage, vat_rate, vat_amount, line_total, sort_order)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [
-              randomUUID(),
-              quotationId,
-              item.productId,
-              item.product?.name || "",
-              item.quantity,
-              item.unitPrice,
-              item.discount || 0,
-              item.vatRate || 0,
-              vatAmount,
-              item.total,
-              i,
-            ],
+             VALUES ('${itemId}', '${quotationId}', '${item.productId}', '${description}',
+                     ${item.quantity}, ${item.unitPrice}, ${item.discount || 0},
+                     ${item.vatRate || 0}, ${vatAmount}, ${item.total}, ${i})`,
           );
         }
       }
