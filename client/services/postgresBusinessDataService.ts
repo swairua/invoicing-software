@@ -16,6 +16,19 @@ class PostgresBusinessDataService {
   private static instance: PostgresBusinessDataService;
   private baseUrl = "/api"; // API endpoint base URL
 
+  // Simple test method to check if basic API connectivity works
+  private async testBasicConnectivity(): Promise<boolean> {
+    try {
+      console.log("🧪 Testing basic connectivity...");
+      const response = await fetch("/api/ping");
+      console.log("🧪 Basic connectivity test response:", response.status);
+      return response.ok;
+    } catch (error) {
+      console.error("🧪 Basic connectivity test failed:", error);
+      return false;
+    }
+  }
+
   public static getInstance(): PostgresBusinessDataService {
     if (!PostgresBusinessDataService.instance) {
       PostgresBusinessDataService.instance = new PostgresBusinessDataService();
