@@ -494,12 +494,12 @@ router.post("/quotations", async (req, res) => {
       await connection.query(
         `INSERT INTO quotations
          (id, quote_number, customer_id, subtotal, tax_amount, discount_amount, total_amount,
-          status, valid_until, issue_date, notes, company_id, created_by)
+          status, valid_until, issue_date, notes, company_id)
          VALUES ('${quotationId}', '${quoteNumber}', '${quotationData.customerId}',
                  ${quotationData.subtotal || 0}, ${quotationData.vatAmount || 0},
                  ${quotationData.discountAmount || 0}, ${quotationData.total || 0},
                  '${quotationData.status || "draft"}', '${validUntil}', '${issueDate}',
-                 '${notes}', '${companyId}', NULL)`,
+                 '${notes}', '${companyId}')`,
       );
 
       // Insert quotation items
