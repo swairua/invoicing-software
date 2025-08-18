@@ -7,6 +7,8 @@ import taxesRouter from "./taxes";
 import seedRouter from "./seed";
 import migrationRouter from "./migration";
 import Database from "../database";
+import customerRepository from "../repositories/customerRepository";
+import productRepository from "../repositories/productRepository";
 
 const router = Router();
 
