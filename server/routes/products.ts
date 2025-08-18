@@ -344,6 +344,10 @@ router.put("/:id", async (req, res) => {
       length,
       width,
       height,
+      allowBackorders, // Remove this as it doesn't exist in schema
+      hasVariants, // Remove this as it doesn't exist in schema
+      taxable, // Handle separately
+      unit, // Handle separately
       ...cleanBody
     } = req.body;
 
@@ -358,13 +362,13 @@ router.put("/:id", async (req, res) => {
     // Map frontend fields to database fields - exact database column names
     const dbUpdateData = {
       ...cleanBody,
-      // Don't include the dimensions object - we already extracted length/width/height
+      // Map frontend boolean fields to database schema
+      unitOfMeasure: req.body.unit || cleanBody.unitOfMeasure,
+      isTaxable: req.body.taxable !== undefined ? req.body.taxable : cleanBody.isTaxable,
     };
 
     // Remove the dimensions object and other frontend-only fields
     delete dbUpdateData.dimensions;
-    delete dbUpdateData.unit; // This gets converted to unit_of_measure by toSnakeCase
-    delete dbUpdateData.taxable; // This gets converted to is_taxable by toSnakeCase
 
     console.log("  Cleaned update data fields:", Object.keys(dbUpdateData));
 
