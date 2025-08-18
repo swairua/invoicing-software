@@ -60,7 +60,7 @@ export class ProductRepository extends BaseRepository {
     `;
     
     // Create the parameters array for the data query
-    const dataParams = [...params, limit, offset];
+    const dataParams = [...params, String(limit), String(offset)];
     const result = await this.db.query(query, dataParams);
     
     return {
