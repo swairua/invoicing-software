@@ -381,7 +381,33 @@ class PostgresBusinessDataService {
   public async getQuotations(): Promise<Quotation[]> {
     try {
       const response = await this.apiCall("/quotations");
-      return Array.isArray(response.data) ? response.data : [];
+      const quotations = Array.isArray(response.data) ? response.data : [];
+
+      // Transform database column names to TypeScript interface properties
+      return quotations.map((q: any) => ({
+        id: q.id,
+        quoteNumber: q.quote_number,
+        customerId: q.customer_id,
+        customer: {
+          id: q.customer_id,
+          name: q.customer_name,
+          email: q.customer_email,
+          // Add more customer fields as needed
+        },
+        items: [], // Will be populated when needed
+        subtotal: parseFloat(q.subtotal) || 0,
+        vatAmount: parseFloat(q.vat_amount) || 0,
+        discountAmount: parseFloat(q.discount_amount) || 0,
+        total: parseFloat(q.total_amount) || 0,
+        status: q.status,
+        validUntil: new Date(q.valid_until),
+        issueDate: new Date(q.issue_date),
+        notes: q.notes,
+        companyId: q.company_id,
+        createdBy: q.created_by,
+        createdAt: new Date(q.created_at),
+        updatedAt: new Date(q.updated_at),
+      }));
     } catch (error) {
       console.error("Failed to fetch quotations:", error);
       throw new Error(
