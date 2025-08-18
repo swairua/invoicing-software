@@ -563,13 +563,6 @@ router.post("/quotations", async (req, res) => {
       connection.release();
       throw error;
     }
-
-    console.log("Quotation created successfully");
-
-    res.status(201).json({
-      success: true,
-      data: createdQuotationResult.rows[0],
-    });
   } catch (error) {
     console.error("Error creating quotation:", error);
 
