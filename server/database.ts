@@ -213,7 +213,7 @@ export class Database {
   // Helper method to add sample customers
   private async addSampleCustomers(): Promise<void> {
     try {
-      const companyId = '550e8400-e29b-41d4-a716-446655440000';
+      const companyId = '00000000-0000-0000-0000-000000000001';
 
       const sampleCustomers = [
         {
@@ -275,7 +275,7 @@ export class Database {
   // Helper method to add sample products
   private async addSampleProducts(): Promise<void> {
     try {
-      const companyId = '550e8400-e29b-41d4-a716-446655440000';
+      const companyId = '00000000-0000-0000-0000-000000000001';
 
       const sampleProducts = [
         {
