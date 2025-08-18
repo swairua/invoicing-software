@@ -92,6 +92,22 @@ router.post("/create-sample-data", async (req, res) => {
       }
     ];
 
+    // Sample categories data
+    const sampleCategories = [
+      {
+        name: 'Medical Supplies',
+        description: 'Basic medical supplies and consumables',
+        isActive: true,
+        companyId
+      },
+      {
+        name: 'Medical Equipment',
+        description: 'Medical devices and equipment',
+        isActive: true,
+        companyId
+      }
+    ];
+
     // Sample products data
     const sampleProducts = [
       {
