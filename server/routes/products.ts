@@ -246,9 +246,15 @@ router.get("/:id", async (req, res) => {
       console.log("📋 Product fields:", Object.keys(product));
       console.log("🔍 Category ID:", product.categoryId);
       console.log("🔍 Unit of Measure:", product.unitOfMeasure);
+    } else {
+      console.log("❌ Product not found, checking available products...");
+      // Log available products for debugging
+      const allProducts = await productRepository.findAll(companyId, { limit: 5 });
+      console.log("📋 Available products:", allProducts.products.map(p => ({ id: p.id, name: p.name })));
     }
 
     if (!product) {
+      console.log("Returning 404 for product not found");
       return res.status(404).json({
         success: false,
         error: "Product not found",
