@@ -48,7 +48,7 @@ router.get("/test", (req, res) => {
 
 // Simple ping endpoint for connectivity testing
 router.get("/ping", (req, res) => {
-  console.log("�� Ping endpoint called");
+  console.log("🏓 Ping endpoint called");
   res.json({ pong: true, timestamp: Date.now() });
 });
 
@@ -519,7 +519,7 @@ router.post("/quotations", async (req, res) => {
         }
       }
 
-      await client.query('COMMIT');
+      await Database.query('COMMIT');
 
       console.log("Quotation created successfully");
 
@@ -528,10 +528,8 @@ router.post("/quotations", async (req, res) => {
         data: createdQuotationResult.rows[0]
       });
     } catch (error) {
-      await client.query('ROLLBACK');
+      await Database.query('ROLLBACK');
       throw error;
-    } finally {
-      client.release();
     }
   } catch (error) {
     console.error("Error creating quotation:", error);
