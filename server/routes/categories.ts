@@ -2,6 +2,73 @@ import { Router } from "express";
 
 const router = Router();
 
+// Create sample categories if none exist
+router.post("/setup", async (req, res) => {
+  try {
+    const companyId =
+      (req.headers["x-company-id"] as string) ||
+      "00000000-0000-0000-0000-000000000001";
+
+    const { default: Database } = await import("../database.js");
+
+    // Check if categories exist
+    const existingCategories = await Database.query(
+      "SELECT COUNT(*) as count FROM product_categories WHERE company_id = ?",
+      [companyId]
+    );
+
+    if (existingCategories.rows[0].count === 0) {
+      console.log("🔧 Creating sample categories...");
+
+      const sampleCategories = [
+        { name: 'Medical Supplies', description: 'Basic medical supplies and consumables' },
+        { name: 'Medical Equipment', description: 'Medical devices and equipment' },
+        { name: 'Electronics', description: 'Electronic devices and accessories' },
+        { name: 'General', description: 'General products and items' },
+      ];
+
+      const createdCategories = [];
+
+      for (const category of sampleCategories) {
+        await Database.query(
+          `INSERT INTO product_categories (id, name, description, company_id, is_active, created_at, updated_at)
+           VALUES (UUID(), ?, ?, ?, TRUE, NOW(), NOW())`,
+          [category.name, category.description, companyId]
+        );
+
+        // Get the created category
+        const created = await Database.query(
+          `SELECT * FROM product_categories WHERE company_id = ? AND name = ? ORDER BY created_at DESC LIMIT 1`,
+          [companyId, category.name]
+        );
+
+        if (created.rows[0]) {
+          createdCategories.push(created.rows[0]);
+        }
+      }
+
+      res.json({
+        success: true,
+        message: `Created ${createdCategories.length} sample categories`,
+        data: createdCategories,
+      });
+    } else {
+      res.json({
+        success: true,
+        message: "Categories already exist",
+        count: existingCategories.rows[0].count,
+      });
+    }
+  } catch (error) {
+    console.error("Error creating sample categories:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to create sample categories",
+      details: error.message,
+    });
+  }
+});
+
 // Get all categories
 router.get("/", async (req, res) => {
   try {
