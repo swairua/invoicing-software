@@ -241,7 +241,7 @@ router.post("/create-sample-data", async (req, res) => {
         results.products.push(product);
         console.log(`✅ Created product: ${product.name}`);
       } catch (error) {
-        console.error(`❌ Failed to create product ${productData.name}:`, error);
+        console.error(`��� Failed to create product ${productData.name}:`, error);
       }
     }
 
@@ -502,9 +502,9 @@ router.post("/quotations", async (req, res) => {
 
           await client.query(
             `INSERT INTO quotation_items
-             (quotation_id, product_id, description, quantity, unit_price,
+             (id, quotation_id, product_id, description, quantity, unit_price,
               discount_percentage, vat_rate, vat_amount, line_total, sort_order)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+             VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
               quotationId,
               item.productId,
