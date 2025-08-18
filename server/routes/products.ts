@@ -344,27 +344,65 @@ router.put("/:id", async (req, res) => {
       length,
       width,
       height,
+      allowBackorders, // Remove this as it doesn't exist in schema
+      hasVariants, // Remove this as it doesn't exist in schema
+      taxable, // Handle separately
+      unit, // Handle separately
+      dimensions, // Remove dimensions object
       ...cleanBody
     } = req.body;
 
+    // Build the update data object with explicit field mapping
+    const dbUpdateData: any = {};
+
+    // Copy safe fields that actually exist in the current PostgreSQL database
+    // Using only fields that we know exist based on the actual running database
+    const safeFields = [
+      "name",
+      "description",
+      "sku",
+      "barcode",
+      "category",
+      "subcategory",
+      "brand",
+      "supplier",
+      "purchasePrice",
+      "sellingPrice",
+      "markup",
+      "costPrice",
+      "minStock",
+      "maxStock",
+      "currentStock",
+      "reservedStock",
+      "availableStock",
+      "reorderLevel",
+      "location",
+      "binLocation",
+      "tags",
+      "taxRate",
+      "trackInventory",
+      "isActive",
+      "notes",
+      "categoryId",
+      "supplierId",
+    ];
+
+    safeFields.forEach((field) => {
+      if (cleanBody[field] !== undefined) {
+        dbUpdateData[field] = cleanBody[field];
+      }
+    });
+
+    // Don't map unit and taxable fields until we verify what columns exist
+    // The database schema seems to be different from the migration files
+
     // Handle dimensions properly
     if (req.body.dimensions) {
-      cleanBody.length = req.body.dimensions.length || null;
-      cleanBody.width = req.body.dimensions.width || null;
-      cleanBody.height = req.body.dimensions.height || null;
-      cleanBody.dimensionUnit = req.body.dimensions.unit || "cm";
+      dbUpdateData.length = req.body.dimensions.length || null;
+      dbUpdateData.width = req.body.dimensions.width || null;
+      dbUpdateData.height = req.body.dimensions.height || null;
+      dbUpdateData.dimensionUnit = req.body.dimensions.unit || "cm";
     }
-
-    // Map frontend fields to database fields - exact database column names
-    const dbUpdateData = {
-      ...cleanBody,
-      // Don't include the dimensions object - we already extracted length/width/height
-    };
-
-    // Remove the dimensions object and other frontend-only fields
-    delete dbUpdateData.dimensions;
-    delete dbUpdateData.unit; // This gets converted to unit_of_measure by toSnakeCase
-    delete dbUpdateData.taxable; // This gets converted to is_taxable by toSnakeCase
 
     console.log("  Cleaned update data fields:", Object.keys(dbUpdateData));
 
