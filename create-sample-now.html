@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Sample Data Now</title>
+    <script>
+        async function createSampleData() {
+            console.log('🚀 Creating sample data...');
+            
+            try {
+                const response = await fetch('/api/create-sample-direct', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-company-id': '00000000-0000-0000-0000-000000000001'
+                    }
+                });
+                
+                const result = await response.json();
+                console.log('📊 Result:', result);
+                
+                if (response.ok) {
+                    document.body.innerHTML = `
+                        <h1>✅ Sample Data Created Successfully!</h1>
+                        <p>${result.message}</p>
+                        <p><strong>You can now:</strong></p>
+                        <ul>
+                            <li>Go to Products page to see sample products</li>
+                            <li>Go to Customers page to see sample customers</li>
+                            <li>Try creating new products (category dropdown should work)</li>
+                            <li>Access individual product details</li>
+                        </ul>
+                        <p><a href="/products">Go to Products</a> | <a href="/customers">Go to Customers</a></p>
+                    `;
+                } else {
+                    document.body.innerHTML = `
+                        <h1>❌ Failed to create sample data</h1>
+                        <p>Error: ${result.error}</p>
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                console.error('❌ Error:', error);
+                document.body.innerHTML = `
+                    <h1>❌ Network Error</h1>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+        
+        // Auto-create when page loads
+        window.onload = createSampleData;
+    </script>
+</head>
+<body>
+    <h1>Creating Sample Data...</h1>
+    <p>Please wait while sample data is being created.</p>
+</body>
+</html>

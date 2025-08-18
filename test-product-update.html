@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Product Update</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .response {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        .error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        .success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Product Update Functionality</h1>
+    
+    <h2>1. Check Product Exists</h2>
+    <button onclick="checkProductExists()">Get Product b4ca8c2d-7c1a-11f0-a984-365070d15890</button>
+    <div id="product-check-result" class="response"></div>
+
+    <h2>2. Get All Products</h2>
+    <button onclick="getAllProducts()">Get All Products</button>
+    <div id="all-products-result" class="response"></div>
+
+    <h2>3. Test Update Product</h2>
+    <button onclick="testUpdateProduct()">Update First Available Product</button>
+    <div id="update-result" class="response"></div>
+
+    <h2>4. Check Categories</h2>
+    <button onclick="getCategories()">Get Categories</button>
+    <div id="categories-result" class="response"></div>
+
+    <script>
+        let firstProductId = null;
+
+        async function logResponse(elementId, promise, title = '') {
+            const element = document.getElementById(elementId);
+            try {
+                element.textContent = 'Loading...';
+                const response = await promise;
+                const data = await response.json();
+                
+                if (response.ok) {
+                    element.className = 'response success';
+                    element.textContent = title + 'SUCCESS: ' + JSON.stringify(data, null, 2);
+                } else {
+                    element.className = 'response error';
+                    element.textContent = title + 'ERROR: ' + JSON.stringify(data, null, 2);
+                }
+            } catch (error) {
+                element.className = 'response error';
+                element.textContent = title + 'NETWORK ERROR: ' + error.message;
+            }
+        }
+
+        async function checkProductExists() {
+            await logResponse('product-check-result', 
+                fetch('/api/products/b4ca8c2d-7c1a-11f0-a984-365070d15890', {
+                    headers: {
+                        'x-company-id': '00000000-0000-0000-0000-000000000001'
+                    }
+                }), 'Get Product: ');
+        }
+
+        async function getAllProducts() {
+            const response = await fetch('/api/products', {
+                headers: {
+                    'x-company-id': '00000000-0000-0000-0000-000000000001'
+                }
+            });
+            const data = await response.json();
+            
+            if (response.ok && data.data && data.data.length > 0) {
+                firstProductId = data.data[0].id;
+                document.getElementById('all-products-result').className = 'response success';
+                document.getElementById('all-products-result').textContent = 
+                    'Found ' + data.data.length + ' products. First product ID: ' + firstProductId + 
+                    '\n\nAll products:\n' + JSON.stringify(data, null, 2);
+            } else {
+                document.getElementById('all-products-result').className = 'response error';
+                document.getElementById('all-products-result').textContent = 'ERROR: ' + JSON.stringify(data, null, 2);
+            }
+        }
+
+        async function testUpdateProduct() {
+            if (!firstProductId) {
+                document.getElementById('update-result').className = 'response error';
+                document.getElementById('update-result').textContent = 'ERROR: Please get all products first to find a valid product ID';
+                return;
+            }
+
+            const updateData = {
+                name: "Updated Product Name",
+                description: "This product has been updated via test",
+                sku: "UPDATED-SKU-123",
+                category: "703f6227-7c1a-11f0-a984-365070d15890", // Use a category ID
+                unit: "piece",
+                purchasePrice: 100,
+                sellingPrice: 150,
+                minStock: 5,
+                maxStock: 500,
+                currentStock: 100,
+                taxable: true,
+                taxRate: 16,
+                trackInventory: true,
+                allowBackorders: false,
+                hasVariants: false,
+                status: "active",
+                isActive: true,
+                notes: "Updated through test suite"
+            };
+
+            await logResponse('update-result', 
+                fetch(`/api/products/${firstProductId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-company-id': '00000000-0000-0000-0000-000000000001'
+                    },
+                    body: JSON.stringify(updateData)
+                }), `Update Product ${firstProductId}: `);
+        }
+
+        async function getCategories() {
+            await logResponse('categories-result', 
+                fetch('/api/categories', {
+                    headers: {
+                        'x-company-id': '00000000-0000-0000-0000-000000000001'
+                    }
+                }), 'Get Categories: ');
+        }
+
+        // Auto-load products on page load
+        window.onload = function() {
+            getAllProducts();
+        };
+    </script>
+</body>
+</html>

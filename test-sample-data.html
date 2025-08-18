@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Sample Data Creation</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        button { padding: 10px 20px; font-size: 16px; margin: 10px; }
+        .result { margin: 10px 0; padding: 10px; border: 1px solid #ccc; background: #f9f9f9; }
+        .error { background: #ffe6e6; border-color: #ff9999; }
+        .success { background: #e6ffe6; border-color: #99ff99; }
+    </style>
+</head>
+<body>
+    <h1>Test Sample Data Creation</h1>
+    <button onclick="createSampleData()">Create Sample Data</button>
+    <button onclick="checkData()">Check Current Data</button>
+    
+    <div id="results"></div>
+
+    <script>
+        async function createSampleData() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<div class="result">Creating sample data...</div>';
+            
+            try {
+                const response = await fetch('/api/create-sample-data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-company-id': '00000000-0000-0000-0000-000000000001'
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    resultsDiv.innerHTML = `
+                        <div class="result success">
+                            <h3>✅ Sample data created successfully!</h3>
+                            <p>Categories: ${result.summary.categoriesCreated}</p>
+                            <p>Customers: ${result.summary.customersCreated}</p>
+                            <p>Products: ${result.summary.productsCreated}</p>
+                            <pre>${JSON.stringify(result.data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `
+                        <div class="result error">
+                            <h3>❌ Failed to create sample data</h3>
+                            <pre>${JSON.stringify(result, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="result error">
+                        <h3>❌ Network error</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        async function checkData() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<div class="result">Checking current data...</div>';
+            
+            try {
+                const [categoriesRes, customersRes, productsRes] = await Promise.all([
+                    fetch('/api/categories', { headers: { 'x-company-id': '00000000-0000-0000-0000-000000000001' } }),
+                    fetch('/api/customers', { headers: { 'x-company-id': '00000000-0000-0000-0000-000000000001' } }),
+                    fetch('/api/products', { headers: { 'x-company-id': '00000000-0000-0000-0000-000000000001' } })
+                ]);
+                
+                const [categories, customers, products] = await Promise.all([
+                    categoriesRes.json(),
+                    customersRes.json(),
+                    productsRes.json()
+                ]);
+                
+                resultsDiv.innerHTML = `
+                    <div class="result">
+                        <h3>📊 Current Data</h3>
+                        <p>Categories: ${categories.data?.length || 0}</p>
+                        <p>Customers: ${customers.data?.length || 0}</p>
+                        <p>Products: ${products.data?.length || 0}</p>
+                    </div>
+                `;
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="result error">
+                        <h3>❌ Failed to check data</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
