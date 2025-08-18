@@ -157,7 +157,7 @@ export default function NewProduct() {
           brand: productData.brand || "",
           supplier: productData.supplier || "",
           unit: productData.unitOfMeasure || productData.unit || "piece",
-          weight: productData.weight || 0,
+          weight: Number(productData.weight) || 0,
           dimensions: productData.dimensions || {
             length: productData.length || 0,
             width: productData.width || 0,
