@@ -18,6 +18,7 @@ router.get("/", async (req, res) => {
     const status = req.query.status as string;
     const lowStock = req.query.lowStock === "true";
 
+    console.log("📋 Calling productRepository.findAll...");
     const result = await productRepository.findAll(companyId, {
       page,
       limit,
@@ -26,8 +27,9 @@ router.get("/", async (req, res) => {
       status,
       lowStock,
     });
+    console.log("✅ Repository call successful, products found:", result.products.length);
 
-    res.json({
+    const response = {
       success: true,
       data: result.products,
       meta: {
@@ -36,7 +38,10 @@ router.get("/", async (req, res) => {
         limit,
         totalPages: Math.ceil(result.total / limit),
       },
-    });
+    };
+
+    console.log("📤 Sending products response");
+    res.json(response);
   } catch (error) {
     console.error("Error fetching products:", error);
     console.log("Returning fallback products data");
