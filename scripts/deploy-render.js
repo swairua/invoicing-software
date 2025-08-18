@@ -55,9 +55,9 @@ async function deployToRender() {
     console.log("✅ MySQL connection successful!");
 
     // Test basic query
-    const [result] = await connection.execute("SELECT NOW() AS current_time, VERSION() AS version");
-    console.log("🕐 Server time:", result[0].current_time);
-    console.log("🗄️ MySQL version:", result[0].version.split("-")[0]);
+    const [result] = await connection.execute("SELECT NOW() AS server_time, VERSION() AS db_version");
+    console.log("🕐 Server time:", result[0].server_time);
+    console.log("🗄️ MySQL version:", result[0].db_version.split("-")[0]);
 
     // Check if tables exist
     const [tables] = await connection.execute(`
