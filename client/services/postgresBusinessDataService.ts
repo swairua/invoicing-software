@@ -56,7 +56,20 @@ class PostgresBusinessDataService {
 
     try {
       console.log(`🔄 Starting fetch request to ${url}...`);
-      const response = await fetch(url, requestOptions);
+
+      // Test with a timeout to see if the request hangs
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => {
+        console.log(`⏰ Request timeout after 10 seconds for ${url}`);
+        controller.abort();
+      }, 10000);
+
+      const response = await fetch(url, {
+        ...requestOptions,
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
 
       console.log(`📥 Response received:`, {
         status: response.status,
@@ -88,6 +101,33 @@ class PostgresBusinessDataService {
         stack: error.stack,
         cause: error.cause
       });
+
+      // If it's a TypeError: Failed to fetch, it might be a proxy/network issue
+      if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+        console.error(`🚨 Failed to fetch error detected. This usually indicates:`);
+        console.error(`   1. Network connectivity issues`);
+        console.error(`   2. CORS policy blocking the request`);
+        console.error(`   3. Server not responding on the expected URL`);
+        console.error(`   4. Proxy configuration issues`);
+
+        // Try with full URL as fallback
+        const fullUrl = window.location.origin + url;
+        console.log(`🔄 Attempting fallback request to: ${fullUrl}`);
+
+        try {
+          const fallbackResponse = await fetch(fullUrl, requestOptions);
+          console.log(`📥 Fallback response:`, fallbackResponse.status);
+
+          if (fallbackResponse.ok) {
+            const fallbackData = await fallbackResponse.json();
+            console.log(`✅ Fallback request successful!`);
+            return fallbackData;
+          }
+        } catch (fallbackError) {
+          console.error(`💥 Fallback request also failed:`, fallbackError);
+        }
+      }
+
       throw error;
     }
   }
