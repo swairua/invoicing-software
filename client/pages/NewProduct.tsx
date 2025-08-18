@@ -159,9 +159,9 @@ export default function NewProduct() {
           unit: productData.unitOfMeasure || productData.unit || "piece",
           weight: Number(productData.weight) || 0,
           dimensions: productData.dimensions || {
-            length: productData.length || 0,
-            width: productData.width || 0,
-            height: productData.height || 0,
+            length: Number(productData.length) || 0,
+            width: Number(productData.width) || 0,
+            height: Number(productData.height) || 0,
             unit: productData.dimensionUnit || "cm",
           },
           purchasePrice: Number(productData.purchasePrice) || 0,
@@ -209,7 +209,7 @@ export default function NewProduct() {
       setLoading(true);
 
       console.log("🚀 Form submission started");
-      console.log("📊 Form data:", data);
+      console.log("���� Form data:", data);
       console.log("🔧 Is edit mode:", isEditMode);
       console.log("📦 Product:", product);
 
