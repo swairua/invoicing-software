@@ -181,7 +181,10 @@ const AppRoutes = () => (
       <Route path="credit-notes/:id" element={<CreditNoteDetails />} />
       <Route path="credit-notes/new" element={<NewCreditNote />} />
       <Route path="statement-of-account" element={<StatementOfAccount />} />
-      <Route path="remittance-advice" element={<RemittanceAdvice />} />
+      <Route path="remittance-advice" element={<RemittanceList />} />
+      <Route path="remittance-advice/:id" element={<RemittanceAdvice />} />
+      <Route path="remittance-advice/:id/edit" element={<RemittanceAdvice />} />
+      <Route path="remittance-advice/new" element={<RemittanceAdvice />} />
       <Route path="reports" element={<Reports />} />
       <Route path="reports/sales" element={<Reports />} />
       <Route path="reports/stock" element={<Reports />} />
