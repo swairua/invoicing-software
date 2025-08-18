@@ -264,11 +264,14 @@ export default function NewProduct() {
         // Populate form with existing product data
         form.reset(formData);
 
-        // Wait for form to reset then log the current values
+        // Force Select components to update after form reset
         setTimeout(() => {
           console.log("✅ Form values after reset:", form.getValues());
           console.log("🏷️ Category field value:", form.getValues("category"));
           console.log("📦 Unit field value:", form.getValues("unit"));
+
+          // Force re-render of Select components by triggering state change
+          setProduct({...productData});
         }, 100);
       }
     } catch (error) {
