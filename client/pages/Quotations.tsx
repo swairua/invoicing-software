@@ -334,7 +334,10 @@ export default function Quotations() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(quotations.reduce((sum, q) => sum + q.total, 0))}
+              {formatCurrency(quotations.reduce((sum, q) => {
+                const total = parseFloat(q.total?.toString() || "0") || 0;
+                return sum + total;
+              }, 0))}
             </div>
             <p className="text-xs text-muted-foreground">
               Total quotations value
