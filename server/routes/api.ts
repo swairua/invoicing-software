@@ -374,6 +374,7 @@ router.use("/invoices", invoicesRouter);
 router.use("/taxes", taxesRouter);
 router.use("/seed", seedRouter);
 router.use("/migration", migrationRouter);
+router.use("/test-update", testUpdateRouter);
 
 router.get("/quotations", async (req, res) => {
   try {
