@@ -424,14 +424,8 @@ router.post("/", async (req, res) => {
 
       for (const item of items) {
         const lineSubtotal = item.unitPrice * item.quantity;
-        const taxRate = await Database.query(
-          `
-          SELECT get_applicable_tax_rate($1, $2, $3, $4) as tax_rate
-        `,
-          [companyId, item.productId, customerId, new Date()],
-        );
-
-        const vatRate = parseFloat(taxRate.rows[0].tax_rate);
+        // Use default VAT rate of 16% if not specified
+        const vatRate = item.vatRate || 16;
         const vatAmount = (lineSubtotal * vatRate) / 100;
 
         subtotal += lineSubtotal;
