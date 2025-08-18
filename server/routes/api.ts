@@ -62,6 +62,25 @@ router.get("/test-sample-data", (req, res) => {
   });
 });
 
+// Simple endpoint to create sample data via database method
+router.post("/create-sample-direct", async (req, res) => {
+  try {
+    console.log("🚀 Creating sample data directly via database...");
+    await Database.createSampleData();
+    res.json({
+      success: true,
+      message: "Sample data created successfully via database method"
+    });
+  } catch (error) {
+    console.error("❌ Failed to create sample data:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to create sample data",
+      details: error.message
+    });
+  }
+});
+
 // Create sample data endpoint (simulates form submissions)
 router.post("/create-sample-data", async (req, res) => {
   try {
