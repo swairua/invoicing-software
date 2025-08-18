@@ -388,30 +388,34 @@ class PostgresBusinessDataService {
       console.log("📊 Quotations count:", quotations.length);
 
       // Transform database column names to TypeScript interface properties
-      const transformedQuotations = quotations.map((q: any) => ({
-        id: q.id,
-        quoteNumber: q.quote_number,
-        customerId: q.customer_id,
-        customer: {
-          id: q.customer_id,
-          name: q.customer_name,
-          email: q.customer_email,
-          // Add more customer fields as needed
-        },
-        items: [], // Will be populated when needed
-        subtotal: parseFloat(q.subtotal) || 0,
-        vatAmount: parseFloat(q.vat_amount) || 0,
-        discountAmount: parseFloat(q.discount_amount) || 0,
-        total: parseFloat(q.total_amount) || 0,
-        status: q.status,
-        validUntil: new Date(q.valid_until),
-        issueDate: new Date(q.issue_date),
-        notes: q.notes,
-        companyId: q.company_id,
-        createdBy: q.created_by,
-        createdAt: new Date(q.created_at),
-        updatedAt: new Date(q.updated_at),
-      }));
+      const transformedQuotations = quotations.map((q: any) => {
+        console.log("🔄 Transforming quotation:", q);
+
+        return {
+          id: q.id,
+          quoteNumber: q.quote_number || q.quoteNumber,
+          customerId: q.customer_id || q.customerId,
+          customer: {
+            id: q.customer_id || q.customerId,
+            name: q.customer_name || q.customerName || "Unknown Customer",
+            email: q.customer_email || q.customerEmail || "",
+            // Add more customer fields as needed
+          },
+          items: [], // Will be populated when needed
+          subtotal: parseFloat(q.subtotal || q.subtotal || "0") || 0,
+          vatAmount: parseFloat(q.vat_amount || q.vatAmount || q.tax_amount || "0") || 0,
+          discountAmount: parseFloat(q.discount_amount || q.discountAmount || "0") || 0,
+          total: parseFloat(q.total_amount || q.total || q.totalAmount || "0") || 0,
+          status: q.status || "draft",
+          validUntil: q.valid_until ? new Date(q.valid_until) : new Date(),
+          issueDate: q.issue_date ? new Date(q.issue_date) : new Date(),
+          notes: q.notes || "",
+          companyId: q.company_id || q.companyId,
+          createdBy: q.created_by || q.createdBy || "1",
+          createdAt: q.created_at ? new Date(q.created_at) : new Date(),
+          updatedAt: q.updated_at ? new Date(q.updated_at) : new Date(),
+        };
+      });
 
       console.log("✨ Transformed quotations:", transformedQuotations);
       return transformedQuotations;
