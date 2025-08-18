@@ -434,6 +434,20 @@ export default function NewQuotation() {
 
   const totals = calculateTotals();
 
+  // Show loading state while fetching quotation data in edit mode
+  if (isEditMode && isLoadingQuotation) {
+    return (
+      <div className="container mx-auto py-6">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="flex items-center space-x-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <span>Loading quotation...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex items-center justify-between">
