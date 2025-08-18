@@ -394,15 +394,24 @@ export default function NewQuotation() {
         validUntil: formData.validUntil,
         issueDate: formData.issueDate,
         notes: formData.notes,
-        status: "draft",
+        status: formData.status,
       };
 
-      await dataService.createQuotation(quotationData);
-
-      toast({
-        title: "Success",
-        description: "Quotation created successfully.",
-      });
+      if (isEditMode && existingQuotation) {
+        // Update existing quotation
+        await dataService.updateQuotation(existingQuotation.id, quotationData);
+        toast({
+          title: "Success",
+          description: "Quotation updated successfully.",
+        });
+      } else {
+        // Create new quotation
+        await dataService.createQuotation(quotationData);
+        toast({
+          title: "Success",
+          description: "Quotation created successfully.",
+        });
+      }
 
       navigate("/quotations?refresh=true");
     } catch (error) {
