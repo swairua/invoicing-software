@@ -137,51 +137,61 @@ export default function NewProduct() {
   const loadProduct = async (productId: string) => {
     try {
       setLoading(true);
+      console.log("🔍 Loading product:", productId);
+
       const productData = await dataService.getProductById(productId);
+      console.log("📦 Received product data:", productData);
+
       if (productData) {
         setProduct(productData);
-        
-        // Populate form with existing product data
-        form.reset({
+
+        // Map the product data to form structure
+        const formData = {
           name: productData.name,
           description: productData.description || "",
           sku: productData.sku,
           barcode: productData.barcode || "",
-          category: productData.categoryId || productData.category,
+          category: productData.categoryId || productData.category || "",
           subcategory: productData.subcategory || "",
           brand: productData.brand || "",
           supplier: productData.supplier || "",
-          unit: productData.unit,
+          unit: productData.unitOfMeasure || productData.unit || "piece",
           weight: productData.weight || 0,
           dimensions: productData.dimensions || {
-            length: 0,
-            width: 0,
-            height: 0,
-            unit: "cm",
+            length: productData.length || 0,
+            width: productData.width || 0,
+            height: productData.height || 0,
+            unit: productData.dimensionUnit || "cm",
           },
-          purchasePrice: productData.purchasePrice,
-          sellingPrice: productData.sellingPrice,
+          purchasePrice: productData.purchasePrice || 0,
+          sellingPrice: productData.sellingPrice || 0,
           wholesalePrice: productData.wholesalePrice || 0,
           retailPrice: productData.retailPrice || 0,
-          minStock: productData.minStock,
-          maxStock: productData.maxStock,
-          currentStock: productData.currentStock,
+          minStock: productData.minStock || 0,
+          maxStock: productData.maxStock || 1000,
+          currentStock: productData.currentStock || 0,
           reorderLevel: productData.reorderLevel || 0,
           location: productData.location || "",
           binLocation: productData.binLocation || "",
-          tags: productData.tags?.join(", ") || "",
-          taxable: productData.taxable,
+          tags: Array.isArray(productData.tags) ? productData.tags.join(", ") :
+                typeof productData.tags === 'string' ? productData.tags : "",
+          taxable: productData.isTaxable ?? productData.taxable ?? true,
           taxRate: productData.taxRate || 16,
-          trackInventory: productData.trackInventory,
-          allowBackorders: productData.allowBackorders,
-          hasVariants: productData.hasVariants,
-          status: productData.status,
-          isActive: productData.isActive,
+          trackInventory: productData.trackInventory ?? true,
+          allowBackorders: productData.allowBackorders ?? false,
+          hasVariants: productData.hasVariants ?? false,
+          status: productData.status || "active",
+          isActive: productData.isActive ?? true,
           notes: productData.notes || "",
-        });
+        };
+
+        console.log("📋 Mapped form data:", formData);
+
+        // Populate form with existing product data
+        form.reset(formData);
       }
     } catch (error) {
-      console.error("Failed to load product:", error);
+      console.error("❌ Failed to load product:", error);
       toast({
         title: "Error",
         description: "Failed to load product details",
