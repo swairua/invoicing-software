@@ -187,7 +187,7 @@ export default function NewCreditNote() {
       > = {
         customerId: selectedCustomerId,
         customer,
-        invoiceId: selectedInvoiceId || undefined,
+        invoiceId: selectedInvoiceId && selectedInvoiceId !== "none" ? selectedInvoiceId : undefined,
         items,
         subtotal,
         vatAmount,
