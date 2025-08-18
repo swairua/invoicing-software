@@ -438,11 +438,10 @@ router.post("/", async (req, res) => {
       const invoiceResult = await Database.query(
         `
         INSERT INTO invoices (
-          company_id, customer_id, invoice_number, subtotal, vat_amount, 
+          id, company_id, customer_id, invoice_number, subtotal, vat_amount,
           total_amount, balance_due, issue_date, due_date, notes, created_by
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-        RETURNING *
+        VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
         [
           companyId,
@@ -457,6 +456,12 @@ router.post("/", async (req, res) => {
           notes,
           userId,
         ],
+      );
+
+      // Get the created invoice ID
+      const createdInvoiceResult = await Database.query(
+        `SELECT * FROM invoices WHERE invoice_number = ? AND company_id = ?`,
+        [invoiceNumber, companyId]
       );
 
       const invoice = invoiceResult.rows[0];
