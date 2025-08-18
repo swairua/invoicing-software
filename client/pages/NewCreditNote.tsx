@@ -187,7 +187,10 @@ export default function NewCreditNote() {
       > = {
         customerId: selectedCustomerId,
         customer,
-        invoiceId: selectedInvoiceId && selectedInvoiceId !== "none" ? selectedInvoiceId : undefined,
+        invoiceId:
+          selectedInvoiceId && selectedInvoiceId !== "none"
+            ? selectedInvoiceId
+            : undefined,
         items,
         subtotal,
         vatAmount,
@@ -403,7 +406,9 @@ export default function NewCreditNote() {
                   <TableBody>
                     {items.map((item) => (
                       <TableRow key={item.id}>
-                        <TableCell>{item.product?.name || 'Unknown Product'}</TableCell>
+                        <TableCell>
+                          {item.product?.name || "Unknown Product"}
+                        </TableCell>
                         <TableCell>
                           <Input
                             type="number"

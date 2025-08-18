@@ -28,7 +28,7 @@ router.get("/", async (req, res) => {
     );
 
     // Get items separately for each invoice
-    const invoiceIds = result.rows.map(row => row.id);
+    const invoiceIds = result.rows.map((row) => row.id);
     let itemsMap = {};
 
     if (invoiceIds.length > 0) {
@@ -40,14 +40,14 @@ router.get("/", async (req, res) => {
           p.sku as product_sku
         FROM invoice_items ii
         LEFT JOIN products p ON ii.product_id = p.id
-        WHERE ii.invoice_id IN (${invoiceIds.map(() => '?').join(',')})
+        WHERE ii.invoice_id IN (${invoiceIds.map(() => "?").join(",")})
         ORDER BY ii.sort_order
         `,
-        invoiceIds
+        invoiceIds,
       );
 
       // Group items by invoice_id
-      itemsResult.rows.forEach(item => {
+      itemsResult.rows.forEach((item) => {
         if (!itemsMap[item.invoice_id]) {
           itemsMap[item.invoice_id] = [];
         }
@@ -251,7 +251,7 @@ router.get("/:id", async (req, res) => {
       WHERE ii.invoice_id = ?
       ORDER BY ii.sort_order
       `,
-      [id]
+      [id],
     );
 
     const row = result.rows[0];
@@ -461,7 +461,7 @@ router.post("/", async (req, res) => {
       // Get the created invoice ID
       const createdInvoiceResult = await Database.query(
         `SELECT * FROM invoices WHERE invoice_number = ? AND company_id = ?`,
-        [invoiceNumber, companyId]
+        [invoiceNumber, companyId],
       );
 
       const invoice = createdInvoiceResult.rows[0];
@@ -601,7 +601,7 @@ router.patch("/:id/status", async (req, res) => {
     // Get updated invoice
     const updatedResult = await Database.query(
       `SELECT * FROM invoices WHERE id = ? AND company_id = ?`,
-      [id, companyId]
+      [id, companyId],
     );
 
     if (updatedResult.rows.length === 0) {
@@ -695,12 +695,17 @@ router.post("/:id/payments", async (req, res) => {
     // Get the created payment
     const createdPaymentResult = await Database.query(
       `SELECT * FROM payments WHERE invoice_id = ? AND amount = ? AND payment_date >= ? ORDER BY created_at DESC LIMIT 1`,
-      [id, amount, new Date()]
+      [id, amount, new Date()],
     );
 
     res.status(201).json({
       success: true,
-      data: createdPaymentResult.rows[0] || { id: 'created', amount, method, reference },
+      data: createdPaymentResult.rows[0] || {
+        id: "created",
+        amount,
+        method,
+        reference,
+      },
     });
   } catch (error) {
     console.error("Error processing payment:", error);
