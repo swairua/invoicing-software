@@ -405,14 +405,21 @@ export default function NewQuotation() {
         status: "draft",
       };
 
-      await dataService.createQuotation(quotationData);
-
-      toast({
-        title: "Success",
-        description: "Quotation created successfully.",
-      });
-
-      navigate("/quotations?refresh=true");
+      if (isEditMode && id) {
+        await dataService.updateQuotation(id, quotationData);
+        toast({
+          title: "Success",
+          description: "Quotation updated successfully.",
+        });
+        navigate(`/quotations/${id}`);
+      } else {
+        await dataService.createQuotation(quotationData);
+        toast({
+          title: "Success",
+          description: "Quotation created successfully.",
+        });
+        navigate("/quotations?refresh=true");
+      }
     } catch (error) {
       console.error("Error creating quotation:", error);
       toast({
