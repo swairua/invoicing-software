@@ -473,7 +473,7 @@ export default function NewQuotation() {
               <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${items.length > 0 && formData.customerId ? 'bg-blue-100' : 'bg-gray-100'}`}>
                 3
               </div>
-              <span className="text-sm font-medium">Create Quotation</span>
+              <span className="text-sm font-medium">{isEditMode ? "Update Quotation" : "Create Quotation"}</span>
             </div>
           </div>
         </CardContent>
