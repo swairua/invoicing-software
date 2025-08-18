@@ -479,12 +479,10 @@ router.post("/quotations", async (req, res) => {
     // Generate quotation number
     const quoteNumber = `QUO-${new Date().getFullYear()}-${String(Date.now()).slice(-3).padStart(3, "0")}`;
 
-    // Start transaction to create quotation and items
-    try {
-      await Database.query("START TRANSACTION");
-
+    // Use MySQL transaction with Database instance
+    const result = await Database.transaction(async (connection) => {
       // Insert quotation (using correct column names)
-      const quotationResult = await Database.query(
+      const quotationResult = await connection.execute(
         `INSERT INTO quotations
          (id, quote_number, customer_id, subtotal, vat_amount, discount_amount, total_amount,
           status, valid_until, issue_date, notes, company_id, created_by)
@@ -507,11 +505,11 @@ router.post("/quotations", async (req, res) => {
       );
 
       // Get the created quotation ID
-      const createdQuotationResult = await Database.query(
+      const [createdQuotationRows] = await connection.execute(
         `SELECT * FROM quotations WHERE quote_number = ? AND company_id = ?`,
         [quoteNumber, companyId],
       );
-      const quotationId = createdQuotationResult.rows[0].id;
+      const quotationId = (createdQuotationRows as any[])[0].id;
 
       // Insert quotation items
       if (quotationData.items && quotationData.items.length > 0) {
@@ -524,7 +522,7 @@ router.post("/quotations", async (req, res) => {
           const afterDiscount = subtotal - discountAmount;
           const vatAmount = (afterDiscount * (item.vatRate || 0)) / 100;
 
-          await Database.query(
+          await connection.execute(
             `INSERT INTO quotation_items
              (id, quotation_id, product_id, description, quantity, unit_price,
               discount_percentage, vat_rate, vat_amount, line_total, sort_order)
@@ -545,18 +543,15 @@ router.post("/quotations", async (req, res) => {
         }
       }
 
-      await Database.query("COMMIT");
+      return (createdQuotationRows as any[])[0];
+    });
 
-      console.log("Quotation created successfully");
+    console.log("Quotation created successfully");
 
-      res.status(201).json({
-        success: true,
-        data: createdQuotationResult.rows[0],
-      });
-    } catch (error) {
-      await Database.query("ROLLBACK");
-      throw error;
-    }
+    res.status(201).json({
+      success: true,
+      data: result,
+    });
   } catch (error) {
     console.error("Error creating quotation:", error);
 
