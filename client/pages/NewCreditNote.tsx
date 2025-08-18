@@ -294,7 +294,7 @@ export default function NewCreditNote() {
                       <SelectValue placeholder="Select an invoice" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">No related invoice</SelectItem>
+                      <SelectItem value="none">No related invoice</SelectItem>
                       {customerInvoices.map((invoice) => (
                         <SelectItem key={invoice.id} value={invoice.id}>
                           {invoice.invoiceNumber} - KES{" "}
