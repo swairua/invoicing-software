@@ -813,6 +813,21 @@ class PostgresBusinessDataService {
     }
   }
 
+  // Create sample data method (simulates form submissions)
+  public async createSampleData(): Promise<any> {
+    try {
+      console.log("📋 Creating sample data via API...");
+      const response = await this.apiCall("/create-sample-data", {
+        method: "POST"
+      });
+      console.log("✅ Sample data created:", response);
+      return response;
+    } catch (error) {
+      console.error("❌ Failed to create sample data:", error);
+      throw error;
+    }
+  }
+
   // Categories methods
   public async getCategories(): Promise<ProductCategory[]> {
     try {
