@@ -832,7 +832,7 @@ router.get("/credit-notes/:id", async (req, res) => {
         c.email as customer_email
       FROM credit_notes cn
       JOIN customers c ON cn.customer_id = c.id
-      WHERE cn.id = $1 AND cn.company_id = $2
+      WHERE cn.id = ? AND cn.company_id = ?
     `,
       [id, companyId],
     );
