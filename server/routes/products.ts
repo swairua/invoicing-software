@@ -328,6 +328,12 @@ router.put("/:id", async (req, res) => {
       (req.headers["x-company-id"] as string) ||
       "550e8400-e29b-41d4-a716-446655440000";
 
+    console.log("🔍 Product update request:");
+    console.log("  Product ID:", req.params.id);
+    console.log("  Company ID:", companyId);
+    console.log("  Request body fields:", Object.keys(req.body));
+    console.log("  Full request body:", JSON.stringify(req.body, null, 2));
+
     const product = await productRepository.update(
       req.params.id,
       companyId,
