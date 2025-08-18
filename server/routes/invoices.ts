@@ -648,8 +648,8 @@ router.post("/:id/payments", async (req, res) => {
     const invoiceResult = await Database.query(
       `
       SELECT customer_id, balance_due
-      FROM invoices 
-      WHERE id = $1 AND company_id = $2
+      FROM invoices
+      WHERE id = ? AND company_id = ?
     `,
       [id, companyId],
     );
