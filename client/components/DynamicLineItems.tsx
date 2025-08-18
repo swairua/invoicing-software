@@ -67,12 +67,17 @@ export default function DynamicLineItems({
   const [productSearch, setProductSearch] = useState("");
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
 
+  const { fields, append, remove, update } = useFieldArray({
+    control,
+    name,
+  });
+
   // Auto-generate new empty item when last item is filled
   const [nextId, setNextId] = useState(1);
 
   // Initialize with one empty item if none exist
   useEffect(() => {
-    if (items.length === 0) {
+    if (fields.length === 0) {
       addNewEmptyItem();
     }
   }, []);
@@ -94,49 +99,18 @@ export default function DynamicLineItems({
     const newItem: LineItem = {
       id: `item-${nextId}`,
       productId: "",
-      quantity: "1",
-      unitPrice: "",
-      discount: "0",
+      quantity: 1,
+      unitPrice: 0,
+      discount: 0,
       lineItemTaxes: [],
     };
-    onItemsChange([...items, newItem]);
+    append(newItem);
     setNextId(nextId + 1);
   };
 
-  const updateItem = (
-    index: number,
-    field: keyof LineItem,
-    value: string | LineItemTax[],
-  ) => {
-    const updatedItems = [...items];
-    if (field === "lineItemTaxes") {
-      updatedItems[index] = {
-        ...updatedItems[index],
-        [field]: value as LineItemTax[],
-      };
-    } else {
-      updatedItems[index] = {
-        ...updatedItems[index],
-        [field]: value as string,
-      };
-    }
-    onItemsChange(updatedItems);
-
-    // Auto-add new item if this is the last item and it has essential data
-    const currentItem = updatedItems[index];
-    const isLastItem = index === items.length - 1;
-    const hasEssentialData =
-      currentItem.productId && currentItem.quantity && currentItem.unitPrice;
-
-    if (isLastItem && hasEssentialData && field !== "lineItemTaxes") {
-      setTimeout(() => addNewEmptyItem(), 100);
-    }
-  };
-
   const removeItem = (index: number) => {
-    if (items.length > 1) {
-      const updatedItems = items.filter((_, i) => i !== index);
-      onItemsChange(updatedItems);
+    if (fields.length > 1) {
+      remove(index);
     } else {
       toast({
         title: "Cannot Remove",
@@ -149,21 +123,32 @@ export default function DynamicLineItems({
   const handleProductSelect = (index: number, productId: string) => {
     const product = products.find((p) => p.id === productId);
     if (product) {
-      updateItem(index, "productId", productId);
-      updateItem(index, "unitPrice", product.sellingPrice.toString());
+      const currentItem = fields[index] as LineItem;
+      update(index, {
+        ...currentItem,
+        productId,
+        unitPrice: product.sellingPrice,
+      });
     }
   };
 
   const duplicateItem = (index: number) => {
-    const itemToDuplicate = items[index];
+    const itemToDuplicate = fields[index] as LineItem;
     const duplicatedItem: LineItem = {
       ...itemToDuplicate,
       id: `item-${nextId}`,
     };
-    const updatedItems = [...items];
-    updatedItems.splice(index + 1, 0, duplicatedItem);
-    onItemsChange(updatedItems);
+    append(duplicatedItem);
     setNextId(nextId + 1);
+  };
+
+  const handleAutoAddNewItem = (index: number, item: LineItem) => {
+    const isLastItem = index === fields.length - 1;
+    const hasEssentialData = item.productId && item.quantity > 0 && item.unitPrice > 0;
+
+    if (isLastItem && hasEssentialData) {
+      setTimeout(() => addNewEmptyItem(), 100);
+    }
   };
 
   return (
@@ -208,43 +193,56 @@ export default function DynamicLineItems({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {items.map((item, index) => {
+              {fields.map((field, index) => {
+                const item = field as LineItem;
                 const product = products.find((p) => p.id === item.productId);
                 const itemTotal = item.productId ? calculateItemTotal(item) : 0;
                 const isEmptyItem = !item.productId;
 
                 return (
                   <TableRow
-                    key={item.id}
+                    key={field.id}
                     className={isEmptyItem ? "bg-muted/20" : ""}
                   >
                     <TableCell>
                       <div className="space-y-2">
-                        <Select
-                          value={item.productId}
-                          onValueChange={(value) =>
-                            handleProductSelect(index, value)
-                          }
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select product" />
-                          </SelectTrigger>
-                          <SelectContent className="max-h-[200px]">
-                            {filteredProducts.slice(0, 30).map((product) => (
-                              <SelectItem key={product.id} value={product.id}>
-                                <div>
-                                  <div className="font-medium">
-                                    {product?.name || 'Unknown Product'}
-                                  </div>
-                                  <div className="text-xs text-muted-foreground">
-                                    {product.sku} •{" "}
-                                    {formatCurrency(product.sellingPrice)}
-                                  </div>
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <FormField
+                          control={control}
+                          name={`${name}.${index}.productId`}
+                          render={({ field: formField }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Select
+                                  value={formField.value}
+                                  onValueChange={(value) => {
+                                    formField.onChange(value);
+                                    handleProductSelect(index, value);
+                                  }}
+                                >
+                                  <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Select product" />
+                                  </SelectTrigger>
+                                  <SelectContent className="max-h-[200px]">
+                                    {filteredProducts.slice(0, 30).map((product) => (
+                                      <SelectItem key={product.id} value={product.id}>
+                                        <div>
+                                          <div className="font-medium">
+                                            {product?.name || 'Unknown Product'}
+                                          </div>
+                                          <div className="text-xs text-muted-foreground">
+                                            {product.sku} •{" "}
+                                            {formatCurrency(product.sellingPrice)}
+                                          </div>
+                                        </div>
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                         {product && (
                           <div className="text-xs text-muted-foreground">
                             SKU: {product.sku}
@@ -258,61 +256,104 @@ export default function DynamicLineItems({
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Input
-                        type="number"
-                        value={item.quantity}
-                        onChange={(e) =>
-                          updateItem(index, "quantity", e.target.value)
-                        }
-                        className="w-20"
-                        min="0.01"
-                        step="0.01"
-                        placeholder="1"
+                      <FormField
+                        control={control}
+                        name={`${name}.${index}.quantity`}
+                        render={({ field: formField }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                {...formField}
+                                onChange={(e) => {
+                                  const value = parseFloat(e.target.value) || 0;
+                                  formField.onChange(value);
+                                  handleAutoAddNewItem(index, { ...item, quantity: value });
+                                }}
+                                className="w-20"
+                                min="0.01"
+                                step="0.01"
+                                placeholder="1"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
                     </TableCell>
                     <TableCell>
-                      <Input
-                        type="number"
-                        value={item.unitPrice}
-                        onChange={(e) =>
-                          updateItem(index, "unitPrice", e.target.value)
-                        }
-                        className="w-24"
-                        min="0"
-                        step="0.01"
-                        placeholder="0.00"
+                      <FormField
+                        control={control}
+                        name={`${name}.${index}.unitPrice`}
+                        render={({ field: formField }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                {...formField}
+                                onChange={(e) => {
+                                  const value = parseFloat(e.target.value) || 0;
+                                  formField.onChange(value);
+                                  handleAutoAddNewItem(index, { ...item, unitPrice: value });
+                                }}
+                                className="w-24"
+                                min="0"
+                                step="0.01"
+                                placeholder="0.00"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
                     </TableCell>
                     <TableCell>
-                      <Input
-                        type="number"
-                        value={item.discount}
-                        onChange={(e) =>
-                          updateItem(index, "discount", e.target.value)
-                        }
-                        className="w-16"
-                        min="0"
-                        max="100"
-                        step="0.01"
-                        placeholder="0"
+                      <FormField
+                        control={control}
+                        name={`${name}.${index}.discount`}
+                        render={({ field: formField }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                {...formField}
+                                onChange={(e) => {
+                                  const value = parseFloat(e.target.value) || 0;
+                                  formField.onChange(value);
+                                }}
+                                className="w-16"
+                                min="0"
+                                max="100"
+                                step="0.01"
+                                placeholder="0"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
                     </TableCell>
                     <TableCell>
                       {!isEmptyItem && (
-                        <LineItemTaxSelector
-                          selectedTaxes={item.lineItemTaxes || []}
-                          availableTaxes={getAvailableTaxes()}
-                          onTaxesChange={(taxes) =>
-                            updateItem(index, "lineItemTaxes", taxes)
-                          }
-                          itemSubtotal={
-                            parseFloat(item.quantity || "0") *
-                              parseFloat(item.unitPrice || "0") -
-                            (parseFloat(item.quantity || "0") *
-                              parseFloat(item.unitPrice || "0") *
-                              parseFloat(item.discount || "0")) /
-                              100
-                          }
+                        <FormField
+                          control={control}
+                          name={`${name}.${index}.lineItemTaxes`}
+                          render={({ field: formField }) => (
+                            <FormItem>
+                              <FormControl>
+                                <LineItemTaxSelector
+                                  selectedTaxes={formField.value || []}
+                                  availableTaxes={getAvailableTaxes()}
+                                  onTaxesChange={formField.onChange}
+                                  itemSubtotal={
+                                    item.quantity * item.unitPrice -
+                                    (item.quantity * item.unitPrice * item.discount) / 100
+                                  }
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
                       )}
                     </TableCell>
@@ -337,7 +378,7 @@ export default function DynamicLineItems({
                           variant="ghost"
                           size="sm"
                           onClick={() => removeItem(index)}
-                          disabled={items.length === 1}
+                          disabled={fields.length === 1}
                           title="Remove item"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -359,7 +400,7 @@ export default function DynamicLineItems({
           </Button>
         </div>
 
-        {items.filter((item) => item.productId).length === 0 && (
+        {fields.filter((field) => (field as LineItem).productId).length === 0 && (
           <div className="text-center py-8 border-2 border-dashed border-muted-foreground/25 rounded-lg">
             <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-medium">No Items Added Yet</h3>
