@@ -40,6 +40,8 @@ import { Quotation } from "@shared/types";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import { useToast } from "../hooks/use-toast";
 import { safeFormatDateKE } from "@/lib/utils";
+import PDFService from "../services/pdfService";
+import TemplateManager from "../services/templateManager";
 
 export default function QuotationDetails() {
   const { id } = useParams<{ id: string }>();
@@ -145,6 +147,57 @@ export default function QuotationDetails() {
     });
   };
 
+  const handleDownloadPDF = async () => {
+    if (!quotation) return;
+
+    try {
+      // Convert quotation to invoice format for PDF generation
+      const invoiceData = {
+        ...quotation,
+        invoiceNumber: quotation.quoteNumber,
+        amountPaid: 0,
+        balance: quotation.total,
+        dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+      };
+
+      const activeTemplate =
+        TemplateManager.getActiveTemplate("quotation") ||
+        TemplateManager.getActiveTemplate("invoice");
+      await PDFService.generateInvoicePDF(
+        invoiceData,
+        true,
+        activeTemplate?.id,
+      );
+
+      toast({
+        title: "Success",
+        description: "Quotation PDF downloaded successfully",
+      });
+    } catch (error) {
+      console.error("Error generating quotation PDF:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate quotation PDF",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEditQuotation = () => {
+    if (!quotation) return;
+    // Navigate to edit route
+    navigate(`/quotations/${quotation.id}/edit`);
+  };
+
+  const duplicateQuotation = () => {
+    if (!quotation) return;
+    navigate("/quotations/new", {
+      state: {
+        duplicateFrom: quotation,
+      },
+    });
+  };
+
   const convertToProforma = () => {
     if (!quotation) return;
 
@@ -203,11 +256,17 @@ export default function QuotationDetails() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">
+          {quotation.status === "draft" && (
+            <Button variant="outline" onClick={handleEditQuotation}>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit
+            </Button>
+          )}
+          <Button variant="outline" onClick={duplicateQuotation}>
             <Copy className="mr-2 h-4 w-4" />
             Duplicate
           </Button>
-          <Button variant="outline">
+          <Button variant="outline" onClick={handleDownloadPDF}>
             <Download className="mr-2 h-4 w-4" />
             PDF
           </Button>

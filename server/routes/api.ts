@@ -10,6 +10,7 @@ import testUpdateRouter from "./test-update";
 import Database from "../database";
 import customerRepository from "../repositories/customerRepository";
 import productRepository from "../repositories/productRepository";
+import { randomUUID } from "crypto";
 
 const router = Router();
 
@@ -397,9 +398,66 @@ router.get("/quotations", async (req, res) => {
       [companyId],
     );
 
+    // Transform database rows to match frontend interface and fetch items
+    const transformedQuotations = await Promise.all(
+      result.rows.map(async (row: any) => {
+        // Fetch quotation items
+        const itemsResult = await Database.query(
+          `SELECT
+           qi.*,
+           p.name as product_name,
+           p.sku as product_sku
+         FROM quotation_items qi
+         LEFT JOIN products p ON qi.product_id = p.id
+         WHERE qi.quotation_id = ?
+         ORDER BY qi.sort_order`,
+          [row.id],
+        );
+
+        const items = itemsResult.rows.map((item: any) => ({
+          id: item.id,
+          productId: item.product_id,
+          product: {
+            id: item.product_id,
+            name: item.product_name || item.description,
+            sku: item.product_sku || "",
+          },
+          quantity: parseFloat(item.quantity || 0),
+          unitPrice: parseFloat(item.unit_price || 0),
+          discount: parseFloat(item.discount_percentage || 0),
+          vatRate: parseFloat(item.tax_rate || 0),
+          total: parseFloat(item.line_total || 0),
+        }));
+
+        return {
+          id: row.id,
+          quoteNumber: row.quote_number,
+          customerId: row.customer_id,
+          customer: {
+            id: row.customer_id,
+            name: row.customer_name,
+            email: row.customer_email,
+          },
+          items,
+          subtotal: parseFloat(row.subtotal || 0),
+          vatAmount: parseFloat(row.tax_amount || 0),
+          discountAmount: parseFloat(row.discount_amount || 0),
+          total: parseFloat(row.total_amount || 0),
+          status: row.status,
+          validUntil: row.valid_until,
+          issueDate: row.issue_date,
+          notes: row.notes,
+          companyId: row.company_id,
+          createdBy: row.created_by,
+          createdAt: row.created_at,
+          updatedAt: row.updated_at,
+        };
+      }),
+    );
+
     res.json({
       success: true,
-      data: result.rows,
+      data: transformedQuotations,
     });
   } catch (error) {
     console.error("Error fetching quotations:", error);
@@ -471,7 +529,7 @@ router.post("/quotations", async (req, res) => {
   try {
     const companyId =
       (req.headers["x-company-id"] as string) ||
-      "550e8400-e29b-41d4-a716-446655440000";
+      "00000000-0000-0000-0000-000000000001";
     const quotationData = req.body;
 
     console.log("Creating quotation:", quotationData);
@@ -479,39 +537,32 @@ router.post("/quotations", async (req, res) => {
     // Generate quotation number
     const quoteNumber = `QUO-${new Date().getFullYear()}-${String(Date.now()).slice(-3).padStart(3, "0")}`;
 
-    // Start transaction to create quotation and items
+    // Generate UUID for quotation
+    const quotationId = randomUUID();
+
+    // Get connection and use non-prepared statements
+    const connection = await Database.getConnection();
     try {
-      await Database.query("START TRANSACTION");
+      // Insert quotation using string formatting to avoid prepared statement issues
+      const validUntil =
+        quotationData.validUntil ||
+        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0];
+      const issueDate =
+        quotationData.issueDate || new Date().toISOString().split("T")[0];
+      const notes = (quotationData.notes || "").replace(/'/g, "''"); // Escape single quotes
 
-      // Insert quotation (using correct column names)
-      const quotationResult = await Database.query(
+      await connection.query(
         `INSERT INTO quotations
-         (id, quote_number, customer_id, subtotal, vat_amount, discount_amount, total_amount,
-          status, valid_until, issue_date, notes, company_id, created_by)
-         VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          quoteNumber,
-          quotationData.customerId,
-          quotationData.subtotal || 0,
-          quotationData.vatAmount || 0,
-          quotationData.discountAmount || 0,
-          quotationData.total || 0,
-          quotationData.status || "draft",
-          quotationData.validUntil ||
-            new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-          quotationData.issueDate || new Date(),
-          quotationData.notes || "",
-          companyId,
-          quotationData.createdBy || "1",
-        ],
+         (id, quote_number, customer_id, subtotal, tax_amount, discount_amount, total_amount,
+          status, valid_until, issue_date, notes, company_id)
+         VALUES ('${quotationId}', '${quoteNumber}', '${quotationData.customerId}',
+                 ${quotationData.subtotal || 0}, ${quotationData.vatAmount || 0},
+                 ${quotationData.discountAmount || 0}, ${quotationData.total || 0},
+                 '${quotationData.status || "draft"}', '${validUntil}', '${issueDate}',
+                 '${notes}', '${companyId}')`,
       );
-
-      // Get the created quotation ID
-      const createdQuotationResult = await Database.query(
-        `SELECT * FROM quotations WHERE quote_number = ? AND company_id = ?`,
-        [quoteNumber, companyId],
-      );
-      const quotationId = createdQuotationResult.rows[0].id;
 
       // Insert quotation items
       if (quotationData.items && quotationData.items.length > 0) {
@@ -524,37 +575,37 @@ router.post("/quotations", async (req, res) => {
           const afterDiscount = subtotal - discountAmount;
           const vatAmount = (afterDiscount * (item.vatRate || 0)) / 100;
 
-          await Database.query(
+          const itemId = randomUUID();
+          const description = (item.product?.name || "").replace(/'/g, "''"); // Escape single quotes
+
+          await connection.query(
             `INSERT INTO quotation_items
              (id, quotation_id, product_id, description, quantity, unit_price,
-              discount_percentage, vat_rate, vat_amount, line_total, sort_order)
-             VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [
-              quotationId,
-              item.productId,
-              item.product?.name || "",
-              item.quantity,
-              item.unitPrice,
-              item.discount || 0,
-              item.vatRate || 0,
-              vatAmount,
-              item.total,
-              i,
-            ],
+              discount_percentage, discount_amount, tax_rate, tax_amount, line_total, sort_order)
+             VALUES ('${itemId}', '${quotationId}', '${item.productId}', '${description}',
+                     ${item.quantity}, ${item.unitPrice}, ${item.discount || 0}, ${discountAmount},
+                     ${item.vatRate || 0}, ${vatAmount}, ${item.total}, ${i})`,
           );
         }
       }
 
-      await Database.query("COMMIT");
+      // Get the created quotation
+      const [createdQuotationRows] = await connection.query(
+        `SELECT * FROM quotations WHERE id = '${quotationId}'`,
+      );
+
+      const result = (createdQuotationRows as any[])[0];
+
+      connection.release();
 
       console.log("Quotation created successfully");
 
       res.status(201).json({
         success: true,
-        data: createdQuotationResult.rows[0],
+        data: result,
       });
     } catch (error) {
-      await Database.query("ROLLBACK");
+      connection.release();
       throw error;
     }
   } catch (error) {
