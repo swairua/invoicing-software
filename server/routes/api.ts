@@ -6,6 +6,7 @@ import invoicesRouter from "./invoices";
 import taxesRouter from "./taxes";
 import seedRouter from "./seed";
 import migrationRouter from "./migration";
+import testUpdateRouter from "./test-update";
 import Database from "../database";
 import customerRepository from "../repositories/customerRepository";
 import productRepository from "../repositories/productRepository";
