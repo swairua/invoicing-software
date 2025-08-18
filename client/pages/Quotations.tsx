@@ -289,7 +289,11 @@ export default function Quotations() {
 
       {/* Statistics Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => {
+          // Show all quotations when clicking total
+          setSearchTerm("");
+          setStatusFilter("all");
+        }}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Total Quotations
@@ -299,7 +303,7 @@ export default function Quotations() {
           <CardContent>
             <div className="text-2xl font-bold">{totalQuotations}</div>
             <p className="text-xs text-muted-foreground">
-              All quotations created
+              All quotations created • Click to view all
             </p>
           </CardContent>
         </Card>
