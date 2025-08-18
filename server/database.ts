@@ -11,8 +11,6 @@ const DATABASE_CONFIG = {
     rejectUnauthorized: false,
   },
   connectionLimit: 10,
-  acquireTimeout: 20000,
-  timeout: 20000,
 };
 
 // Create connection pool
