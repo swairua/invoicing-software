@@ -486,28 +486,20 @@ router.post("/quotations", async (req, res) => {
     // Get connection and use non-prepared statements
     const connection = await Database.getConnection();
     try {
-      // Insert quotation using non-prepared statement
+      // Insert quotation using string formatting to avoid prepared statement issues
+      const validUntil = quotationData.validUntil || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const issueDate = quotationData.issueDate || new Date().toISOString().split('T')[0];
+      const notes = (quotationData.notes || "").replace(/'/g, "''"); // Escape single quotes
+
       await connection.query(
         `INSERT INTO quotations
          (id, quote_number, customer_id, subtotal, vat_amount, discount_amount, total_amount,
           status, valid_until, issue_date, notes, company_id, created_by)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          quotationId,
-          quoteNumber,
-          quotationData.customerId,
-          quotationData.subtotal || 0,
-          quotationData.vatAmount || 0,
-          quotationData.discountAmount || 0,
-          quotationData.total || 0,
-          quotationData.status || "draft",
-          quotationData.validUntil ||
-            new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-          quotationData.issueDate || new Date(),
-          quotationData.notes || "",
-          companyId,
-          quotationData.createdBy || "1",
-        ],
+         VALUES ('${quotationId}', '${quoteNumber}', '${quotationData.customerId}',
+                 ${quotationData.subtotal || 0}, ${quotationData.vatAmount || 0},
+                 ${quotationData.discountAmount || 0}, ${quotationData.total || 0},
+                 '${quotationData.status || "draft"}', '${validUntil}', '${issueDate}',
+                 '${notes}', '${companyId}', '${quotationData.createdBy || "1"}')`,
       );
 
       // Insert quotation items
