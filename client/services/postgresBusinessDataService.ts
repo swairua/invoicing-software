@@ -380,11 +380,15 @@ class PostgresBusinessDataService {
   // Quotation methods
   public async getQuotations(): Promise<Quotation[]> {
     try {
+      console.log("🔍 PostgresBusinessDataService.getQuotations() called");
       const response = await this.apiCall("/quotations");
       const quotations = Array.isArray(response.data) ? response.data : [];
 
+      console.log("📊 Raw quotations from API:", quotations);
+      console.log("📊 Quotations count:", quotations.length);
+
       // Transform database column names to TypeScript interface properties
-      return quotations.map((q: any) => ({
+      const transformedQuotations = quotations.map((q: any) => ({
         id: q.id,
         quoteNumber: q.quote_number,
         customerId: q.customer_id,
