@@ -343,9 +343,22 @@ export class Database {
     }
   }
 
+  // Public method to create sample data
+  public async createSampleData(): Promise<void> {
+    console.log("🚀 Creating sample data...");
+    await this.checkAndAddSampleData();
+  }
+
   // Helper method to check and add sample data
   private async checkAndAddSampleData(): Promise<void> {
     try {
+      // Add sample categories first
+      const categoryCount = await this.query('SELECT COUNT(*) as count FROM product_categories WHERE company_id = ?', ['00000000-0000-0000-0000-000000000001']);
+      if (categoryCount.rows[0].count === 0) {
+        console.log("📁 Adding sample categories...");
+        await this.addSampleCategories();
+      }
+
       // Add sample customers if none exist for the main company
       const customerCount = await this.query('SELECT COUNT(*) as count FROM customers WHERE company_id = ?', ['00000000-0000-0000-0000-000000000001']);
       if (customerCount.rows[0].count === 0) {
