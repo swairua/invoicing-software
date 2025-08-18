@@ -5,10 +5,12 @@ const router = Router();
 
 // Get all customers
 router.get("/", async (req, res) => {
+  console.log("🔍 GET /api/customers endpoint called");
   try {
     const companyId =
       (req.headers["x-company-id"] as string) ||
       "550e8400-e29b-41d4-a716-446655440000";
+    console.log("🏢 Company ID:", companyId);
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 50;
     const search = req.query.search as string;
