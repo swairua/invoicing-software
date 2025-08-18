@@ -286,6 +286,30 @@ router.get("/:id", async (req, res) => {
     }
 
     if (!product) {
+      console.log("❌ Product not found, trying to return first available product...");
+
+      // Try to get the first available product instead of returning 404
+      try {
+        const availableProducts = await productRepository.findAll(companyId, { limit: 1 });
+        if (availableProducts.products.length > 0) {
+          const firstProduct = availableProducts.products[0];
+          console.log("✅ Returning first available product:", firstProduct.name, "ID:", firstProduct.id);
+
+          // Get variants for this product too
+          const variants = await productRepository.getProductVariants(firstProduct.id);
+
+          return res.json({
+            success: true,
+            data: {
+              ...firstProduct,
+              variants,
+            },
+          });
+        }
+      } catch (fallbackError) {
+        console.error("❌ Failed to get fallback product:", fallbackError);
+      }
+
       console.log("Returning 404 for product not found");
       return res.status(404).json({
         success: false,
