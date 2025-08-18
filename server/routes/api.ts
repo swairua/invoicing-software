@@ -10,6 +10,7 @@ import testUpdateRouter from "./test-update";
 import Database from "../database";
 import customerRepository from "../repositories/customerRepository";
 import productRepository from "../repositories/productRepository";
+import { randomUUID } from "crypto";
 
 const router = Router();
 
