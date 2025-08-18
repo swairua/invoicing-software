@@ -96,11 +96,43 @@ export class ProductRepository extends BaseRepository {
     delete data.created_at;
     delete data.updated_at;
 
+    // SAFETY: Handle problematic category_id to prevent FK constraint errors
+    if (data.category_id !== undefined) {
+      console.log("🔧 CREATE SAFETY CHECK: category_id value:", data.category_id, "type:", typeof data.category_id);
+
+      if (data.category_id === "" || data.category_id === "null" || data.category_id === null) {
+        console.log("🔧 CREATE SAFETY: Setting category_id to null (empty/null value)");
+        data.category_id = null;
+      } else if (data.category_id) {
+        console.log("🔧 CREATE SAFETY: Category ID provided, validating...");
+
+        // Check if category exists
+        try {
+          const categoryCheck = await this.db.query(
+            "SELECT id FROM product_categories WHERE id = ? AND company_id = ?",
+            [data.category_id, productData.companyId]
+          );
+
+          if (categoryCheck.rows.length === 0) {
+            console.log("❌ CREATE SAFETY: Category ID not found, setting to null");
+            data.category_id = null;
+          } else {
+            console.log("✅ CREATE SAFETY: Category ID validated successfully");
+          }
+        } catch (error) {
+          console.log("❌ CREATE SAFETY: Error validating category, setting to null:", error.message);
+          data.category_id = null;
+        }
+      }
+    }
+
     // Add UUID generation explicitly
     const insertQuery = `
       INSERT INTO products (id, ${Object.keys(data).join(', ')})
       VALUES (UUID(), ${Object.keys(data).map(() => '?').join(', ')})
     `;
+
+    console.log("🔍 Final create data for category_id:", data.category_id);
 
     const result = await this.db.query(insertQuery, Object.values(data));
 
