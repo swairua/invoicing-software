@@ -109,6 +109,9 @@ export class Database {
           console.log("📋 Creating missing quotations table...");
           await this.createQuotationsTable();
         }
+
+        // Check and add sample data if needed
+        await this.checkAndAddSampleData();
       } catch (schemaError) {
         console.log("⚠️ Database schema not found - needs migration");
         console.log("🔧 Run migration to create tables");
