@@ -98,6 +98,17 @@ export class Database {
           ORDER BY table_name
         `, [DATABASE_CONFIG.database]);
         console.log(`📋 Available tables: ${tableCheck.rows.length} total`);
+
+        // Check if quotations table exists, if not create it
+        const quotationsCheck = await this.query(`
+          SELECT table_name FROM information_schema.tables
+          WHERE table_schema = ? AND table_name = 'quotations'
+        `, [DATABASE_CONFIG.database]);
+
+        if (quotationsCheck.rows.length === 0) {
+          console.log("📋 Creating missing quotations table...");
+          await this.createQuotationsTable();
+        }
       } catch (schemaError) {
         console.log("⚠️ Database schema not found - needs migration");
         console.log("🔧 Run migration to create tables");
