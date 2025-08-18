@@ -163,6 +163,7 @@ const AppRoutes = () => (
       <Route path="admin/setup" element={<AdminSetup />} />
       <Route path="admin/product-test" element={<ProductEditTest />} />
       <Route path="admin/category-test" element={<CategoryTest />} />
+      <Route path="admin/test-update" element={<TestUpdate />} />
       <Route path="quotations" element={<Quotations />} />
       <Route path="quotations/:id" element={<QuotationDetails />} />
       <Route path="quotations/new" element={<NewQuotation />} />
