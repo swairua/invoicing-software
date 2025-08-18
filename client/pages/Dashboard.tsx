@@ -294,6 +294,26 @@ export default function Dashboard() {
     setIsSimulating(!isSimulating);
   };
 
+  const createSampleData = async () => {
+    setIsCreatingSampleData(true);
+    try {
+      console.log("🚀 Creating sample data...");
+      await businessData.createSampleData();
+      console.log("✅ Sample data created successfully!");
+
+      // Refresh the metrics to show the new data
+      const metrics = await businessData.getDashboardMetrics();
+      setLiveMetrics(metrics);
+
+      alert("Sample data created successfully! Check the Customers and Products pages to see the new records.");
+    } catch (error) {
+      console.error("❌ Failed to create sample data:", error);
+      alert("Failed to create sample data. Please check the console for details.");
+    } finally {
+      setIsCreatingSampleData(false);
+    }
+  };
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-KE", {
       style: "currency",
