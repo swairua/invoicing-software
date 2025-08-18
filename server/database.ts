@@ -375,8 +375,22 @@ export class Database {
   // Helper method to check and add sample data
   private async checkAndAddSampleData(): Promise<void> {
     try {
+      const companyId = '00000000-0000-0000-0000-000000000001';
+
+      // First ensure the company exists
+      const companyExists = await this.query('SELECT COUNT(*) as count FROM companies WHERE id = ?', [companyId]);
+      if (companyExists.rows[0].count === 0) {
+        console.log("🏢 Creating sample company...");
+        await this.query(
+          `INSERT INTO companies (id, name, kra_pin, vat_number, address_line1, city, country, phone, email, currency, vat_rate, invoice_prefix, is_active, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+          [companyId, 'Sample Medical Supply Company', 'P123456789A', 'VAT123456789', '123 Business Street', 'Nairobi', 'Kenya', '+254-700-000000', 'admin@samplemedical.co.ke', 'KES', 16.00, 'INV', true]
+        );
+        console.log("✅ Sample company created successfully");
+      }
+
       // Add sample categories first
-      const categoryCount = await this.query('SELECT COUNT(*) as count FROM product_categories WHERE company_id = ?', ['00000000-0000-0000-0000-000000000001']);
+      const categoryCount = await this.query('SELECT COUNT(*) as count FROM product_categories WHERE company_id = ?', [companyId]);
       if (categoryCount.rows[0].count === 0) {
         console.log("📁 Adding sample categories...");
         await this.addSampleCategories();
