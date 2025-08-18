@@ -627,7 +627,7 @@ router.get("/payments", async (req, res) => {
       FROM payments p
       JOIN customers c ON p.customer_id = c.id
       LEFT JOIN invoices i ON p.invoice_id = i.id
-      WHERE p.company_id = $1
+      WHERE p.company_id = ?
       ORDER BY p.created_at DESC
       LIMIT 50
     `,
