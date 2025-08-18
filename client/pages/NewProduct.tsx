@@ -742,7 +742,6 @@ export default function NewProduct() {
                           setFormData((prev) => ({
                             ...prev,
                             category: value,
-                            categoryName: selectedCategory?.name || "",
                           }));
                         }}
                       >
