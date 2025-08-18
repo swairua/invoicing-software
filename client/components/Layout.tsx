@@ -216,7 +216,7 @@ export default function Layout() {
                     Settings
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => (window.location.href = "/settings/company")}
+                    onClick={() => navigate("/settings/company")}
                   >
                     <Building2 className="mr-2 h-4 w-4" />
                     Company Settings
