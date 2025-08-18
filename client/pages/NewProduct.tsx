@@ -128,9 +128,12 @@ export default function NewProduct() {
   const loadCategories = async () => {
     try {
       const categoriesData = await dataService.getCategories();
-      setCategories(categoriesData);
+      console.log("📦 Categories loaded:", categoriesData);
+      setCategories(categoriesData || []);
     } catch (error) {
       console.error("Failed to load categories:", error);
+      // Set empty array as fallback
+      setCategories([]);
       toast({
         title: "Error",
         description: "Failed to load product categories",
