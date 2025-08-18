@@ -244,6 +244,7 @@ router.get("/:id", async (req, res) => {
     // Get variants
     const variants = await productRepository.getProductVariants(req.params.id);
 
+    console.log("✅ Sending product data with variants");
     res.json({
       success: true,
       data: {
