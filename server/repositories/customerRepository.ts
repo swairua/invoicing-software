@@ -32,11 +32,8 @@ export class CustomerRepository extends BaseRepository {
       FROM customers
       ${whereClause}
     `;
-    console.log('🔍 Customer count query:', countQuery);
-    console.log('🔍 Customer count params:', params);
     const countResult = await this.db.query(countQuery, params);
     const total = parseInt(countResult.rows[0].total);
-    console.log('📊 Total customers found:', total);
 
     // Get paginated results
     const offset = (page - 1) * limit;
