@@ -250,6 +250,7 @@ export default function Dashboard() {
   );
   const [liveMetrics, setLiveMetrics] = useState<DashboardMetrics | null>(null);
   const [isSimulating, setIsSimulating] = useState(false);
+  const [isCreatingSampleData, setIsCreatingSampleData] = useState(false);
 
   // Load metrics data
   useEffect(() => {
