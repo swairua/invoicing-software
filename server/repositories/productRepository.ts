@@ -59,7 +59,9 @@ export class ProductRepository extends BaseRepository {
       LIMIT ? OFFSET ?
     `;
     
-    const result = await this.db.query(query, [...params, limit, offset]);
+    // Create the parameters array for the data query
+    const dataParams = [...params, limit, offset];
+    const result = await this.db.query(query, dataParams);
     
     return {
       products: this.toCamelCase(result.rows) as Product[],
