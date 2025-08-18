@@ -80,7 +80,7 @@ export class Database {
       console.log("🗄️ Using LIVE MYSQL DATABASE - No mock data");
       
       const result = await this.query(
-        "SELECT NOW() as current_time, VERSION() as version",
+        "SELECT NOW() AS current_time, VERSION() AS version",
       );
       console.log("✅ LIVE MYSQL DATABASE CONNECTION SUCCESSFUL!");
       console.log("🕐 Server time:", result.rows[0].current_time);
