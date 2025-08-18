@@ -378,12 +378,12 @@ router.post("/", async (req, res) => {
       // Get next invoice number
       const sequenceResult = await Database.query(
         `
-        SELECT 
+        SELECT
           COALESCE(prefix, 'INV') as prefix,
           current_number,
           padding_length
-        FROM number_sequences 
-        WHERE company_id = $1 AND sequence_type = 'invoice'
+        FROM number_sequences
+        WHERE company_id = ? AND sequence_type = 'invoice'
       `,
         [companyId],
       );
