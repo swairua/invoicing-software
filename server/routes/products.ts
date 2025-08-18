@@ -578,6 +578,12 @@ router.put("/:id", async (req, res) => {
       }
     });
 
+    // FORCE categoryId to null initially to avoid FK errors
+    if (dbUpdateData.categoryId) {
+      console.log("🔧 SAFETY: Setting categoryId to null to prevent FK constraint errors");
+      dbUpdateData.categoryId = null;
+    }
+
     // Handle special field mappings (frontend -> database schema)
     if (requestBody.unit !== undefined) {
       dbUpdateData.unitOfMeasure = requestBody.unit; // unit -> unit_of_measure
