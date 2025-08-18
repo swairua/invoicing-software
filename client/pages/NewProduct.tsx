@@ -153,6 +153,9 @@ export default function NewProduct() {
 
       const productData = await dataService.getProductById(productId);
       console.log("📦 Received product data:", productData);
+      console.log("🔍 Category ID:", productData.categoryId);
+      console.log("🔍 Unit of Measure:", productData.unitOfMeasure);
+      console.log("🔍 Available fields:", Object.keys(productData));
 
       if (productData) {
         setProduct(productData);
