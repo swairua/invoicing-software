@@ -81,11 +81,7 @@ export class Database {
         "SELECT 1 as test",
       );
       console.log("✅ LIVE MYSQL DATABASE CONNECTION SUCCESSFUL!");
-      console.log("🕐 Server time:", result.rows[0].current_time);
-      console.log(
-        "🗄️ MySQL version:",
-        result.rows[0].version.split("-")[0],
-      );
+      console.log("🔗 Database test result:", result.rows[0].test);
 
       // Test if we can query tables
       try {
