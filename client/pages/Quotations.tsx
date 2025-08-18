@@ -125,13 +125,12 @@ export default function Quotations() {
       const loadData = async () => {
         try {
           console.log("Refreshing quotations data after creation...");
-          const [quotationsData, customersData, productsData] = await Promise.all(
-            [
+          const [quotationsData, customersData, productsData] =
+            await Promise.all([
               businessData.getQuotations(),
               businessData.getCustomers(),
               businessData.getProducts(),
-            ],
-          );
+            ]);
           setQuotations(Array.isArray(quotationsData) ? quotationsData : []);
           setCustomers(Array.isArray(customersData) ? customersData : []);
           setProducts(Array.isArray(productsData) ? productsData : []);
@@ -142,7 +141,7 @@ export default function Quotations() {
       };
 
       loadData();
-      
+
       // Clear the refresh parameter from URL
       const newSearchParams = new URLSearchParams(searchParams);
       newSearchParams.delete("refresh");
@@ -190,7 +189,6 @@ export default function Quotations() {
         return "secondary";
     }
   };
-
 
   const handleDuplicate = (quotation: Quotation) => {
     navigate("/quotations/new", {

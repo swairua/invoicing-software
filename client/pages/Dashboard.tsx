@@ -305,10 +305,14 @@ export default function Dashboard() {
       const metrics = await businessData.getDashboardMetrics();
       setLiveMetrics(metrics);
 
-      alert("Sample data created successfully! Check the Customers and Products pages to see the new records.");
+      alert(
+        "Sample data created successfully! Check the Customers and Products pages to see the new records.",
+      );
     } catch (error) {
       console.error("❌ Failed to create sample data:", error);
-      alert("Failed to create sample data. Please check the console for details.");
+      alert(
+        "Failed to create sample data. Please check the console for details.",
+      );
     } finally {
       setIsCreatingSampleData(false);
     }

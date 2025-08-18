@@ -1,45 +1,51 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
+  <head>
     <title>Create Sample Data</title>
     <script>
-        async function createSampleData() {
-            console.log('🚀 Creating sample data...');
-            
-            try {
-                const response = await fetch('/api/create-sample-data', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-company-id': '00000000-0000-0000-0000-000000000001'
-                    }
-                });
-                
-                const result = await response.json();
-                console.log('📊 Result:', result);
-                
-                if (response.ok) {
-                    alert(`✅ Sample data created successfully!
+      async function createSampleData() {
+        console.log("🚀 Creating sample data...");
+
+        try {
+          const response = await fetch("/api/create-sample-data", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-company-id": "00000000-0000-0000-0000-000000000001",
+            },
+          });
+
+          const result = await response.json();
+          console.log("📊 Result:", result);
+
+          if (response.ok) {
+            alert(`✅ Sample data created successfully!
 Categories: ${result.summary.categoriesCreated}
 Customers: ${result.summary.customersCreated}
 Products: ${result.summary.productsCreated}`);
-                } else {
-                    alert('❌ Failed to create sample data: ' + result.error);
-                }
-            } catch (error) {
-                console.error('❌ Error:', error);
-                alert('❌ Network error: ' + error.message);
-            }
+          } else {
+            alert("❌ Failed to create sample data: " + result.error);
+          }
+        } catch (error) {
+          console.error("❌ Error:", error);
+          alert("❌ Network error: " + error.message);
         }
-        
-        // Don't auto-create, let user click button
+      }
+
+      // Don't auto-create, let user click button
     </script>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Sample Data Creator</h1>
-    <button onclick="createSampleData()" style="padding: 10px 20px; font-size: 16px;">
-        Create Sample Data
+    <button
+      onclick="createSampleData()"
+      style="padding: 10px 20px; font-size: 16px"
+    >
+      Create Sample Data
     </button>
-    <p>Click the button above to create sample data. Check the browser console for details.</p>
-</body>
+    <p>
+      Click the button above to create sample data. Check the browser console
+      for details.
+    </p>
+  </body>
 </html>

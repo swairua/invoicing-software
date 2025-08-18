@@ -1,106 +1,147 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
+  <head>
     <title>Test API Routing</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        button { padding: 10px 20px; margin: 5px; font-size: 14px; }
-        .result { margin: 10px 0; padding: 10px; border: 1px solid #ccc; background: #f9f9f9; }
-        .error { background: #ffe6e6; border-color: #ff9999; }
-        .success { background: #e6ffe6; border-color: #99ff99; }
-        pre { background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      button {
+        padding: 10px 20px;
+        margin: 5px;
+        font-size: 14px;
+      }
+      .result {
+        margin: 10px 0;
+        padding: 10px;
+        border: 1px solid #ccc;
+        background: #f9f9f9;
+      }
+      .error {
+        background: #ffe6e6;
+        border-color: #ff9999;
+      }
+      .success {
+        background: #e6ffe6;
+        border-color: #99ff99;
+      }
+      pre {
+        background: #f5f5f5;
+        padding: 10px;
+        border-radius: 4px;
+        overflow-x: auto;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>API Routing Test</h1>
-    
+
     <div>
-        <button onclick="testPing()">Test Ping</button>
-        <button onclick="testSampleDataRoute()">Test Sample Data Route</button>
-        <button onclick="createSampleDataDirect()">Create Sample Data (Direct)</button>
-        <button onclick="createSampleData()">Create Sample Data (API)</button>
-        <button onclick="checkData()">Check Current Data</button>
+      <button onclick="testPing()">Test Ping</button>
+      <button onclick="testSampleDataRoute()">Test Sample Data Route</button>
+      <button onclick="createSampleDataDirect()">
+        Create Sample Data (Direct)
+      </button>
+      <button onclick="createSampleData()">Create Sample Data (API)</button>
+      <button onclick="checkData()">Check Current Data</button>
     </div>
-    
+
     <div id="results"></div>
 
     <script>
-        const resultsDiv = document.getElementById('results');
-        
-        function addResult(content, isError = false) {
-            const div = document.createElement('div');
-            div.className = `result ${isError ? 'error' : 'success'}`;
-            div.innerHTML = content;
-            resultsDiv.appendChild(div);
-            resultsDiv.scrollTop = resultsDiv.scrollHeight;
-        }
-        
-        async function testPing() {
-            try {
-                const response = await fetch('/api/ping');
-                const result = await response.json();
-                addResult(`<h3>🏓 Ping Test</h3><pre>${JSON.stringify(result, null, 2)}</pre>`);
-            } catch (error) {
-                addResult(`<h3>❌ Ping Test Failed</h3><p>${error.message}</p>`, true);
-            }
-        }
-        
-        async function testSampleDataRoute() {
-            try {
-                const response = await fetch('/api/test-sample-data', {
-                    headers: { 'x-company-id': '00000000-0000-0000-0000-000000000001' }
-                });
-                const result = await response.json();
-                addResult(`<h3>🧪 Sample Data Route Test</h3><pre>${JSON.stringify(result, null, 2)}</pre>`);
-            } catch (error) {
-                addResult(`<h3>❌ Sample Data Route Test Failed</h3><p>${error.message}</p>`, true);
-            }
-        }
-        
-        async function createSampleDataDirect() {
-            addResult('<h3>🚀 Creating sample data directly...</h3>');
+      const resultsDiv = document.getElementById("results");
 
-            try {
-                const response = await fetch('/api/create-sample-direct', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-company-id': '00000000-0000-0000-0000-000000000001'
-                    }
-                });
+      function addResult(content, isError = false) {
+        const div = document.createElement("div");
+        div.className = `result ${isError ? "error" : "success"}`;
+        div.innerHTML = content;
+        resultsDiv.appendChild(div);
+        resultsDiv.scrollTop = resultsDiv.scrollHeight;
+      }
 
-                const result = await response.json();
+      async function testPing() {
+        try {
+          const response = await fetch("/api/ping");
+          const result = await response.json();
+          addResult(
+            `<h3>🏓 Ping Test</h3><pre>${JSON.stringify(result, null, 2)}</pre>`,
+          );
+        } catch (error) {
+          addResult(
+            `<h3>❌ Ping Test Failed</h3><p>${error.message}</p>`,
+            true,
+          );
+        }
+      }
 
-                if (response.ok) {
-                    addResult(`
+      async function testSampleDataRoute() {
+        try {
+          const response = await fetch("/api/test-sample-data", {
+            headers: { "x-company-id": "00000000-0000-0000-0000-000000000001" },
+          });
+          const result = await response.json();
+          addResult(
+            `<h3>🧪 Sample Data Route Test</h3><pre>${JSON.stringify(result, null, 2)}</pre>`,
+          );
+        } catch (error) {
+          addResult(
+            `<h3>❌ Sample Data Route Test Failed</h3><p>${error.message}</p>`,
+            true,
+          );
+        }
+      }
+
+      async function createSampleDataDirect() {
+        addResult("<h3>🚀 Creating sample data directly...</h3>");
+
+        try {
+          const response = await fetch("/api/create-sample-direct", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-company-id": "00000000-0000-0000-0000-000000000001",
+            },
+          });
+
+          const result = await response.json();
+
+          if (response.ok) {
+            addResult(`
                         <h3>✅ Sample data created successfully! (Direct Method)</h3>
                         <p>${result.message}</p>
                         <pre>${JSON.stringify(result, null, 2)}</pre>
                     `);
-                } else {
-                    addResult(`<h3>❌ Failed to create sample data (Direct)</h3><pre>${JSON.stringify(result, null, 2)}</pre>`, true);
-                }
-            } catch (error) {
-                addResult(`<h3>❌ Network error creating sample data (Direct)</h3><p>${error.message}</p>`, true);
-            }
+          } else {
+            addResult(
+              `<h3>❌ Failed to create sample data (Direct)</h3><pre>${JSON.stringify(result, null, 2)}</pre>`,
+              true,
+            );
+          }
+        } catch (error) {
+          addResult(
+            `<h3>❌ Network error creating sample data (Direct)</h3><p>${error.message}</p>`,
+            true,
+          );
         }
+      }
 
-        async function createSampleData() {
-            addResult('<h3>🚀 Creating sample data via API...</h3>');
-            
-            try {
-                const response = await fetch('/api/create-sample-data', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-company-id': '00000000-0000-0000-0000-000000000001'
-                    }
-                });
-                
-                const result = await response.json();
-                
-                if (response.ok) {
-                    addResult(`
+      async function createSampleData() {
+        addResult("<h3>🚀 Creating sample data via API...</h3>");
+
+        try {
+          const response = await fetch("/api/create-sample-data", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-company-id": "00000000-0000-0000-0000-000000000001",
+            },
+          });
+
+          const result = await response.json();
+
+          if (response.ok) {
+            addResult(`
                         <h3>✅ Sample data created successfully!</h3>
                         <p><strong>Summary:</strong></p>
                         <ul>
@@ -113,33 +154,41 @@
                             <pre>${JSON.stringify(result, null, 2)}</pre>
                         </details>
                     `);
-                } else {
-                    addResult(`<h3>❌ Failed to create sample data</h3><pre>${JSON.stringify(result, null, 2)}</pre>`, true);
-                }
-            } catch (error) {
-                addResult(`<h3>❌ Network error creating sample data</h3><p>${error.message}</p>`, true);
-            }
+          } else {
+            addResult(
+              `<h3>❌ Failed to create sample data</h3><pre>${JSON.stringify(result, null, 2)}</pre>`,
+              true,
+            );
+          }
+        } catch (error) {
+          addResult(
+            `<h3>❌ Network error creating sample data</h3><p>${error.message}</p>`,
+            true,
+          );
         }
-        
-        async function checkData() {
-            addResult('<h3>📊 Checking current data...</h3>');
-            
-            try {
-                const headers = { 'x-company-id': '00000000-0000-0000-0000-000000000001' };
-                
-                const [categoriesRes, customersRes, productsRes] = await Promise.all([
-                    fetch('/api/categories', { headers }),
-                    fetch('/api/customers', { headers }),
-                    fetch('/api/products', { headers })
-                ]);
-                
-                const [categories, customers, products] = await Promise.all([
-                    categoriesRes.json(),
-                    customersRes.json(),
-                    productsRes.json()
-                ]);
-                
-                addResult(`
+      }
+
+      async function checkData() {
+        addResult("<h3>📊 Checking current data...</h3>");
+
+        try {
+          const headers = {
+            "x-company-id": "00000000-0000-0000-0000-000000000001",
+          };
+
+          const [categoriesRes, customersRes, productsRes] = await Promise.all([
+            fetch("/api/categories", { headers }),
+            fetch("/api/customers", { headers }),
+            fetch("/api/products", { headers }),
+          ]);
+
+          const [categories, customers, products] = await Promise.all([
+            categoriesRes.json(),
+            customersRes.json(),
+            productsRes.json(),
+          ]);
+
+          addResult(`
                     <h3>📊 Current Data Count</h3>
                     <ul>
                         <li>Categories: ${categories.data?.length || 0}</li>
@@ -156,10 +205,13 @@
                         <pre>${JSON.stringify(products, null, 2)}</pre>
                     </details>
                 `);
-            } catch (error) {
-                addResult(`<h3>❌ Failed to check data</h3><p>${error.message}</p>`, true);
-            }
+        } catch (error) {
+          addResult(
+            `<h3>❌ Failed to check data</h3><p>${error.message}</p>`,
+            true,
+          );
         }
+      }
     </script>
-</body>
+  </body>
 </html>

@@ -76,7 +76,7 @@ class PostgresBusinessDataService {
         status: response.status,
         statusText: response.statusText,
         ok: response.ok,
-        url: response.url
+        url: response.url,
       });
 
       if (!response.ok) {
@@ -84,22 +84,24 @@ class PostgresBusinessDataService {
           `❌ API call failed: ${response.status} ${response.statusText}`,
         );
 
-        let errorDetails = 'No additional details';
+        let errorDetails = "No additional details";
         try {
           // Try to read error response as JSON first, fallback to text
-          const contentType = response.headers.get('content-type');
-          if (contentType && contentType.includes('application/json')) {
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
             const errorData = await response.json();
             errorDetails = JSON.stringify(errorData);
           } else {
             errorDetails = await response.text();
           }
         } catch (readError) {
-          console.warn('Could not read error response body:', readError);
+          console.warn("Could not read error response body:", readError);
         }
 
         console.error(`❌ Response body:`, errorDetails);
-        throw new Error(`API call failed: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `API call failed: ${response.status} ${response.statusText}`,
+        );
       }
 
       const data = await response.json();
@@ -832,7 +834,7 @@ class PostgresBusinessDataService {
     try {
       console.log("📋 Creating sample data via API...");
       const response = await this.apiCall("/create-sample-data", {
-        method: "POST"
+        method: "POST",
       });
       console.log("✅ Sample data created:", response);
       return response;

@@ -1,19 +1,28 @@
-import { BaseRepository, DatabaseUtils } from '../database';
-import { Product } from '@shared/types';
+import { BaseRepository, DatabaseUtils } from "../database";
+import { Product } from "@shared/types";
 
 export class ProductRepository extends BaseRepository {
-  
-  async findAll(companyId: string, options: {
-    page?: number;
-    limit?: number;
-    search?: string;
-    categoryId?: string;
-    status?: string;
-    lowStock?: boolean;
-  } = {}): Promise<{ products: Product[]; total: number }> {
-    const { page = 1, limit = 10, search, categoryId, status, lowStock } = options;
-    
-    let whereClause = 'WHERE p.company_id = ?';
+  async findAll(
+    companyId: string,
+    options: {
+      page?: number;
+      limit?: number;
+      search?: string;
+      categoryId?: string;
+      status?: string;
+      lowStock?: boolean;
+    } = {},
+  ): Promise<{ products: Product[]; total: number }> {
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      categoryId,
+      status,
+      lowStock,
+    } = options;
+
+    let whereClause = "WHERE p.company_id = ?";
     const params: any[] = [companyId];
 
     if (search) {
@@ -58,14 +67,14 @@ export class ProductRepository extends BaseRepository {
       ORDER BY p.updated_at DESC
       LIMIT ? OFFSET ?
     `;
-    
+
     // Create the parameters array for the data query
     const dataParams = [...params, String(limit), String(offset)];
     const result = await this.db.query(query, dataParams);
-    
+
     return {
       products: this.toCamelCase(result.rows) as Product[],
-      total
+      total,
     };
   }
 
@@ -80,9 +89,9 @@ export class ProductRepository extends BaseRepository {
       LEFT JOIN suppliers s ON p.supplier_id = s.id
       WHERE p.id = ? AND p.company_id = ?
     `;
-    
+
     const result = await this.db.query(query, [id, companyId]);
-    
+
     if (result.rows.length === 0) {
       return null;
     }
@@ -90,7 +99,9 @@ export class ProductRepository extends BaseRepository {
     return this.toCamelCase(result.rows[0]) as Product;
   }
 
-  async create(productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>): Promise<Product> {
+  async create(
+    productData: Omit<Product, "id" | "createdAt" | "updatedAt">,
+  ): Promise<Product> {
     const data = this.toSnakeCase(productData);
     delete data.id; // Let MySQL generate the UUID
     delete data.created_at;
@@ -98,35 +109,40 @@ export class ProductRepository extends BaseRepository {
 
     // Add UUID generation explicitly
     const insertQuery = `
-      INSERT INTO products (id, ${Object.keys(data).join(', ')})
-      VALUES (UUID(), ${Object.keys(data).map(() => '?').join(', ')})
+      INSERT INTO products (id, ${Object.keys(data).join(", ")})
+      VALUES (UUID(), ${Object.keys(data)
+        .map(() => "?")
+        .join(", ")})
     `;
 
     const result = await this.db.query(insertQuery, Object.values(data));
 
     // Get the inserted record by finding the most recent one for this company
     const recentProduct = await this.db.query(
-      'SELECT * FROM products WHERE company_id = ? ORDER BY created_at DESC LIMIT 1',
-      [productData.companyId]
+      "SELECT * FROM products WHERE company_id = ? ORDER BY created_at DESC LIMIT 1",
+      [productData.companyId],
     );
 
     return this.toCamelCase(recentProduct.rows[0]) as Product;
   }
 
-  async update(id: string, companyId: string, updateData: Partial<Product>): Promise<Product | null> {
+  async update(
+    id: string,
+    companyId: string,
+    updateData: Partial<Product>,
+  ): Promise<Product | null> {
     const data = this.toSnakeCase(updateData);
     delete data.id;
     delete data.created_at;
     delete data.updated_at;
 
-    const { query, values } = DatabaseUtils.buildUpdateQuery(
-      'products',
-      data,
-      { id, company_id: companyId }
-    );
+    const { query, values } = DatabaseUtils.buildUpdateQuery("products", data, {
+      id,
+      company_id: companyId,
+    });
 
     const result = await this.db.query(query, values);
-    
+
     if (result.affectedRows === 0) {
       return null;
     }
@@ -134,31 +150,35 @@ export class ProductRepository extends BaseRepository {
     return this.findById(id, companyId);
   }
 
-  async updateStock(id: string, quantity: number, movementType: 'in' | 'out' | 'adjustment'): Promise<void> {
+  async updateStock(
+    id: string,
+    quantity: number,
+    movementType: "in" | "out" | "adjustment",
+  ): Promise<void> {
     await this.db.transaction(async (connection) => {
       // Get current stock
-      const stockQuery = 'SELECT current_stock FROM products WHERE id = ?';
+      const stockQuery = "SELECT current_stock FROM products WHERE id = ?";
       const [stockResult] = await connection.execute(stockQuery, [id]);
-      
+
       if (!Array.isArray(stockResult) || stockResult.length === 0) {
-        throw new Error('Product not found');
+        throw new Error("Product not found");
       }
 
       const currentStock = parseFloat((stockResult as any)[0].current_stock);
       let newStock: number;
 
       switch (movementType) {
-        case 'in':
+        case "in":
           newStock = currentStock + quantity;
           break;
-        case 'out':
+        case "out":
           newStock = Math.max(0, currentStock - quantity);
           break;
-        case 'adjustment':
+        case "adjustment":
           newStock = quantity;
           break;
         default:
-          throw new Error('Invalid movement type');
+          throw new Error("Invalid movement type");
       }
 
       // Update product stock
@@ -178,7 +198,11 @@ export class ProductRepository extends BaseRepository {
         VALUES (UUID(), ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
       `;
       await connection.execute(movementQuery, [
-        id, movementType, quantity, currentStock, newStock
+        id,
+        movementType,
+        quantity,
+        currentStock,
+        newStock,
       ]);
     });
   }
@@ -196,12 +220,15 @@ export class ProductRepository extends BaseRepository {
         AND p.is_active = TRUE
       ORDER BY (p.min_stock - p.current_stock) DESC
     `;
-    
+
     const result = await this.db.query(query, [companyId]);
     return this.toCamelCase(result.rows) as Product[];
   }
 
-  async getStockMovements(productId: string, limit: number = 10): Promise<any[]> {
+  async getStockMovements(
+    productId: string,
+    limit: number = 10,
+  ): Promise<any[]> {
     const query = `
       SELECT 
         sm.*,
@@ -212,12 +239,16 @@ export class ProductRepository extends BaseRepository {
       ORDER BY sm.created_at DESC
       LIMIT ?
     `;
-    
+
     const result = await this.db.query(query, [productId, limit]);
     return this.toCamelCase(result.rows);
   }
 
-  async searchProducts(companyId: string, searchTerm: string, limit: number = 10): Promise<Product[]> {
+  async searchProducts(
+    companyId: string,
+    searchTerm: string,
+    limit: number = 10,
+  ): Promise<Product[]> {
     const query = `
       SELECT 
         p.*,
@@ -242,13 +273,18 @@ export class ProductRepository extends BaseRepository {
         p.name ASC
       LIMIT ?
     `;
-    
+
     const searchPattern = `%${searchTerm}%`;
     const result = await this.db.query(query, [
-      companyId, 
-      searchPattern, searchPattern, searchPattern, searchPattern,
-      searchPattern, searchPattern, searchPattern,
-      limit
+      companyId,
+      searchPattern,
+      searchPattern,
+      searchPattern,
+      searchPattern,
+      searchPattern,
+      searchPattern,
+      searchPattern,
+      limit,
     ]);
     return this.toCamelCase(result.rows) as Product[];
   }
@@ -260,7 +296,7 @@ export class ProductRepository extends BaseRepository {
       WHERE product_id = ? AND is_active = TRUE
       ORDER BY name ASC
     `;
-    
+
     const result = await this.db.query(query, [productId]);
     return this.toCamelCase(result.rows);
   }
@@ -271,7 +307,7 @@ export class ProductRepository extends BaseRepository {
       SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP
       WHERE id = ? AND company_id = ?
     `;
-    
+
     const result = await this.db.query(query, [id, companyId]);
     return result.affectedRows > 0;
   }

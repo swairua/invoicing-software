@@ -25,7 +25,10 @@ router.get("/", async (req, res) => {
       search,
       isActive,
     });
-    console.log("✅ Repository call successful, customers found:", result.customers.length);
+    console.log(
+      "✅ Repository call successful, customers found:",
+      result.customers.length,
+    );
 
     const response = {
       success: true,

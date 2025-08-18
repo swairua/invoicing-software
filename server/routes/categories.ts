@@ -11,12 +11,12 @@ router.get("/", async (req, res) => {
 
     // Import database here to avoid circular dependency issues
     const { default: Database } = await import("../database.js");
-    
+
     const result = await Database.query(
       `SELECT * FROM product_categories 
        WHERE company_id = ? 
        ORDER BY name ASC`,
-      [companyId]
+      [companyId],
     );
 
     res.json({
@@ -53,13 +53,13 @@ router.post("/", async (req, res) => {
     const result = await Database.query(
       `INSERT INTO product_categories (id, name, description, parent_id, company_id, created_at, updated_at) 
        VALUES (UUID(), ?, ?, ?, ?, NOW(), NOW())`,
-      [name, description, parentId || null, companyId]
+      [name, description, parentId || null, companyId],
     );
 
     // Get the created category
     const createdCategory = await Database.query(
       `SELECT * FROM product_categories WHERE company_id = ? AND name = ? ORDER BY created_at DESC LIMIT 1`,
-      [companyId, name]
+      [companyId, name],
     );
 
     res.status(201).json({
@@ -91,20 +91,20 @@ router.put("/:id", async (req, res) => {
       `UPDATE product_categories 
        SET name = ?, description = ?, parent_id = ?, updated_at = NOW()
        WHERE id = ? AND company_id = ?`,
-      [name, description, parentId || null, id, companyId]
+      [name, description, parentId || null, id, companyId],
     );
 
     if (result.affectedRows === 0) {
       return res.status(404).json({
         success: false,
-        error: "Category not found"
+        error: "Category not found",
       });
     }
 
     // Get the updated category
     const updatedCategory = await Database.query(
       `SELECT * FROM product_categories WHERE id = ? AND company_id = ?`,
-      [id, companyId]
+      [id, companyId],
     );
 
     res.json({
@@ -135,13 +135,13 @@ router.delete("/:id", async (req, res) => {
     const subcategoriesResult = await Database.query(
       `SELECT COUNT(*) as count FROM product_categories 
        WHERE parent_id = ? AND company_id = ?`,
-      [id, companyId]
+      [id, companyId],
     );
 
     if (subcategoriesResult.rows[0].count > 0) {
       return res.status(400).json({
         success: false,
-        error: "Cannot delete category with subcategories"
+        error: "Cannot delete category with subcategories",
       });
     }
 
@@ -149,26 +149,26 @@ router.delete("/:id", async (req, res) => {
     const productsResult = await Database.query(
       `SELECT COUNT(*) as count FROM products 
        WHERE category_id = ? AND company_id = ?`,
-      [id, companyId]
+      [id, companyId],
     );
 
     if (productsResult.rows[0].count > 0) {
       return res.status(400).json({
         success: false,
-        error: "Cannot delete category that is used by products"
+        error: "Cannot delete category that is used by products",
       });
     }
 
     const result = await Database.query(
       `DELETE FROM product_categories 
        WHERE id = ? AND company_id = ?`,
-      [id, companyId]
+      [id, companyId],
     );
 
     if (result.affectedRows === 0) {
       return res.status(404).json({
         success: false,
-        error: "Category not found"
+        error: "Category not found",
       });
     }
 

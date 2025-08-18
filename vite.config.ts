@@ -40,7 +40,7 @@ function expressPlugin(): Plugin {
 
       // Fallback for any other API routes
       server.middlewares.use((req, res, next) => {
-        if (req.url?.startsWith('/api')) {
+        if (req.url?.startsWith("/api")) {
           console.log(`🔧 Vite fallback middleware: ${req.method} ${req.url}`);
           app(req, res, next);
         } else {

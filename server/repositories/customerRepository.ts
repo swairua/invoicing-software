@@ -98,8 +98,10 @@ export class CustomerRepository extends BaseRepository {
 
     // Add UUID generation explicitly
     const insertQuery = `
-      INSERT INTO customers (id, ${Object.keys(data).join(', ')})
-      VALUES (UUID(), ${Object.keys(data).map(() => '?').join(', ')})
+      INSERT INTO customers (id, ${Object.keys(data).join(", ")})
+      VALUES (UUID(), ${Object.keys(data)
+        .map(() => "?")
+        .join(", ")})
     `;
 
     console.log("📝 Insert query:", insertQuery);
@@ -109,8 +111,8 @@ export class CustomerRepository extends BaseRepository {
 
     // Get the inserted record by finding the most recent one for this company
     const recentCustomer = await this.db.query(
-      'SELECT * FROM customers WHERE company_id = ? ORDER BY created_at DESC LIMIT 1',
-      [customerData.companyId]
+      "SELECT * FROM customers WHERE company_id = ? ORDER BY created_at DESC LIMIT 1",
+      [customerData.companyId],
     );
 
     return this.toCamelCase(recentCustomer.rows[0]) as Customer;

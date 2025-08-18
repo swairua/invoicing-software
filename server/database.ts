@@ -2,7 +2,8 @@ import mysql from "mysql2/promise";
 
 // Database configuration - MySQL connection
 const DATABASE_CONFIG = {
-  host: process.env.DB_HOST || "mysql-242eb3d7-invoicing-software.c.aivencloud.com",
+  host:
+    process.env.DB_HOST || "mysql-242eb3d7-invoicing-software.c.aivencloud.com",
   port: parseInt(process.env.DB_PORT || "11397"),
   user: process.env.DB_USER || "avnadmin",
   password: process.env.DB_PASSWORD || "AVNS_x9WdjKNy72pMT6Zr90I",
@@ -40,7 +41,7 @@ export class Database {
       return {
         rows: Array.isArray(rows) ? rows : [rows],
         rowCount: Array.isArray(rows) ? rows.length : 1,
-        fields
+        fields,
       };
     } finally {
       connection.release();
@@ -74,12 +75,12 @@ export class Database {
   async testConnection(): Promise<boolean> {
     try {
       console.log("⏳ Testing MySQL database connection...");
-      console.log(`🔌 Connecting to: ${DATABASE_CONFIG.host}:${DATABASE_CONFIG.port}`);
-      console.log("🗄️ Using LIVE MYSQL DATABASE - No mock data");
-      
-      const result = await this.query(
-        "SELECT 1 as test",
+      console.log(
+        `🔌 Connecting to: ${DATABASE_CONFIG.host}:${DATABASE_CONFIG.port}`,
       );
+      console.log("🗄️ Using LIVE MYSQL DATABASE - No mock data");
+
+      const result = await this.query("SELECT 1 as test");
       console.log("✅ LIVE MYSQL DATABASE CONNECTION SUCCESSFUL!");
       console.log("🔗 Database test result:", result.rows[0].test);
 
@@ -92,18 +93,24 @@ export class Database {
           `✅ Database schema ready - Found ${companyTest.rows[0].count} companies`,
         );
 
-        const tableCheck = await this.query(`
+        const tableCheck = await this.query(
+          `
           SELECT table_name FROM information_schema.tables
           WHERE table_schema = ?
           ORDER BY table_name
-        `, [DATABASE_CONFIG.database]);
+        `,
+          [DATABASE_CONFIG.database],
+        );
         console.log(`📋 Available tables: ${tableCheck.rows.length} total`);
 
         // Check if quotations table exists, if not create it
-        const quotationsCheck = await this.query(`
+        const quotationsCheck = await this.query(
+          `
           SELECT table_name FROM information_schema.tables
           WHERE table_schema = ? AND table_name = 'quotations'
-        `, [DATABASE_CONFIG.database]);
+        `,
+          [DATABASE_CONFIG.database],
+        );
 
         if (quotationsCheck.rows.length === 0) {
           console.log("📋 Creating missing quotations table...");
@@ -159,10 +166,18 @@ export class Database {
       `);
 
       // Create indexes
-      await this.query('CREATE INDEX idx_quotations_company ON quotations (company_id)');
-      await this.query('CREATE INDEX idx_quotations_customer ON quotations (customer_id)');
-      await this.query('CREATE INDEX idx_quotations_status ON quotations (status)');
-      await this.query('CREATE INDEX idx_quotations_date ON quotations (issue_date)');
+      await this.query(
+        "CREATE INDEX idx_quotations_company ON quotations (company_id)",
+      );
+      await this.query(
+        "CREATE INDEX idx_quotations_customer ON quotations (customer_id)",
+      );
+      await this.query(
+        "CREATE INDEX idx_quotations_status ON quotations (status)",
+      );
+      await this.query(
+        "CREATE INDEX idx_quotations_date ON quotations (issue_date)",
+      );
 
       // Create quotation items table
       await this.query(`
@@ -187,20 +202,28 @@ export class Database {
       `);
 
       // Create indexes for quotation items
-      await this.query('CREATE INDEX idx_quotation_items_quotation ON quotation_items (quotation_id)');
-      await this.query('CREATE INDEX idx_quotation_items_product ON quotation_items (product_id)');
+      await this.query(
+        "CREATE INDEX idx_quotation_items_quotation ON quotation_items (quotation_id)",
+      );
+      await this.query(
+        "CREATE INDEX idx_quotation_items_product ON quotation_items (product_id)",
+      );
 
       console.log("✅ Quotations tables created successfully");
 
       // Add sample customers if none exist
-      const customerCount = await this.query('SELECT COUNT(*) as count FROM customers');
+      const customerCount = await this.query(
+        "SELECT COUNT(*) as count FROM customers",
+      );
       if (customerCount.rows[0].count === 0) {
         console.log("📋 Adding sample customers...");
         await this.addSampleCustomers();
       }
 
       // Add sample products if none exist
-      const productCount = await this.query('SELECT COUNT(*) as count FROM products');
+      const productCount = await this.query(
+        "SELECT COUNT(*) as count FROM products",
+      );
       if (productCount.rows[0].count === 0) {
         console.log("📋 Adding sample products...");
         await this.addSampleProducts();
@@ -213,18 +236,23 @@ export class Database {
   // Helper method to add sample categories
   private async addSampleCategories(): Promise<void> {
     try {
-      const companyId = '00000000-0000-0000-0000-000000000001';
+      const companyId = "00000000-0000-0000-0000-000000000001";
 
       await this.query(
         `INSERT INTO product_categories (id, name, description, is_active, company_id, created_at, updated_at)
          VALUES (UUID(), ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-        ['Medical Supplies', 'Basic medical supplies and consumables', true, companyId]
+        [
+          "Medical Supplies",
+          "Basic medical supplies and consumables",
+          true,
+          companyId,
+        ],
       );
 
       await this.query(
         `INSERT INTO product_categories (id, name, description, is_active, company_id, created_at, updated_at)
          VALUES (UUID(), ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-        ['Medical Equipment', 'Medical devices and equipment', true, companyId]
+        ["Medical Equipment", "Medical devices and equipment", true, companyId],
       );
 
       console.log("✅ Sample categories created successfully");
@@ -236,45 +264,46 @@ export class Database {
   // Helper method to add sample customers
   private async addSampleCustomers(): Promise<void> {
     try {
-      const companyId = '00000000-0000-0000-0000-000000000001';
+      const companyId = "00000000-0000-0000-0000-000000000001";
 
       const sampleCustomers = [
         {
-          name: 'ABC Electronics Ltd',
-          email: 'orders@abcelectronics.co.ke',
-          phone: '+254712345678',
-          kra_pin: 'P051234567A',
-          address_line1: '123 Industrial Area',
-          city: 'Nairobi',
-          country: 'Kenya',
+          name: "ABC Electronics Ltd",
+          email: "orders@abcelectronics.co.ke",
+          phone: "+254712345678",
+          kra_pin: "P051234567A",
+          address_line1: "123 Industrial Area",
+          city: "Nairobi",
+          country: "Kenya",
           credit_limit: 100000,
-          current_balance: 15000
+          current_balance: 15000,
         },
         {
-          name: 'Digital Solutions Co',
-          email: 'info@digitalsolutions.co.ke',
-          phone: '+254723456789',
-          address_line1: '456 Westlands Road',
-          city: 'Nairobi',
-          country: 'Kenya',
+          name: "Digital Solutions Co",
+          email: "info@digitalsolutions.co.ke",
+          phone: "+254723456789",
+          address_line1: "456 Westlands Road",
+          city: "Nairobi",
+          country: "Kenya",
           credit_limit: 50000,
-          current_balance: 5000
+          current_balance: 5000,
         },
         {
-          name: 'Kenyan Medical Supplies',
-          email: 'procurement@kenyamed.co.ke',
-          phone: '+254734567890',
-          kra_pin: 'P051234567B',
-          address_line1: '789 Hospital Road',
-          city: 'Nairobi',
-          country: 'Kenya',
+          name: "Kenyan Medical Supplies",
+          email: "procurement@kenyamed.co.ke",
+          phone: "+254734567890",
+          kra_pin: "P051234567B",
+          address_line1: "789 Hospital Road",
+          city: "Nairobi",
+          country: "Kenya",
           credit_limit: 200000,
-          current_balance: 0
-        }
+          current_balance: 0,
+        },
       ];
 
       for (const customer of sampleCustomers) {
-        await this.query(`
+        await this.query(
+          `
           INSERT INTO customers (
             id, company_id, name, email, phone, kra_pin,
             address_line1, city, country, credit_limit, current_balance,
@@ -282,11 +311,20 @@ export class Database {
           ) VALUES (
             UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, NOW(), NOW()
           )
-        `, [
-          companyId, customer.name, customer.email, customer.phone,
-          customer.kra_pin || null, customer.address_line1, customer.city,
-          customer.country, customer.credit_limit, customer.current_balance
-        ]);
+        `,
+          [
+            companyId,
+            customer.name,
+            customer.email,
+            customer.phone,
+            customer.kra_pin || null,
+            customer.address_line1,
+            customer.city,
+            customer.country,
+            customer.credit_limit,
+            customer.current_balance,
+          ],
+        );
       }
 
       console.log(`✅ Added ${sampleCustomers.length} sample customers`);
@@ -298,52 +336,54 @@ export class Database {
   // Helper method to add sample products
   private async addSampleProducts(): Promise<void> {
     try {
-      const companyId = '00000000-0000-0000-0000-000000000001';
+      const companyId = "00000000-0000-0000-0000-000000000001";
 
       const sampleProducts = [
         {
-          name: 'Latex Rubber Gloves XL',
-          description: 'High-quality latex rubber gloves for medical and industrial use',
-          sku: 'LRG-XL-001',
-          unit_of_measure: 'pair',
+          name: "Latex Rubber Gloves XL",
+          description:
+            "High-quality latex rubber gloves for medical and industrial use",
+          sku: "LRG-XL-001",
+          unit_of_measure: "pair",
           purchase_price: 400,
           selling_price: 500,
           min_stock: 50,
           max_stock: 1000,
           current_stock: 250,
           is_taxable: true,
-          tax_rate: 16.00
+          tax_rate: 16.0,
         },
         {
-          name: 'Digital Blood Pressure Monitor',
-          description: 'Accurate digital blood pressure monitoring device',
-          sku: 'DBP-001',
-          unit_of_measure: 'piece',
+          name: "Digital Blood Pressure Monitor",
+          description: "Accurate digital blood pressure monitoring device",
+          sku: "DBP-001",
+          unit_of_measure: "piece",
           purchase_price: 2500,
           selling_price: 3500,
           min_stock: 5,
           max_stock: 100,
           current_stock: 25,
           is_taxable: true,
-          tax_rate: 16.00
+          tax_rate: 16.0,
         },
         {
-          name: 'Surgical Face Masks (Box of 50)',
-          description: 'Disposable surgical face masks, FDA approved',
-          sku: 'SFM-50-001',
-          unit_of_measure: 'box',
+          name: "Surgical Face Masks (Box of 50)",
+          description: "Disposable surgical face masks, FDA approved",
+          sku: "SFM-50-001",
+          unit_of_measure: "box",
           purchase_price: 800,
           selling_price: 1200,
           min_stock: 20,
           max_stock: 500,
           current_stock: 150,
           is_taxable: true,
-          tax_rate: 16.00
-        }
+          tax_rate: 16.0,
+        },
       ];
 
       for (const product of sampleProducts) {
-        await this.query(`
+        await this.query(
+          `
           INSERT INTO products (
             id, company_id, name, description, sku, unit_of_measure,
             purchase_price, selling_price, min_stock, max_stock, current_stock,
@@ -352,12 +392,22 @@ export class Database {
           ) VALUES (
             UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, TRUE, 'active', NOW(), NOW()
           )
-        `, [
-          companyId, product.name, product.description, product.sku,
-          product.unit_of_measure, product.purchase_price,
-          product.selling_price, product.min_stock, product.max_stock,
-          product.current_stock, product.is_taxable, product.tax_rate
-        ]);
+        `,
+          [
+            companyId,
+            product.name,
+            product.description,
+            product.sku,
+            product.unit_of_measure,
+            product.purchase_price,
+            product.selling_price,
+            product.min_stock,
+            product.max_stock,
+            product.current_stock,
+            product.is_taxable,
+            product.tax_rate,
+          ],
+        );
       }
 
       console.log(`✅ Added ${sampleProducts.length} sample products`);
@@ -375,36 +425,62 @@ export class Database {
   // Helper method to check and add sample data
   private async checkAndAddSampleData(): Promise<void> {
     try {
-      const companyId = '00000000-0000-0000-0000-000000000001';
+      const companyId = "00000000-0000-0000-0000-000000000001";
 
       // First ensure the company exists
-      const companyExists = await this.query('SELECT COUNT(*) as count FROM companies WHERE id = ?', [companyId]);
+      const companyExists = await this.query(
+        "SELECT COUNT(*) as count FROM companies WHERE id = ?",
+        [companyId],
+      );
       if (companyExists.rows[0].count === 0) {
         console.log("🏢 Creating sample company...");
         await this.query(
           `INSERT INTO companies (id, name, kra_pin, vat_number, address_line1, city, country, phone, email, currency, vat_rate, invoice_prefix, is_active, created_at, updated_at)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-          [companyId, 'Sample Medical Supply Company', 'P123456789A', 'VAT123456789', '123 Business Street', 'Nairobi', 'Kenya', '+254-700-000000', 'admin@samplemedical.co.ke', 'KES', 16.00, 'INV', true]
+          [
+            companyId,
+            "Sample Medical Supply Company",
+            "P123456789A",
+            "VAT123456789",
+            "123 Business Street",
+            "Nairobi",
+            "Kenya",
+            "+254-700-000000",
+            "admin@samplemedical.co.ke",
+            "KES",
+            16.0,
+            "INV",
+            true,
+          ],
         );
         console.log("✅ Sample company created successfully");
       }
 
       // Add sample categories first
-      const categoryCount = await this.query('SELECT COUNT(*) as count FROM product_categories WHERE company_id = ?', [companyId]);
+      const categoryCount = await this.query(
+        "SELECT COUNT(*) as count FROM product_categories WHERE company_id = ?",
+        [companyId],
+      );
       if (categoryCount.rows[0].count === 0) {
         console.log("📁 Adding sample categories...");
         await this.addSampleCategories();
       }
 
       // Add sample customers if none exist for the main company
-      const customerCount = await this.query('SELECT COUNT(*) as count FROM customers WHERE company_id = ?', ['00000000-0000-0000-0000-000000000001']);
+      const customerCount = await this.query(
+        "SELECT COUNT(*) as count FROM customers WHERE company_id = ?",
+        ["00000000-0000-0000-0000-000000000001"],
+      );
       if (customerCount.rows[0].count === 0) {
         console.log("📋 Adding sample customers...");
         await this.addSampleCustomers();
       }
 
       // Add sample products if none exist for the main company
-      const productCount = await this.query('SELECT COUNT(*) as count FROM products WHERE company_id = ?', ['00000000-0000-0000-0000-000000000001']);
+      const productCount = await this.query(
+        "SELECT COUNT(*) as count FROM products WHERE company_id = ?",
+        ["00000000-0000-0000-0000-000000000001"],
+      );
       if (productCount.rows[0].count === 0) {
         console.log("📋 Adding sample products...");
         await this.addSampleProducts();
@@ -534,12 +610,12 @@ export const DatabaseUtils = {
 
   // Format timestamp for MySQL
   formatTimestamp(date: Date): string {
-    return date.toISOString().slice(0, 19).replace('T', ' ');
+    return date.toISOString().slice(0, 19).replace("T", " ");
   },
 
   // Escape SQL identifiers (MySQL style)
   escapeIdentifier(identifier: string): string {
-    return `\`${identifier.replace(/`/g, '``')}\``;
+    return `\`${identifier.replace(/`/g, "``")}\``;
   },
 
   // Build INSERT query (MySQL style with ? placeholders)
@@ -572,12 +648,8 @@ export const DatabaseUtils = {
       throw new Error("No data provided for update");
     }
 
-    const setClause = updateKeys
-      .map((key) => `${key} = ?`)
-      .join(", ");
-    const whereClause = whereKeys
-      .map((key) => `${key} = ?`)
-      .join(" AND ");
+    const setClause = updateKeys.map((key) => `${key} = ?`).join(", ");
+    const whereClause = whereKeys.map((key) => `${key} = ?`).join(" AND ");
 
     const values = [
       ...updateKeys.map((key) => data[key]),
