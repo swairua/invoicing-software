@@ -328,10 +328,50 @@ router.put("/:id", async (req, res) => {
       (req.headers["x-company-id"] as string) ||
       "550e8400-e29b-41d4-a716-446655440000";
 
+    console.log("🔍 Product update request:");
+    console.log("  Product ID:", req.params.id);
+    console.log("  Company ID:", companyId);
+    console.log("  Request body fields:", Object.keys(req.body));
+
+    // Clean the request body - remove fields that shouldn't be sent to database
+    const {
+      id,
+      createdAt,
+      updatedAt,
+      categoryName,
+      supplierName,
+      variants,
+      length,
+      width,
+      height,
+      ...cleanBody
+    } = req.body;
+
+    // Handle dimensions properly
+    if (req.body.dimensions) {
+      cleanBody.length = req.body.dimensions.length || null;
+      cleanBody.width = req.body.dimensions.width || null;
+      cleanBody.height = req.body.dimensions.height || null;
+      cleanBody.dimensionUnit = req.body.dimensions.unit || "cm";
+    }
+
+    // Map frontend fields to database fields - exact database column names
+    const dbUpdateData = {
+      ...cleanBody,
+      // Don't include the dimensions object - we already extracted length/width/height
+    };
+
+    // Remove the dimensions object and other frontend-only fields
+    delete dbUpdateData.dimensions;
+    delete dbUpdateData.unit; // This gets converted to unit_of_measure by toSnakeCase
+    delete dbUpdateData.taxable; // This gets converted to is_taxable by toSnakeCase
+
+    console.log("  Cleaned update data fields:", Object.keys(dbUpdateData));
+
     const product = await productRepository.update(
       req.params.id,
       companyId,
-      req.body,
+      dbUpdateData,
     );
 
     if (!product) {

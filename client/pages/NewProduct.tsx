@@ -59,7 +59,6 @@ interface ProductFormData {
   sku: string;
   barcode: string;
   category: string; // Category ID
-  categoryName?: string; // Category name for display
   subcategory: string;
   brand: string;
   supplier: string;
@@ -198,7 +197,6 @@ export default function NewProduct() {
           sku: foundProduct.sku,
           barcode: foundProduct.barcode || "",
           category: foundProduct.categoryId || foundProduct.category,
-          categoryName: foundProduct.category,
           subcategory: foundProduct.subcategory || "",
           brand: foundProduct.brand || "",
           supplier: foundProduct.supplier || "",
@@ -326,7 +324,9 @@ export default function NewProduct() {
           description: formData.description,
           sku: formData.sku,
           barcode: formData.barcode,
-          category: formData.categoryName || formData.category,
+          category:
+            categories.find((cat) => cat.id === formData.category)?.name ||
+            formData.category,
           categoryId: formData.category,
           subcategory:
             formData.subcategory === "none" ? "" : formData.subcategory,
@@ -403,7 +403,9 @@ export default function NewProduct() {
           description: formData.description,
           sku: formData.sku,
           barcode: formData.barcode,
-          category: formData.categoryName || formData.category,
+          category:
+            categories.find((cat) => cat.id === formData.category)?.name ||
+            formData.category,
           categoryId: formData.category,
           subcategory:
             formData.subcategory === "none" ? "" : formData.subcategory,
@@ -742,7 +744,6 @@ export default function NewProduct() {
                           setFormData((prev) => ({
                             ...prev,
                             category: value,
-                            categoryName: selectedCategory?.name || "",
                           }));
                         }}
                       >
