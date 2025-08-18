@@ -55,7 +55,7 @@ async function deployToRender() {
     console.log("✅ MySQL connection successful!");
 
     // Test basic query
-    const [result] = await connection.execute("SELECT NOW() as current_time, VERSION() as version");
+    const [result] = await connection.execute("SELECT NOW() AS current_time, VERSION() AS version");
     console.log("🕐 Server time:", result[0].current_time);
     console.log("🗄️ MySQL version:", result[0].version.split("-")[0]);
 
