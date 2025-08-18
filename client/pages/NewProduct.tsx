@@ -228,6 +228,8 @@ export default function NewProduct() {
         console.log("📋 Mapped form data:", formData);
         console.log("🏷️ Categories available:", categories.length);
         console.log("🏷️ Selected category ID:", formData.category);
+        console.log("📦 Unit from database:", productData.unitOfMeasure);
+        console.log("📦 Unit mapped to form:", formData.unit);
 
         // Populate form with existing product data
         form.reset(formData);
@@ -236,6 +238,7 @@ export default function NewProduct() {
         setTimeout(() => {
           console.log("✅ Form values after reset:", form.getValues());
           console.log("🏷️ Category field value:", form.getValues("category"));
+          console.log("📦 Unit field value:", form.getValues("unit"));
         }, 100);
       }
     } catch (error) {
