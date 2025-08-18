@@ -150,6 +150,62 @@ export default function NewQuotation() {
     loadData();
   }, [dataService, toast]);
 
+  // Load existing quotation data for edit mode
+  useEffect(() => {
+    const loadQuotationData = async () => {
+      if (!isEditMode || !id) return;
+
+      try {
+        setIsLoadingQuotation(true);
+        const quotations = await dataService.getQuotations();
+        const existingQuotation = quotations.find((q) => q.id === id);
+
+        if (!existingQuotation) {
+          toast({
+            title: "Quotation Not Found",
+            description: "The quotation you're trying to edit could not be found.",
+            variant: "destructive",
+          });
+          navigate("/quotations");
+          return;
+        }
+
+        // Populate form data
+        setFormData({
+          customerId: existingQuotation.customerId,
+          issueDate: existingQuotation.issueDate.toString().split('T')[0],
+          validUntil: existingQuotation.validUntil.toString().split('T')[0],
+          notes: existingQuotation.notes || "",
+        });
+
+        // Populate items
+        if (existingQuotation.items && existingQuotation.items.length > 0) {
+          const formattedItems = existingQuotation.items.map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity.toString(),
+            unitPrice: item.unitPrice.toString(),
+            discount: item.discount.toString(),
+            vatEnabled: item.vatRate > 0,
+            vatRate: item.vatRate,
+          }));
+          setItems(formattedItems);
+        }
+
+      } catch (error) {
+        console.error("Error loading quotation:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load quotation data.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoadingQuotation(false);
+      }
+    };
+
+    loadQuotationData();
+  }, [isEditMode, id, dataService, toast, navigate]);
+
   useEffect(() => {
     if (productSearch) {
       const filtered = products.filter(
