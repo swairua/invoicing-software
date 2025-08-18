@@ -268,6 +268,80 @@ export class Database {
       console.error("❌ Failed to add sample customers:", error);
     }
   }
+
+  // Helper method to add sample products
+  private async addSampleProducts(): Promise<void> {
+    try {
+      const companyId = '550e8400-e29b-41d4-a716-446655440000';
+
+      const sampleProducts = [
+        {
+          name: 'Latex Rubber Gloves XL',
+          description: 'High-quality latex rubber gloves for medical and industrial use',
+          sku: 'LRG-XL-001',
+          category: 'Medical Supplies',
+          unit_of_measure: 'pair',
+          purchase_price: 400,
+          selling_price: 500,
+          min_stock: 50,
+          max_stock: 1000,
+          current_stock: 250,
+          is_taxable: true,
+          tax_rate: 16.00
+        },
+        {
+          name: 'Digital Blood Pressure Monitor',
+          description: 'Accurate digital blood pressure monitoring device',
+          sku: 'DBP-001',
+          category: 'Medical Equipment',
+          unit_of_measure: 'piece',
+          purchase_price: 2500,
+          selling_price: 3500,
+          min_stock: 5,
+          max_stock: 100,
+          current_stock: 25,
+          is_taxable: true,
+          tax_rate: 16.00
+        },
+        {
+          name: 'Surgical Face Masks (Box of 50)',
+          description: 'Disposable surgical face masks, FDA approved',
+          sku: 'SFM-50-001',
+          category: 'Medical Supplies',
+          unit_of_measure: 'box',
+          purchase_price: 800,
+          selling_price: 1200,
+          min_stock: 20,
+          max_stock: 500,
+          current_stock: 150,
+          is_taxable: true,
+          tax_rate: 16.00
+        }
+      ];
+
+      for (const product of sampleProducts) {
+        await this.query(`
+          INSERT INTO products (
+            id, company_id, name, description, sku, category, unit_of_measure,
+            purchase_price, selling_price, min_stock, max_stock, current_stock,
+            is_taxable, tax_rate, track_inventory, is_active, status,
+            created_at, updated_at
+          ) VALUES (
+            UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, TRUE, 'active', NOW(), NOW()
+          )
+        `, [
+          companyId, product.name, product.description, product.sku,
+          product.category, product.unit_of_measure, product.purchase_price,
+          product.selling_price, product.min_stock, product.max_stock,
+          product.current_stock, product.is_taxable, product.tax_rate
+        ]);
+      }
+
+      console.log(`✅ Added ${sampleProducts.length} sample products`);
+    } catch (error) {
+      console.error("❌ Failed to add sample products:", error);
+    }
+  }
 }
 
 // Export default instance
