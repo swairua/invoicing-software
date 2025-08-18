@@ -500,13 +500,13 @@ router.post("/", async (req, res) => {
       // Fetch the complete invoice with items
       const completeInvoiceResult = await Database.query(
         `
-        SELECT 
+        SELECT
           i.*,
           c.name as customer_name,
           c.email as customer_email
         FROM invoices i
         JOIN customers c ON i.customer_id = c.id
-        WHERE i.id = $1
+        WHERE i.id = ?
       `,
         [invoice.id],
       );
