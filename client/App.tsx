@@ -46,6 +46,7 @@ import RemittanceAdvice from "./pages/RemittanceAdvice";
 import SampleDataCreator from "./pages/SampleDataCreator";
 import DatabaseMigration from "./pages/DatabaseMigration";
 import ProductTest from "./pages/ProductTest";
+import AdminSetup from "./pages/AdminSetup";
 
 const queryClient = new QueryClient();
 
