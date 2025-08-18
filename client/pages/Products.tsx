@@ -599,10 +599,10 @@ export default function Products() {
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  window.location.href = `/products/${product.id}/edit`;
-                                }}
+                                e.preventDefault();
+                                e.stopPropagation();
+                                navigate(`/products/${product.id}/edit`);
+                              }}
                               >
                                 <Edit className="mr-2 h-4 w-4" />
                                 Edit Product
