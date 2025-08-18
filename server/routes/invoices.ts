@@ -400,9 +400,9 @@ router.post("/", async (req, res) => {
         // Update sequence
         await Database.query(
           `
-          UPDATE number_sequences 
+          UPDATE number_sequences
           SET current_number = current_number + 1, updated_at = NOW()
-          WHERE company_id = $1 AND sequence_type = 'invoice'
+          WHERE company_id = ? AND sequence_type = 'invoice'
         `,
           [companyId],
         );
@@ -412,7 +412,7 @@ router.post("/", async (req, res) => {
         await Database.query(
           `
           INSERT INTO number_sequences (company_id, sequence_type, prefix, current_number, padding_length)
-          VALUES ($1, 'invoice', 'INV', 2, 3)
+          VALUES (?, 'invoice', 'INV', 2, 3)
         `,
           [companyId],
         );
