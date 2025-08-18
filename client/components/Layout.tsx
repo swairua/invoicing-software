@@ -210,7 +210,7 @@ export default function Layout() {
                     Profile
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => (window.location.href = "/settings")}
+                    onClick={() => navigate("/settings")}
                   >
                     <Settings className="mr-2 h-4 w-4" />
                     Settings
