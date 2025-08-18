@@ -352,7 +352,7 @@ router.put("/:id", async (req, res) => {
       cleanBody.length = req.body.dimensions.length || null;
       cleanBody.width = req.body.dimensions.width || null;
       cleanBody.height = req.body.dimensions.height || null;
-      cleanBody.dimensionUnit = req.body.dimensions.unit || 'cm';
+      cleanBody.dimensionUnit = req.body.dimensions.unit || "cm";
     }
 
     // Map frontend fields to database fields - exact database column names
