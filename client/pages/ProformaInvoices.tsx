@@ -182,7 +182,7 @@ export default function ProformaInvoices() {
       return;
     }
 
-    navigate("/proformas/new", {
+    navigate("/proforma/new", {
       state: {
         formData,
       },
