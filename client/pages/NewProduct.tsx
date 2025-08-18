@@ -197,7 +197,6 @@ export default function NewProduct() {
           sku: foundProduct.sku,
           barcode: foundProduct.barcode || "",
           category: foundProduct.categoryId || foundProduct.category,
-          categoryName: foundProduct.category,
           subcategory: foundProduct.subcategory || "",
           brand: foundProduct.brand || "",
           supplier: foundProduct.supplier || "",
