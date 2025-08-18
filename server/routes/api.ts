@@ -398,9 +398,34 @@ router.get("/quotations", async (req, res) => {
       [companyId],
     );
 
+    // Transform database rows to match frontend interface
+    const transformedQuotations = result.rows.map((row: any) => ({
+      id: row.id,
+      quoteNumber: row.quote_number,
+      customerId: row.customer_id,
+      customer: {
+        id: row.customer_id,
+        name: row.customer_name,
+        email: row.customer_email,
+      },
+      items: [], // Will need to fetch items separately
+      subtotal: parseFloat(row.subtotal || 0),
+      vatAmount: parseFloat(row.tax_amount || 0),
+      discountAmount: parseFloat(row.discount_amount || 0),
+      total: parseFloat(row.total_amount || 0),
+      status: row.status,
+      validUntil: row.valid_until,
+      issueDate: row.issue_date,
+      notes: row.notes,
+      companyId: row.company_id,
+      createdBy: row.created_by,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    }));
+
     res.json({
       success: true,
-      data: result.rows,
+      data: transformedQuotations,
     });
   } catch (error) {
     console.error("Error fetching quotations:", error);
