@@ -348,27 +348,44 @@ router.put("/:id", async (req, res) => {
       hasVariants, // Remove this as it doesn't exist in schema
       taxable, // Handle separately
       unit, // Handle separately
+      dimensions, // Remove dimensions object
       ...cleanBody
     } = req.body;
 
-    // Handle dimensions properly
-    if (req.body.dimensions) {
-      cleanBody.length = req.body.dimensions.length || null;
-      cleanBody.width = req.body.dimensions.width || null;
-      cleanBody.height = req.body.dimensions.height || null;
-      cleanBody.dimensionUnit = req.body.dimensions.unit || "cm";
+    // Build the update data object with explicit field mapping
+    const dbUpdateData: any = {};
+
+    // Copy safe fields that exist in database
+    const safeFields = [
+      'name', 'description', 'sku', 'barcode', 'category', 'subcategory',
+      'brand', 'supplier', 'purchasePrice', 'sellingPrice', 'markup', 'costPrice',
+      'minStock', 'maxStock', 'currentStock', 'reservedStock', 'availableStock',
+      'reorderLevel', 'location', 'binLocation', 'tags', 'taxRate',
+      'trackInventory', 'isActive', 'notes', 'status', 'categoryId', 'supplierId'
+    ];
+
+    safeFields.forEach(field => {
+      if (cleanBody[field] !== undefined) {
+        dbUpdateData[field] = cleanBody[field];
+      }
+    });
+
+    // Handle special field mappings
+    if (req.body.unit !== undefined) {
+      dbUpdateData.unitOfMeasure = req.body.unit;
     }
 
-    // Map frontend fields to database fields - exact database column names
-    const dbUpdateData = {
-      ...cleanBody,
-      // Map frontend boolean fields to database schema
-      unitOfMeasure: req.body.unit || cleanBody.unitOfMeasure,
-      isTaxable: req.body.taxable !== undefined ? req.body.taxable : cleanBody.isTaxable,
-    };
+    if (req.body.taxable !== undefined) {
+      dbUpdateData.isTaxable = req.body.taxable;
+    }
 
-    // Remove the dimensions object and other frontend-only fields
-    delete dbUpdateData.dimensions;
+    // Handle dimensions properly
+    if (req.body.dimensions) {
+      dbUpdateData.length = req.body.dimensions.length || null;
+      dbUpdateData.width = req.body.dimensions.width || null;
+      dbUpdateData.height = req.body.dimensions.height || null;
+      dbUpdateData.dimensionUnit = req.body.dimensions.unit || "cm";
+    }
 
     console.log("  Cleaned update data fields:", Object.keys(dbUpdateData));
 
