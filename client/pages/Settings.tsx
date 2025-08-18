@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -45,6 +46,7 @@ import { CompanySettings, defaultCompanySettings } from "@shared/company";
 import PDFService from "../services/pdfService";
 
 export default function Settings() {
+  const navigate = useNavigate();
   const [companySettings, setCompanySettings] = useState<CompanySettings>(
     defaultCompanySettings,
   );
@@ -271,7 +273,7 @@ export default function Settings() {
 
         <Card
           className="cursor-pointer hover:bg-accent/5 transition-colors"
-          onClick={() => (window.location.href = "/units")}
+          onClick={() => navigate("/units")}
         >
           <CardContent className="pt-6">
             <div className="flex items-center space-x-4">
@@ -308,7 +310,7 @@ export default function Settings() {
 
         <Card
           className="cursor-pointer hover:bg-accent/5 transition-colors"
-          onClick={() => (window.location.href = "/settings/taxes")}
+          onClick={() => navigate("/settings/taxes")}
         >
           <CardContent className="pt-6">
             <div className="flex items-center space-x-4">
@@ -426,7 +428,10 @@ export default function Settings() {
                 <div className="space-y-2">
                   <Label>Phone Numbers</Label>
                   {(companySettings.contact.phone || []).map((phone, index) => (
-                    <div key={`phone-${index}-${phone}`} className="flex space-x-2">
+                    <div
+                      key={`phone-${index}-${phone}`}
+                      className="flex space-x-2"
+                    >
                       <Input
                         value={phone}
                         onChange={(e) =>
@@ -786,7 +791,10 @@ export default function Settings() {
                 </div>
                 {(companySettings.invoiceSettings.terms || []).map(
                   (term, index) => (
-                    <div key={`term-${index}-${term.substring(0, 10)}`} className="flex space-x-2">
+                    <div
+                      key={`term-${index}-${term.substring(0, 10)}`}
+                      className="flex space-x-2"
+                    >
                       <Textarea
                         value={term}
                         onChange={(e) =>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -37,6 +37,7 @@ import {
   Hash,
   Receipt,
   RefreshCw,
+  FileEdit,
 } from "lucide-react";
 import { Customer, Invoice } from "@shared/types";
 import { getDataService } from "../services/dataServiceFactory";
@@ -69,7 +70,14 @@ const dataService = getDataService();
 
 export default function RemittanceAdvice() {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const location = useLocation();
   const { toast } = useToast();
+
+  // Determine the mode based on the current route
+  const isEdit = location.pathname.includes("/edit");
+  const isNew = location.pathname.includes("/new") || !id;
+  const isView = !isNew && !isEdit;
   const [loading, setLoading] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -196,33 +204,114 @@ export default function RemittanceAdvice() {
     });
   };
 
+  const handleSave = async (status: "draft" | "sent" = "draft") => {
+    try {
+      setLoading(true);
+
+      // Validation
+      if (!remittanceData.customer) {
+        toast({
+          title: "Validation Error",
+          description: "Please select a customer.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (remittanceData.items.length === 0) {
+        toast({
+          title: "Validation Error",
+          description: "Please add at least one payment item.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // TODO: Implement API call to save remittance advice
+      // const savedRemittance = await dataService.saveRemittanceAdvice({
+      //   ...remittanceData,
+      //   status,
+      //   id: isNew ? undefined : id
+      // });
+
+      toast({
+        title: "Success",
+        description: `Remittance advice ${status === "draft" ? "saved as draft" : "saved and sent"} successfully.`,
+      });
+
+      // Navigate back to list
+      navigate("/remittance-advice");
+    } catch (error) {
+      console.error("Error saving remittance:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save remittance advice.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <Button variant="outline" size="sm" onClick={() => navigate(-1)}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate("/remittance-advice")}
+          >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
+            Back to List
           </Button>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              Remittance Advice
+              {isNew ? "New " : isEdit ? "Edit " : ""}Remittance Advice
             </h1>
             <p className="text-muted-foreground">
-              Generate remittance advice for customer payments
+              {isView
+                ? "View remittance advice details"
+                : "Create remittance advice for customer payments"}
             </p>
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={generatePDF}>
-            <Download className="mr-2 h-4 w-4" />
-            Download PDF
-          </Button>
-          <Button onClick={generateRemittanceNumber}>
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Generate New
-          </Button>
+          {isView && (
+            <>
+              <Button variant="outline" onClick={generatePDF}>
+                <Download className="mr-2 h-4 w-4" />
+                Download PDF
+              </Button>
+              <Button onClick={() => navigate(`/remittance-advice/${id}/edit`)}>
+                <FileEdit className="mr-2 h-4 w-4" />
+                Edit
+              </Button>
+            </>
+          )}
+          {(isNew || isEdit) && (
+            <>
+              <Button variant="outline" onClick={generatePDF}>
+                <Download className="mr-2 h-4 w-4" />
+                Preview PDF
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => handleSave("draft")}
+                disabled={loading}
+              >
+                Save Draft
+              </Button>
+              <Button onClick={() => handleSave("sent")} disabled={loading}>
+                Save & Send
+              </Button>
+              <Button variant="outline" onClick={generateRemittanceNumber}>
+                <RefreshCw className="mr-2 h-4 w-4" />
+                New Number
+              </Button>
+            </>
+          )}
         </div>
       </div>
 

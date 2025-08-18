@@ -182,7 +182,7 @@ export default function ProformaInvoices() {
       return;
     }
 
-    navigate("/proformas/new", {
+    navigate("/proforma/new", {
       state: {
         formData,
       },
@@ -190,7 +190,7 @@ export default function ProformaInvoices() {
   };
 
   const handleDuplicate = (proforma: ProformaInvoice) => {
-    navigate("/proformas/new", {
+    navigate("/proforma/new", {
       state: {
         duplicateFrom: proforma,
       },
@@ -510,7 +510,7 @@ export default function ProformaInvoices() {
                     <TableRow key={proforma.id}>
                       <TableCell className="font-medium">
                         <Link
-                          to={`/proformas/${proforma.id}`}
+                          to={`/proforma/${proforma.id}`}
                           className="text-primary hover:underline"
                         >
                           {proforma.proformaNumber}
@@ -546,7 +546,7 @@ export default function ProformaInvoices() {
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuItem asChild>
-                              <Link to={`/proformas/${proforma.id}`}>
+                              <Link to={`/proforma/${proforma.id}`}>
                                 <Eye className="mr-2 h-4 w-4" />
                                 View Details
                               </Link>
