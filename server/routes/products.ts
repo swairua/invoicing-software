@@ -3,6 +3,38 @@ import productRepository from "../repositories/productRepository";
 
 const router = Router();
 
+// Debug endpoint to list all product IDs
+router.get("/debug/list", async (req, res) => {
+  try {
+    const companyId =
+      (req.headers["x-company-id"] as string) ||
+      "00000000-0000-0000-0000-000000000001";
+
+    const result = await productRepository.findAll(companyId, { limit: 10 });
+
+    const productList = result.products.map(p => ({
+      id: p.id,
+      name: p.name,
+      sku: p.sku,
+      categoryId: p.categoryId,
+      categoryName: p.category
+    }));
+
+    res.json({
+      success: true,
+      message: "Available products for debugging",
+      total: result.total,
+      data: productList,
+    });
+  } catch (error) {
+    console.error("Error in debug endpoint:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch products for debugging",
+    });
+  }
+});
+
 // Get all products
 router.get("/", async (req, res) => {
   console.log("🔍 GET /api/products endpoint called");
