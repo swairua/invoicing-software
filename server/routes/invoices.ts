@@ -464,31 +464,23 @@ router.post("/", async (req, res) => {
         [invoiceNumber, companyId]
       );
 
-      const invoice = invoiceResult.rows[0];
+      const invoice = createdInvoiceResult.rows[0];
 
       // Create invoice items
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
         const lineSubtotal = item.unitPrice * item.quantity;
-
-        const taxRate = await Database.query(
-          `
-          SELECT get_applicable_tax_rate($1, $2, $3, $4) as tax_rate
-        `,
-          [companyId, item.productId, customerId, new Date()],
-        );
-
-        const vatRate = parseFloat(taxRate.rows[0].tax_rate);
+        const vatRate = item.vatRate || 16;
         const vatAmount = (lineSubtotal * vatRate) / 100;
         const lineTotal = lineSubtotal + vatAmount;
 
         await Database.query(
           `
           INSERT INTO invoice_items (
-            invoice_id, product_id, quantity, unit_price, vat_rate, 
+            id, invoice_id, product_id, quantity, unit_price, vat_rate,
             vat_amount, line_total, sort_order
           )
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+          VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?)
         `,
           [
             invoice.id,
