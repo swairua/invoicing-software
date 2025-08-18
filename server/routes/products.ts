@@ -355,16 +355,16 @@ router.put("/:id", async (req, res) => {
       cleanBody.dimensionUnit = req.body.dimensions.unit || 'cm';
     }
 
-    // Map frontend fields to database fields
+    // Map frontend fields to database fields - exact database column names
     const dbUpdateData = {
       ...cleanBody,
-      unitOfMeasure: cleanBody.unit,
-      isTaxable: cleanBody.taxable,
+      // Don't include the dimensions object - we already extracted length/width/height
     };
 
-    // Remove frontend field names that don't match database
-    delete dbUpdateData.unit;
-    delete dbUpdateData.taxable;
+    // Remove the dimensions object and other frontend-only fields
+    delete dbUpdateData.dimensions;
+    delete dbUpdateData.unit; // This gets converted to unit_of_measure by toSnakeCase
+    delete dbUpdateData.taxable; // This gets converted to is_taxable by toSnakeCase
 
     console.log("  Cleaned update data fields:", Object.keys(dbUpdateData));
 
