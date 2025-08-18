@@ -282,7 +282,6 @@ export class Database {
           name: 'Latex Rubber Gloves XL',
           description: 'High-quality latex rubber gloves for medical and industrial use',
           sku: 'LRG-XL-001',
-          category: 'Medical Supplies',
           unit_of_measure: 'pair',
           purchase_price: 400,
           selling_price: 500,
@@ -296,7 +295,6 @@ export class Database {
           name: 'Digital Blood Pressure Monitor',
           description: 'Accurate digital blood pressure monitoring device',
           sku: 'DBP-001',
-          category: 'Medical Equipment',
           unit_of_measure: 'piece',
           purchase_price: 2500,
           selling_price: 3500,
@@ -310,7 +308,6 @@ export class Database {
           name: 'Surgical Face Masks (Box of 50)',
           description: 'Disposable surgical face masks, FDA approved',
           sku: 'SFM-50-001',
-          category: 'Medical Supplies',
           unit_of_measure: 'box',
           purchase_price: 800,
           selling_price: 1200,
@@ -325,16 +322,16 @@ export class Database {
       for (const product of sampleProducts) {
         await this.query(`
           INSERT INTO products (
-            id, company_id, name, description, sku, category, unit_of_measure,
+            id, company_id, name, description, sku, unit_of_measure,
             purchase_price, selling_price, min_stock, max_stock, current_stock,
             is_taxable, tax_rate, track_inventory, is_active, status,
             created_at, updated_at
           ) VALUES (
-            UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, TRUE, 'active', NOW(), NOW()
+            UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, TRUE, 'active', NOW(), NOW()
           )
         `, [
           companyId, product.name, product.description, product.sku,
-          product.category, product.unit_of_measure, product.purchase_price,
+          product.unit_of_measure, product.purchase_price,
           product.selling_price, product.min_stock, product.max_stock,
           product.current_stock, product.is_taxable, product.tax_rate
         ]);
