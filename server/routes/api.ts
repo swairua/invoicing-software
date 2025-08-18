@@ -217,6 +217,7 @@ router.post("/create-sample-data", async (req, res) => {
       message: "Sample data created successfully",
       data: results,
       summary: {
+        categoriesCreated: results.categories.length,
         customersCreated: results.customers.length,
         productsCreated: results.products.length
       }
