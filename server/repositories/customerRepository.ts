@@ -96,16 +96,33 @@ export class CustomerRepository extends BaseRepository {
     companyId: string,
     updateData: Partial<Customer>,
   ): Promise<Customer | null> {
+    console.log("CustomerRepository.update - id:", id, "companyId:", companyId);
+    console.log("CustomerRepository.update - updateData:", updateData);
+
     const data = this.toSnakeCase(updateData);
     delete data.id;
     delete data.created_at;
     delete data.updated_at;
 
+    // Filter out undefined values to prevent SQL syntax errors
+    const cleanData: Record<string, any> = {};
+    for (const [key, value] of Object.entries(data)) {
+      if (value !== undefined) {
+        cleanData[key] = value;
+      }
+    }
+
+    console.log("CustomerRepository.update - processed data:", data);
+    console.log("CustomerRepository.update - cleaned data:", cleanData);
+
     const { query, values } = DatabaseUtils.buildUpdateQuery(
       "customers",
-      data,
+      cleanData,
       { id, company_id: companyId },
     );
+
+    console.log("CustomerRepository.update - generated query:", query);
+    console.log("CustomerRepository.update - query values:", values);
 
     const result = await this.db.query(query, values);
 

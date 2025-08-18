@@ -132,28 +132,42 @@ export default function NewCustomer() {
 
     try {
       if (isEditMode && customer) {
-        // Update existing customer
-        const updatedCustomer: Customer = {
-          ...customer,
+        // Update existing customer - only send updateable fields
+        const updateData: Partial<Customer> = {
           name: formData.name,
-          email: formData.email || undefined,
-          phone: formData.phone || undefined,
-          kraPin: formData.kraPin || undefined,
-          address: formData.address || undefined,
           creditLimit: parseFloat(formData.creditLimit) || 0,
           isActive: formData.isActive,
-          updatedAt: new Date(),
         };
 
-        // Call the actual update API
-        await dataService.updateCustomer(updatedCustomer);
+        // Only include optional fields if they have values
+        if (formData.email && formData.email.trim()) {
+          updateData.email = formData.email.trim();
+        }
+        if (formData.phone && formData.phone.trim()) {
+          updateData.phone = formData.phone.trim();
+        }
+        if (formData.kraPin && formData.kraPin.trim()) {
+          updateData.kraPin = formData.kraPin.trim();
+        }
+        if (formData.address && formData.address.trim()) {
+          updateData.address = formData.address.trim();
+        }
+
+        // Call the actual update API using URL parameter ID
+        if (!id) {
+          throw new Error("No customer ID provided");
+        }
+
+        console.log("Updating customer with id:", id);
+        console.log("Update data:", updateData);
+        await dataService.updateCustomer(id, updateData);
 
         toast({
           title: "Customer Updated",
           description: `Customer "${formData.name}" has been updated successfully.`,
         });
 
-        navigate(`/customers/${customer.id}`);
+        navigate(`/customers/${id}`);
       } else {
         // Create new customer
         const newCustomer: Omit<Customer, "id" | "createdAt" | "updatedAt"> = {

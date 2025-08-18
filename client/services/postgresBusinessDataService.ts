@@ -140,6 +140,8 @@ class PostgresBusinessDataService {
     customerData: Partial<Customer>,
   ): Promise<Customer | undefined> {
     try {
+      console.log("updateCustomer called with id:", id, "type:", typeof id);
+      console.log("updateCustomer called with customerData:", customerData);
       const response = await this.apiCall(`/customers/${id}`, {
         method: "PUT",
         body: JSON.stringify(customerData),

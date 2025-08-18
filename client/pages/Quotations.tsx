@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
 import {
   Card,
   CardContent,
@@ -10,13 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
 import {
   Table,
   TableBody,
@@ -56,22 +47,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../components/ui/dialog";
-
-interface QuotationFormData {
-  customerId: string;
-  issueDate: string;
-  validUntil: string;
-  notes: string;
-}
 
 export default function Quotations() {
   const navigate = useNavigate();
@@ -82,15 +57,6 @@ export default function Quotations() {
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [formData, setFormData] = useState<QuotationFormData>({
-    customerId: "",
-    issueDate: new Date().toISOString().split("T")[0],
-    validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-      .toISOString()
-      .split("T")[0],
-    notes: "",
-  });
   const [isLoading, setIsLoading] = useState(false);
 
   const businessData = dataServiceFactory.getDataService();
@@ -217,22 +183,6 @@ export default function Quotations() {
     }
   };
 
-  const handleCreateQuotation = () => {
-    if (!formData.customerId) {
-      toast({
-        title: "Validation Error",
-        description: "Please select a customer.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    navigate("/quotations/new", {
-      state: {
-        formData,
-      },
-    });
-  };
 
   const handleDuplicate = (quotation: Quotation) => {
     navigate("/quotations/new", {
@@ -320,91 +270,12 @@ export default function Quotations() {
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          <Dialog
-            open={isCreateDialogOpen}
-            onOpenChange={setIsCreateDialogOpen}
-          >
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                New Quotation
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New Quotation</DialogTitle>
-                <DialogDescription>
-                  Set up basic details for your new quotation
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="customer">Customer *</Label>
-                  <Select
-                    value={formData.customerId}
-                    onValueChange={(value) =>
-                      setFormData((prev) => ({ ...prev, customerId: value }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select customer" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {customers.map((customer) => (
-                        <SelectItem key={customer.id} value={customer.id}>
-                          <div>
-                            <div className="font-medium">{customer.name}</div>
-                            <div className="text-xs text-muted-foreground">
-                              {customer.email}
-                            </div>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="issueDate">Issue Date</Label>
-                    <Input
-                      id="issueDate"
-                      type="date"
-                      value={formData.issueDate}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          issueDate: e.target.value,
-                        }))
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="validUntil">Valid Until</Label>
-                    <Input
-                      id="validUntil"
-                      type="date"
-                      value={formData.validUntil}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          validUntil: e.target.value,
-                        }))
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  variant="outline"
-                  onClick={() => setIsCreateDialogOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button onClick={handleCreateQuotation}>Continue</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <Button asChild>
+            <Link to="/quotations/new">
+              <Plus className="mr-2 h-4 w-4" />
+              New Quotation
+            </Link>
+          </Button>
         </div>
       </div>
 
@@ -533,13 +404,11 @@ export default function Quotations() {
                         <p className="text-muted-foreground">
                           No quotations found
                         </p>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setIsCreateDialogOpen(true)}
-                        >
-                          <Plus className="mr-2 h-4 w-4" />
-                          Create Your First Quotation
+                        <Button variant="outline" size="sm" asChild>
+                          <Link to="/quotations/new">
+                            <Plus className="mr-2 h-4 w-4" />
+                            Create Your First Quotation
+                          </Link>
                         </Button>
                       </div>
                     </TableCell>

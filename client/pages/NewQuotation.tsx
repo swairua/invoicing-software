@@ -85,14 +85,20 @@ export default function NewQuotation() {
 
   const duplicateData = location.state?.duplicateFrom;
   const preselectedCustomerId = searchParams.get("customer");
+  const formDataFromState = location.state?.formData;
 
   const [formData, setFormData] = useState<QuotationFormData>({
-    customerId: preselectedCustomerId || duplicateData?.customerId || "",
-    issueDate: new Date().toISOString().split("T")[0],
-    validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-      .toISOString()
-      .split("T")[0], // 30 days from now
-    notes: duplicateData?.notes || "",
+    customerId: preselectedCustomerId ||
+                formDataFromState?.customerId ||
+                duplicateData?.customerId || "",
+    issueDate: formDataFromState?.issueDate ||
+               new Date().toISOString().split("T")[0],
+    validUntil: formDataFromState?.validUntil ||
+                new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+                  .toISOString()
+                  .split("T")[0], // 30 days from now
+    notes: formDataFromState?.notes ||
+           duplicateData?.notes || "",
   });
 
   const [items, setItems] = useState<QuotationItemFormData[]>(
@@ -380,6 +386,34 @@ export default function NewQuotation() {
         </div>
       </div>
 
+      {/* Progress Indicator */}
+      <Card className="border-blue-200 bg-blue-50">
+        <CardContent className="pt-6">
+          <div className="flex items-center space-x-4">
+            <div className={`flex items-center space-x-2 ${formData.customerId ? 'text-green-600' : 'text-blue-600'}`}>
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${formData.customerId ? 'bg-green-100' : 'bg-blue-100'}`}>
+                {formData.customerId ? '✓' : '1'}
+              </div>
+              <span className="text-sm font-medium">Select Customer</span>
+            </div>
+            <div className={`w-8 h-px ${formData.customerId ? 'bg-green-300' : 'bg-gray-300'}`}></div>
+            <div className={`flex items-center space-x-2 ${items.length > 0 ? 'text-green-600' : formData.customerId ? 'text-blue-600' : 'text-gray-400'}`}>
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${items.length > 0 ? 'bg-green-100' : formData.customerId ? 'bg-blue-100' : 'bg-gray-100'}`}>
+                {items.length > 0 ? '✓' : '2'}
+              </div>
+              <span className="text-sm font-medium">Add Items</span>
+            </div>
+            <div className={`w-8 h-px ${items.length > 0 ? 'bg-green-300' : 'bg-gray-300'}`}></div>
+            <div className={`flex items-center space-x-2 ${items.length > 0 && formData.customerId ? 'text-blue-600' : 'text-gray-400'}`}>
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${items.length > 0 && formData.customerId ? 'bg-blue-100' : 'bg-gray-100'}`}>
+                3
+              </div>
+              <span className="text-sm font-medium">Create Quotation</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Customer & Dates */}
@@ -390,6 +424,9 @@ export default function NewQuotation() {
                   <User className="h-5 w-5" />
                   Customer Information
                 </CardTitle>
+                <CardDescription>
+                  Select the customer for this quotation
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -401,8 +438,8 @@ export default function NewQuotation() {
                         setFormData((prev) => ({ ...prev, customerId: value }))
                       }
                     >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select customer" />
+                      <SelectTrigger className={!formData.customerId ? "border-orange-300 bg-orange-50" : ""}>
+                        <SelectValue placeholder={!formData.customerId ? "👆 Please select a customer first" : "Select customer"} />
                       </SelectTrigger>
                       <SelectContent>
                         {customers.map((customer) => (
@@ -417,6 +454,11 @@ export default function NewQuotation() {
                         ))}
                       </SelectContent>
                     </Select>
+                    {!formData.customerId && (
+                      <p className="text-sm text-orange-600">
+                        Start by selecting a customer to create their quotation
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="issueDate">Issue Date *</Label>
@@ -474,10 +516,12 @@ export default function NewQuotation() {
                   Add Items
                 </CardTitle>
                 <CardDescription>
-                  Search and add products to your quotation
+                  {formData.customerId
+                    ? "Search and add products to your quotation"
+                    : "Select a customer first to add products"}
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className={!formData.customerId ? "opacity-50 pointer-events-none" : ""}>
                 <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
                   <div className="space-y-2 md:col-span-2">
                     <Label>Product *</Label>
@@ -760,10 +804,16 @@ export default function NewQuotation() {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={isSubmitting || items.length === 0}
+                disabled={isSubmitting || items.length === 0 || !formData.customerId}
               >
                 <Save className="mr-2 h-4 w-4" />
-                {isSubmitting ? "Creating..." : "Create Quotation"}
+                {isSubmitting
+                  ? "Creating..."
+                  : !formData.customerId
+                    ? "Select Customer First"
+                    : items.length === 0
+                      ? "Add Items to Continue"
+                      : "Create Quotation"}
               </Button>
             </div>
           </div>

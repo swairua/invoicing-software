@@ -109,6 +109,8 @@ router.post("/", async (req, res) => {
 // Update customer
 router.put("/:id", async (req, res) => {
   try {
+    console.log("Customer update route - ID:", req.params.id);
+    console.log("Customer update route - Body:", req.body);
     const companyId =
       (req.headers["x-company-id"] as string) ||
       "550e8400-e29b-41d4-a716-446655440000";

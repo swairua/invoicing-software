@@ -286,6 +286,10 @@ export const DatabaseUtils = {
     const updateKeys = Object.keys(data);
     const whereKeys = Object.keys(whereConditions);
 
+    if (updateKeys.length === 0) {
+      throw new Error("No data provided for update");
+    }
+
     const setClause = updateKeys
       .map((key, index) => `${key} = $${index + 1}`)
       .join(", ");
