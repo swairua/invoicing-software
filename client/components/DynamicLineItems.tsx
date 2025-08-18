@@ -57,9 +57,9 @@ interface DynamicLineItemsProps {
 }
 
 export default function DynamicLineItems({
-  items,
+  control,
+  name,
   products,
-  onItemsChange,
   formatCurrency,
   calculateItemTotal,
 }: DynamicLineItemsProps) {
