@@ -795,6 +795,19 @@ class PostgresBusinessDataService {
     }
   }
 
+  // Test connectivity method
+  public async testConnection(): Promise<boolean> {
+    try {
+      console.log("🧪 Testing API connectivity...");
+      const response = await this.apiCall("/ping");
+      console.log("🧪 Ping test successful:", response);
+      return true;
+    } catch (error) {
+      console.error("🧪 Ping test failed:", error);
+      return false;
+    }
+  }
+
   // Categories methods
   public async getCategories(): Promise<ProductCategory[]> {
     try {
