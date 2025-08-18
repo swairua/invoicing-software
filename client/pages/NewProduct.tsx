@@ -214,9 +214,17 @@ export default function NewProduct() {
         };
 
         console.log("📋 Mapped form data:", formData);
+        console.log("🏷️ Categories available:", categories.length);
+        console.log("🏷️ Selected category ID:", formData.category);
 
         // Populate form with existing product data
         form.reset(formData);
+
+        // Wait for form to reset then log the current values
+        setTimeout(() => {
+          console.log("✅ Form values after reset:", form.getValues());
+          console.log("🏷️ Category field value:", form.getValues("category"));
+        }, 100);
       }
     } catch (error) {
       console.error("❌ Failed to load product:", error);
