@@ -76,6 +76,7 @@ export default function NewQuotation() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
+  const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -83,7 +84,10 @@ export default function NewQuotation() {
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [productSearch, setProductSearch] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [existingQuotation, setExistingQuotation] = useState<Quotation | null>(null);
 
+  const isEditMode = Boolean(id);
   const duplicateData = location.state?.duplicateFrom;
   const preselectedCustomerId = searchParams.get("customer");
   const formDataFromState = location.state?.formData;
