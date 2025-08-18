@@ -307,7 +307,11 @@ export default function Quotations() {
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => {
+          // Filter to show only accepted quotations
+          setSearchTerm("");
+          setStatusFilter("accepted");
+        }}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Accepted</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
@@ -315,7 +319,7 @@ export default function Quotations() {
           <CardContent>
             <div className="text-2xl font-bold">{acceptedQuotations}</div>
             <p className="text-xs text-muted-foreground">
-              Ready for conversion
+              Ready for conversion • Click to filter
             </p>
           </CardContent>
         </Card>
