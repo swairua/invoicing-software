@@ -13,26 +13,22 @@ export class ProductRepository extends BaseRepository {
   } = {}): Promise<{ products: Product[]; total: number }> {
     const { page = 1, limit = 10, search, categoryId, status, lowStock } = options;
     
-    let whereClause = 'WHERE p.company_id = $1';
+    let whereClause = 'WHERE p.company_id = ?';
     const params: any[] = [companyId];
-    let paramIndex = 2;
 
     if (search) {
-      whereClause += ` AND (p.name ILIKE $${paramIndex} OR p.sku ILIKE $${paramIndex} OR p.description ILIKE $${paramIndex})`;
-      params.push(`%${search}%`);
-      paramIndex++;
+      whereClause += ` AND (p.name LIKE ? OR p.sku LIKE ? OR p.description LIKE ?)`;
+      params.push(`%${search}%`, `%${search}%`, `%${search}%`);
     }
 
     if (categoryId) {
-      whereClause += ` AND p.category_id = $${paramIndex}`;
+      whereClause += ` AND p.category_id = ?`;
       params.push(categoryId);
-      paramIndex++;
     }
 
     if (status) {
-      whereClause += ` AND p.status = $${paramIndex}`;
+      whereClause += ` AND p.status = ?`;
       params.push(status);
-      paramIndex++;
     }
 
     if (lowStock) {
@@ -48,8 +44,9 @@ export class ProductRepository extends BaseRepository {
     const countResult = await this.db.query(countQuery, params);
     const total = parseInt(countResult.rows[0].total);
 
-    // Get paginated results with category information
-    const dataQuery = `
+    // Get paginated results
+    const offset = (page - 1) * limit;
+    const query = `
       SELECT 
         p.*,
         pc.name as category_name,
@@ -58,14 +55,16 @@ export class ProductRepository extends BaseRepository {
       LEFT JOIN product_categories pc ON p.category_id = pc.id
       LEFT JOIN suppliers s ON p.supplier_id = s.id
       ${whereClause}
-      ORDER BY p.name ASC
-      ${this.buildPagination(page, limit)}
+      ORDER BY p.updated_at DESC
+      LIMIT ? OFFSET ?
     `;
     
-    const result = await this.db.query(dataQuery, params);
-    const products = this.toCamelCase(result.rows) as Product[];
-
-    return { products, total };
+    const result = await this.db.query(query, [...params, limit, offset]);
+    
+    return {
+      products: this.toCamelCase(result.rows) as Product[],
+      total
+    };
   }
 
   async findById(id: string, companyId: string): Promise<Product | null> {
@@ -77,7 +76,7 @@ export class ProductRepository extends BaseRepository {
       FROM products p
       LEFT JOIN product_categories pc ON p.category_id = pc.id
       LEFT JOIN suppliers s ON p.supplier_id = s.id
-      WHERE p.id = $1 AND p.company_id = $2
+      WHERE p.id = ? AND p.company_id = ?
     `;
     
     const result = await this.db.query(query, [id, companyId]);
@@ -89,33 +88,19 @@ export class ProductRepository extends BaseRepository {
     return this.toCamelCase(result.rows[0]) as Product;
   }
 
-  async findBySku(sku: string, companyId: string): Promise<Product | null> {
-    const query = `
-      SELECT *
-      FROM products
-      WHERE sku = $1 AND company_id = $2
-    `;
-    
-    const result = await this.db.query(query, [sku, companyId]);
-    
-    if (result.rows.length === 0) {
-      return null;
-    }
-
-    return this.toCamelCase(result.rows[0]) as Product;
-  }
-
   async create(productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>): Promise<Product> {
-    const data = this.toSnakeCase({
-      ...productData,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    });
+    const data = this.toSnakeCase(productData);
+    data.id = null; // Let MySQL generate the UUID
+    delete data.created_at;
+    delete data.updated_at;
 
     const { query, values } = DatabaseUtils.buildInsertQuery('products', data);
     
     const result = await this.db.query(query, values);
-    return this.toCamelCase(result.rows[0]) as Product;
+    
+    // MySQL doesn't return the inserted row, so we need to fetch it
+    const insertedId = result.insertId || data.id;
+    return this.findById(insertedId, productData.companyId) as Promise<Product>;
   }
 
   async update(id: string, companyId: string, updateData: Partial<Product>): Promise<Product | null> {
@@ -132,24 +117,24 @@ export class ProductRepository extends BaseRepository {
 
     const result = await this.db.query(query, values);
     
-    if (result.rows.length === 0) {
+    if (result.affectedRows === 0) {
       return null;
     }
 
-    return this.toCamelCase(result.rows[0]) as Product;
+    return this.findById(id, companyId);
   }
 
   async updateStock(id: string, quantity: number, movementType: 'in' | 'out' | 'adjustment'): Promise<void> {
-    await this.db.transaction(async (client) => {
+    await this.db.transaction(async (connection) => {
       // Get current stock
-      const stockQuery = 'SELECT current_stock FROM products WHERE id = $1';
-      const stockResult = await client.query(stockQuery, [id]);
+      const stockQuery = 'SELECT current_stock FROM products WHERE id = ?';
+      const [stockResult] = await connection.execute(stockQuery, [id]);
       
-      if (stockResult.rows.length === 0) {
+      if (!Array.isArray(stockResult) || stockResult.length === 0) {
         throw new Error('Product not found');
       }
 
-      const currentStock = parseFloat(stockResult.rows[0].current_stock);
+      const currentStock = parseFloat((stockResult as any)[0].current_stock);
       let newStock: number;
 
       switch (movementType) {
@@ -169,21 +154,22 @@ export class ProductRepository extends BaseRepository {
       // Update product stock
       const updateQuery = `
         UPDATE products
-        SET current_stock = $1, updated_at = CURRENT_TIMESTAMP
-        WHERE id = $2
+        SET current_stock = ?, updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
       `;
-      await client.query(updateQuery, [newStock, id]);
+      await connection.execute(updateQuery, [newStock, id]);
 
-      // Create stock movement record
+      // Record stock movement
       const movementQuery = `
         INSERT INTO stock_movements (
-          company_id, product_id, movement_type, quantity,
-          previous_stock, new_stock, reference_type
+          id, product_id, movement_type, quantity, 
+          previous_stock, new_stock, created_at
         )
-        SELECT company_id, id, $1, $2, $3, $4, 'adjustment'
-        FROM products WHERE id = $5
+        VALUES (UUID(), ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
       `;
-      await client.query(movementQuery, [movementType, quantity, currentStock, newStock, id]);
+      await connection.execute(movementQuery, [
+        id, movementType, quantity, currentStock, newStock
+      ]);
     });
   }
 
@@ -191,13 +177,12 @@ export class ProductRepository extends BaseRepository {
     const query = `
       SELECT 
         p.*,
-        pc.name as category_name,
-        (p.min_stock - p.current_stock) as stock_shortage
+        pc.name as category_name
       FROM products p
       LEFT JOIN product_categories pc ON p.category_id = pc.id
-      WHERE p.company_id = $1 
+      WHERE p.company_id = ?
         AND p.current_stock <= p.min_stock 
-        AND p.track_inventory = TRUE 
+        AND p.track_inventory = TRUE
         AND p.is_active = TRUE
       ORDER BY (p.min_stock - p.current_stock) DESC
     `;
@@ -210,12 +195,12 @@ export class ProductRepository extends BaseRepository {
     const query = `
       SELECT 
         sm.*,
-        u.first_name || ' ' || u.last_name as created_by_name
+        CONCAT(u.first_name, ' ', u.last_name) as created_by_name
       FROM stock_movements sm
       LEFT JOIN users u ON sm.created_by = u.id
-      WHERE sm.product_id = $1
+      WHERE sm.product_id = ?
       ORDER BY sm.created_at DESC
-      LIMIT $2
+      LIMIT ?
     `;
     
     const result = await this.db.query(query, [productId, limit]);
@@ -229,27 +214,32 @@ export class ProductRepository extends BaseRepository {
         pc.name as category_name
       FROM products p
       LEFT JOIN product_categories pc ON p.category_id = pc.id
-      WHERE p.company_id = $1 
+      WHERE p.company_id = ? 
         AND p.is_active = TRUE
         AND (
-          p.name ILIKE $2 OR 
-          p.sku ILIKE $2 OR 
-          p.barcode ILIKE $2 OR
-          p.description ILIKE $2
+          p.name LIKE ? OR 
+          p.sku LIKE ? OR 
+          p.barcode LIKE ? OR
+          p.description LIKE ?
         )
       ORDER BY 
         CASE 
-          WHEN p.name ILIKE $2 THEN 1
-          WHEN p.sku ILIKE $2 THEN 2
-          WHEN p.barcode ILIKE $2 THEN 3
+          WHEN p.name LIKE ? THEN 1
+          WHEN p.sku LIKE ? THEN 2
+          WHEN p.barcode LIKE ? THEN 3
           ELSE 4
         END,
         p.name ASC
-      LIMIT $3
+      LIMIT ?
     `;
     
     const searchPattern = `%${searchTerm}%`;
-    const result = await this.db.query(query, [companyId, searchPattern, limit]);
+    const result = await this.db.query(query, [
+      companyId, 
+      searchPattern, searchPattern, searchPattern, searchPattern,
+      searchPattern, searchPattern, searchPattern,
+      limit
+    ]);
     return this.toCamelCase(result.rows) as Product[];
   }
 
@@ -257,7 +247,7 @@ export class ProductRepository extends BaseRepository {
     const query = `
       SELECT *
       FROM product_variants
-      WHERE product_id = $1 AND is_active = TRUE
+      WHERE product_id = ? AND is_active = TRUE
       ORDER BY name ASC
     `;
     
@@ -269,11 +259,11 @@ export class ProductRepository extends BaseRepository {
     const query = `
       UPDATE products
       SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP
-      WHERE id = $1 AND company_id = $2
+      WHERE id = ? AND company_id = ?
     `;
     
     const result = await this.db.query(query, [id, companyId]);
-    return result.rowCount > 0;
+    return result.affectedRows > 0;
   }
 }
 
