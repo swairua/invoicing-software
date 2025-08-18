@@ -163,6 +163,18 @@ export default function NewProduct() {
 
       const productData = await dataService.getProductById(productId);
       console.log("📦 Received product data:", productData);
+
+      if (!productData) {
+        console.log("❌ No product data received");
+        toast({
+          title: "Product Not Found",
+          description: "The requested product could not be found. Redirecting to products list.",
+          variant: "destructive",
+        });
+        navigate("/products");
+        return;
+      }
+
       console.log("🔍 Category ID:", productData.categoryId);
       console.log("🔍 Unit of Measure:", productData.unitOfMeasure);
       console.log("🔍 Available fields:", Object.keys(productData));
