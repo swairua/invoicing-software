@@ -485,6 +485,19 @@ export default function Quotations() {
                                 View Details
                               </Link>
                             </DropdownMenuItem>
+                            {quotation.status === "draft" && (
+                              <DropdownMenuItem
+                                onClick={() => navigate("/quotations/new", {
+                                  state: {
+                                    editMode: true,
+                                    existingQuotation: quotation,
+                                  },
+                                })}
+                              >
+                                <FileEdit className="mr-2 h-4 w-4" />
+                                Edit
+                              </DropdownMenuItem>
+                            )}
                             <DropdownMenuItem
                               onClick={() => handleDuplicate(quotation)}
                             >
