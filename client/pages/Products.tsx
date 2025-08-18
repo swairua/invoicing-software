@@ -591,7 +591,7 @@ export default function Products() {
                                 onClick={(e) => {
                                   e.preventDefault();
                                   e.stopPropagation();
-                                  window.location.href = `/products/${product.id}`;
+                                  navigate(`/products/${product.id}`);
                                 }}
                               >
                                 <Eye className="mr-2 h-4 w-4" />
