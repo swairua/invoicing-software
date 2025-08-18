@@ -345,6 +345,27 @@ export class Database {
       console.error("❌ Failed to add sample products:", error);
     }
   }
+
+  // Helper method to check and add sample data
+  private async checkAndAddSampleData(): Promise<void> {
+    try {
+      // Add sample customers if none exist
+      const customerCount = await this.query('SELECT COUNT(*) as count FROM customers');
+      if (customerCount.rows[0].count === 0) {
+        console.log("📋 Adding sample customers...");
+        await this.addSampleCustomers();
+      }
+
+      // Add sample products if none exist
+      const productCount = await this.query('SELECT COUNT(*) as count FROM products');
+      if (productCount.rows[0].count === 0) {
+        console.log("📋 Adding sample products...");
+        await this.addSampleProducts();
+      }
+    } catch (error) {
+      console.error("❌ Failed to check/add sample data:", error);
+    }
+  }
 }
 
 // Export default instance
