@@ -45,6 +45,11 @@ import StatementOfAccount from "./pages/StatementOfAccount";
 import RemittanceAdvice from "./pages/RemittanceAdvice";
 import SampleDataCreator from "./pages/SampleDataCreator";
 import DatabaseMigration from "./pages/DatabaseMigration";
+import ProductTest from "./pages/ProductTest";
+import AdminSetup from "./pages/AdminSetup";
+import ProductEditTest from "./pages/ProductEditTest";
+import CategoryTest from "./pages/CategoryTest";
+import TestUpdate from "./pages/TestUpdate";
 
 const queryClient = new QueryClient();
 
@@ -154,6 +159,11 @@ const AppRoutes = () => (
       <Route path="products/:id" element={<ProductDetails />} />
       <Route path="products/:id/edit" element={<NewProduct />} />
       <Route path="products/new" element={<NewProduct />} />
+      <Route path="products/test" element={<ProductTest />} />
+      <Route path="admin/setup" element={<AdminSetup />} />
+      <Route path="admin/product-test" element={<ProductEditTest />} />
+      <Route path="admin/category-test" element={<CategoryTest />} />
+      <Route path="admin/test-update" element={<TestUpdate />} />
       <Route path="quotations" element={<Quotations />} />
       <Route path="quotations/:id" element={<QuotationDetails />} />
       <Route path="quotations/new" element={<NewQuotation />} />
