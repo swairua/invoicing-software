@@ -225,9 +225,7 @@ export default function Layout() {
                     <>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
-                        onClick={() =>
-                          (window.location.href = "/settings/users")
-                        }
+                        onClick={() => navigate("/settings/users")}
                       >
                         <User className="mr-2 h-4 w-4" />
                         Manage Users
