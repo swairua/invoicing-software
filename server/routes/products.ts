@@ -355,13 +355,14 @@ router.put("/:id", async (req, res) => {
     // Build the update data object with explicit field mapping
     const dbUpdateData: any = {};
 
-    // Copy safe fields that exist in database
+    // Copy safe fields that actually exist in the PostgreSQL database
     const safeFields = [
       'name', 'description', 'sku', 'barcode', 'category', 'subcategory',
       'brand', 'supplier', 'purchasePrice', 'sellingPrice', 'markup', 'costPrice',
       'minStock', 'maxStock', 'currentStock', 'reservedStock', 'availableStock',
       'reorderLevel', 'location', 'binLocation', 'tags', 'taxRate',
-      'trackInventory', 'isActive', 'notes', 'status', 'categoryId', 'supplierId'
+      'trackInventory', 'isActive', 'notes', 'categoryId', 'supplierId'
+      // Removed 'status' as it doesn't exist in the current PostgreSQL schema
     ];
 
     safeFields.forEach(field => {
