@@ -134,6 +134,18 @@ export default function NewProduct() {
     }
   };
 
+  // Helper function to convert database values to proper booleans
+  const toBool = (value: any, defaultValue: boolean = false): boolean => {
+    if (value === null || value === undefined) return defaultValue;
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'number') return value !== 0;
+    if (typeof value === 'string') {
+      const lowerValue = value.toLowerCase();
+      return lowerValue === 'true' || lowerValue === '1' || lowerValue === 'yes';
+    }
+    return Boolean(value);
+  };
+
   const loadProduct = async (productId: string) => {
     try {
       setLoading(true);
