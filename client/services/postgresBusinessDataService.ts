@@ -380,8 +380,45 @@ class PostgresBusinessDataService {
   // Quotation methods
   public async getQuotations(): Promise<Quotation[]> {
     try {
+      console.log("🔍 PostgresBusinessDataService.getQuotations() called");
       const response = await this.apiCall("/quotations");
-      return Array.isArray(response.data) ? response.data : [];
+      const quotations = Array.isArray(response.data) ? response.data : [];
+
+      console.log("📊 Raw quotations from API:", quotations);
+      console.log("📊 Quotations count:", quotations.length);
+
+      // Transform database column names to TypeScript interface properties
+      const transformedQuotations = quotations.map((q: any) => {
+        console.log("🔄 Transforming quotation:", q);
+
+        return {
+          id: q.id,
+          quoteNumber: q.quote_number || q.quoteNumber,
+          customerId: q.customer_id || q.customerId,
+          customer: {
+            id: q.customer_id || q.customerId,
+            name: q.customer_name || q.customerName || "Unknown Customer",
+            email: q.customer_email || q.customerEmail || "",
+            // Add more customer fields as needed
+          },
+          items: [], // Will be populated when needed
+          subtotal: parseFloat(q.subtotal || q.subtotal || "0") || 0,
+          vatAmount: parseFloat(q.vat_amount || q.vatAmount || q.tax_amount || "0") || 0,
+          discountAmount: parseFloat(q.discount_amount || q.discountAmount || "0") || 0,
+          total: parseFloat(q.total_amount || q.total || q.totalAmount || "0") || 0,
+          status: q.status || "draft",
+          validUntil: q.valid_until ? new Date(q.valid_until) : new Date(),
+          issueDate: q.issue_date ? new Date(q.issue_date) : new Date(),
+          notes: q.notes || "",
+          companyId: q.company_id || q.companyId,
+          createdBy: q.created_by || q.createdBy || "1",
+          createdAt: q.created_at ? new Date(q.created_at) : new Date(),
+          updatedAt: q.updated_at ? new Date(q.updated_at) : new Date(),
+        };
+      });
+
+      console.log("✨ Transformed quotations:", transformedQuotations);
+      return transformedQuotations;
     } catch (error) {
       console.error("Failed to fetch quotations:", error);
       throw new Error(
@@ -393,7 +430,53 @@ class PostgresBusinessDataService {
   public async getQuotationById(id: string): Promise<Quotation | undefined> {
     try {
       const response = await this.apiCall(`/quotations/${id}`);
-      return response.data;
+      const q = response.data;
+
+      if (!q) return undefined;
+
+      // Transform database column names to TypeScript interface properties
+      return {
+        id: q.id,
+        quoteNumber: q.quote_number,
+        customerId: q.customer_id,
+        customer: {
+          id: q.customer_id,
+          name: q.customer_name,
+          email: q.customer_email,
+          phone: q.customer_phone,
+          addressLine1: q.customer_address_line1,
+          city: q.customer_city,
+          country: q.customer_country,
+        },
+        items: (q.items || []).map((item: any) => ({
+          id: item.id,
+          productId: item.product_id,
+          product: {
+            id: item.product_id,
+            name: item.product_name,
+            sku: item.product_sku,
+          },
+          description: item.description,
+          quantity: parseFloat(item.quantity),
+          unitPrice: parseFloat(item.unit_price),
+          discount: parseFloat(item.discount_percentage) || 0,
+          vatRate: parseFloat(item.vat_rate) || 0,
+          vatAmount: parseFloat(item.vat_amount) || 0,
+          total: parseFloat(item.line_total),
+        })),
+        subtotal: parseFloat(q.subtotal) || 0,
+        vatAmount: parseFloat(q.vat_amount) || 0,
+        discountAmount: parseFloat(q.discount_amount) || 0,
+        total: parseFloat(q.total_amount) || 0,
+        status: q.status,
+        validUntil: new Date(q.valid_until),
+        issueDate: new Date(q.issue_date),
+        notes: q.notes,
+        companyId: q.company_id,
+        createdBy: q.created_by,
+        createdAt: new Date(q.created_at),
+        updatedAt: new Date(q.updated_at),
+      };
     } catch (error) {
       console.error("Failed to fetch quotation:", error);
       return undefined;

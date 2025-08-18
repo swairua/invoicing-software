@@ -203,6 +203,12 @@ export default function QuotationDetails() {
           </div>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" asChild>
+            <Link to={`/quotations/edit/${quotation.id}`}>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit
+            </Link>
+          </Button>
           <Button variant="outline">
             <Copy className="mr-2 h-4 w-4" />
             Duplicate
