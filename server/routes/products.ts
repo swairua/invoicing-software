@@ -332,12 +332,46 @@ router.put("/:id", async (req, res) => {
     console.log("  Product ID:", req.params.id);
     console.log("  Company ID:", companyId);
     console.log("  Request body fields:", Object.keys(req.body));
-    console.log("  Full request body:", JSON.stringify(req.body, null, 2));
+
+    // Clean the request body - remove fields that shouldn't be sent to database
+    const {
+      id,
+      createdAt,
+      updatedAt,
+      categoryName,
+      supplierName,
+      variants,
+      length,
+      width,
+      height,
+      ...cleanBody
+    } = req.body;
+
+    // Handle dimensions properly
+    if (req.body.dimensions) {
+      cleanBody.length = req.body.dimensions.length || null;
+      cleanBody.width = req.body.dimensions.width || null;
+      cleanBody.height = req.body.dimensions.height || null;
+      cleanBody.dimensionUnit = req.body.dimensions.unit || 'cm';
+    }
+
+    // Map frontend fields to database fields
+    const dbUpdateData = {
+      ...cleanBody,
+      unitOfMeasure: cleanBody.unit,
+      isTaxable: cleanBody.taxable,
+    };
+
+    // Remove frontend field names that don't match database
+    delete dbUpdateData.unit;
+    delete dbUpdateData.taxable;
+
+    console.log("  Cleaned update data fields:", Object.keys(dbUpdateData));
 
     const product = await productRepository.update(
       req.params.id,
       companyId,
-      req.body,
+      dbUpdateData,
     );
 
     if (!product) {
