@@ -5,7 +5,7 @@ const DATABASE_CONFIG = {
   host: process.env.DB_HOST || "mysql-242eb3d7-invoicing-software.c.aivencloud.com",
   port: parseInt(process.env.DB_PORT || "11397"),
   user: process.env.DB_USER || "avnadmin",
-  password: process.env.DB_PASSWORD || "AVNS_x9WdjKNy72pMT6Zr90I",
+  password: process.env.DB_PASSWORD || "",
   database: process.env.DB_NAME || "defaultdb",
   ssl: {
     rejectUnauthorized: false,
@@ -76,7 +76,7 @@ export class Database {
       console.log("⏳ Testing MySQL database connection...");
       console.log(`🔌 Connecting to: ${DATABASE_CONFIG.host}:${DATABASE_CONFIG.port}`);
       console.log("🗄️ Using LIVE MYSQL DATABASE - No mock data");
-      
+
       const result = await this.query(
         "SELECT 1 as test",
       );

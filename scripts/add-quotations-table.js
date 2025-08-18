@@ -7,7 +7,7 @@ const DATABASE_CONFIG = {
   host: process.env.DB_HOST || "mysql-242eb3d7-invoicing-software.c.aivencloud.com",
   port: parseInt(process.env.DB_PORT || "11397"),
   user: process.env.DB_USER || "avnadmin",
-  password: process.env.DB_PASSWORD || "AVNS_x9WdjKNy72pMT6Zr90I",
+  password: process.env.DB_PASSWORD || "",
   database: process.env.DB_NAME || "defaultdb",
   ssl: {
     rejectUnauthorized: false,
@@ -17,26 +17,26 @@ const DATABASE_CONFIG = {
 
 async function addQuotationsTable() {
   let connection;
-  
+
   try {
     console.log('🔄 Adding quotations table to MySQL database...');
-    
+
     // Create connection
     connection = await mysql.createConnection(DATABASE_CONFIG);
     console.log('✅ Connected to MySQL database');
-    
+
     // Check if quotations table already exists
     const [tables] = await connection.execute(`
       SELECT table_name 
       FROM information_schema.tables 
       WHERE table_schema = ? AND table_name = 'quotations'
     `, [DATABASE_CONFIG.database]);
-    
+
     if (tables.length > 0) {
       console.log('📋 Quotations table already exists');
       return;
     }
-    
+
     // Create quotations table
     const quotationsTableSQL = `
       CREATE TABLE quotations (
@@ -74,17 +74,17 @@ async function addQuotationsTable() {
           UNIQUE KEY uk_quotations_company_number (company_id, quote_number)
       );
     `;
-    
+
     await connection.query(quotationsTableSQL);
     console.log('✅ Quotations table created');
-    
+
     // Create indexes
     await connection.query('CREATE INDEX idx_quotations_company ON quotations (company_id)');
     await connection.query('CREATE INDEX idx_quotations_customer ON quotations (customer_id)');
     await connection.query('CREATE INDEX idx_quotations_status ON quotations (status)');
     await connection.query('CREATE INDEX idx_quotations_date ON quotations (issue_date)');
     console.log('✅ Quotations indexes created');
-    
+
     // Create quotation items table
     const quotationItemsTableSQL = `
       CREATE TABLE quotation_items (
@@ -107,17 +107,17 @@ async function addQuotationsTable() {
           FOREIGN KEY (variant_id) REFERENCES product_variants(id) ON DELETE SET NULL
       );
     `;
-    
+
     await connection.query(quotationItemsTableSQL);
     console.log('✅ Quotation items table created');
-    
+
     // Create indexes for quotation items
     await connection.query('CREATE INDEX idx_quotation_items_quotation ON quotation_items (quotation_id)');
     await connection.query('CREATE INDEX idx_quotation_items_product ON quotation_items (product_id)');
     console.log('✅ Quotation items indexes created');
-    
+
     console.log('🎉 Quotations tables added successfully!');
-    
+
   } catch (error) {
     console.error('❌ Failed to add quotations table:', error.message);
     process.exit(1);
