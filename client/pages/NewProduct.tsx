@@ -52,7 +52,12 @@ import {
   MapPin,
 } from "lucide-react";
 import { Product, ProductCategory } from "@shared/types";
-import { productSchema, ProductFormData, productVariantSchema, ProductVariantFormData } from "@shared/validation";
+import {
+  productSchema,
+  ProductFormData,
+  productVariantSchema,
+  ProductVariantFormData,
+} from "@shared/validation";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import { useToast } from "../hooks/use-toast";
 import { useAuth } from "../hooks/use-auth";
@@ -134,6 +139,20 @@ export default function NewProduct() {
     }
   };
 
+  // Helper function to convert database values to proper booleans
+  const toBool = (value: any, defaultValue: boolean = false): boolean => {
+    if (value === null || value === undefined) return defaultValue;
+    if (typeof value === "boolean") return value;
+    if (typeof value === "number") return value !== 0;
+    if (typeof value === "string") {
+      const lowerValue = value.toLowerCase();
+      return (
+        lowerValue === "true" || lowerValue === "1" || lowerValue === "yes"
+      );
+    }
+    return Boolean(value);
+  };
+
   const loadProduct = async (productId: string) => {
     try {
       setLoading(true);
@@ -141,6 +160,9 @@ export default function NewProduct() {
 
       const productData = await dataService.getProductById(productId);
       console.log("📦 Received product data:", productData);
+      console.log("🔍 Category ID:", productData.categoryId);
+      console.log("🔍 Unit of Measure:", productData.unitOfMeasure);
+      console.log("🔍 Available fields:", Object.keys(productData));
 
       if (productData) {
         setProduct(productData);
@@ -151,37 +173,41 @@ export default function NewProduct() {
           description: productData.description || "",
           sku: productData.sku,
           barcode: productData.barcode || "",
-          category: productData.categoryId || productData.category || "",
+          category: productData.categoryId || "",
+          categoryId: productData.categoryId || "",
           subcategory: productData.subcategory || "",
           brand: productData.brand || "",
           supplier: productData.supplier || "",
-          unit: productData.unitOfMeasure || productData.unit || "piece",
-          weight: productData.weight || 0,
+          unit: productData.unitOfMeasure || "piece",
+          weight: Number(productData.weight) || 0,
           dimensions: productData.dimensions || {
-            length: productData.length || 0,
-            width: productData.width || 0,
-            height: productData.height || 0,
+            length: Number(productData.length) || 0,
+            width: Number(productData.width) || 0,
+            height: Number(productData.height) || 0,
             unit: productData.dimensionUnit || "cm",
           },
-          purchasePrice: productData.purchasePrice || 0,
-          sellingPrice: productData.sellingPrice || 0,
-          wholesalePrice: productData.wholesalePrice || 0,
-          retailPrice: productData.retailPrice || 0,
-          minStock: productData.minStock || 0,
-          maxStock: productData.maxStock || 1000,
-          currentStock: productData.currentStock || 0,
-          reorderLevel: productData.reorderLevel || 0,
+          purchasePrice: Number(productData.purchasePrice) || 0,
+          sellingPrice: Number(productData.sellingPrice) || 0,
+          wholesalePrice: Number(productData.wholesalePrice) || 0,
+          retailPrice: Number(productData.retailPrice) || 0,
+          minStock: Number(productData.minStock) || 0,
+          maxStock: Number(productData.maxStock) || 1000,
+          currentStock: Number(productData.currentStock) || 0,
+          reorderLevel: Number(productData.reorderLevel) || 0,
           location: productData.location || "",
           binLocation: productData.binLocation || "",
-          tags: Array.isArray(productData.tags) ? productData.tags.join(", ") :
-                typeof productData.tags === 'string' ? productData.tags : "",
-          taxable: productData.isTaxable ?? productData.taxable ?? true,
-          taxRate: productData.taxRate || 16,
-          trackInventory: productData.trackInventory ?? true,
-          allowBackorders: productData.allowBackorders ?? false,
-          hasVariants: productData.hasVariants ?? false,
+          tags: Array.isArray(productData.tags)
+            ? productData.tags.join(", ")
+            : typeof productData.tags === "string"
+              ? productData.tags
+              : "",
+          taxable: toBool(productData.isTaxable ?? productData.taxable, true),
+          taxRate: Number(productData.taxRate) || 16,
+          trackInventory: toBool(productData.trackInventory, true),
+          allowBackorders: toBool(productData.allowBackorders, false),
+          hasVariants: toBool(productData.hasVariants, false),
           status: productData.status || "active",
-          isActive: productData.isActive ?? true,
+          isActive: toBool(productData.isActive, true),
           notes: productData.notes || "",
         };
 
@@ -203,11 +229,12 @@ export default function NewProduct() {
   };
 
   const onSubmit = async (data: ProductFormData) => {
+    console.log("🎯 onSubmit called with data:", data);
     try {
       setLoading(true);
 
       console.log("🚀 Form submission started");
-      console.log("📊 Form data:", data);
+      console.log("���� Form data:", data);
       console.log("🔧 Is edit mode:", isEditMode);
       console.log("📦 Product:", product);
 
@@ -233,7 +260,8 @@ export default function NewProduct() {
           description: `Product "${data.name}" has been updated successfully.`,
         });
 
-        navigate(`/products/${product.id}`);
+        // Refresh the product data to show updated values
+        await loadProduct(product.id);
       } else {
         console.log("➕ Creating new product");
 
@@ -262,7 +290,7 @@ export default function NewProduct() {
       console.error("❌ Error details:", {
         message: error.message,
         stack: error.stack,
-        name: error.name
+        name: error.name,
       });
 
       toast({
@@ -286,11 +314,7 @@ export default function NewProduct() {
   return (
     <div className="container mx-auto py-6">
       <div className="mb-6">
-        <Button
-          variant="ghost"
-          onClick={() => navigate(-1)}
-          className="mb-4"
-        >
+        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
@@ -298,12 +322,24 @@ export default function NewProduct() {
           {isEditMode ? `Edit Product: ${product?.name}` : "Add New Product"}
         </h1>
         <p className="text-muted-foreground">
-          {isEditMode ? "Update product information" : "Fill in the details to create a new product"}
+          {isEditMode
+            ? "Update product information"
+            : "Fill in the details to create a new product"}
         </p>
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form
+          onSubmit={form.handleSubmit(onSubmit, (errors) => {
+            console.log("❌ Form validation errors:", errors);
+            toast({
+              title: "Validation Error",
+              description: "Please check the form for errors and try again.",
+              variant: "destructive",
+            });
+          })}
+          className="space-y-6"
+        >
           <Tabs defaultValue="basic" className="w-full">
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="basic">
@@ -342,7 +378,10 @@ export default function NewProduct() {
                         <FormItem>
                           <FormLabel>Product Name *</FormLabel>
                           <FormControl>
-                            <Input placeholder="Enter product name" {...field} />
+                            <Input
+                              placeholder="Enter product name"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -389,7 +428,10 @@ export default function NewProduct() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Category *</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select category" />
@@ -428,7 +470,10 @@ export default function NewProduct() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Unit *</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select unit" />
@@ -478,7 +523,9 @@ export default function NewProduct() {
                               step="0.01"
                               placeholder="0.00"
                               {...field}
-                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                              onChange={(e) =>
+                                field.onChange(parseFloat(e.target.value) || 0)
+                              }
                             />
                           </FormControl>
                           <FormMessage />
@@ -498,7 +545,9 @@ export default function NewProduct() {
                               step="0.01"
                               placeholder="0.00"
                               {...field}
-                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                              onChange={(e) =>
+                                field.onChange(parseFloat(e.target.value) || 0)
+                              }
                             />
                           </FormControl>
                           <FormMessage />
@@ -520,7 +569,9 @@ export default function NewProduct() {
                               step="0.01"
                               placeholder="0.00"
                               {...field}
-                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                              onChange={(e) =>
+                                field.onChange(parseFloat(e.target.value) || 0)
+                              }
                             />
                           </FormControl>
                           <FormMessage />
@@ -540,7 +591,9 @@ export default function NewProduct() {
                               step="0.01"
                               placeholder="0.00"
                               {...field}
-                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                              onChange={(e) =>
+                                field.onChange(parseFloat(e.target.value) || 0)
+                              }
                             />
                           </FormControl>
                           <FormMessage />
@@ -556,7 +609,9 @@ export default function NewProduct() {
                       render={({ field }) => (
                         <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                           <div className="space-y-0.5">
-                            <FormLabel className="text-base">Taxable Product</FormLabel>
+                            <FormLabel className="text-base">
+                              Taxable Product
+                            </FormLabel>
                             <FormDescription>
                               This product is subject to tax
                             </FormDescription>
@@ -583,7 +638,9 @@ export default function NewProduct() {
                               step="0.01"
                               placeholder="16.00"
                               {...field}
-                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                              onChange={(e) =>
+                                field.onChange(parseFloat(e.target.value) || 0)
+                              }
                             />
                           </FormControl>
                           <FormMessage />
@@ -611,7 +668,9 @@ export default function NewProduct() {
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
-                          <FormLabel className="text-base">Track Inventory</FormLabel>
+                          <FormLabel className="text-base">
+                            Track Inventory
+                          </FormLabel>
                           <FormDescription>
                             Monitor stock levels for this product
                           </FormDescription>
@@ -638,7 +697,9 @@ export default function NewProduct() {
                               type="number"
                               placeholder="0"
                               {...field}
-                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                              onChange={(e) =>
+                                field.onChange(parseFloat(e.target.value) || 0)
+                              }
                             />
                           </FormControl>
                           <FormMessage />
@@ -657,7 +718,9 @@ export default function NewProduct() {
                               type="number"
                               placeholder="0"
                               {...field}
-                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                              onChange={(e) =>
+                                field.onChange(parseFloat(e.target.value) || 0)
+                              }
                             />
                           </FormControl>
                           <FormMessage />
@@ -676,7 +739,9 @@ export default function NewProduct() {
                               type="number"
                               placeholder="1000"
                               {...field}
-                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                              onChange={(e) =>
+                                field.onChange(parseFloat(e.target.value) || 0)
+                              }
                             />
                           </FormControl>
                           <FormMessage />
@@ -769,7 +834,10 @@ export default function NewProduct() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Status</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select status" />
@@ -778,8 +846,12 @@ export default function NewProduct() {
                           <SelectContent>
                             <SelectItem value="active">Active</SelectItem>
                             <SelectItem value="inactive">Inactive</SelectItem>
-                            <SelectItem value="discontinued">Discontinued</SelectItem>
-                            <SelectItem value="out_of_stock">Out of Stock</SelectItem>
+                            <SelectItem value="discontinued">
+                              Discontinued
+                            </SelectItem>
+                            <SelectItem value="out_of_stock">
+                              Out of Stock
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -801,9 +873,21 @@ export default function NewProduct() {
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button
+              type="submit"
+              disabled={loading}
+              onClick={() => {
+                console.log("🖱️ Submit button clicked!");
+                console.log("📝 Form state:", form.formState);
+                console.log("📝 Form errors:", form.formState.errors);
+              }}
+            >
               <Save className="mr-2 h-4 w-4" />
-              {loading ? "Saving..." : isEditMode ? "Update Product" : "Create Product"}
+              {loading
+                ? "Saving..."
+                : isEditMode
+                  ? "Update Product"
+                  : "Create Product"}
             </Button>
           </div>
         </form>

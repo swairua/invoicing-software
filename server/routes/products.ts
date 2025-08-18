@@ -27,7 +27,10 @@ router.get("/", async (req, res) => {
       status,
       lowStock,
     });
-    console.log("✅ Repository call successful, products found:", result.products.length);
+    console.log(
+      "✅ Repository call successful, products found:",
+      result.products.length,
+    );
 
     const response = {
       success: true,
@@ -219,11 +222,23 @@ router.get("/search", async (req, res) => {
 
 // Get product by ID
 router.get("/:id", async (req, res) => {
+  console.log(
+    "🔍 GET /api/products/:id endpoint called for ID:",
+    req.params.id,
+  );
   try {
     const companyId =
       (req.headers["x-company-id"] as string) ||
       "00000000-0000-0000-0000-000000000001";
+    console.log("🏢 Company ID:", companyId);
+
     const product = await productRepository.findById(req.params.id, companyId);
+    console.log("📦 Product found:", !!product);
+    if (product) {
+      console.log("📋 Product fields:", Object.keys(product));
+      console.log("🔍 Category ID:", product.categoryId);
+      console.log("🔍 Unit of Measure:", product.unitOfMeasure);
+    }
 
     if (!product) {
       return res.status(404).json({
@@ -235,6 +250,7 @@ router.get("/:id", async (req, res) => {
     // Get variants
     const variants = await productRepository.getProductVariants(req.params.id);
 
+    console.log("✅ Sending product data with variants");
     res.json({
       success: true,
       data: {
@@ -305,32 +321,32 @@ router.post("/", async (req, res) => {
 
     // Direct field mappings (frontend -> database)
     const fieldMappings = {
-      name: 'name',
-      description: 'description',
-      sku: 'sku',
-      barcode: 'barcode',
-      brand: 'brand',
-      categoryId: 'categoryId',
-      supplierId: 'supplierId',
-      purchasePrice: 'purchasePrice',
-      sellingPrice: 'sellingPrice',
-      wholesalePrice: 'wholesalePrice',
-      retailPrice: 'retailPrice',
-      costPrice: 'costPrice',
-      markup: 'markup',
-      minStock: 'minStock',
-      maxStock: 'maxStock',
-      currentStock: 'currentStock',
-      reservedStock: 'reservedStock',
-      reorderLevel: 'reorderLevel',
-      location: 'location',
-      binLocation: 'binLocation',
-      tags: 'tags',
-      notes: 'notes',
-      trackInventory: 'trackInventory',
-      isActive: 'isActive',
-      status: 'status',
-      weight: 'weight'
+      name: "name",
+      description: "description",
+      sku: "sku",
+      barcode: "barcode",
+      brand: "brand",
+      categoryId: "categoryId",
+      supplierId: "supplierId",
+      purchasePrice: "purchasePrice",
+      sellingPrice: "sellingPrice",
+      wholesalePrice: "wholesalePrice",
+      retailPrice: "retailPrice",
+      costPrice: "costPrice",
+      markup: "markup",
+      minStock: "minStock",
+      maxStock: "maxStock",
+      currentStock: "currentStock",
+      reservedStock: "reservedStock",
+      reorderLevel: "reorderLevel",
+      location: "location",
+      binLocation: "binLocation",
+      tags: "tags",
+      notes: "notes",
+      trackInventory: "trackInventory",
+      isActive: "isActive",
+      status: "status",
+      weight: "weight",
     };
 
     // Map frontend fields to database fields
@@ -370,9 +386,11 @@ router.post("/", async (req, res) => {
     }
 
     // Handle individual dimension fields (for backward compatibility)
-    if (requestBody.length !== undefined) dbCreateData.length = requestBody.length;
+    if (requestBody.length !== undefined)
+      dbCreateData.length = requestBody.length;
     if (requestBody.width !== undefined) dbCreateData.width = requestBody.width;
-    if (requestBody.height !== undefined) dbCreateData.height = requestBody.height;
+    if (requestBody.height !== undefined)
+      dbCreateData.height = requestBody.height;
 
     console.log("  Mapped create data fields:", Object.keys(dbCreateData));
 
@@ -387,7 +405,7 @@ router.post("/", async (req, res) => {
     res.status(500).json({
       success: false,
       error: "Failed to create product",
-      details: error.message
+      details: error.message,
     });
   }
 });
@@ -420,32 +438,32 @@ router.put("/:id", async (req, res) => {
 
     // Direct field mappings (frontend -> database)
     const fieldMappings = {
-      name: 'name',
-      description: 'description',
-      sku: 'sku',
-      barcode: 'barcode',
-      brand: 'brand',
-      categoryId: 'categoryId',
-      supplierId: 'supplierId',
-      purchasePrice: 'purchasePrice',
-      sellingPrice: 'sellingPrice',
-      wholesalePrice: 'wholesalePrice',
-      retailPrice: 'retailPrice',
-      costPrice: 'costPrice',
-      markup: 'markup',
-      minStock: 'minStock',
-      maxStock: 'maxStock',
-      currentStock: 'currentStock',
-      reservedStock: 'reservedStock',
-      reorderLevel: 'reorderLevel',
-      location: 'location',
-      binLocation: 'binLocation',
-      tags: 'tags',
-      notes: 'notes',
-      trackInventory: 'trackInventory',
-      isActive: 'isActive',
-      status: 'status',
-      weight: 'weight'
+      name: "name",
+      description: "description",
+      sku: "sku",
+      barcode: "barcode",
+      brand: "brand",
+      categoryId: "categoryId",
+      supplierId: "supplierId",
+      purchasePrice: "purchasePrice",
+      sellingPrice: "sellingPrice",
+      wholesalePrice: "wholesalePrice",
+      retailPrice: "retailPrice",
+      costPrice: "costPrice",
+      markup: "markup",
+      minStock: "minStock",
+      maxStock: "maxStock",
+      currentStock: "currentStock",
+      reservedStock: "reservedStock",
+      reorderLevel: "reorderLevel",
+      location: "location",
+      binLocation: "binLocation",
+      tags: "tags",
+      notes: "notes",
+      trackInventory: "trackInventory",
+      isActive: "isActive",
+      status: "status",
+      weight: "weight",
     };
 
     // Map frontend fields to database fields
@@ -485,9 +503,11 @@ router.put("/:id", async (req, res) => {
     }
 
     // Handle individual dimension fields (for backward compatibility)
-    if (requestBody.length !== undefined) dbUpdateData.length = requestBody.length;
+    if (requestBody.length !== undefined)
+      dbUpdateData.length = requestBody.length;
     if (requestBody.width !== undefined) dbUpdateData.width = requestBody.width;
-    if (requestBody.height !== undefined) dbUpdateData.height = requestBody.height;
+    if (requestBody.height !== undefined)
+      dbUpdateData.height = requestBody.height;
 
     console.log("  Cleaned update data fields:", Object.keys(dbUpdateData));
 
@@ -513,7 +533,7 @@ router.put("/:id", async (req, res) => {
     res.status(500).json({
       success: false,
       error: "Failed to update product",
-      details: error.message
+      details: error.message,
     });
   }
 });

@@ -34,7 +34,10 @@ router.get("/health", async (req, res) => {
 
 // Simple test endpoint
 router.get("/test", (req, res) => {
-  console.log("🧪 Test endpoint called from:", req.headers.origin || req.headers.host);
+  console.log(
+    "🧪 Test endpoint called from:",
+    req.headers.origin || req.headers.host,
+  );
   console.log("🧪 Headers:", req.headers);
   res.json({
     success: true,
@@ -42,7 +45,7 @@ router.get("/test", (req, res) => {
     timestamp: new Date().toISOString(),
     headers: req.headers,
     method: req.method,
-    url: req.url
+    url: req.url,
   });
 });
 
@@ -58,7 +61,8 @@ router.get("/test-sample-data", (req, res) => {
   res.json({
     message: "Sample data endpoint is reachable",
     timestamp: Date.now(),
-    companyId: req.headers["x-company-id"] || "00000000-0000-0000-0000-000000000001"
+    companyId:
+      req.headers["x-company-id"] || "00000000-0000-0000-0000-000000000001",
   });
 });
 
@@ -73,14 +77,14 @@ router.post("/create-sample-direct", async (req, res) => {
     console.log("✅ Sample data creation completed successfully");
     res.json({
       success: true,
-      message: "Sample data created successfully via database method"
+      message: "Sample data created successfully via database method",
     });
   } catch (error) {
     console.error("❌ Failed to create sample data:", error);
     res.status(500).json({
       success: false,
       error: "Failed to create sample data",
-      details: error.message
+      details: error.message,
     });
   }
 });
@@ -89,66 +93,69 @@ router.post("/create-sample-direct", async (req, res) => {
 router.post("/create-sample-data", async (req, res) => {
   try {
     console.log("📋 Creating sample data via API calls...");
-    const companyId = req.headers["x-company-id"] as string || "00000000-0000-0000-0000-000000000001";
+    const companyId =
+      (req.headers["x-company-id"] as string) ||
+      "00000000-0000-0000-0000-000000000001";
 
     // Sample customers data
     const sampleCustomers = [
       {
-        name: 'Nairobi Medical Center',
-        email: 'procurement@nairobimedical.co.ke',
-        phone: '+254-700-123456',
-        kraPin: 'P051234567X',
-        addressLine1: '123 Uhuru Highway',
-        addressLine2: 'Medical Plaza, 5th Floor',
-        city: 'Nairobi',
-        postalCode: '00100',
-        country: 'Kenya',
+        name: "Nairobi Medical Center",
+        email: "procurement@nairobimedical.co.ke",
+        phone: "+254-700-123456",
+        kraPin: "P051234567X",
+        addressLine1: "123 Uhuru Highway",
+        addressLine2: "Medical Plaza, 5th Floor",
+        city: "Nairobi",
+        postalCode: "00100",
+        country: "Kenya",
         creditLimit: 500000,
         paymentTerms: 30,
         isActive: true,
-        companyId
+        companyId,
       },
       {
-        name: 'Coast General Hospital',
-        email: 'supplies@coastgeneral.co.ke',
-        phone: '+254-722-987654',
-        kraPin: 'P052345678Y',
-        addressLine1: '456 Moi Avenue',
-        addressLine2: 'Hospital Complex',
-        city: 'Mombasa',
-        postalCode: '80100',
-        country: 'Kenya',
+        name: "Coast General Hospital",
+        email: "supplies@coastgeneral.co.ke",
+        phone: "+254-722-987654",
+        kraPin: "P052345678Y",
+        addressLine1: "456 Moi Avenue",
+        addressLine2: "Hospital Complex",
+        city: "Mombasa",
+        postalCode: "80100",
+        country: "Kenya",
         creditLimit: 300000,
         paymentTerms: 14,
         isActive: true,
-        companyId
-      }
+        companyId,
+      },
     ];
 
     // Sample categories data
     const sampleCategories = [
       {
-        name: 'Medical Supplies',
-        description: 'Basic medical supplies and consumables',
+        name: "Medical Supplies",
+        description: "Basic medical supplies and consumables",
         isActive: true,
-        companyId
+        companyId,
       },
       {
-        name: 'Medical Equipment',
-        description: 'Medical devices and equipment',
+        name: "Medical Equipment",
+        description: "Medical devices and equipment",
         isActive: true,
-        companyId
-      }
+        companyId,
+      },
     ];
 
     // Sample products data
     const sampleProducts = [
       {
-        name: 'Latex Rubber Gloves Bicolor Reusable XL',
-        description: 'High-quality latex rubber gloves for medical and industrial use. Bicolor design for enhanced grip and visibility.',
-        sku: 'LRG-XL-001',
-        barcode: '1234567890123',
-        unit: 'Pair',
+        name: "Latex Rubber Gloves Bicolor Reusable XL",
+        description:
+          "High-quality latex rubber gloves for medical and industrial use. Bicolor design for enhanced grip and visibility.",
+        sku: "LRG-XL-001",
+        barcode: "1234567890123",
+        unit: "Pair",
         purchasePrice: 400,
         sellingPrice: 500,
         wholesalePrice: 450,
@@ -157,7 +164,7 @@ router.post("/create-sample-data", async (req, res) => {
         maxStock: 1000,
         currentStock: 450,
         reorderLevel: 100,
-        location: 'A1-B2',
+        location: "A1-B2",
         trackInventory: true,
         taxable: true,
         taxRate: 16,
@@ -165,14 +172,15 @@ router.post("/create-sample-data", async (req, res) => {
         hasVariants: false,
         allowBackorders: true,
         weight: 0.15,
-        companyId
+        companyId,
       },
       {
-        name: 'Digital Blood Pressure Monitor',
-        description: 'Accurate digital blood pressure monitoring device with large LCD display and memory function.',
-        sku: 'DBP-001',
-        barcode: '2345678901234',
-        unit: 'Piece',
+        name: "Digital Blood Pressure Monitor",
+        description:
+          "Accurate digital blood pressure monitoring device with large LCD display and memory function.",
+        sku: "DBP-001",
+        barcode: "2345678901234",
+        unit: "Piece",
         purchasePrice: 2500,
         sellingPrice: 3500,
         wholesalePrice: 3000,
@@ -181,7 +189,7 @@ router.post("/create-sample-data", async (req, res) => {
         maxStock: 100,
         currentStock: 25,
         reorderLevel: 10,
-        location: 'B2-C3',
+        location: "B2-C3",
         trackInventory: true,
         taxable: true,
         taxRate: 16,
@@ -189,8 +197,8 @@ router.post("/create-sample-data", async (req, res) => {
         hasVariants: false,
         allowBackorders: false,
         weight: 0.8,
-        companyId
-      }
+        companyId,
+      },
     ];
 
     const results = { customers: [], products: [], categories: [] };
@@ -203,13 +211,18 @@ router.post("/create-sample-data", async (req, res) => {
         const insertResult = await Database.query(
           `INSERT INTO product_categories (id, name, description, is_active, company_id, created_at, updated_at)
            VALUES (UUID(), ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-          [categoryData.name, categoryData.description, categoryData.isActive, categoryData.companyId]
+          [
+            categoryData.name,
+            categoryData.description,
+            categoryData.isActive,
+            categoryData.companyId,
+          ],
         );
 
         // Get the created category
         const categoryResult = await Database.query(
           `SELECT * FROM product_categories WHERE company_id = ? AND name = ? ORDER BY created_at DESC LIMIT 1`,
-          [categoryData.companyId, categoryData.name]
+          [categoryData.companyId, categoryData.name],
         );
 
         if (categoryResult.rows.length > 0) {
@@ -217,7 +230,10 @@ router.post("/create-sample-data", async (req, res) => {
           console.log(`✅ Created category: ${categoryData.name}`);
         }
       } catch (error) {
-        console.error(`❌ Failed to create category ${categoryData.name}:`, error);
+        console.error(
+          `❌ Failed to create category ${categoryData.name}:`,
+          error,
+        );
       }
     }
 
@@ -229,7 +245,10 @@ router.post("/create-sample-data", async (req, res) => {
         results.customers.push(customer);
         console.log(`✅ Created customer: ${customer.name}`);
       } catch (error) {
-        console.error(`❌ Failed to create customer ${customerData.name}:`, error);
+        console.error(
+          `❌ Failed to create customer ${customerData.name}:`,
+          error,
+        );
       }
     }
 
@@ -241,7 +260,10 @@ router.post("/create-sample-data", async (req, res) => {
         results.products.push(product);
         console.log(`✅ Created product: ${product.name}`);
       } catch (error) {
-        console.error(`❌ Failed to create product ${productData.name}:`, error);
+        console.error(
+          `❌ Failed to create product ${productData.name}:`,
+          error,
+        );
       }
     }
 
@@ -252,16 +274,15 @@ router.post("/create-sample-data", async (req, res) => {
       summary: {
         categoriesCreated: results.categories.length,
         customersCreated: results.customers.length,
-        productsCreated: results.products.length
-      }
+        productsCreated: results.products.length,
+      },
     });
-
   } catch (error) {
     console.error("❌ Error creating sample data:", error);
     res.status(500).json({
       success: false,
       error: "Failed to create sample data",
-      details: error.message
+      details: error.message,
     });
   }
 });
@@ -446,27 +467,26 @@ router.get("/quotations", async (req, res) => {
 // Create new quotation
 router.post("/quotations", async (req, res) => {
   try {
-    const companyId = (req.headers["x-company-id"] as string) || "550e8400-e29b-41d4-a716-446655440000";
+    const companyId =
+      (req.headers["x-company-id"] as string) ||
+      "550e8400-e29b-41d4-a716-446655440000";
     const quotationData = req.body;
 
     console.log("Creating quotation:", quotationData);
 
     // Generate quotation number
-    const quoteNumber = `QUO-${new Date().getFullYear()}-${String(Date.now()).slice(-3).padStart(3, '0')}`;
+    const quoteNumber = `QUO-${new Date().getFullYear()}-${String(Date.now()).slice(-3).padStart(3, "0")}`;
 
     // Start transaction to create quotation and items
-    const client = await Database.getInstance().getClient();
-
     try {
-      await client.query('BEGIN');
+      await Database.query("START TRANSACTION");
 
       // Insert quotation (using correct column names)
-      const quotationResult = await client.query(
+      const quotationResult = await Database.query(
         `INSERT INTO quotations
-         (quote_number, customer_id, subtotal, vat_amount, discount_amount, total_amount,
+         (id, quote_number, customer_id, subtotal, vat_amount, discount_amount, total_amount,
           status, valid_until, issue_date, notes, company_id, created_by)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-         RETURNING *`,
+         VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           quoteNumber,
           quotationData.customerId,
@@ -475,15 +495,21 @@ router.post("/quotations", async (req, res) => {
           quotationData.discountAmount || 0,
           quotationData.total || 0,
           quotationData.status || "draft",
-          quotationData.validUntil || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          quotationData.validUntil ||
+            new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
           quotationData.issueDate || new Date(),
           quotationData.notes || "",
           companyId,
-          quotationData.createdBy || "1"
-        ]
+          quotationData.createdBy || "1",
+        ],
       );
 
-      const quotationId = quotationResult.rows[0].id;
+      // Get the created quotation ID
+      const createdQuotationResult = await Database.query(
+        `SELECT * FROM quotations WHERE quote_number = ? AND company_id = ?`,
+        [quoteNumber, companyId],
+      );
+      const quotationId = createdQuotationResult.rows[0].id;
 
       // Insert quotation items
       if (quotationData.items && quotationData.items.length > 0) {
@@ -496,40 +522,38 @@ router.post("/quotations", async (req, res) => {
           const afterDiscount = subtotal - discountAmount;
           const vatAmount = (afterDiscount * (item.vatRate || 0)) / 100;
 
-          await client.query(
+          await Database.query(
             `INSERT INTO quotation_items
-             (quotation_id, product_id, description, quantity, unit_price,
+             (id, quotation_id, product_id, description, quantity, unit_price,
               discount_percentage, vat_rate, vat_amount, line_total, sort_order)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+             VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
               quotationId,
               item.productId,
-              item.product?.name || '',
+              item.product?.name || "",
               item.quantity,
               item.unitPrice,
               item.discount || 0,
               item.vatRate || 0,
               vatAmount,
               item.total,
-              i
-            ]
+              i,
+            ],
           );
         }
       }
 
-      await client.query('COMMIT');
+      await Database.query("COMMIT");
 
       console.log("Quotation created successfully");
 
       res.status(201).json({
         success: true,
-        data: quotationResult.rows[0]
+        data: createdQuotationResult.rows[0],
       });
     } catch (error) {
-      await client.query('ROLLBACK');
+      await Database.query("ROLLBACK");
       throw error;
-    } finally {
-      client.release();
     }
   } catch (error) {
     console.error("Error creating quotation:", error);
@@ -538,7 +562,7 @@ router.post("/quotations", async (req, res) => {
     res.status(500).json({
       success: false,
       error: "Failed to create quotation in database",
-      details: error.message
+      details: error.message,
     });
   }
 });
@@ -557,7 +581,7 @@ router.get("/proformas", async (req, res) => {
         c.email as customer_email
       FROM proforma_invoices p
       JOIN customers c ON p.customer_id = c.id
-      WHERE p.company_id = $1
+      WHERE p.company_id = ?
       ORDER BY p.created_at DESC
       LIMIT 50
     `,
@@ -623,7 +647,7 @@ router.get("/payments", async (req, res) => {
       FROM payments p
       JOIN customers c ON p.customer_id = c.id
       LEFT JOIN invoices i ON p.invoice_id = i.id
-      WHERE p.company_id = $1
+      WHERE p.company_id = ?
       ORDER BY p.created_at DESC
       LIMIT 50
     `,
@@ -712,7 +736,7 @@ router.get("/credit-notes", async (req, res) => {
         c.email as customer_email
       FROM credit_notes cn
       JOIN customers c ON cn.customer_id = c.id
-      WHERE cn.company_id = $1
+      WHERE cn.company_id = ?
       ORDER BY cn.created_at DESC
       LIMIT 50
     `,
@@ -828,7 +852,7 @@ router.get("/credit-notes/:id", async (req, res) => {
         c.email as customer_email
       FROM credit_notes cn
       JOIN customers c ON cn.customer_id = c.id
-      WHERE cn.id = $1 AND cn.company_id = $2
+      WHERE cn.id = ? AND cn.company_id = ?
     `,
       [id, companyId],
     );
