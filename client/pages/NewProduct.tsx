@@ -125,12 +125,54 @@ export default function NewProduct() {
     }
   }, [id]);
 
+  // Setup categories if none exist
+  useEffect(() => {
+    if (categories.length === 0) {
+      console.log("🔧 Setting up categories automatically...");
+      loadCategories();
+    }
+  }, [categories.length]);
+
   const loadCategories = async () => {
     try {
       const categoriesData = await dataService.getCategories();
-      setCategories(categoriesData);
+      console.log("📦 Categories loaded:", categoriesData);
+
+      // If no categories, try to set them up automatically
+      if (!categoriesData || categoriesData.length === 0) {
+        console.log("🔧 No categories found, setting up sample categories...");
+        try {
+          const setupResponse = await fetch("/api/categories/setup", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-company-id":
+                user?.companyId || "00000000-0000-0000-0000-000000000001",
+            },
+          });
+
+          if (setupResponse.ok) {
+            const setupData = await setupResponse.json();
+            console.log("✅ Categories setup result:", setupData);
+
+            // Reload categories after setup
+            const newCategoriesData = await dataService.getCategories();
+            setCategories(newCategoriesData || []);
+          } else {
+            console.log("❌ Failed to setup categories");
+            setCategories([]);
+          }
+        } catch (setupError) {
+          console.error("Failed to setup categories:", setupError);
+          setCategories([]);
+        }
+      } else {
+        setCategories(categoriesData);
+      }
     } catch (error) {
       console.error("Failed to load categories:", error);
+      // Set empty array as fallback
+      setCategories([]);
       toast({
         title: "Error",
         description: "Failed to load product categories",
@@ -160,6 +202,19 @@ export default function NewProduct() {
 
       const productData = await dataService.getProductById(productId);
       console.log("📦 Received product data:", productData);
+
+      if (!productData) {
+        console.log("❌ No product data received");
+        toast({
+          title: "Product Not Found",
+          description:
+            "The requested product could not be found. Redirecting to products list.",
+          variant: "destructive",
+        });
+        navigate("/products");
+        return;
+      }
+
       console.log("🔍 Category ID:", productData.categoryId);
       console.log("🔍 Unit of Measure:", productData.unitOfMeasure);
       console.log("🔍 Available fields:", Object.keys(productData));
@@ -173,12 +228,11 @@ export default function NewProduct() {
           description: productData.description || "",
           sku: productData.sku,
           barcode: productData.barcode || "",
-          category: productData.categoryId || "",
-          categoryId: productData.categoryId || "",
+          category: productData.categoryId || productData.category || "",
           subcategory: productData.subcategory || "",
           brand: productData.brand || "",
           supplier: productData.supplier || "",
-          unit: productData.unitOfMeasure || "piece",
+          unit: productData.unitOfMeasure || productData.unit || "piece",
           weight: Number(productData.weight) || 0,
           dimensions: productData.dimensions || {
             length: Number(productData.length) || 0,
@@ -212,9 +266,31 @@ export default function NewProduct() {
         };
 
         console.log("📋 Mapped form data:", formData);
+        console.log("🏷️ Categories available:", categories.length);
+        console.log("🏷️ Selected category ID:", formData.category);
+        console.log("📦 Unit from database:", productData.unitOfMeasure);
+        console.log("📦 Unit mapped to form:", formData.unit);
 
         // Populate form with existing product data
+        console.log("🔄 Resetting form with data:", formData);
         form.reset(formData);
+
+        // Force Select components to update after form reset
+        setTimeout(() => {
+          console.log("✅ Form values after reset:", form.getValues());
+          console.log("🏷️ Category field value:", form.getValues("category"));
+          console.log("📦 Unit field value:", form.getValues("unit"));
+
+          // Manually trigger field updates to ensure Select components refresh
+          const currentValues = form.getValues();
+          form.setValue("category", currentValues.category);
+          form.setValue("unit", currentValues.unit);
+
+          console.log("🔄 Forced field updates completed");
+
+          // Force re-render of Select components by triggering state change
+          setProduct({ ...productData });
+        }, 200);
       }
     } catch (error) {
       console.error("❌ Failed to load product:", error);
@@ -239,10 +315,11 @@ export default function NewProduct() {
       console.log("📦 Product:", product);
 
       if (isEditMode && product) {
-        console.log("✏️ Updating existing product:", product.id);
+        console.log("��️ Updating existing product:", product.id);
 
         const updateData = {
           ...data,
+          categoryId: data.category, // Map category field to categoryId for backend
           id: product.id,
           companyId: product.companyId,
           createdAt: product.createdAt,
@@ -267,6 +344,7 @@ export default function NewProduct() {
 
         const createData = {
           ...data,
+          categoryId: data.category, // Map category field to categoryId for backend
           companyId: user?.companyId || "",
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -425,29 +503,56 @@ export default function NewProduct() {
                     <FormField
                       control={form.control}
                       name="category"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Category *</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            value={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select category" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {categories.map((cat) => (
-                                <SelectItem key={cat.id} value={cat.id}>
-                                  {cat.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                      render={({ field }) => {
+                        const categoryValue =
+                          field.value &&
+                          field.value !== "" &&
+                          field.value !== "null"
+                            ? field.value
+                            : undefined;
+                        console.log(
+                          "🏷️ Category field render - field.value:",
+                          field.value,
+                          "categoryValue:",
+                          categoryValue,
+                          "categories:",
+                          categories.length,
+                        );
+
+                        return (
+                          <FormItem>
+                            <FormLabel>Category *</FormLabel>
+                            <Select
+                              key={`category-${field.value}-${categories.length}-${Date.now()}`}
+                              onValueChange={(value) => {
+                                console.log("🏷️ Category changed to:", value);
+                                field.onChange(value);
+                              }}
+                              value={categoryValue}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select category" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {categories.length === 0 ? (
+                                  <SelectItem value="no-categories" disabled>
+                                    No categories available
+                                  </SelectItem>
+                                ) : (
+                                  categories.map((cat) => (
+                                    <SelectItem key={cat.id} value={cat.id}>
+                                      {cat.name}
+                                    </SelectItem>
+                                  ))
+                                )}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        );
+                      }}
                     />
 
                     <FormField
@@ -467,33 +572,55 @@ export default function NewProduct() {
                     <FormField
                       control={form.control}
                       name="unit"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Unit *</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            value={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select unit" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="piece">Piece</SelectItem>
-                              <SelectItem value="kg">Kilogram</SelectItem>
-                              <SelectItem value="g">Gram</SelectItem>
-                              <SelectItem value="l">Liter</SelectItem>
-                              <SelectItem value="ml">Milliliter</SelectItem>
-                              <SelectItem value="m">Meter</SelectItem>
-                              <SelectItem value="cm">Centimeter</SelectItem>
-                              <SelectItem value="box">Box</SelectItem>
-                              <SelectItem value="pack">Pack</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                      render={({ field }) => {
+                        const unitValue = field.value || "piece"; // Default to "piece" if no value
+                        console.log(
+                          "📦 Unit field render - field.value:",
+                          field.value,
+                          "unitValue:",
+                          unitValue,
+                        );
+
+                        return (
+                          <FormItem>
+                            <FormLabel>Unit *</FormLabel>
+                            <Select
+                              key={`unit-${field.value}-${Date.now()}`}
+                              onValueChange={(value) => {
+                                console.log("📦 Unit changed to:", value);
+                                field.onChange(value);
+                              }}
+                              value={unitValue}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select unit" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="piece">Piece</SelectItem>
+                                <SelectItem value="kg">Kilogram</SelectItem>
+                                <SelectItem value="g">Gram</SelectItem>
+                                <SelectItem value="l">Liter</SelectItem>
+                                <SelectItem value="ml">Milliliter</SelectItem>
+                                <SelectItem value="m">Meter</SelectItem>
+                                <SelectItem value="cm">Centimeter</SelectItem>
+                                <SelectItem value="box">Box</SelectItem>
+                                <SelectItem value="bx">Box (bx)</SelectItem>
+                                <SelectItem value="pack">Pack</SelectItem>
+                                <SelectItem value="pair">Pair</SelectItem>
+                                <SelectItem value="set">Set</SelectItem>
+                                <SelectItem value="dozen">Dozen</SelectItem>
+                                <SelectItem value="unit">Unit</SelectItem>
+                                <SelectItem value="bottle">Bottle</SelectItem>
+                                <SelectItem value="tube">Tube</SelectItem>
+                                <SelectItem value="roll">Roll</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        );
+                      }}
                     />
                   </div>
                 </CardContent>
