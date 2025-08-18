@@ -427,9 +427,13 @@ export default function NewQuotation() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">New Quotation</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              {isEditMode ? "Edit Quotation" : "New Quotation"}
+            </h1>
             <p className="text-muted-foreground">
-              Create a new quotation for your customer
+              {isEditMode
+                ? `Edit quotation ${existingQuotation?.quoteNumber || ""}`
+                : "Create a new quotation for your customer"}
             </p>
           </div>
         </div>
