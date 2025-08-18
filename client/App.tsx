@@ -49,6 +49,7 @@ import ProductTest from "./pages/ProductTest";
 import AdminSetup from "./pages/AdminSetup";
 import ProductEditTest from "./pages/ProductEditTest";
 import CategoryTest from "./pages/CategoryTest";
+import TestUpdate from "./pages/TestUpdate";
 
 const queryClient = new QueryClient();
 
