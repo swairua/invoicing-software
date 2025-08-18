@@ -170,7 +170,9 @@ export default function RemittanceList() {
   // Calculate summary statistics
   const totalRemittances = remittances.length;
   const sentRemittances = remittances.filter((r) => r.status === "sent").length;
-  const draftRemittances = remittances.filter((r) => r.status === "draft").length;
+  const draftRemittances = remittances.filter(
+    (r) => r.status === "draft",
+  ).length;
   const totalValue = remittances.reduce((sum, r) => sum + r.totalPayment, 0);
 
   return (
@@ -234,7 +236,9 @@ export default function RemittanceList() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalValue)}</div>
+            <div className="text-2xl font-bold">
+              {formatCurrency(totalValue)}
+            </div>
             <p className="text-xs text-muted-foreground">Total payment value</p>
           </CardContent>
         </Card>
@@ -335,7 +339,9 @@ export default function RemittanceList() {
                         {formatCurrency(remittance.totalPayment)}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={getStatusColor(remittance.status) as any}>
+                        <Badge
+                          variant={getStatusColor(remittance.status) as any}
+                        >
                           {remittance.status.toUpperCase()}
                         </Badge>
                       </TableCell>
@@ -355,7 +361,9 @@ export default function RemittanceList() {
                               </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
-                              <Link to={`/remittance-advice/${remittance.id}/edit`}>
+                              <Link
+                                to={`/remittance-advice/${remittance.id}/edit`}
+                              >
                                 <FileEdit className="mr-2 h-4 w-4" />
                                 Edit
                               </Link>

@@ -75,8 +75,8 @@ export default function RemittanceAdvice() {
   const { toast } = useToast();
 
   // Determine the mode based on the current route
-  const isEdit = location.pathname.includes('/edit');
-  const isNew = location.pathname.includes('/new') || !id;
+  const isEdit = location.pathname.includes("/edit");
+  const isNew = location.pathname.includes("/new") || !id;
   const isView = !isNew && !isEdit;
   const [loading, setLoading] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -258,7 +258,11 @@ export default function RemittanceAdvice() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <Button variant="outline" size="sm" onClick={() => navigate("/remittance-advice")}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate("/remittance-advice")}
+          >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to List
           </Button>
@@ -269,8 +273,7 @@ export default function RemittanceAdvice() {
             <p className="text-muted-foreground">
               {isView
                 ? "View remittance advice details"
-                : "Create remittance advice for customer payments"
-              }
+                : "Create remittance advice for customer payments"}
             </p>
           </div>
         </div>
@@ -293,7 +296,11 @@ export default function RemittanceAdvice() {
                 <Download className="mr-2 h-4 w-4" />
                 Preview PDF
               </Button>
-              <Button variant="outline" onClick={() => handleSave("draft")} disabled={loading}>
+              <Button
+                variant="outline"
+                onClick={() => handleSave("draft")}
+                disabled={loading}
+              >
                 Save Draft
               </Button>
               <Button onClick={() => handleSave("sent")} disabled={loading}>

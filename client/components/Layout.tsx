@@ -203,15 +203,11 @@ export default function Layout() {
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => navigate("/settings")}
-                  >
+                  <DropdownMenuItem onClick={() => navigate("/settings")}>
                     <User className="mr-2 h-4 w-4" />
                     Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => navigate("/settings")}
-                  >
+                  <DropdownMenuItem onClick={() => navigate("/settings")}>
                     <Settings className="mr-2 h-4 w-4" />
                     Settings
                   </DropdownMenuItem>

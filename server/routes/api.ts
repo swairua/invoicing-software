@@ -905,7 +905,9 @@ router.get("/proformas/:id", async (req, res) => {
     ];
 
     // Find the requested proforma by ID
-    const requestedProforma = fallbackProformas.find((p) => p.id === req.params.id);
+    const requestedProforma = fallbackProformas.find(
+      (p) => p.id === req.params.id,
+    );
 
     if (requestedProforma) {
       res.json({
