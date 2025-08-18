@@ -32,12 +32,22 @@ router.get("/health", async (req, res) => {
 
 // Simple test endpoint
 router.get("/test", (req, res) => {
-  console.log("Test endpoint called");
+  console.log("🧪 Test endpoint called from:", req.headers.origin || req.headers.host);
+  console.log("🧪 Headers:", req.headers);
   res.json({
     success: true,
     message: "API routing is working",
     timestamp: new Date().toISOString(),
+    headers: req.headers,
+    method: req.method,
+    url: req.url
   });
+});
+
+// Simple ping endpoint for connectivity testing
+router.get("/ping", (req, res) => {
+  console.log("🏓 Ping endpoint called");
+  res.json({ pong: true, timestamp: Date.now() });
 });
 
 // Database test endpoint
