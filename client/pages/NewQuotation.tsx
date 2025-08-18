@@ -172,6 +172,29 @@ export default function NewQuotation() {
     loadData();
   }, [dataService, toast, isEditMode, id, navigate]);
 
+  // Update form data when existing quotation is loaded
+  useEffect(() => {
+    if (existingQuotation) {
+      setFormData({
+        customerId: existingQuotation.customerId,
+        issueDate: new Date(existingQuotation.issueDate).toISOString().split("T")[0],
+        validUntil: new Date(existingQuotation.validUntil).toISOString().split("T")[0],
+        notes: existingQuotation.notes || "",
+      });
+
+      // Set items from existing quotation
+      const quotationItems = existingQuotation.items.map((item) => ({
+        productId: item.productId,
+        quantity: item.quantity.toString(),
+        unitPrice: item.unitPrice.toString(),
+        discount: item.discount.toString(),
+        vatEnabled: item.vatRate > 0,
+        vatRate: item.vatRate || 16,
+      }));
+      setItems(quotationItems);
+    }
+  }, [existingQuotation]);
+
   useEffect(() => {
     if (productSearch) {
       const filtered = products.filter(
