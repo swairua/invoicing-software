@@ -152,6 +152,7 @@ export default function NewProduct() {
           sku: productData.sku,
           barcode: productData.barcode || "",
           category: productData.categoryId || productData.category || "",
+          categoryId: productData.categoryId || productData.category || "",
           subcategory: productData.subcategory || "",
           brand: productData.brand || "",
           supplier: productData.supplier || "",
