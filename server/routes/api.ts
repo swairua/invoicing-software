@@ -52,6 +52,16 @@ router.get("/ping", (req, res) => {
   res.json({ pong: true, timestamp: Date.now() });
 });
 
+// Test GET endpoint for sample data (just to verify routing)
+router.get("/test-sample-data", (req, res) => {
+  console.log("🧪 Test sample data endpoint called");
+  res.json({
+    message: "Sample data endpoint is reachable",
+    timestamp: Date.now(),
+    companyId: req.headers["x-company-id"] || "00000000-0000-0000-0000-000000000001"
+  });
+});
+
 // Create sample data endpoint (simulates form submissions)
 router.post("/create-sample-data", async (req, res) => {
   try {
