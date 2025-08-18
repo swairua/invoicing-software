@@ -419,7 +419,53 @@ class PostgresBusinessDataService {
   public async getQuotationById(id: string): Promise<Quotation | undefined> {
     try {
       const response = await this.apiCall(`/quotations/${id}`);
-      return response.data;
+      const q = response.data;
+
+      if (!q) return undefined;
+
+      // Transform database column names to TypeScript interface properties
+      return {
+        id: q.id,
+        quoteNumber: q.quote_number,
+        customerId: q.customer_id,
+        customer: {
+          id: q.customer_id,
+          name: q.customer_name,
+          email: q.customer_email,
+          phone: q.customer_phone,
+          addressLine1: q.customer_address_line1,
+          city: q.customer_city,
+          country: q.customer_country,
+        },
+        items: (q.items || []).map((item: any) => ({
+          id: item.id,
+          productId: item.product_id,
+          product: {
+            id: item.product_id,
+            name: item.product_name,
+            sku: item.product_sku,
+          },
+          description: item.description,
+          quantity: parseFloat(item.quantity),
+          unitPrice: parseFloat(item.unit_price),
+          discount: parseFloat(item.discount_percentage) || 0,
+          vatRate: parseFloat(item.vat_rate) || 0,
+          vatAmount: parseFloat(item.vat_amount) || 0,
+          total: parseFloat(item.line_total),
+        })),
+        subtotal: parseFloat(q.subtotal) || 0,
+        vatAmount: parseFloat(q.vat_amount) || 0,
+        discountAmount: parseFloat(q.discount_amount) || 0,
+        total: parseFloat(q.total_amount) || 0,
+        status: q.status,
+        validUntil: new Date(q.valid_until),
+        issueDate: new Date(q.issue_date),
+        notes: q.notes,
+        companyId: q.company_id,
+        createdBy: q.created_by,
+        createdAt: new Date(q.created_at),
+        updatedAt: new Date(q.updated_at),
+      };
     } catch (error) {
       console.error("Failed to fetch quotation:", error);
       return undefined;
