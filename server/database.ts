@@ -210,6 +210,29 @@ export class Database {
     }
   }
 
+  // Helper method to add sample categories
+  private async addSampleCategories(): Promise<void> {
+    try {
+      const companyId = '00000000-0000-0000-0000-000000000001';
+
+      await this.query(
+        `INSERT INTO product_categories (id, name, description, is_active, company_id, created_at, updated_at)
+         VALUES (UUID(), ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+        ['Medical Supplies', 'Basic medical supplies and consumables', true, companyId]
+      );
+
+      await this.query(
+        `INSERT INTO product_categories (id, name, description, is_active, company_id, created_at, updated_at)
+         VALUES (UUID(), ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+        ['Medical Equipment', 'Medical devices and equipment', true, companyId]
+      );
+
+      console.log("✅ Sample categories created successfully");
+    } catch (error) {
+      console.error("❌ Failed to add sample categories:", error);
+    }
+  }
+
   // Helper method to add sample customers
   private async addSampleCustomers(): Promise<void> {
     try {
