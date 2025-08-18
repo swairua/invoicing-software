@@ -90,17 +90,25 @@ export class ProductRepository extends BaseRepository {
 
   async create(productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>): Promise<Product> {
     const data = this.toSnakeCase(productData);
-    data.id = null; // Let MySQL generate the UUID
+    delete data.id; // Let MySQL generate the UUID
     delete data.created_at;
     delete data.updated_at;
 
-    const { query, values } = DatabaseUtils.buildInsertQuery('products', data);
-    
-    const result = await this.db.query(query, values);
-    
-    // MySQL doesn't return the inserted row, so we need to fetch it
-    const insertedId = result.insertId || data.id;
-    return this.findById(insertedId, productData.companyId) as Promise<Product>;
+    // Add UUID generation explicitly
+    const insertQuery = `
+      INSERT INTO products (id, ${Object.keys(data).join(', ')})
+      VALUES (UUID(), ${Object.keys(data).map(() => '?').join(', ')})
+    `;
+
+    const result = await this.db.query(insertQuery, Object.values(data));
+
+    // Get the inserted record by finding the most recent one for this company
+    const recentProduct = await this.db.query(
+      'SELECT * FROM products WHERE company_id = ? ORDER BY created_at DESC LIMIT 1',
+      [productData.companyId]
+    );
+
+    return this.toCamelCase(recentProduct.rows[0]) as Product;
   }
 
   async update(id: string, companyId: string, updateData: Partial<Product>): Promise<Product | null> {
