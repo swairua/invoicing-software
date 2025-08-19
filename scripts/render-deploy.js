@@ -60,7 +60,7 @@ console.log("\n📋 Deployment Summary:");
 console.log(`📦 Project: ${pkg.name}`);
 console.log(`🏷️  Version: ${pkg.version}`);
 console.log(`🎯 Node Version: 20+ (required by Render)`);
-console.log(`🗄️  Database: Supabase PostgreSQL`);
+console.log(`🗄️  Database: MySQL`);
 console.log(`🌐 Frontend: React + Vite`);
 console.log(`⚙️  Backend: Node.js + Express`);
 

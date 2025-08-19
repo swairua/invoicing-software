@@ -79,64 +79,10 @@ router.get("/", async (req, res) => {
     res.json(response);
   } catch (error) {
     console.error("Error fetching products:", error);
-    console.log("Returning fallback products data");
-
-    // Return fallback products when database is unavailable
-    const fallbackProducts = [
-      {
-        id: "00000000-0000-0000-0000-000000000001",
-        name: "Latex Rubber Gloves Bicolor Reusable XL",
-        description:
-          "High-quality latex rubber gloves for medical and industrial use",
-        sku: "LRG-XL-001",
-        category: "Medical Supplies",
-        categoryId: "00000000-0000-0000-0000-000000000002",
-        unitOfMeasure: "pair",
-        unit: "pair",
-        purchasePrice: 400,
-        sellingPrice: 500,
-        minStock: 10,
-        maxStock: 1000,
-        currentStock: 450,
-        isActive: true,
-        companyId:
-          (req.headers["x-company-id"] as string) ||
-          "550e8400-e29b-41d4-a716-446655440000",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: "00000000-0000-0000-0000-000000000002",
-        name: "Digital Blood Pressure Monitor",
-        description: "Accurate digital blood pressure monitoring device",
-        sku: "DBP-001",
-        category: "Medical Equipment",
-        categoryId: "00000000-0000-0000-0000-000000000003",
-        unitOfMeasure: "piece",
-        unit: "piece",
-        purchasePrice: 2500,
-        sellingPrice: 3500,
-        minStock: 5,
-        maxStock: 100,
-        currentStock: 25,
-        isActive: true,
-        companyId:
-          (req.headers["x-company-id"] as string) ||
-          "550e8400-e29b-41d4-a716-446655440000",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ];
-
-    res.json({
-      success: true,
-      data: fallbackProducts,
-      meta: {
-        total: fallbackProducts.length,
-        page: 1,
-        limit: 50,
-        totalPages: 1,
-      },
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch products from database",
+      message: error.message
     });
   }
 });

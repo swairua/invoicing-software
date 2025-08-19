@@ -962,7 +962,7 @@ export default function Settings() {
                   <div className="flex justify-between">
                     <span className="text-sm font-medium">Database</span>
                     <span className="text-sm text-muted-foreground">
-                      PostgreSQL
+                      MySQL
                     </span>
                   </div>
                   <div className="flex justify-between">

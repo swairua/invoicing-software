@@ -190,3 +190,70 @@ export function safeFormatDateGB(
     return fallback;
   }
 }
+
+/**
+ * Safely formats a number using toLocaleString() with proper null/undefined handling
+ */
+export function safeToLocaleString(
+  value: number | string | null | undefined,
+  options?: Intl.NumberFormatOptions,
+  fallback: string = "0"
+): string {
+  try {
+    // Handle null/undefined
+    if (value === null || value === undefined) {
+      return fallback;
+    }
+
+    // Convert string to number if needed
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+
+    // Check if conversion resulted in valid number
+    if (isNaN(numValue)) {
+      return fallback;
+    }
+
+    // Format the number
+    return numValue.toLocaleString(undefined, options);
+  } catch (error) {
+    console.warn("Number formatting error:", error);
+    return fallback;
+  }
+}
+
+/**
+ * Safely formats currency values with KES prefix
+ */
+export function safeCurrencyFormat(
+  amount: number | string | null | undefined,
+  fallback: string = "KES 0.00"
+): string {
+  try {
+    const numAmount = typeof amount === 'number' ? amount :
+                     typeof amount === 'string' ? parseFloat(amount) || 0 : 0;
+
+    return new Intl.NumberFormat("en-KE", {
+      style: "currency",
+      currency: "KES",
+      minimumFractionDigits: 2,
+    }).format(numAmount);
+  } catch (error) {
+    console.warn("Currency formatting error:", error);
+    return fallback;
+  }
+}
+
+/**
+ * Safely converts value to number with fallback
+ */
+export function safeToNumber(
+  value: number | string | null | undefined,
+  fallback: number = 0
+): number {
+  if (value === null || value === undefined) {
+    return fallback;
+  }
+
+  const numValue = typeof value === 'string' ? parseFloat(value) : value;
+  return isNaN(numValue) ? fallback : numValue;
+}

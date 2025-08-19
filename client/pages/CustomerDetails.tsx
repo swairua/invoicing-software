@@ -121,12 +121,33 @@ export default function CustomerDetails() {
     }
   }, [id, dataService, navigate, toast]);
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number | string | undefined | null) => {
+    // Convert to number and handle null/undefined/NaN cases
+    let numAmount = 0;
+
+    if (typeof amount === 'string') {
+      numAmount = parseFloat(amount);
+    } else if (typeof amount === 'number') {
+      numAmount = amount;
+    }
+
+    // Ensure we have a valid number, default to 0 if not
+    const safeAmount = isNaN(numAmount) || !isFinite(numAmount) ? 0 : numAmount;
+
     return new Intl.NumberFormat("en-KE", {
       style: "currency",
       currency: "KES",
       minimumFractionDigits: 0,
-    }).format(amount);
+    }).format(safeAmount);
+  };
+
+  // Helper function to safely get numeric value
+  const getNumericValue = (value: number | string | undefined | null): number => {
+    if (typeof value === 'string') {
+      const parsed = parseFloat(value);
+      return isNaN(parsed) ? 0 : parsed;
+    }
+    return typeof value === 'number' && isFinite(value) ? value : 0;
   };
 
   // Use safe date formatting to prevent RangeError: Invalid time value
@@ -305,7 +326,9 @@ export default function CustomerDetails() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(customer.creditLimit - customer.balance)}
+              {formatCurrency(
+                getNumericValue(customer.creditLimit) - getNumericValue(customer.balance)
+              )}
             </div>
             <Badge variant={creditStatus.color as any} className="mt-1">
               {creditStatus.status}
@@ -436,7 +459,9 @@ export default function CustomerDetails() {
                     Available Credit
                   </Label>
                   <p className="text-lg font-bold text-green-600">
-                    {formatCurrency(customer.creditLimit - customer.balance)}
+                    {formatCurrency(
+                      getNumericValue(customer.creditLimit) - getNumericValue(customer.balance)
+                    )}
                   </p>
                 </div>
 
@@ -728,19 +753,18 @@ export default function CustomerDetails() {
                       <span className="text-sm">Available Credit:</span>
                       <span className="font-medium text-green-600">
                         {formatCurrency(
-                          customer.creditLimit - customer.balance,
+                          getNumericValue(customer.creditLimit) - getNumericValue(customer.balance)
                         )}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm">Utilization Rate:</span>
                       <span className="font-medium">
-                        {customer.creditLimit > 0
-                          ? (
-                              (customer.balance / customer.creditLimit) *
-                              100
-                            ).toFixed(1)
-                          : 0}
+                        {(() => {
+                          const creditLimit = getNumericValue(customer.creditLimit);
+                          const balance = getNumericValue(customer.balance);
+                          return creditLimit > 0 ? ((balance / creditLimit) * 100).toFixed(1) : '0';
+                        })()}
                         %
                       </span>
                     </div>
@@ -761,12 +785,11 @@ export default function CustomerDetails() {
                       <div className="flex justify-between text-sm">
                         <span>Credit Usage</span>
                         <span>
-                          {customer.creditLimit > 0
-                            ? (
-                                (customer.balance / customer.creditLimit) *
-                                100
-                              ).toFixed(1)
-                            : 0}
+                          {(() => {
+                            const creditLimit = getNumericValue(customer.creditLimit);
+                            const balance = getNumericValue(customer.balance);
+                            return creditLimit > 0 ? ((balance / creditLimit) * 100).toFixed(1) : '0';
+                          })()}
                           %
                         </span>
                       </div>

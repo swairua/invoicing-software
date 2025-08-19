@@ -95,44 +95,22 @@ export default function UserManagement() {
     );
   }
 
-  // Mock users data - replace with actual API call
+  // Load users data from API
   useEffect(() => {
-    const mockUsers: UserType[] = [
-      {
-        id: "1",
-        email: "admin@company.com",
-        firstName: "John",
-        lastName: "Doe",
-        role: "admin",
-        isActive: true,
-        companyId: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: "2",
-        email: "sales@company.com",
-        firstName: "Jane",
-        lastName: "Smith",
-        role: "sales",
-        isActive: true,
-        companyId: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: "3",
-        email: "accountant@company.com",
-        firstName: "Mike",
-        lastName: "Johnson",
-        role: "accountant",
-        isActive: false,
-        companyId: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ];
-    setUsers(mockUsers);
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch('/api/users');
+        if (!response.ok) {
+          throw new Error('Failed to fetch users');
+        }
+        const data = await response.json();
+        setUsers(data.users || []);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+        setUsers([]);
+      }
+    };
+    fetchUsers();
   }, []);
 
   const filteredUsers = users.filter(

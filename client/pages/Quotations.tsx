@@ -69,6 +69,17 @@ export default function Quotations() {
 
   const businessData = dataServiceFactory.getDataService();
 
+  // Helper function to validate quotation existence
+  const validateQuotationExists = async (quotationId: string): Promise<boolean> => {
+    try {
+      const quotation = await businessData.getQuotation(quotationId);
+      return !!quotation;
+    } catch (error) {
+      console.error(`Error validating quotation ${quotationId}:`, error);
+      return false;
+    }
+  };
+
   // Load initial data
   useEffect(() => {
     const loadData = async () => {
@@ -81,14 +92,17 @@ export default function Quotations() {
           ],
         );
 
+        // Filter out invalid quotations and ensure only valid records are displayed
         const quotationsArray = Array.isArray(quotationsData) ? quotationsData : [];
+        const validQuotations = quotationsArray.filter(q => q && q.id && q.quoteNumber && q.customerId);
+
         console.log("📋 Initial quotations loaded in component:", quotationsArray);
-        console.log("📋 Initial quotations count:", quotationsArray.length);
-        if (quotationsArray.length > 0) {
-          console.log("📋 First quotation sample:", quotationsArray[0]);
+        console.log(`📋 Initial load: ${validQuotations.length} valid quotations out of ${quotationsArray.length} total`);
+        if (validQuotations.length > 0) {
+          console.log("📋 First valid quotation sample:", validQuotations[0]);
         }
 
-        setQuotations(quotationsArray);
+        setQuotations(validQuotations);
         setCustomers(Array.isArray(customersData) ? customersData : []);
         setProducts(Array.isArray(productsData) ? productsData : []);
       } catch (error) {
@@ -115,7 +129,13 @@ export default function Quotations() {
             businessData.getProducts(),
           ],
         );
-        setQuotations(Array.isArray(quotationsData) ? quotationsData : []);
+        // Filter out invalid quotations and ensure only valid records are displayed
+        const validQuotations = Array.isArray(quotationsData)
+          ? quotationsData.filter(q => q && q.id && q.quoteNumber && q.customerId)
+          : [];
+
+        console.log(`📋 Periodic refresh: ${validQuotations.length} valid quotations out of ${quotationsData?.length || 0} total`);
+        setQuotations(validQuotations);
         setCustomers(Array.isArray(customersData) ? customersData : []);
         setProducts(Array.isArray(productsData) ? productsData : []);
       } catch (error) {
@@ -140,7 +160,13 @@ export default function Quotations() {
               businessData.getProducts(),
             ],
           );
-          setQuotations(Array.isArray(quotationsData) ? quotationsData : []);
+          // Filter out invalid quotations and ensure only valid records are displayed
+          const validQuotations = Array.isArray(quotationsData)
+            ? quotationsData.filter(q => q && q.id && q.quoteNumber && q.customerId)
+            : [];
+
+          console.log(`📋 After creation refresh: ${validQuotations.length} valid quotations out of ${quotationsData?.length || 0} total`);
+          setQuotations(validQuotations);
           setCustomers(Array.isArray(customersData) ? customersData : []);
           setProducts(Array.isArray(productsData) ? productsData : []);
           console.log("Quotations data refreshed successfully");
@@ -171,12 +197,23 @@ export default function Quotations() {
     return matchesSearch && matchesStatus;
   });
 
-  const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat("en-KE", {
-      style: "currency",
-      currency: "KES",
-      minimumFractionDigits: 0,
-    }).format(amount);
+  // Debug log filtering results (moved outside filter function)
+  console.log(`🔍 Filtering results: ${filteredQuotations.length} of ${quotations.length} quotations shown`);
+
+  const formatCurrency = (amount: number | string | null | undefined): string => {
+    try {
+      const numAmount = typeof amount === 'number' ? amount :
+                       typeof amount === 'string' ? parseFloat(amount) || 0 : 0;
+
+      return new Intl.NumberFormat("en-KE", {
+        style: "currency",
+        currency: "KES",
+        minimumFractionDigits: 0,
+      }).format(numAmount);
+    } catch (error) {
+      console.warn("Currency formatting error:", error);
+      return "KES 0";
+    }
   };
 
   // Use safe date formatting to prevent RangeError: Invalid time value
@@ -227,7 +264,13 @@ export default function Quotations() {
 
       if (proforma) {
         const quotationsData = await businessData.getQuotations();
-        setQuotations(Array.isArray(quotationsData) ? quotationsData : []);
+        // Filter out invalid quotations and ensure only valid records are displayed
+        const validQuotations = Array.isArray(quotationsData)
+          ? quotationsData.filter(q => q && q.id && q.quoteNumber && q.customerId)
+          : [];
+
+        console.log(`📋 After proforma conversion: ${validQuotations.length} valid quotations out of ${quotationsData?.length || 0} total`);
+        setQuotations(validQuotations);
 
         toast({
           title: "Success",
@@ -478,6 +521,12 @@ export default function Quotations() {
                               <Link to={`/quotations/${quotation.id}`}>
                                 <Eye className="mr-2 h-4 w-4" />
                                 View Details
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <Link to={`/quotations/${quotation.id}/edit`}>
+                                <FileEdit className="mr-2 h-4 w-4" />
+                                Edit Quotation
                               </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem

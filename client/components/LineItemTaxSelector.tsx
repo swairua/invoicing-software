@@ -22,6 +22,7 @@ import { Checkbox } from "./ui/checkbox";
 import { Plus, X, Calculator } from "lucide-react";
 import { LineItemTax } from "@shared/types";
 import { getAvailableTaxes } from "@shared/taxUtils";
+import { safeCurrencyFormat } from "@/lib/utils";
 
 interface LineItemTaxSelectorProps {
   selectedTaxes: LineItemTax[];
@@ -90,7 +91,7 @@ export default function LineItemTaxSelector({
                   <Calculator className="h-4 w-4" />
                   <span>
                     Item Total:{" "}
-                    <strong>KES {itemTotal.toLocaleString()}</strong>
+                    <strong>{safeCurrencyFormat(itemTotal)}</strong>
                   </span>
                 </div>
               </div>
@@ -135,7 +136,7 @@ export default function LineItemTaxSelector({
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                          KES {taxAmount.toLocaleString()}
+                          {safeCurrencyFormat(taxAmount)}
                         </TableCell>
                       </TableRow>
                     );
@@ -148,7 +149,7 @@ export default function LineItemTaxSelector({
                   <div className="flex justify-between items-center font-medium">
                     <span>Total Additional Tax:</span>
                     <span>
-                      KES {calculateTotalTaxAmount().toLocaleString()}
+                      {safeCurrencyFormat(calculateTotalTaxAmount())}
                     </span>
                   </div>
                 </div>
@@ -182,7 +183,7 @@ export default function LineItemTaxSelector({
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">
-                      KES {taxAmount.toLocaleString()}
+                      {safeCurrencyFormat(taxAmount)}
                     </span>
                     <Button
                       variant="ghost"
@@ -199,7 +200,7 @@ export default function LineItemTaxSelector({
           </div>
           <div className="flex justify-between items-center pt-2 border-t text-sm font-medium">
             <span>Total Additional Tax:</span>
-            <span>KES {calculateTotalTaxAmount().toLocaleString()}</span>
+            <span>{safeCurrencyFormat(calculateTotalTaxAmount())}</span>
           </div>
         </div>
       ) : (

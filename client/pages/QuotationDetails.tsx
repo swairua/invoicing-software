@@ -54,19 +54,23 @@ export default function QuotationDetails() {
     const loadQuotationData = async () => {
       try {
         setLoading(true);
-        const quotations = await dataService.getQuotations();
-        const foundQuotation = quotations.find((q) => q.id === id);
+        console.log(`Loading quotation details for ID: ${id}`);
+
+        // Use single quotation endpoint to get detailed data with items
+        const foundQuotation = await dataService.getQuotation(id!);
 
         if (!foundQuotation) {
+          console.error(`❌ Quotation not found: ${id}`);
           toast({
             title: "Quotation Not Found",
-            description: "The requested quotation could not be found.",
+            description: `The quotation ID "${id}" does not exist in the database. Redirecting to quotations list.`,
             variant: "destructive",
           });
           navigate("/quotations");
           return;
         }
 
+        console.log("Loaded quotation details:", foundQuotation);
         setQuotation(foundQuotation);
       } catch (error) {
         console.error("Error loading quotation:", error);
@@ -75,6 +79,7 @@ export default function QuotationDetails() {
           description: "Failed to load quotation details.",
           variant: "destructive",
         });
+        navigate("/quotations");
       } finally {
         setLoading(false);
       }

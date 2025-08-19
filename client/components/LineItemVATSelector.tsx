@@ -11,7 +11,7 @@ import {
 } from "./ui/select";
 import { Badge } from "./ui/badge";
 import { Calculator } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, safeCurrencyFormat } from "@/lib/utils";
 
 interface VATPeriod {
   id: string;
@@ -108,15 +108,15 @@ export default function LineItemVATSelector({
             <div className="space-y-1">
               <div className="flex justify-between text-sm">
                 <span>Subtotal:</span>
-                <span>KES {itemSubtotal.toLocaleString()}</span>
+                <span>{safeCurrencyFormat(itemSubtotal)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span>VAT ({selectedRate}%):</span>
-                <span>KES {calculateVATAmount().toLocaleString()}</span>
+                <span>{safeCurrencyFormat(calculateVATAmount())}</span>
               </div>
               <div className="flex justify-between text-sm font-medium border-t pt-1">
                 <span>Total with VAT:</span>
-                <span>KES {(itemSubtotal + calculateVATAmount()).toLocaleString()}</span>
+                <span>{safeCurrencyFormat(itemSubtotal + calculateVATAmount())}</span>
               </div>
             </div>
           </div>

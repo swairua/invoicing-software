@@ -32,9 +32,34 @@ router.get("/", async (req, res) => {
 
     console.log(`📋 Found ${result.rows.length} quotations`);
 
+    // Transform snake_case to camelCase to match frontend expectations
+    const transformedQuotations = result.rows.map(row => ({
+      id: row.id,
+      quoteNumber: row.quote_number,
+      customerId: row.customer_id,
+      customer: {
+        id: row.customer_id,
+        name: row.customer_name,
+        email: row.customer_email
+      },
+      items: [], // Items loaded separately in single quotation endpoint
+      subtotal: parseFloat(row.subtotal || '0'),
+      vatAmount: parseFloat(row.vat_amount || '0'),
+      discountAmount: parseFloat(row.discount_amount || '0'),
+      total: parseFloat(row.total_amount || '0'),
+      status: row.status,
+      validUntil: row.valid_until,
+      issueDate: row.issue_date,
+      notes: row.notes,
+      companyId: row.company_id,
+      createdBy: row.created_by,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    }));
+
     res.json({
       success: true,
-      data: result.rows,
+      data: transformedQuotations,
     });
   } catch (error) {
     console.error("Error fetching quotations:", error);
@@ -150,14 +175,62 @@ router.get("/:id", async (req, res) => {
       [id],
     );
 
-    const quotation = result.rows[0];
-    quotation.items = itemsResult.rows;
+    const quotationRow = result.rows[0];
 
-    console.log(`📋 Found quotation with ${itemsResult.rows.length} items`);
+    // Transform quotation items to camelCase
+    const transformedItems = itemsResult.rows.map(item => ({
+      id: item.id,
+      productId: item.product_id,
+      product: {
+        id: item.product_id,
+        name: item.product_name,
+        sku: item.product_sku
+      },
+      description: item.description,
+      quantity: parseFloat(item.quantity || '0'),
+      unitPrice: parseFloat(item.unit_price || '0'),
+      discountPercentage: parseFloat(item.discount_percentage || '0'),
+      discountAmount: parseFloat(item.discount_amount || '0'),
+      vatRate: parseFloat(item.vat_rate || '0'),
+      vatAmount: parseFloat(item.vat_amount || '0'),
+      lineTotal: parseFloat(item.line_total || '0'),
+      sortOrder: item.sort_order
+    }));
+
+    // Transform quotation to camelCase
+    const transformedQuotation = {
+      id: quotationRow.id,
+      quoteNumber: quotationRow.quote_number,
+      customerId: quotationRow.customer_id,
+      customer: {
+        id: quotationRow.customer_id,
+        name: quotationRow.customer_name,
+        email: quotationRow.customer_email,
+        phone: quotationRow.customer_phone,
+        addressLine1: quotationRow.customer_address_line1,
+        city: quotationRow.customer_city,
+        country: quotationRow.customer_country
+      },
+      items: transformedItems,
+      subtotal: parseFloat(quotationRow.subtotal || '0'),
+      vatAmount: parseFloat(quotationRow.vat_amount || '0'),
+      discountAmount: parseFloat(quotationRow.discount_amount || '0'),
+      total: parseFloat(quotationRow.total_amount || '0'),
+      status: quotationRow.status,
+      validUntil: quotationRow.valid_until,
+      issueDate: quotationRow.issue_date,
+      notes: quotationRow.notes,
+      companyId: quotationRow.company_id,
+      createdBy: quotationRow.created_by,
+      createdAt: quotationRow.created_at,
+      updatedAt: quotationRow.updated_at
+    };
+
+    console.log(`📋 Found quotation with ${transformedItems.length} items`);
 
     res.json({
       success: true,
-      data: quotation,
+      data: transformedQuotation,
     });
   } catch (error) {
     console.error("Error fetching quotation:", error);
@@ -264,24 +337,26 @@ router.post("/", async (req, res) => {
         for (let i = 0; i < quotationData.items.length; i++) {
           const item = quotationData.items[i];
 
-          // Calculate VAT amount properly
+          // Calculate VAT amount and discount properly
           const subtotal = item.quantity * item.unitPrice;
-          const discountAmount = (subtotal * (item.discount || 0)) / 100;
+          const discountPercentage = item.discount || 0;
+          const discountAmount = (subtotal * discountPercentage) / 100;
           const afterDiscount = subtotal - discountAmount;
           const vatAmount = (afterDiscount * (item.vatRate || 0)) / 100;
 
           await Database.query(
             `INSERT INTO quotation_items
              (id, quotation_id, product_id, description, quantity, unit_price,
-              discount_percentage, vat_rate, vat_amount, line_total, sort_order)
-             VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              discount_percentage, discount_amount, vat_rate, vat_amount, line_total, sort_order)
+             VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
               quotationId,
               item.productId,
               item.product?.name || "",
               item.quantity,
               item.unitPrice,
-              item.discount || 0,
+              discountPercentage,
+              discountAmount,
               item.vatRate || 0,
               vatAmount,
               item.total,
@@ -364,24 +439,26 @@ router.put("/:id", async (req, res) => {
           for (let i = 0; i < quotationData.items.length; i++) {
             const item = quotationData.items[i];
 
-            // Calculate VAT amount properly
+            // Calculate VAT amount and discount properly
             const subtotal = item.quantity * item.unitPrice;
-            const discountAmount = (subtotal * (item.discount || 0)) / 100;
+            const discountPercentage = item.discount || 0;
+            const discountAmount = (subtotal * discountPercentage) / 100;
             const afterDiscount = subtotal - discountAmount;
             const vatAmount = (afterDiscount * (item.vatRate || 0)) / 100;
 
             await Database.query(
               `INSERT INTO quotation_items
                (id, quotation_id, product_id, description, quantity, unit_price,
-                discount_percentage, vat_rate, vat_amount, line_total, sort_order)
-               VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                discount_percentage, discount_amount, vat_rate, vat_amount, line_total, sort_order)
+               VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
               [
                 id,
                 item.productId,
                 item.product?.name || item.description || "",
                 item.quantity,
                 item.unitPrice,
-                item.discount || 0,
+                discountPercentage,
+                discountAmount,
                 item.vatRate || 0,
                 vatAmount,
                 item.total,

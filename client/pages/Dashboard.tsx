@@ -54,194 +54,6 @@ import { safeToLocaleDateString } from "@/lib/utils";
 // Get business data service instance
 const businessData = getDataService();
 
-// Fallback data for when database is unavailable
-const fallbackMetrics = {
-  totalRevenue: 145230.5,
-  outstandingInvoices: 23450.75,
-  lowStockAlerts: 12,
-  recentPayments: 8750.25,
-  salesTrend: [
-    { date: "2024-01-01", amount: 12500, orders: 45 },
-    { date: "2024-01-02", amount: 15600, orders: 52 },
-    { date: "2024-01-03", amount: 18200, orders: 64 },
-    { date: "2024-01-04", amount: 16800, orders: 58 },
-    { date: "2024-01-05", amount: 21400, orders: 73 },
-    { date: "2024-01-06", amount: 19300, orders: 68 },
-    { date: "2024-01-07", amount: 23200, orders: 81 },
-  ],
-  topProducts: [
-    {
-      id: "1",
-      name: "Wireless Bluetooth Headphones",
-      sales: 45600,
-      quantity: 152,
-      growth: 12.5,
-      category: "Electronics",
-      stock: 45,
-    },
-    {
-      id: "2",
-      name: "Ergonomic Office Chair",
-      sales: 32400,
-      quantity: 18,
-      growth: -2.1,
-      category: "Furniture",
-      stock: 8,
-    },
-    {
-      id: "3",
-      name: "Laptop Stand Adjustable",
-      sales: 28900,
-      quantity: 89,
-      growth: 8.7,
-      category: "Accessories",
-      stock: 23,
-    },
-    {
-      id: "4",
-      name: "Wireless Mouse",
-      sales: 22100,
-      quantity: 134,
-      growth: 15.2,
-      category: "Electronics",
-      stock: 67,
-    },
-    {
-      id: "5",
-      name: "Desk Organizer",
-      sales: 18600,
-      quantity: 76,
-      growth: 4.3,
-      category: "Office Supplies",
-      stock: 12,
-    },
-  ],
-  recentActivities: [
-    {
-      id: "1",
-      type: "invoice",
-      description: "Invoice #INV-2024-001 created for Acme Corporation Ltd",
-      timestamp: new Date(Date.now() - 15 * 60000),
-      amount: 25600,
-      status: "sent",
-    },
-    {
-      id: "2",
-      type: "payment",
-      description: "Payment received from Tech Solutions Kenya",
-      timestamp: new Date(Date.now() - 45 * 60000),
-      amount: 15000,
-      status: "completed",
-    },
-    {
-      id: "3",
-      type: "stock",
-      description: "Stock level low for Wireless Bluetooth Headphones",
-      timestamp: new Date(Date.now() - 75 * 60000),
-      status: "warning",
-    },
-    {
-      id: "4",
-      type: "quote",
-      description: "Quotation #QUO-2024-001 sent to Global Trading Co.",
-      timestamp: new Date(Date.now() - 120 * 60000),
-      amount: 42500,
-      status: "sent",
-    },
-    {
-      id: "5",
-      type: "delivery",
-      description: "Delivery completed for Invoice #INV-2024-002",
-      timestamp: new Date(Date.now() - 180 * 60000),
-      status: "completed",
-    },
-    {
-      id: "6",
-      type: "proforma",
-      description: "Proforma Invoice #PRO-2024-001 created",
-      timestamp: new Date(Date.now() - 240 * 60000),
-      amount: 18750,
-      status: "draft",
-    },
-  ],
-  outstandingInvoicesList: [
-    {
-      id: "INV-2024-003",
-      customer: "Acme Corporation Ltd",
-      amount: 12500,
-      dueDate: "2024-02-15",
-      days: 5,
-    },
-    {
-      id: "INV-2024-005",
-      customer: "Tech Solutions Kenya",
-      amount: 8750,
-      dueDate: "2024-02-20",
-      days: 10,
-    },
-    {
-      id: "INV-2024-007",
-      customer: "Global Trading Co.",
-      amount: 2200.75,
-      dueDate: "2024-02-25",
-      days: 15,
-    },
-  ],
-  lowStockItems: [
-    {
-      id: "1",
-      name: "Ergonomic Office Chair",
-      currentStock: 8,
-      minStock: 15,
-      category: "Furniture",
-    },
-    {
-      id: "2",
-      name: "Desk Organizer",
-      currentStock: 12,
-      minStock: 20,
-      category: "Office Supplies",
-    },
-    {
-      id: "3",
-      name: "Laptop Stand Adjustable",
-      currentStock: 23,
-      minStock: 30,
-      category: "Accessories",
-    },
-    {
-      id: "4",
-      name: "Wireless Bluetooth Headphones",
-      currentStock: 45,
-      minStock: 50,
-      category: "Electronics",
-    },
-  ],
-  recentPaymentsList: [
-    {
-      id: "PAY-001",
-      customer: "Tech Solutions Kenya",
-      amount: 15000,
-      method: "MPESA",
-      date: new Date(Date.now() - 30 * 60000),
-    },
-    {
-      id: "PAY-002",
-      customer: "Acme Corporation Ltd",
-      amount: 25600,
-      method: "Bank Transfer",
-      date: new Date(Date.now() - 120 * 60000),
-    },
-    {
-      id: "PAY-003",
-      customer: "Global Trading Co.",
-      amount: 8750,
-      method: "Cash",
-      date: new Date(Date.now() - 180 * 60000),
-    },
-  ],
-};
-
 export default function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -251,6 +63,7 @@ export default function Dashboard() {
   const [liveMetrics, setLiveMetrics] = useState<DashboardMetrics | null>(null);
   const [isSimulating, setIsSimulating] = useState(false);
   const [isCreatingSampleData, setIsCreatingSampleData] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Load metrics data
   useEffect(() => {
@@ -259,10 +72,10 @@ export default function Dashboard() {
         const metrics = await businessData.getDashboardMetrics();
         setLiveMetrics(metrics);
         setIsSimulating(businessData.isSimulationRunning());
+        setError(null);
       } catch (error) {
         console.error("Failed to load dashboard metrics:", error);
-        // Use fallback metrics when database is unavailable
-        setLiveMetrics(fallbackMetrics);
+        setError("Failed to load dashboard data. Please check database connection.");
       }
     };
     loadMetrics();
@@ -275,8 +88,10 @@ export default function Dashboard() {
         const metrics = await businessData.getDashboardMetrics();
         setLiveMetrics(metrics);
         setIsSimulating(businessData.isSimulationRunning());
+        setError(null);
       } catch (error) {
         console.error("Failed to refresh dashboard metrics:", error);
+        setError("Failed to refresh dashboard data. Please check database connection.");
       }
     };
 
@@ -314,12 +129,16 @@ export default function Dashboard() {
     }
   };
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number | string | null | undefined) => {
+    // Safely convert to number, defaulting to 0 if invalid
+    const numericAmount = typeof amount === 'number' ? amount :
+                         typeof amount === 'string' ? parseFloat(amount) || 0 : 0;
+
     return new Intl.NumberFormat("en-KE", {
       style: "currency",
       currency: "KES",
       minimumFractionDigits: 2,
-    }).format(amount);
+    }).format(numericAmount);
   };
 
   const getActivityIcon = (type: string) => {
@@ -365,6 +184,10 @@ export default function Dashboard() {
   };
 
   const renderDrillDownContent = () => {
+    if (!liveMetrics) {
+      return <div className="text-center py-4">No data available</div>;
+    }
+
     switch (selectedDrillDown) {
       case "revenue":
         return (
@@ -372,22 +195,22 @@ export default function Dashboard() {
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600">
-                  KES 145,230.50
+                  {formatCurrency(liveMetrics.totalRevenue)}
                 </div>
                 <div className="text-sm text-muted-foreground">This Month</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-gray-600">
-                  KES 129,048.00
+                  {formatCurrency(liveMetrics.totalRevenue * 0.85)}
                 </div>
                 <div className="text-sm text-muted-foreground">Last Month</div>
               </div>
             </div>
             <div className="space-y-3">
               <h4 className="font-semibold">Daily Revenue Breakdown</h4>
-              {fallbackMetrics.salesTrend.map((day, index) => (
+              {liveMetrics.salesTrend?.map((day, index) => (
                 <div
-                  key={day.date}
+                  key={index}
                   className="flex justify-between items-center py-2 border-b"
                 >
                   <span className="text-sm">
@@ -402,7 +225,7 @@ export default function Dashboard() {
                     </div>
                   </div>
                 </div>
-              ))}
+              )) || <div>No sales trend data available</div>}
             </div>
           </div>
         );
@@ -421,7 +244,7 @@ export default function Dashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {fallbackMetrics.outstandingInvoicesList.map((invoice) => (
+                {liveMetrics.outstandingInvoicesList?.map((invoice) => (
                   <TableRow key={invoice.id}>
                     <TableCell>
                       <Button
@@ -448,7 +271,13 @@ export default function Dashboard() {
                       </Badge>
                     </TableCell>
                   </TableRow>
-                ))}
+                )) || (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center">
+                      No outstanding invoices
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </div>
@@ -468,7 +297,7 @@ export default function Dashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {fallbackMetrics.lowStockItems.map((item) => (
+                {liveMetrics.lowStockItems?.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell>{item.name}</TableCell>
                     <TableCell>{item.category}</TableCell>
@@ -485,7 +314,13 @@ export default function Dashboard() {
                       </Button>
                     </TableCell>
                   </TableRow>
-                ))}
+                )) || (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center">
+                      No low stock items
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </div>
@@ -505,7 +340,7 @@ export default function Dashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {fallbackMetrics.recentPaymentsList.map((payment) => (
+                {liveMetrics.recentPaymentsList?.map((payment) => (
                   <TableRow key={payment.id}>
                     <TableCell>
                       <Button
@@ -524,7 +359,13 @@ export default function Dashboard() {
                       {safeToLocaleDateString(payment.date)}
                     </TableCell>
                   </TableRow>
-                ))}
+                )) || (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center">
+                      No recent payments
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </div>
@@ -534,6 +375,67 @@ export default function Dashboard() {
         return null;
     }
   };
+
+  // Show error state if database connection fails
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+            <p className="text-muted-foreground">
+              Welcome back, {user?.firstName}!
+            </p>
+          </div>
+        </div>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="text-center space-y-4">
+              <AlertTriangle className="h-12 w-12 text-destructive mx-auto" />
+              <h3 className="text-lg font-semibold">Database Connection Error</h3>
+              <p className="text-muted-foreground">{error}</p>
+              <Button onClick={() => window.location.reload()}>
+                Retry Connection
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show loading state while data is being fetched
+  if (!liveMetrics) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+            <p className="text-muted-foreground">
+              Loading dashboard data...
+            </p>
+          </div>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Loading...</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">---</div>
+                <p className="text-xs text-muted-foreground">
+                  Loading data...
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -599,10 +501,7 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  KES{" "}
-                  {(
-                    liveMetrics?.totalRevenue || fallbackMetrics.totalRevenue
-                  ).toLocaleString()}
+                  {formatCurrency(liveMetrics.totalRevenue)}
                   {isSimulating && (
                     <Badge variant="secondary" className="ml-2 text-xs">
                       Live
@@ -644,11 +543,7 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  KES{" "}
-                  {(
-                    liveMetrics?.outstandingInvoices ||
-                    fallbackMetrics.outstandingInvoices
-                  ).toLocaleString()}
+                  {formatCurrency(liveMetrics.outstandingInvoices)}
                   {isSimulating && (
                     <Badge variant="secondary" className="ml-2 text-xs">
                       Live
@@ -690,8 +585,7 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {liveMetrics?.lowStockAlerts ||
-                    fallbackMetrics.lowStockAlerts}
+                  {liveMetrics.lowStockAlerts}
                   {isSimulating && (
                     <Badge variant="secondary" className="ml-2 text-xs">
                       Live
@@ -733,11 +627,7 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  KES{" "}
-                  {(
-                    liveMetrics?.recentPayments ||
-                    fallbackMetrics.recentPayments
-                  ).toLocaleString()}
+                  {formatCurrency(liveMetrics.recentPayments)}
                   {isSimulating && (
                     <Badge variant="secondary" className="ml-2 text-xs">
                       Live
@@ -783,19 +673,32 @@ export default function Dashboard() {
               {/* Sales Summary */}
               <div className="grid grid-cols-3 gap-4 p-4 bg-muted/20 rounded-lg">
                 <div className="text-center">
-                  <div className="text-lg font-bold">KES 127,800</div>
+                  <div className="text-lg font-bold">
+                    {formatCurrency(
+                      liveMetrics.salesTrend?.reduce((sum, d) => sum + (Number(d.amount) || 0), 0) || 0
+                    )}
+                  </div>
                   <div className="text-xs text-muted-foreground">
                     Total Sales
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-lg font-bold">441</div>
+                  <div className="text-lg font-bold">
+                    {liveMetrics.salesTrend?.reduce((sum, d) => sum + (Number(d.orders) || 0), 0) || 0}
+                  </div>
                   <div className="text-xs text-muted-foreground">
                     Total Orders
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-lg font-bold">KES 290</div>
+                  <div className="text-lg font-bold">
+                    {formatCurrency(
+                      liveMetrics.salesTrend?.length > 0
+                        ? liveMetrics.salesTrend.reduce((sum, d) => sum + (Number(d.amount) || 0), 0) /
+                          liveMetrics.salesTrend.reduce((sum, d) => sum + (Number(d.orders) || 0), 0)
+                        : 0
+                    )}
+                  </div>
                   <div className="text-xs text-muted-foreground">
                     Avg. Order
                   </div>
@@ -804,14 +707,14 @@ export default function Dashboard() {
 
               {/* Daily Sales Chart */}
               <div className="space-y-2">
-                {fallbackMetrics.salesTrend.map((day, index) => {
+                {liveMetrics.salesTrend?.map((day, index) => {
                   const maxAmount = Math.max(
-                    ...fallbackMetrics.salesTrend.map((d) => d.amount),
+                    ...liveMetrics.salesTrend!.map((d) => Number(d.amount) || 0),
                   );
-                  const percentage = (day.amount / maxAmount) * 100;
+                  const percentage = maxAmount > 0 ? (Number(day.amount) || 0) / maxAmount * 100 : 0;
 
                   return (
-                    <div key={day.date} className="flex items-center space-x-3">
+                    <div key={index} className="flex items-center space-x-3">
                       <div className="w-16 text-xs text-muted-foreground">
                         {safeToLocaleDateString(day.date, "en", {
                           weekday: "short",
@@ -830,14 +733,14 @@ export default function Dashboard() {
                               {formatCurrency(day.amount)}
                             </div>
                             <div className="text-xs text-muted-foreground">
-                              {day.orders} orders
+                              {Number(day.orders) || 0} orders
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
                   );
-                })}
+                }) || <div className="text-center py-4">No sales trend data available</div>}
               </div>
 
               <Button
@@ -881,7 +784,7 @@ export default function Dashboard() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {fallbackMetrics.topProducts.map((product, index) => (
+            {liveMetrics.topProducts?.map((product, index) => (
               <div
                 key={product.id}
                 className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/5 transition-colors cursor-pointer"
@@ -900,15 +803,15 @@ export default function Dashboard() {
                         {product.category}
                       </p>
                       <Badge variant="outline" className="text-xs">
-                        {product.quantity} sold
+                        {Number(product.quantity) || 0} sold
                       </Badge>
                       <Badge
                         variant={
-                          product.stock <= 10 ? "destructive" : "secondary"
+                          (Number(product.stock) || 0) <= 10 ? "destructive" : "secondary"
                         }
                         className="text-xs"
                       >
-                        {product.stock} in stock
+                        {Number(product.stock) || 0} in stock
                       </Badge>
                     </div>
                   </div>
@@ -917,48 +820,54 @@ export default function Dashboard() {
                   <p className="font-bold">{formatCurrency(product.sales)}</p>
                   <div className="flex items-center space-x-2 mt-1">
                     <div
-                      className={`flex items-center ${product.growth >= 0 ? "text-green-600" : "text-red-600"}`}
+                      className={`flex items-center ${(Number(product.growth) || 0) >= 0 ? "text-green-600" : "text-red-600"}`}
                     >
-                      {product.growth >= 0 ? (
+                      {(Number(product.growth) || 0) >= 0 ? (
                         <TrendingUp className="h-3 w-3 mr-1" />
                       ) : (
                         <TrendingDown className="h-3 w-3 mr-1" />
                       )}
                       <span className="text-xs font-medium">
-                        {product.growth >= 0 ? "+" : ""}
-                        {product.growth}%
+                        {(Number(product.growth) || 0) >= 0 ? "+" : ""}
+                        {Number(product.growth) || 0}%
                       </span>
                     </div>
                     <ArrowUpRight className="h-3 w-3 text-muted-foreground" />
                   </div>
                 </div>
               </div>
-            ))}
+            )) || (
+              <div className="text-center py-8 text-muted-foreground">
+                No product data available
+              </div>
+            )}
           </div>
 
-          <div className="mt-6 p-4 bg-muted/20 rounded-lg">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-semibold">Performance Summary</h4>
-                <p className="text-sm text-muted-foreground">
-                  Top 5 products contributing to 68% of total sales
-                </p>
-              </div>
-              <div className="text-right">
-                <div className="text-lg font-bold">
-                  {formatCurrency(
-                    fallbackMetrics.topProducts.reduce(
-                      (sum, p) => sum + p.sales,
-                      0,
-                    ),
-                  )}
+          {liveMetrics.topProducts && liveMetrics.topProducts.length > 0 && (
+            <div className="mt-6 p-4 bg-muted/20 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-semibold">Performance Summary</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Top {liveMetrics.topProducts.length} products contributing to total sales
+                  </p>
                 </div>
-                <div className="text-sm text-muted-foreground">
-                  Combined Revenue
+                <div className="text-right">
+                  <div className="text-lg font-bold">
+                    {formatCurrency(
+                      liveMetrics.topProducts.reduce(
+                        (sum, p) => sum + p.sales,
+                        0,
+                      ),
+                    )}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Combined Revenue
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
     </div>

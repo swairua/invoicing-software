@@ -22,6 +22,7 @@ import {
   Hash,
   CreditCard,
   Building,
+  Calendar,
 } from "lucide-react";
 import { Customer } from "@shared/types";
 import { dataServiceFactory } from "../services/dataServiceFactory";
@@ -34,6 +35,7 @@ interface CustomerFormData {
   kraPin: string;
   address: string;
   creditLimit: string;
+  paymentTerms: string;
   isActive: boolean;
 }
 
@@ -56,6 +58,7 @@ export default function NewCustomer() {
     kraPin: duplicateData?.kraPin || "",
     address: duplicateData?.address || "",
     creditLimit: duplicateData?.creditLimit?.toString() || "0",
+    paymentTerms: duplicateData?.paymentTerms?.toString() || "30",
     isActive: duplicateData?.isActive ?? true,
   });
 
@@ -89,6 +92,7 @@ export default function NewCustomer() {
           kraPin: foundCustomer.kraPin || "",
           address: foundCustomer.address || "",
           creditLimit: foundCustomer.creditLimit?.toString() || "0",
+          paymentTerms: foundCustomer.paymentTerms?.toString() || "30",
           isActive: foundCustomer.isActive,
         });
       } catch (error) {
@@ -136,6 +140,7 @@ export default function NewCustomer() {
         const updateData: Partial<Customer> = {
           name: formData.name,
           creditLimit: parseFloat(formData.creditLimit) || 0,
+          paymentTerms: parseInt(formData.paymentTerms) || 30,
           isActive: formData.isActive,
         };
 
@@ -177,6 +182,7 @@ export default function NewCustomer() {
           kraPin: formData.kraPin || undefined,
           address: formData.address || undefined,
           creditLimit: parseFloat(formData.creditLimit) || 0,
+          paymentTerms: parseInt(formData.paymentTerms) || 30,
           balance: 0,
           isActive: formData.isActive,
           companyId: "1",
@@ -429,6 +435,32 @@ export default function NewCustomer() {
               </div>
               <p className="text-xs text-muted-foreground">
                 Maximum amount this customer can owe at any time
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="paymentTerms">Payment Terms (Days)</Label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="paymentTerms"
+                  type="number"
+                  value={formData.paymentTerms}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      paymentTerms: e.target.value,
+                    }))
+                  }
+                  placeholder="30"
+                  min="0"
+                  max="365"
+                  step="1"
+                  className="pl-10"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Number of days the customer has to pay invoices (default: 30 days)
               </p>
             </div>
 

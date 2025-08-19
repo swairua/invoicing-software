@@ -49,8 +49,17 @@ export class CustomerRepository extends BaseRepository {
     const dataParams = [...params, String(limit), String(offset)];
     const result = await this.db.query(dataQuery, dataParams);
 
+    const customers = this.toCamelCase(result.rows) as any[];
+
+    // Map currentBalance to balance for compatibility with Customer interface
+    customers.forEach(customer => {
+      if (customer.currentBalance !== undefined) {
+        customer.balance = customer.currentBalance;
+      }
+    });
+
     return {
-      customers: this.toCamelCase(result.rows) as Customer[],
+      customers: customers as Customer[],
       total,
     };
   }
@@ -63,7 +72,14 @@ export class CustomerRepository extends BaseRepository {
       return null;
     }
 
-    return this.toCamelCase(result.rows[0]) as Customer;
+    const customer = this.toCamelCase(result.rows[0]) as any;
+
+    // Map currentBalance to balance for compatibility with Customer interface
+    if (customer.currentBalance !== undefined) {
+      customer.balance = customer.currentBalance;
+    }
+
+    return customer as Customer;
   }
 
   async create(
@@ -113,7 +129,14 @@ export class CustomerRepository extends BaseRepository {
       [customerData.companyId]
     );
 
-    return this.toCamelCase(recentCustomer.rows[0]) as Customer;
+    const customer = this.toCamelCase(recentCustomer.rows[0]) as any;
+
+    // Map currentBalance to balance for compatibility with Customer interface
+    if (customer.currentBalance !== undefined) {
+      customer.balance = customer.currentBalance;
+    }
+
+    return customer as Customer;
   }
 
   async update(

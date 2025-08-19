@@ -46,7 +46,8 @@ import {
   Trash2,
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
-import BusinessDataService from "../services/businessDataService";
+import { getDataService } from "../services/dataServiceFactory";
+import { safeToLocaleString, safeCurrencyFormat } from "@/lib/utils";
 
 interface QuickActionItem {
   title: string;
@@ -60,7 +61,7 @@ interface QuickActionItem {
 }
 
 // Get business data service instance
-const businessData = BusinessDataService.getInstance();
+const businessData = getDataService();
 
 export default function QuickActions() {
   const navigate = useNavigate();
@@ -327,7 +328,7 @@ export default function QuickActions() {
 
       toast({
         title: "Document Created Successfully",
-        description: `${documentType} ${documentNumber} created for ${customer?.name} - Total: KES ${total.toLocaleString()}`,
+        description: `${documentType} ${documentNumber} created for ${customer?.name} - Total: ${safeCurrencyFormat(total)}`,
       });
 
       // Reset form
@@ -499,7 +500,7 @@ export default function QuickActions() {
                         </div>
                         <div className="text-xs text-muted-foreground">
                           {quotation.customer?.name || 'Unknown Customer'} - KES{" "}
-                          {quotation.total.toLocaleString()}
+                          {safeToLocaleString(quotation.total)}
                         </div>
                       </div>
                     </SelectItem>
@@ -533,7 +534,7 @@ export default function QuickActions() {
                         </div>
                         <div className="text-xs text-muted-foreground">
                           {invoice.customer?.name || 'Unknown Customer'} - KES{" "}
-                          {invoice.total.toLocaleString()}
+                          {safeToLocaleString(invoice.total)}
                         </div>
                       </div>
                     </SelectItem>
@@ -600,7 +601,7 @@ export default function QuickActions() {
                                       </div>
                                       <div className="text-xs text-muted-foreground">
                                         KES{" "}
-                                        {product.sellingPrice.toLocaleString()}{" "}
+                                        {safeToLocaleString(product.sellingPrice)}{" "}
                                         • {product.currentStock} in stock
                                       </div>
                                     </div>
@@ -644,7 +645,7 @@ export default function QuickActions() {
                           <div>
                             <Label className="text-sm">Line Total</Label>
                             <Input
-                              value={`KES ${lineTotal.toLocaleString()}`}
+                              value={safeCurrencyFormat(lineTotal)}
                               disabled
                               className="font-medium"
                             />
@@ -700,15 +701,15 @@ export default function QuickActions() {
                   <>
                     <div className="flex justify-between text-sm">
                       <span>Subtotal:</span>
-                      <span>KES {subtotal.toLocaleString()}</span>
+                      <span>{safeCurrencyFormat(subtotal)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span>VAT (16%):</span>
-                      <span>KES {vatAmount.toLocaleString()}</span>
+                      <span>{safeCurrencyFormat(vatAmount)}</span>
                     </div>
                     <div className="flex justify-between font-bold text-lg border-t pt-2">
                       <span>Total:</span>
-                      <span>KES {total.toLocaleString()}</span>
+                      <span>{safeCurrencyFormat(total)}</span>
                     </div>
                   </>
                 );

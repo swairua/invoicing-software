@@ -1,4 +1,5 @@
 import { Router } from "express";
+import authRouter from "./auth";
 import customersRouter from "./customers";
 import productsRouter from "./products";
 import categoriesRouter from "./categories";
@@ -340,60 +341,109 @@ router.get("/test-db", async (req, res) => {
   }
 });
 
-// Quick dashboard metrics endpoint - bulletproof version
-router.get("/dashboard/metrics", (req, res) => {
+// Dashboard metrics endpoint - database only, no fallback
+router.get("/dashboard/metrics", async (req, res) => {
   try {
-    console.log("Dashboard metrics endpoint called");
+    console.log("Dashboard metrics endpoint called - querying database");
+    console.log("Request headers:", req.headers);
+    console.log("Request URL:", req.url);
 
-    // Return fallback metrics immediately to avoid any database issues
-    const fallbackMetrics = {
-      totalRevenue: 145230.5,
-      outstandingInvoices: 23450.75,
-      lowStockAlerts: 12,
-      recentPayments: 8750.25,
-      salesTrend: [
-        { date: "2024-01-01", amount: 12500 },
-        { date: "2024-01-02", amount: 15600 },
-        { date: "2024-01-03", amount: 18200 },
-        { date: "2024-01-04", amount: 16800 },
-        { date: "2024-01-05", amount: 21400 },
-        { date: "2024-01-06", amount: 19300 },
-        { date: "2024-01-07", amount: 23200 },
-      ],
-      topProducts: [
-        { name: "Latex Rubber Gloves", sales: 45600 },
-        { name: "Office Chair Executive", sales: 32400 },
-        { name: "Digital Blood Pressure Monitor", sales: 28900 },
-      ],
-      recentActivities: [
-        {
-          id: "1",
-          type: "invoice",
-          description: "Sample invoice activity",
-          timestamp: new Date(),
-        },
-      ],
+    const companyId = req.headers["x-company-id"] || "00000000-0000-0000-0000-000000000001";
+
+    // First check what tables exist
+    const tablesResult = await Database.query(
+      "SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE()"
+    );
+    console.log("Available tables:", tablesResult.rows.map(r => r.table_name || r.TABLE_NAME));
+
+    let metrics = {
+      totalRevenue: 0,
+      outstandingInvoices: 0,
+      lowStockAlerts: 0,
+      recentPayments: 0,
+      salesTrend: [],
+      topProducts: [],
+      recentActivities: [],
+      outstandingInvoicesList: [],
+      lowStockItems: [],
+      recentPaymentsList: []
     };
 
-    console.log("Returning dashboard metrics successfully");
+    // Get low stock alerts from products table (this should exist)
+    try {
+      const lowStockResult = await Database.query(
+        "SELECT COUNT(*) as lowStockAlerts FROM products WHERE company_id = ? AND current_stock <= min_stock AND is_active = true",
+        [companyId]
+      );
+      metrics.lowStockAlerts = parseInt(lowStockResult.rows[0]?.lowStockAlerts || lowStockResult.rows[0]?.count || 0);
+    } catch (error) {
+      console.log("Error getting low stock alerts:", error.message);
+    }
+
+    // Get top products (basic version without sales data)
+    try {
+      const topProductsResult = await Database.query(
+        `SELECT p.id, p.name, pc.name as category,
+                p.selling_price as sales,
+                1 as quantity,
+                p.current_stock as stock,
+                0 as growth
+         FROM products p
+         LEFT JOIN product_categories pc ON p.category_id = pc.id
+         WHERE p.company_id = ? AND p.is_active = true
+         ORDER BY p.selling_price DESC
+         LIMIT 5`,
+        [companyId]
+      );
+      metrics.topProducts = topProductsResult.rows || [];
+    } catch (error) {
+      console.log("Error getting top products:", error.message);
+    }
+
+    // Try to get revenue from invoices table if it exists
+    try {
+      const revenueResult = await Database.query(
+        "SELECT COALESCE(SUM(total_amount), 0) as totalRevenue FROM invoices WHERE company_id = ? AND status = 'paid'",
+        [companyId]
+      );
+      metrics.totalRevenue = parseFloat(revenueResult.rows[0]?.totalRevenue || 0);
+    } catch (error) {
+      console.log("Invoices table not available, using 0 for revenue");
+    }
+
+    // Try to get outstanding invoices if table exists
+    try {
+      const outstandingResult = await Database.query(
+        "SELECT COALESCE(SUM(total_amount), 0) as outstandingInvoices FROM invoices WHERE company_id = ? AND status IN ('sent', 'overdue')",
+        [companyId]
+      );
+      metrics.outstandingInvoices = parseFloat(outstandingResult.rows[0]?.outstandingInvoices || 0);
+    } catch (error) {
+      console.log("Invoices table not available, using 0 for outstanding");
+    }
+
+    // Try to get payments if table exists
+    try {
+      const paymentsResult = await Database.query(
+        "SELECT COALESCE(SUM(amount), 0) as recentPayments FROM payments WHERE company_id = ? AND created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)",
+        [companyId]
+      );
+      metrics.recentPayments = parseFloat(paymentsResult.rows[0]?.recentPayments || 0);
+    } catch (error) {
+      console.log("Payments table not available, using 0 for payments");
+    }
+
+    console.log("Returning database dashboard metrics successfully:", metrics);
     res.status(200).json({
       success: true,
-      data: fallbackMetrics,
+      data: metrics,
     });
   } catch (error) {
-    console.error("Error in dashboard metrics endpoint:", error);
-    // Even if something goes wrong, return a minimal successful response
-    res.status(200).json({
-      success: true,
-      data: {
-        totalRevenue: 0,
-        outstandingInvoices: 0,
-        lowStockAlerts: 0,
-        recentPayments: 0,
-        salesTrend: [],
-        topProducts: [],
-        recentActivities: [],
-      },
+    console.error("Error querying dashboard metrics from database:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to load dashboard metrics from database",
+      message: error.message
     });
   }
 });
@@ -592,7 +642,8 @@ router.get("/quotations", async (req, res) => {
       SELECT
         q.*,
         c.name as customer_name,
-        c.email as customer_email
+        c.email as customer_email,
+        c.id as customer_id_full
       FROM quotations q
       JOIN customers c ON q.customer_id = c.id
       WHERE q.company_id = ?
@@ -604,44 +655,45 @@ router.get("/quotations", async (req, res) => {
 
     console.log(`📋 Found ${result.rows.length} quotations`);
 
+    // Transform the data to match the expected interface
+    const transformedQuotations = result.rows.map(row => ({
+      id: row.id,
+      quoteNumber: row.quote_number,
+      customerId: row.customer_id,
+      customer: {
+        id: row.customer_id,
+        name: row.customer_name,
+        email: row.customer_email
+      },
+      items: [], // TODO: Load items separately if needed
+      subtotal: parseFloat(row.subtotal || '0'),
+      vatAmount: parseFloat(row.vat_amount || '0') || parseFloat(row.tax_amount || '0'),
+      discountAmount: parseFloat(row.discount_amount || '0'),
+      total: parseFloat(row.total_amount || '0'),
+      status: row.status,
+      validUntil: row.valid_until,
+      issueDate: row.issue_date,
+      notes: row.notes,
+      companyId: row.company_id,
+      createdBy: row.created_by,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    }));
+
+    if (transformedQuotations.length > 0) {
+      console.log("📋 First transformed quotation sample:", JSON.stringify(transformedQuotations[0], null, 2));
+    }
+
     res.json({
       success: true,
-      data: result.rows,
+      data: transformedQuotations,
     });
   } catch (error) {
     console.error("Error fetching quotations:", error);
-    console.log("Returning fallback quotations data");
-
-    // Return fallback quotations when database is unavailable
-    const fallbackQuotations = [
-      {
-        id: "1",
-        quoteNumber: "QUO-2024-001",
-        customerId: "1",
-        customer: {
-          id: "1",
-          name: "Acme Corporation Ltd",
-          email: "contact@acme.com",
-        },
-        items: [],
-        subtotal: 25000,
-        vatAmount: 0,
-        discountAmount: 0,
-        total: 25000,
-        status: "sent",
-        validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        issueDate: new Date(),
-        notes: "Bulk order discount available",
-        companyId: companyId,
-        createdBy: "1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ];
-
-    res.json({
-      success: true,
-      data: fallbackQuotations,
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch quotations from database",
+      message: error.message
     });
   }
 });
@@ -750,6 +802,7 @@ router.post("/quotations", async (req, res) => {
 });
 
 // Route handlers
+router.use("/auth", authRouter);
 router.use("/customers", customersRouter);
 router.use("/products", productsRouter);
 router.use("/categories", categoriesRouter);

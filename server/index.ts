@@ -16,9 +16,9 @@ export function createServer() {
   // Test database connection on startup
   Database.testConnection().then(connected => {
     if (connected) {
-      console.log('✅ PostgreSQL database connected successfully');
+      console.log('✅ MySQL database connected successfully');
     } else {
-      console.log('❌ PostgreSQL database connection failed');
+      console.log('❌ MySQL database connection failed');
     }
   });
 

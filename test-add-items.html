@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Items to Quotation</title>
+</head>
+<body>
+    <h1>Add Items to Quotation</h1>
+    <button onclick="addItemsToQuotation()">Add Sample Items to Quotation</button>
+    <div id="results"></div>
+
+    <script>
+        async function addItemsToQuotation() {
+            const quotationId = '5ad9b23e-9b3b-46b9-a2b9-1e242ae47955';
+            const resultsDiv = document.getElementById('results');
+            
+            try {
+                // First get products
+                console.log('Getting products...');
+                const productsResponse = await fetch('/api/products', {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-company-id': '00000000-0000-0000-0000-000000000001'
+                    }
+                });
+                
+                const productsData = await productsResponse.json();
+                console.log('Products:', productsData);
+                
+                if (!productsData.success || !productsData.data || productsData.data.length === 0) {
+                    resultsDiv.innerHTML = '<h2>Error:</h2><pre>No products found</pre>';
+                    return;
+                }
+                
+                const products = productsData.data;
+                
+                // Create sample quotation with items
+                const quotationData = {
+                    customerId: '70306c67-7c1a-11f0-a984-365070d15890',
+                    items: [
+                        {
+                            productId: products[0].id,
+                            product: products[0],
+                            quantity: 10,
+                            unitPrice: products[0].sellingPrice,
+                            discount: 5,
+                            vatRate: 16,
+                            total: 10 * products[0].sellingPrice * 0.95 * 1.16
+                        },
+                        {
+                            productId: products[1]?.id || products[0].id,
+                            product: products[1] || products[0],
+                            quantity: 5,
+                            unitPrice: (products[1] || products[0]).sellingPrice,
+                            discount: 10,
+                            vatRate: 16,
+                            total: 5 * (products[1] || products[0]).sellingPrice * 0.90 * 1.16
+                        }
+                    ],
+                    subtotal: 0,
+                    vatAmount: 0,
+                    discountAmount: 0,
+                    total: 0,
+                    status: 'draft',
+                    validUntil: '2025-09-17',
+                    issueDate: '2025-08-18',
+                    notes: 'Test edit with items'
+                };
+                
+                // Calculate totals
+                let subtotal = 0;
+                let discountAmount = 0;
+                let vatAmount = 0;
+                
+                quotationData.items.forEach(item => {
+                    const itemSubtotal = item.quantity * item.unitPrice;
+                    subtotal += itemSubtotal;
+                    
+                    const itemDiscountAmount = (itemSubtotal * item.discount) / 100;
+                    discountAmount += itemDiscountAmount;
+                    
+                    const afterDiscount = itemSubtotal - itemDiscountAmount;
+                    const itemVatAmount = (afterDiscount * item.vatRate) / 100;
+                    vatAmount += itemVatAmount;
+                });
+                
+                quotationData.subtotal = subtotal;
+                quotationData.discountAmount = discountAmount;
+                quotationData.vatAmount = vatAmount;
+                quotationData.total = subtotal - discountAmount + vatAmount;
+                
+                console.log('Updating quotation with data:', quotationData);
+                
+                // Update the quotation
+                const response = await fetch(`/api/quotations/${quotationId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-company-id': '00000000-0000-0000-0000-000000000001'
+                    },
+                    body: JSON.stringify(quotationData)
+                });
+                
+                const result = await response.json();
+                console.log('Update result:', result);
+                
+                resultsDiv.innerHTML = `
+                    <h2>Result:</h2>
+                    <pre>${JSON.stringify(result, null, 2)}</pre>
+                `;
+                
+                if (result.success) {
+                    resultsDiv.innerHTML += '<h3>Success! Now refresh the edit page to see the items.</h3>';
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                resultsDiv.innerHTML = `<h2>Error:</h2><pre>${error.message}</pre>`;
+            }
+        }
+    </script>
+</body>
+</html>

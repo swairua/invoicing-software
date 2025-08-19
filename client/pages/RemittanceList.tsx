@@ -61,35 +61,27 @@ export default function RemittanceList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Mock data for demonstration - in real app this would come from API
+  // Load remittance data from API
   useEffect(() => {
-    const mockData: RemittanceAdvice[] = [
-      {
-        id: "1",
-        remittanceNumber: "RA2501001",
-        date: "2025-01-15",
-        customerName: "ABC Electronics Ltd",
-        customerEmail: "orders@abcelectronics.co.ke",
-        totalPayment: 125000,
-        itemCount: 3,
-        status: "sent",
-        createdAt: "2025-01-15T10:30:00Z",
-        updatedAt: "2025-01-15T10:30:00Z",
-      },
-      {
-        id: "2",
-        remittanceNumber: "RA2501002",
-        date: "2025-01-18",
-        customerName: "Digital Solutions Co",
-        customerEmail: "info@digitalsolutions.co.ke",
-        totalPayment: 89500,
-        itemCount: 2,
-        status: "draft",
-        createdAt: "2025-01-18T14:20:00Z",
-        updatedAt: "2025-01-18T14:20:00Z",
-      },
-    ];
-    setRemittances(mockData);
+    const fetchRemittances = async () => {
+      try {
+        const response = await fetch('/api/remittances');
+        if (!response.ok) {
+          throw new Error('Failed to fetch remittances');
+        }
+        const data = await response.json();
+        setRemittances(data.remittances || []);
+      } catch (error) {
+        console.error('Error fetching remittances:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load remittance advice records. Please check database connection.",
+          variant: "destructive",
+        });
+        setRemittances([]);
+      }
+    };
+    fetchRemittances();
   }, []);
 
   const filteredRemittances = remittances.filter(

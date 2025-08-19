@@ -73,6 +73,7 @@ export default function NewQuotation() {
   const [searchParams] = useSearchParams();
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingQuotation, setIsLoadingQuotation] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -131,9 +132,28 @@ export default function NewQuotation() {
           dataService.getCustomers(),
           dataService.getProducts(),
         ]);
-        setCustomers(Array.isArray(customerData) ? customerData : []);
-        setProducts(Array.isArray(productData) ? productData : []);
-        setFilteredProducts(Array.isArray(productData) ? productData : []);
+        // Filter and deduplicate customers and products to prevent duplicate keys
+        const validCustomers = Array.isArray(customerData)
+          ? customerData.filter((c, index, arr) => c && c.id && arr.findIndex(item => item.id === c.id) === index)
+          : [];
+        const validProducts = Array.isArray(productData)
+          ? productData.filter((p, index, arr) => p && p.id && arr.findIndex(item => item.id === p.id) === index)
+          : [];
+
+        console.log(`🔧 Loaded ${validCustomers.length} unique customers, ${validProducts.length} unique products - UPDATED`);
+        console.log(`🔧 Original customer count: ${customerData?.length}, after dedup: ${validCustomers.length}`);
+        console.log(`🔧 Original product count: ${productData?.length}, after dedup: ${validProducts.length}`);
+
+        // Check for any duplicate IDs that were filtered out
+        if (customerData?.length > validCustomers.length) {
+          console.warn(`⚠️ Found ${customerData.length - validCustomers.length} duplicate/invalid customers`);
+        }
+        if (productData?.length > validProducts.length) {
+          console.warn(`⚠️ Found ${productData.length - validProducts.length} duplicate/invalid products`);
+        }
+        setCustomers(validCustomers);
+        setProducts(validProducts);
+        setFilteredProducts(validProducts);
       } catch (error) {
         console.error("Error loading data:", error);
         toast({
@@ -154,39 +174,57 @@ export default function NewQuotation() {
 
       try {
         setIsLoadingQuotation(true);
-        const quotations = await dataService.getQuotations();
-        const existingQuotation = quotations.find((q) => q.id === id);
+        console.log(`Loading quotation data for ID: ${id}`);
+
+        // Use getQuotation(id) to fetch single quotation with items
+        console.log(`🔍 Attempting to fetch quotation with ID: ${id} - TEST`);
+        const existingQuotation = await dataService.getQuotation(id);
+        console.log(`📋 API returned:`, existingQuotation);
 
         if (!existingQuotation) {
+          console.error(`❌ Quotation not found: ${id}`);
           toast({
             title: "Quotation Not Found",
             description:
-              "The quotation you're trying to edit could not be found.",
+              `The quotation ID "${id}" does not exist in the database. Redirecting to quotations list.`,
             variant: "destructive",
           });
           navigate("/quotations");
           return;
         }
 
+        console.log("Loaded quotation:", existingQuotation);
+
         // Populate form data
         setFormData({
-          customerId: existingQuotation.customerId,
-          issueDate: existingQuotation.issueDate.toString().split("T")[0],
-          validUntil: existingQuotation.validUntil.toString().split("T")[0],
+          customerId: existingQuotation.customerId || existingQuotation.customer_id,
+          issueDate: existingQuotation.issueDate
+            ? existingQuotation.issueDate.toString().split("T")[0]
+            : existingQuotation.issue_date?.toString().split("T")[0] || new Date().toISOString().split("T")[0],
+          validUntil: existingQuotation.validUntil
+            ? existingQuotation.validUntil.toString().split("T")[0]
+            : existingQuotation.valid_until?.toString().split("T")[0] || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
           notes: existingQuotation.notes || "",
         });
 
-        // Populate items
+        // Populate items - handle both camelCase and snake_case field names
         if (existingQuotation.items && existingQuotation.items.length > 0) {
-          const formattedItems = existingQuotation.items.map((item) => ({
-            productId: item.productId,
-            quantity: item.quantity.toString(),
-            unitPrice: item.unitPrice.toString(),
-            discount: item.discount.toString(),
-            vatEnabled: item.vatRate > 0,
-            vatRate: item.vatRate,
+          console.log("Processing quotation items:", existingQuotation.items);
+
+          const formattedItems = existingQuotation.items.map((item: any) => ({
+            productId: item.productId || item.product_id,
+            quantity: (item.quantity || 1).toString(),
+            unitPrice: (item.unitPrice || item.unit_price || 0).toString(),
+            discount: (item.discount || item.discount_percentage || 0).toString(),
+            vatEnabled: (item.vatRate || item.vat_rate || 0) > 0,
+            vatRate: item.vatRate || item.vat_rate || 16,
           }));
+
+          console.log("Formatted items for editing:", formattedItems);
           setItems(formattedItems);
+        } else {
+          console.log("No items found in quotation");
+          setItems([]);
         }
       } catch (error) {
         console.error("Error loading quotation:", error);
@@ -207,12 +245,22 @@ export default function NewQuotation() {
     if (productSearch) {
       const filtered = products.filter(
         (product) =>
-          product.name?.toLowerCase().includes(productSearch.toLowerCase()) ||
-          product.sku?.toLowerCase().includes(productSearch.toLowerCase()),
+          product && product.id && (
+            product.name?.toLowerCase().includes(productSearch.toLowerCase()) ||
+            product.sku?.toLowerCase().includes(productSearch.toLowerCase())
+          )
       );
-      setFilteredProducts(filtered);
+      // Deduplicate filtered products to prevent duplicate keys
+      const uniqueFiltered = filtered.filter((p, index, arr) =>
+        arr.findIndex(item => item.id === p.id) === index
+      );
+      setFilteredProducts(uniqueFiltered);
     } else {
-      setFilteredProducts(products);
+      // Ensure base products list is also deduplicated
+      const uniqueProducts = products.filter((p, index, arr) =>
+        p && p.id && arr.findIndex(item => item.id === p.id) === index
+      );
+      setFilteredProducts(uniqueProducts);
     }
   }, [productSearch, products]);
 
@@ -555,16 +603,20 @@ export default function NewQuotation() {
                         />
                       </SelectTrigger>
                       <SelectContent>
-                        {customers.map((customer) => (
-                          <SelectItem key={customer.id} value={customer.id}>
-                            <div>
-                              <div className="font-medium">{customer.name}</div>
-                              <div className="text-xs text-muted-foreground">
-                                {customer.email}
+                        {customers.map((customer, index) => {
+                          const uniqueKey = `customer-${customer.id || 'no-id'}-${index}-${customer.name?.substring(0,3) || 'no-name'}`;
+                          const safeValue = customer.id || `temp-customer-${index}`;
+                          return (
+                            <SelectItem key={uniqueKey} value={safeValue}>
+                              <div>
+                                <div className="font-medium">{customer.name}</div>
+                                <div className="text-xs text-muted-foreground">
+                                  {customer.email}
+                                </div>
                               </div>
-                            </div>
-                          </SelectItem>
-                        ))}
+                            </SelectItem>
+                          );
+                        })}
                       </SelectContent>
                     </Select>
                     {!formData.customerId && (
@@ -660,17 +712,21 @@ export default function NewQuotation() {
                         <SelectValue placeholder="Select product" />
                       </SelectTrigger>
                       <SelectContent className="max-h-64">
-                        {filteredProducts.map((product) => (
-                          <SelectItem key={product.id} value={product.id}>
-                            <div>
-                              <div className="font-medium">{product.name}</div>
-                              <div className="text-xs text-muted-foreground">
-                                {product.sku} •{" "}
-                                {formatCurrency(product.sellingPrice)}
+                        {filteredProducts.map((product, index) => {
+                          const uniqueKey = `product-${product.id || 'no-id'}-${index}-${product.sku?.substring(0,3) || 'no-sku'}`;
+                          const safeValue = product.id || `temp-product-${index}`;
+                          return (
+                            <SelectItem key={uniqueKey} value={safeValue}>
+                              <div>
+                                <div className="font-medium">{product.name}</div>
+                                <div className="text-xs text-muted-foreground">
+                                  {product.sku} •{" "}
+                                  {formatCurrency(product.sellingPrice)}
+                                </div>
                               </div>
-                            </div>
-                          </SelectItem>
-                        ))}
+                            </SelectItem>
+                          );
+                        })}
                       </SelectContent>
                     </Select>
                   </div>
@@ -792,7 +848,7 @@ export default function NewQuotation() {
 
                           return (
                             <TableRow
-                              key={`item-${item.productId || "empty"}-${index}`}
+                              key={`quotation-item-${index}-${item.productId || "no-product"}-${item.quantity}-${item.unitPrice}`}
                             >
                               <TableCell>
                                 <div>

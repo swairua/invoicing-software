@@ -44,6 +44,7 @@ export interface Customer {
   kraPin?: string;
   address?: string;
   creditLimit: number;
+  paymentTerms?: number; // Days to pay invoices (default: 30)
   balance: number;
   isActive: boolean;
   companyId: string;

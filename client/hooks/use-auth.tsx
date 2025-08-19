@@ -45,18 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
   const [isLoading, setIsLoading] = useState(true);
 
-  // Mock user for demo purposes
-  const mockUser: User = {
-    id: "1",
-    email: "admin@company.com",
-    firstName: "John",
-    lastName: "Doe",
-    role: "admin",
-    isActive: true,
-    companyId: "00000000-0000-0000-0000-000000000001",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
+  // No mock data - authentication must work with real API
 
   useEffect(() => {
     // Check for existing session
@@ -83,21 +72,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // Mock authentication - replace with real API call
-      if (email === "admin@company.com" && password === "password") {
-        const token = "mock_jwt_token";
+      // Real authentication API call - no fallback
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-        localStorage.setItem("auth_token", token);
-        localStorage.setItem("user_data", JSON.stringify(mockUser));
-
-        setAuthState({
-          user: mockUser,
-          token,
-          isAuthenticated: true,
-        });
-      } else {
-        throw new Error("Invalid credentials");
+      if (!response.ok) {
+        throw new Error('Authentication failed');
       }
+
+      const { user, token } = await response.json();
+
+      localStorage.setItem("auth_token", token);
+      localStorage.setItem("user_data", JSON.stringify(user));
+
+      setAuthState({
+        user,
+        token,
+        isAuthenticated: true,
+      });
     } catch (error) {
       throw error;
     } finally {

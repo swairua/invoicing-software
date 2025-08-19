@@ -362,7 +362,7 @@ router.post("/", async (req, res) => {
       (req.headers["x-user-id"] as string) ||
       "550e8400-e29b-41d4-a716-446655440001";
 
-    const { customerId, dueDate, notes, items } = req.body;
+    const { customerId, dueDate, notes, items, subtotal, vatAmount, discountAmount, additionalTaxAmount, total, status } = req.body;
 
     if (!customerId || !items || items.length === 0) {
       return res.status(400).json({
@@ -371,12 +371,10 @@ router.post("/", async (req, res) => {
       });
     }
 
-    // Start transaction
-    await Database.query("BEGIN");
-
-    try {
+    // Use proper transaction method
+    const invoiceData = await Database.transaction(async (connection) => {
       // Get next invoice number
-      const sequenceResult = await Database.query(
+      const sequenceResult = await connection.execute(
         `
         SELECT
           COALESCE(prefix, 'INV') as prefix,
@@ -389,8 +387,8 @@ router.post("/", async (req, res) => {
       );
 
       let invoiceNumber;
-      if (sequenceResult.rows.length > 0) {
-        const seq = sequenceResult.rows[0];
+      if (sequenceResult[0].length > 0) {
+        const seq = sequenceResult[0][0];
         const nextNumber = seq.current_number;
         const paddedNumber = nextNumber
           .toString()
@@ -398,7 +396,7 @@ router.post("/", async (req, res) => {
         invoiceNumber = `${seq.prefix}-2024-${paddedNumber}`;
 
         // Update sequence
-        await Database.query(
+        await connection.execute(
           `
           UPDATE number_sequences
           SET current_number = current_number + 1, updated_at = NOW()
@@ -409,7 +407,7 @@ router.post("/", async (req, res) => {
       } else {
         // Create default sequence
         invoiceNumber = `INV-2024-001`;
-        await Database.query(
+        await connection.execute(
           `
           INSERT INTO number_sequences (company_id, sequence_type, prefix, current_number, padding_length)
           VALUES (?, 'invoice', 'INV', 2, 3)
@@ -418,87 +416,120 @@ router.post("/", async (req, res) => {
         );
       }
 
-      // Calculate totals
-      let subtotal = 0;
-      let totalVatAmount = 0;
+      // Calculate totals from items if not provided, otherwise use provided values
+      let calculatedSubtotal = 0;
+      let calculatedVatAmount = 0;
+      let calculatedDiscountAmount = 0;
+      let calculatedAdditionalTaxAmount = 0;
 
       for (const item of items) {
         const lineSubtotal = item.unitPrice * item.quantity;
-        // Use default VAT rate of 16% if not specified
-        const vatRate = item.vatRate || 16;
-        const vatAmount = (lineSubtotal * vatRate) / 100;
+        const discountPercentage = item.discount || 0;
+        const itemDiscountAmount = (lineSubtotal * discountPercentage) / 100;
+        const afterDiscount = lineSubtotal - itemDiscountAmount;
 
-        subtotal += lineSubtotal;
-        totalVatAmount += vatAmount;
+        // Use VAT rate from item or default to 16%
+        const vatRate = item.vatRate || 16;
+        const itemVatAmount = (afterDiscount * vatRate) / 100;
+
+        // Calculate additional taxes from lineItemTaxes
+        let itemAdditionalTaxAmount = 0;
+        if (item.lineItemTaxes && Array.isArray(item.lineItemTaxes)) {
+          itemAdditionalTaxAmount = item.lineItemTaxes.reduce((sum, tax) => sum + (tax.amount || 0), 0);
+        }
+
+        calculatedSubtotal += lineSubtotal;
+        calculatedDiscountAmount += itemDiscountAmount;
+        calculatedVatAmount += itemVatAmount;
+        calculatedAdditionalTaxAmount += itemAdditionalTaxAmount;
       }
 
-      const totalAmount = subtotal + totalVatAmount;
+      // Use provided totals or calculated ones as fallback
+      const finalSubtotal = subtotal !== undefined ? subtotal : calculatedSubtotal;
+      const finalVatAmount = vatAmount !== undefined ? vatAmount : calculatedVatAmount;
+      const finalDiscountAmount = discountAmount !== undefined ? discountAmount : calculatedDiscountAmount;
+      const finalAdditionalTaxAmount = additionalTaxAmount !== undefined ? additionalTaxAmount : calculatedAdditionalTaxAmount;
+      const finalTotal = total !== undefined ? total : (finalSubtotal - finalDiscountAmount + finalVatAmount + finalAdditionalTaxAmount);
 
-      // Create invoice
-      const invoiceResult = await Database.query(
+      // Create invoice with all calculated amounts
+      const invoiceResult = await connection.execute(
         `
         INSERT INTO invoices (
-          id, company_id, customer_id, invoice_number, subtotal, vat_amount,
-          total_amount, balance_due, issue_date, due_date, notes, created_by
+          id, company_id, customer_id, invoice_number, subtotal, discount_amount,
+          vat_amount, total_amount, balance_due, issue_date, due_date, notes,
+          status, created_by
         )
-        VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
         [
           companyId,
           customerId,
           invoiceNumber,
-          subtotal,
-          totalVatAmount,
-          totalAmount,
-          totalAmount,
+          finalSubtotal,
+          finalDiscountAmount,
+          finalVatAmount,
+          finalTotal,
+          finalTotal, // balance_due initially equals total_amount
           new Date(),
           new Date(dueDate),
           notes,
+          status || 'draft',
           userId,
         ],
       );
 
       // Get the created invoice ID
-      const createdInvoiceResult = await Database.query(
+      const createdInvoiceResult = await connection.execute(
         `SELECT * FROM invoices WHERE invoice_number = ? AND company_id = ?`,
         [invoiceNumber, companyId],
       );
 
-      const invoice = createdInvoiceResult.rows[0];
+      const invoice = createdInvoiceResult[0][0];
 
-      // Create invoice items
+      // Create invoice items with proper discount and tax handling
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
         const lineSubtotal = item.unitPrice * item.quantity;
-        const vatRate = item.vatRate || 16;
-        const vatAmount = (lineSubtotal * vatRate) / 100;
-        const lineTotal = lineSubtotal + vatAmount;
+        const discountPercentage = item.discount || 0;
+        const itemDiscountAmount = (lineSubtotal * discountPercentage) / 100;
+        const afterDiscount = lineSubtotal - itemDiscountAmount;
 
-        await Database.query(
+        const vatRate = item.vatRate || 16;
+        const itemVatAmount = (afterDiscount * vatRate) / 100;
+
+        // Calculate line total including VAT and excluding discount
+        const lineTotal = afterDiscount + itemVatAmount;
+
+        // Get product description or use product name as fallback
+        const description = item.description || (item.product && item.product.name) || "";
+
+        await connection.execute(
           `
           INSERT INTO invoice_items (
-            id, invoice_id, product_id, quantity, unit_price, vat_rate,
-            vat_amount, line_total, sort_order
+            id, invoice_id, product_id, description, quantity, unit_price,
+            discount_percentage, discount_amount, vat_rate, vat_amount,
+            line_total, sort_order
           )
-          VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?)
+          VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `,
           [
             invoice.id,
             item.productId,
+            description,
             item.quantity,
             item.unitPrice,
+            discountPercentage,
+            itemDiscountAmount,
             vatRate,
-            vatAmount,
+            itemVatAmount,
             lineTotal,
             i,
           ],
         );
       }
 
-      await Database.query("COMMIT");
-
       // Fetch the complete invoice with items
-      const completeInvoiceResult = await Database.query(
+      const completeInvoiceResult = await connection.execute(
         `
         SELECT
           i.*,
@@ -511,33 +542,35 @@ router.post("/", async (req, res) => {
         [invoice.id],
       );
 
-      const newInvoice = completeInvoiceResult.rows[0];
+      const newInvoice = completeInvoiceResult[0][0];
 
-      res.status(201).json({
-        success: true,
-        data: {
-          id: newInvoice.id,
-          invoiceNumber: newInvoice.invoice_number,
-          customerId: newInvoice.customer_id,
-          customer: {
-            name: newInvoice.customer_name,
-            email: newInvoice.customer_email,
-          },
-          subtotal: parseFloat(newInvoice.subtotal),
-          vatAmount: parseFloat(newInvoice.vat_amount),
-          total: parseFloat(newInvoice.total_amount),
-          balance: parseFloat(newInvoice.balance_due),
-          status: newInvoice.status,
-          dueDate: new Date(newInvoice.due_date),
-          issueDate: new Date(newInvoice.issue_date),
-          notes: newInvoice.notes,
-          items: items,
+      // Return the invoice data from the transaction
+      return newInvoice;
+
+    });
+
+    // Transaction completed successfully, send response
+    res.status(201).json({
+      success: true,
+      data: {
+        id: invoiceData.id,
+        invoiceNumber: invoiceData.invoice_number,
+        customerId: invoiceData.customer_id,
+        customer: {
+          name: invoiceData.customer_name,
+          email: invoiceData.customer_email,
         },
-      });
-    } catch (error) {
-      await Database.query("ROLLBACK");
-      throw error;
-    }
+        subtotal: parseFloat(invoiceData.subtotal),
+        vatAmount: parseFloat(invoiceData.vat_amount),
+        total: parseFloat(invoiceData.total_amount),
+        balance: parseFloat(invoiceData.balance_due),
+        status: invoiceData.status,
+        dueDate: new Date(invoiceData.due_date),
+        issueDate: new Date(invoiceData.issue_date),
+        notes: invoiceData.notes,
+        items: items,
+      },
+    });
   } catch (error) {
     console.error("Error creating invoice:", error);
     console.log("Returning fallback created invoice response");

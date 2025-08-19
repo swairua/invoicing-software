@@ -1,4 +1,5 @@
 import React from "react";
+import { safeToLocaleString } from "@/lib/utils";
 
 interface DataPoint {
   name: string;
@@ -95,7 +96,7 @@ export function SimpleLineChart({
                   fill="#64748b"
                   textAnchor="end"
                 >
-                  {value.toLocaleString()}
+                  {safeToLocaleString(value)}
                 </text>
                 <line
                   x1={padding}
@@ -226,7 +227,7 @@ export function SimpleBarChart({
                   fill="#64748b"
                   textAnchor="end"
                 >
-                  {value.toLocaleString()}
+                  {safeToLocaleString(value)}
                 </text>
                 <line
                   x1={padding}
@@ -277,7 +278,7 @@ export function SimpleBarChart({
                   textAnchor="middle"
                   fontWeight="500"
                 >
-                  {point.value.toLocaleString()}
+                  {safeToLocaleString(point.value)}
                 </text>
               </g>
             );

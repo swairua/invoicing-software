@@ -71,7 +71,7 @@ import PDFService from "../services/pdfService";
 import dataService from "../services/dataServiceFactory";
 import { useToast } from "../hooks/use-toast";
 
-// Get data service instance (PostgreSQL or mock)
+// Get data service instance (MySQL database)
 const businessData = dataService;
 
 // Utility function to safely convert dates

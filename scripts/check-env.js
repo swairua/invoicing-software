@@ -10,7 +10,7 @@ const requiredEnvVars = {
 };
 
 const optionalEnvVars = {
-  DATABASE_URL: "PostgreSQL connection string (leave empty to use mock data)",
+  DATABASE_URL: "MySQL connection string",
   PING_MESSAGE: "Custom API ping message",
 };
 
