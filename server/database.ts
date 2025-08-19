@@ -7,13 +7,21 @@ const DATABASE_CONFIG = {
   user: process.env.DB_USER || "avnadmin",
   password: process.env.DB_PASSWORD || "AVNS_x9WdjKNy72pMT6Zr90I",
   database: process.env.DB_NAME || "defaultdb",
-  // Only use SSL for remote connections, not for localhost
+  connectTimeout: 60000,
+  acquireTimeout: 60000,
+  timeout: 60000,
+  // Enhanced SSL configuration for remote connections
   ...(process.env.DB_HOST !== "localhost" && {
     ssl: {
       rejectUnauthorized: false,
+      ca: undefined,
+      checkServerIdentity: () => undefined,
     },
   }),
   connectionLimit: 10,
+  // Additional MySQL specific options
+  charset: 'utf8mb4',
+  timezone: 'Z',
 };
 
 // Create connection pool
