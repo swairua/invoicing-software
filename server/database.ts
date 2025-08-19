@@ -29,12 +29,17 @@ function getPool() {
     throw new Error("Database in mock mode - MySQL connection disabled");
   }
   if (!pool) {
-    pool = mysql.createPool({
-      ...DATABASE_CONFIG,
-      ssl: {
-        rejectUnauthorized: false,
-      },
-    });
+    try {
+      pool = mysql.createPool({
+        ...DATABASE_CONFIG,
+        ssl: {
+          rejectUnauthorized: false,
+        },
+      });
+    } catch (error) {
+      console.error('Failed to create database pool:', error.message);
+      throw error;
+    }
   }
   return pool;
 }
