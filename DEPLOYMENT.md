@@ -1,250 +1,110 @@
 # Deployment Guide - Fusion Invoicing System
 
-## 🚀 Quick Deployment on Render.com
+## 🚀 Quick Deployment Options
 
-### Step 1: Prepare Your Repository
+### Option 1: Netlify Deployment (Recommended)
 
-1. Ensure all code is committed and pushed to your Git repository (GitHub, GitLab, etc.)
-2. Run the deployment check: `npm run deploy-check`
+1. **Build the application**:
 
-### Step 2: Connect to Render.com
-
-1. Go to [Render.com](https://render.com) and sign up/login
-2. Click "New +" → "Web Service"
-3. Connect your Git repository
-
-### Step 3: Configure Deployment
-
-Render will automatically detect the `render.yaml` file and configure:
-
-- **Build Command**: `npm ci && npm run build`
-- **Start Command**: `npm start`
-- **Health Check**: `/api/ping`
-- **Environment**: Node.js
-
-### Step 4: Set Environment Variables (Optional)
-
-In the Render dashboard, add these environment variables:
-
-**Required for Production:**
-
-- `NODE_ENV` = `production`
-
-**Optional:**
-
-- `DATABASE_URL` = Your PostgreSQL connection string (leave empty for mock data)
-- `PING_MESSAGE` = Custom API message
-
-### Step 5: Deploy
-
-Click "Create Web Service" and Render will:
-
-1. Clone your repository
-2. Install dependencies
-3. Build the application
-4. Start the server
-5. Provide you with a live URL
-
----
-
-## 🐳 Docker Deployment
-
-### Build and Run Locally
-
-```bash
-docker build -t fusion-invoicing .
-docker run -p 10000:10000 -e NODE_ENV=production fusion-invoicing
-```
-
-### Deploy to Any Docker Platform
-
-The included `Dockerfile` works with:
-
-- Google Cloud Run
-- AWS ECS
-- Azure Container Instances
-- DigitalOcean App Platform
-- Any Kubernetes cluster
-
----
-
-## 🔧 Manual Deployment
-
-### Prerequisites
-
-- Node.js 20+
-- Process manager (PM2 recommended)
-
-### Steps
-
-1. Clone repository on server
-2. Install dependencies: `npm ci --production`
-3. Build application: `npm run build`
-4. Set environment variables:
    ```bash
-   export NODE_ENV=production
-   export PORT=3000
+   npm run build
    ```
-5. Start server: `npm start`
 
-### With PM2
+2. **Deploy to Netlify**:
+   - Connect your repository to Netlify
+   - Set build command: `npm run build`
+   - Set publish directory: `dist`
+   - Add environment variables (see below)
 
-```bash
-npm install -g pm2
-pm2 start npm --name "fusion-invoicing" -- start
-pm2 startup
-pm2 save
-```
+### Option 2: Vercel Deployment
 
----
+1. **Connect to Vercel**:
+   - Import your repository to Vercel
+   - Vercel will auto-detect the configuration
+   - Add environment variables (see below)
 
-## 🗄️ Database Configuration
+### Option 3: Manual Server Deployment
 
-### Option 1: Mock Data (Default)
+1. **Build the application**:
 
-- No setup required
-- Perfect for demos and testing
-- All data is simulated in memory
-
-### Option 2: PostgreSQL
-
-1. Create a PostgreSQL database
-2. Set `DATABASE_URL` environment variable:
-   ```
-   DATABASE_URL=postgresql://username:password@host:port/database
-   ```
-3. Run migrations:
    ```bash
-   cd database/postgres
-   npm install
-   npm run migrate
+   npm run build:production
    ```
 
-### Supported Database Providers
+2. **Start the production server**:
+   ```bash
+   npm start
+   ```
 
-- **Render PostgreSQL** (recommended for Render deployment)
-- **Supabase** (includes auth and real-time features)
-- **Neon** (serverless PostgreSQL)
-- **PlanetScale** (MySQL compatible)
-- Any PostgreSQL-compatible database
+## 🔧 Required Environment Variables
 
----
+For any deployment platform, configure these environment variables:
 
-## 🔍 Health Checks & Monitoring
+### Database Configuration
 
-### Endpoints
-
-- **Health Check**: `GET /health`
-- **API Status**: `GET /api/ping`
-- **Frontend**: `GET /` (serves React app)
-
-### Monitoring Setup
-
-```bash
-# Check if service is running
-curl https://your-app.onrender.com/health
-
-# Check API status
-curl https://your-app.onrender.com/api/ping
+```env
+DB_HOST=your-mysql-host
+DB_PORT=3306
+DB_USER=your-username
+DB_PASSWORD=your-password
+DB_NAME=your-database
 ```
 
----
+### Security
 
-## 🚨 Troubleshooting
+```env
+JWT_SECRET=your-secure-jwt-secret-key
+```
+
+## 🗄️ Database Setup
+
+1. **Ensure MySQL database is accessible**
+2. **Run migration** (if needed):
+   ```bash
+   npm run db:migrate
+   ```
+3. **Create admin user**:
+   ```bash
+   npm run create-admin-user
+   ```
+
+## 🔍 Health Check
+
+The application includes a health check endpoint:
+
+- `GET /api/health` - Returns system status and database connectivity
+
+## 📦 Build Details
+
+- **Client Build**: Static React SPA in `dist/` directory
+- **Server Build**: Express server compiled to `dist/production.mjs`
+- **Assets**: All static assets optimized and bundled
+
+## 🚀 Production Ready Features
+
+- Optimized build pipeline
+- Database connection pooling
+- JWT authentication
+- Error handling and logging
+- Health monitoring
+- SSL/TLS support
+
+## 🔧 Troubleshooting
+
+### Database Connection Issues
+
+1. Verify environment variables are set correctly
+2. Check MySQL server accessibility
+3. Confirm SSL requirements for cloud databases
 
 ### Build Issues
 
-1. Run `npm run deploy-check` locally
-2. Check Node.js version (requires 20+)
-3. Verify all dependencies are in package.json
+1. Run `npm run typecheck` to check TypeScript errors
+2. Ensure all dependencies are installed
+3. Check Node.js version compatibility (20+)
 
-### Runtime Issues
+### Authentication Issues
 
-1. Check environment variables
-2. Verify database connection (if using PostgreSQL)
-3. Check server logs in Render dashboard
-
-### Performance Optimization
-
-1. Enable gzip compression (automatic on Render)
-2. Use CDN for static assets
-3. Set up database connection pooling for high traffic
-
----
-
-## 📊 Post-Deployment
-
-### What to Test
-
-1. **Frontend**: Navigate to your Render URL
-2. **API**: Check `/api/ping` endpoint
-3. **Features**: Test invoice creation, customer management
-4. **Performance**: Check page load times
-
-### Monitoring Tools
-
-Consider integrating:
-
-- **Sentry** - Error monitoring
-- **LogRocket** - User session recording
-- **New Relic** - Performance monitoring
-
----
-
-## 🔒 Security Considerations
-
-### Environment Variables
-
-- Never commit `.env` files
-- Use Render's environment variable settings
-- Rotate database credentials regularly
-
-### HTTPS
-
-- Render provides free SSL certificates
-- All traffic is automatically encrypted
-
-### Database Security
-
-- Use connection string with authentication
-- Enable SSL for database connections
-- Restrict database access to Render IPs only
-
----
-
-## 📈 Scaling
-
-### Render.com Scaling
-
-- **Free Tier**: 1 instance, 512MB RAM
-- **Starter**: 1 instance, 1GB RAM
-- **Standard**: Auto-scaling up to 10 instances
-
-### Performance Tips
-
-1. Use database connection pooling
-2. Implement caching for frequently accessed data
-3. Optimize bundle size (code splitting)
-4. Use React.lazy() for route-based code splitting
-
----
-
-## 🆘 Support
-
-### Getting Help
-
-1. Check the [Render documentation](https://render.com/docs)
-2. Review application logs in Render dashboard
-3. Test locally with `NODE_ENV=production npm start`
-
-### Common Issues
-
-- **Build failures**: Check package.json dependencies
-- **Start failures**: Verify server configuration
-- **404 errors**: Ensure React Router is handling routes correctly
-
----
-
-**🎉 Congratulations! Your Fusion Invoicing System is now deployed and ready for use!**
-
-Access your application at the URL provided by Render and start managing your business invoices, customers, and products.
+1. Verify JWT_SECRET is set
+2. Run `npm run create-admin-user` to create admin account
+3. Check database user table has records

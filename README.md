@@ -17,21 +17,33 @@ A comprehensive invoicing and business management system built with React, TypeS
 
 - **Frontend**: React 18, TypeScript, Tailwind CSS, shadcn/ui
 - **Backend**: Express.js, Node.js
-- **Database**: PostgreSQL with migration support
+- **Database**: MySQL with cloud hosting support
 - **Build Tool**: Vite
-- **Deployment**: Render.com ready
+- **Deployment**: Netlify/Vercel ready
 
 ## Development
 
 ### Prerequisites
 
 - Node.js 20+
-- PostgreSQL (optional, mock data available)
+- MySQL database (cloud-hosted)
 
 ### Installation
 
 ```bash
 npm install
+```
+
+### Database Configuration
+
+Set up your MySQL database credentials in the `.env` file:
+
+```env
+DB_HOST=your-mysql-host
+DB_PORT=3306
+DB_USER=your-username
+DB_PASSWORD=your-password
+DB_NAME=your-database
 ```
 
 ### Development Server
@@ -42,101 +54,42 @@ npm run dev
 
 The application will be available at `http://localhost:8080`
 
+### Create Admin User
+
+```bash
+npm run create-admin-user
+```
+
+Default login credentials:
+
+- Email: `admin@demo.com`
+- Password: `password`
+
 ### Build
 
 ```bash
 npm run build
 ```
 
-## Deployment on Render.com
+## Production Deployment
 
-### Option 1: Using render.yaml (Recommended)
+The application can be deployed to:
 
-1. Connect your repository to Render.com
-2. The `render.yaml` file will automatically configure the deployment
-3. Set the following environment variables in Render:
-   - `NODE_ENV=production`
-   - `PORT=10000` (or let Render set this automatically)
-   - `DATABASE_URL` (if using PostgreSQL)
+- Netlify (recommended for static hosting)
+- Vercel (recommended for full-stack applications)
+- Any cloud provider supporting Node.js
 
-### Option 2: Manual Configuration
+### Environment Variables for Production
 
-1. Create a new Web Service on Render.com
-2. Connect your repository
-3. Use these settings:
-   - **Build Command**: `npm ci && npm run build`
-   - **Start Command**: `npm start`
-   - **Environment**: `Node`
-   - **Health Check Path**: `/api/ping`
-
-### Environment Variables
-
-Required environment variables for production:
-
-```
-NODE_ENV=production
-PORT=10000
-DATABASE_URL=postgresql://username:password@host:port/database
-```
-
-Optional environment variables:
-
-```
-PING_MESSAGE=Fusion Invoicing API is running
-```
-
-### Database Setup
-
-The application supports both PostgreSQL and mock data:
-
-- **Production**: Set `DATABASE_URL` to connect to PostgreSQL
-- **Development/Demo**: Leave `DATABASE_URL` unset to use mock data
-
-For PostgreSQL setup, run the migrations:
-
-```bash
-cd database/postgres
-npm install
-npm run migrate
-```
-
-## Docker Deployment
-
-A Dockerfile is included for containerized deployments:
-
-```bash
-docker build -t fusion-invoicing .
-docker run -p 10000:10000 fusion-invoicing
-```
-
-## API Endpoints
-
-- `GET /api/ping` - Health check
-- `GET /api/customers` - List customers
-- `POST /api/customers` - Create customer
-- `GET /api/products` - List products
-- `POST /api/products` - Create product
-- `GET /api/invoices` - List invoices
-- `POST /api/invoices` - Create invoice
-- `GET /api/taxes` - Tax configurations
-
-## Project Structure
-
-```
-├── client/              # Frontend React application
-│   ├── components/      # Reusable UI components
-│   ├── pages/          # Application pages
-│   ├── services/       # Data services and API clients
-│   └── hooks/          # Custom React hooks
-├── server/             # Backend Express application
-│   ├── routes/         # API route handlers
-��   ├── repositories/   # Data access layer
-│   └── database.ts     # Database connection
-├── shared/             # Shared types and utilities
-├── database/           # Database migrations and schema
-└── netlify/           # Netlify functions (alternative deployment)
+```env
+DB_HOST=your-production-mysql-host
+DB_PORT=3306
+DB_USER=your-production-username
+DB_PASSWORD=your-production-password
+DB_NAME=your-production-database
+JWT_SECRET=your-jwt-secret-key
 ```
 
 ## License
 
-MIT License - See LICENSE file for details
+MIT License

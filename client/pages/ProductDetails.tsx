@@ -85,7 +85,7 @@ export default function ProductDetails() {
     const loadProductData = async () => {
       try {
         setLoading(true);
-        const foundProduct = await dataService.getProductById?.(id!);
+        const foundProduct = await dataService.getProduct(id!);
 
         if (!foundProduct) {
           toast({

@@ -25,14 +25,9 @@
     "deploy-check": "npm run build:production && npm run check-env",
     "deploy-check-strict": "npm run typecheck && npm run build && npm run check-env",
     "postinstall": "npm run build",
-    "db:setup": "node scripts/deploy-render.js",
     "db:migrate": "node scripts/migrate-mysql.js",
-    "db:check": "node scripts/check-database.js",
-    "db:test": "node scripts/test-connection.js",
-    "db:fix": "node scripts/fix-database.js",
-    "db:sample": "node scripts/add-sample-customers.js",
-    "db:schema": "node scripts/check-schema.js",
-    "db:companies": "node scripts/check-companies.js"
+    "create-admin-user": "node scripts/create-admin-user.js",
+    "check-users": "node scripts/check-users.js"
   },
   "dependencies": {
     "@radix-ui/react-visually-hidden": "^1.2.3",
@@ -89,7 +84,6 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/node": "^22.5.5",
-    "@types/pg": "^8.10.9",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@types/three": "^0.176.0",

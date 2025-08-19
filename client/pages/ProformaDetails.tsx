@@ -64,7 +64,7 @@ export default function ProformaDetails() {
 
       try {
         setLoading(true);
-        const foundProforma = await dataService.getProformaInvoiceById(id);
+        const foundProforma = await dataService.getProformaInvoice(id);
 
         if (!foundProforma) {
           toast({
