@@ -558,6 +558,12 @@ export default function Quotations() {
                               <Copy className="mr-2 h-4 w-4" />
                               Duplicate
                             </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleDownloadPDF(quotation)}
+                            >
+                              <Download className="mr-2 h-4 w-4" />
+                              Download PDF
+                            </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             {quotation.status === "accepted" && (
                               <DropdownMenuItem
