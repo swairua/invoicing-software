@@ -4,6 +4,7 @@ import {
   useLocation,
   Link,
   useSearchParams,
+  useParams,
 } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -59,10 +60,13 @@ export default function NewProforma() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
+  const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [editingProforma, setEditingProforma] = useState<ProformaInvoice | null>(null);
+  const isEditing = Boolean(id);
   // Product filtering handled by DynamicLineItems component
 
   const duplicateData = location.state?.duplicateFrom;
@@ -108,19 +112,48 @@ export default function NewProforma() {
         ]);
         setCustomers(customerData);
         setProducts(productData);
-        // Product filtering handled by DynamicLineItems
+
+        // If editing, load the proforma data
+        if (isEditing && id) {
+          const proforma = await dataService.getProformaInvoiceById(id);
+          if (proforma) {
+            setEditingProforma(proforma);
+            setFormData({
+              customerId: proforma.customerId,
+              issueDate: proforma.issueDate.split('T')[0],
+              validUntil: proforma.validUntil.split('T')[0],
+              notes: proforma.notes || '',
+            });
+            setItems(proforma.items?.map((item: any, index: number) => ({
+              id: `item-${index}`,
+              productId: item.productId,
+              quantity: item.quantity.toString(),
+              unitPrice: item.unitPrice.toString(),
+              discount: item.discount.toString(),
+              lineItemTaxes: item.lineItemTaxes || [],
+            })) || []);
+          } else {
+            toast({
+              title: "Error",
+              description: "Proforma not found.",
+              variant: "destructive",
+            });
+            navigate('/proforma');
+            return;
+          }
+        }
       } catch (error) {
         console.error("Error loading data:", error);
         toast({
           title: "Error",
-          description: "Failed to load customers and products.",
+          description: "Failed to load data.",
           variant: "destructive",
         });
       }
     };
 
     loadData();
-  }, [dataService, toast]);
+  }, [dataService, toast, isEditing, id, navigate]);
 
   // Product filtering handled by DynamicLineItems component
 
