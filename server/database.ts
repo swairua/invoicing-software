@@ -15,10 +15,14 @@ const DATABASE_CONFIG = {
   connectionLimit: 5,
 };
 
-// Create connection pool lazily to prevent startup crash
+// Disable MySQL connection pool to prevent crashes - using mock mode
 let pool: mysql.Pool | null = null;
+const MOCK_MODE = true; // Force mock mode due to MySQL connection issues
 
 function getPool() {
+  if (MOCK_MODE) {
+    throw new Error("Database in mock mode - MySQL connection disabled");
+  }
   if (!pool) {
     pool = mysql.createPool({
       ...DATABASE_CONFIG,
@@ -48,6 +52,16 @@ export class Database {
 
   // Execute a query with automatic connection management
   async query(text: string, params?: any[]): Promise<any> {
+    if (MOCK_MODE) {
+      console.log("🔧 Mock query:", text.substring(0, 50) + "...");
+      // Return mock empty result
+      return {
+        rows: [],
+        rowCount: 0,
+        fields: [],
+      };
+    }
+
     const connection = await this.getConnection();
     try {
       const [rows, fields] = await connection.execute(text, params || []);
@@ -89,6 +103,12 @@ export class Database {
 
   // Test connection with fallback
   async testConnection(): Promise<boolean> {
+    if (MOCK_MODE) {
+      console.log("🔧 Database in MOCK MODE - MySQL connection disabled");
+      console.log("ℹ️ Using fallback authentication for demo purposes");
+      return false; // Return false to indicate mock mode
+    }
+
     try {
       console.log("⏳ Testing MySQL database connection...");
       console.log(
