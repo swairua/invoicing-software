@@ -113,7 +113,6 @@ export class Database {
 
   // Test connection with fallback
   async testConnection(): Promise<boolean> {
-
     try {
       console.log("⏳ Testing MySQL database connection...");
       console.log(
