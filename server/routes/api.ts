@@ -4,6 +4,7 @@ import customersRouter from "./customers";
 import productsRouter from "./products";
 import categoriesRouter from "./categories";
 import invoicesRouter from "./invoices";
+import quotationsRouter from "./quotations";
 import taxesRouter from "./taxes";
 import seedRouter from "./seed";
 import migrationRouter from "./migration";
@@ -655,190 +656,13 @@ router.get("/test-quotations", (req, res) => {
   res.json({ message: "Quotations route is working", timestamp: Date.now() });
 });
 
-// Quotations routes - defined inline
-router.get("/quotations", async (req, res) => {
-  try {
-    const companyId =
-      (req.headers["x-company-id"] as string) ||
-      "00000000-0000-0000-0000-000000000001";
-
-    console.log("🔍 GET /api/quotations endpoint called");
-    console.log("🏢 Company ID:", companyId);
-
-    const result = await Database.query(
-      `
-      SELECT
-        q.*,
-        c.name as customer_name,
-        c.email as customer_email,
-        c.id as customer_id_full
-      FROM quotations q
-      JOIN customers c ON q.customer_id = c.id
-      WHERE q.company_id = ?
-      ORDER BY q.created_at DESC
-      LIMIT 50
-    `,
-      [companyId],
-    );
-
-    console.log(`📋 Found ${result.rows.length} quotations`);
-
-    // Transform the data to match the expected interface
-    const transformedQuotations = result.rows.map((row) => ({
-      id: row.id,
-      quoteNumber: row.quote_number,
-      customerId: row.customer_id,
-      customer: {
-        id: row.customer_id,
-        name: row.customer_name,
-        email: row.customer_email,
-      },
-      items: [], // TODO: Load items separately if needed
-      subtotal: parseFloat(row.subtotal || "0"),
-      vatAmount:
-        parseFloat(row.vat_amount || "0") || parseFloat(row.tax_amount || "0"),
-      discountAmount: parseFloat(row.discount_amount || "0"),
-      total: parseFloat(row.total_amount || "0"),
-      status: row.status,
-      validUntil: row.valid_until,
-      issueDate: row.issue_date,
-      notes: row.notes,
-      companyId: row.company_id,
-      createdBy: row.created_by,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-    }));
-
-    if (transformedQuotations.length > 0) {
-      console.log(
-        "📋 First transformed quotation sample:",
-        JSON.stringify(transformedQuotations[0], null, 2),
-      );
-    }
-
-    res.json({
-      success: true,
-      data: transformedQuotations,
-    });
-  } catch (error) {
-    console.error("Error fetching quotations:", error);
-    res.status(500).json({
-      success: false,
-      error: "Failed to fetch quotations from database",
-      message: error.message,
-    });
-  }
-});
-
-router.post("/quotations", async (req, res) => {
-  try {
-    const companyId =
-      (req.headers["x-company-id"] as string) ||
-      "550e8400-e29b-41d4-a716-446655440000";
-    const quotationData = req.body;
-
-    console.log("🔍 POST /api/quotations endpoint called");
-    console.log("Creating quotation:", quotationData);
-
-    // Generate quotation number
-    const quoteNumber = `QUO-${new Date().getFullYear()}-${String(Date.now()).slice(-3).padStart(3, "0")}`;
-
-    // Start transaction to create quotation and items
-    try {
-      await Database.query("START TRANSACTION");
-
-      // Insert quotation (using correct column names)
-      const quotationResult = await Database.query(
-        `INSERT INTO quotations
-         (id, quote_number, customer_id, subtotal, vat_amount, discount_amount, total_amount,
-          status, valid_until, issue_date, notes, company_id, created_by)
-         VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          quoteNumber,
-          quotationData.customerId,
-          quotationData.subtotal || 0,
-          quotationData.vatAmount || 0,
-          quotationData.discountAmount || 0,
-          quotationData.total || 0,
-          quotationData.status || "draft",
-          quotationData.validUntil ||
-            new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-          quotationData.issueDate || new Date(),
-          quotationData.notes || "",
-          companyId,
-          quotationData.createdBy || "1",
-        ],
-      );
-
-      // Get the created quotation ID
-      const createdQuotationResult = await Database.query(
-        `SELECT * FROM quotations WHERE quote_number = ? AND company_id = ?`,
-        [quoteNumber, companyId],
-      );
-      const quotationId = createdQuotationResult.rows[0].id;
-
-      // Insert quotation items
-      if (quotationData.items && quotationData.items.length > 0) {
-        for (let i = 0; i < quotationData.items.length; i++) {
-          const item = quotationData.items[i];
-
-          // Calculate VAT amount properly
-          const subtotal = item.quantity * item.unitPrice;
-          const discountAmount = (subtotal * (item.discount || 0)) / 100;
-          const afterDiscount = subtotal - discountAmount;
-          const vatAmount = (afterDiscount * (item.vatRate || 0)) / 100;
-
-          await Database.query(
-            `INSERT INTO quotation_items
-             (id, quotation_id, product_id, description, quantity, unit_price,
-              discount_percentage, vat_rate, vat_amount, line_total, sort_order)
-             VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [
-              quotationId,
-              item.productId,
-              item.product?.name || "",
-              item.quantity,
-              item.unitPrice,
-              item.discount || 0,
-              item.vatRate || 0,
-              vatAmount,
-              item.total,
-              i,
-            ],
-          );
-        }
-      }
-
-      await Database.query("COMMIT");
-
-      console.log("✅ Quotation created successfully");
-
-      res.status(201).json({
-        success: true,
-        data: createdQuotationResult.rows[0],
-      });
-    } catch (error) {
-      await Database.query("ROLLBACK");
-      throw error;
-    }
-  } catch (error) {
-    console.error("❌ Error creating quotation:", error);
-
-    // Return proper error
-    res.status(500).json({
-      success: false,
-      error: "Failed to create quotation in database",
-      details: error.message,
-    });
-  }
-});
-
 // Route handlers
 router.use("/auth", authRouter);
 router.use("/customers", customersRouter);
 router.use("/products", productsRouter);
 router.use("/categories", categoriesRouter);
 router.use("/invoices", invoicesRouter);
+router.use("/quotations", quotationsRouter);
 router.use("/taxes", taxesRouter);
 router.use("/seed", seedRouter);
 router.use("/migration", migrationRouter);
