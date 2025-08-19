@@ -129,13 +129,15 @@ class MySQLBusinessDataService {
       };
 
       xhr.onerror = (event) => {
-        console.error(`🔧 XMLHttpRequest error:`, event);
-        reject(new TypeError('Network request failed via XMLHttpRequest'));
+        console.error(`🔧 XMLHttpRequest error for ${url}:`, event);
+        console.log('🔧 This could indicate server downtime or network issues');
+        reject(new TypeError(`Network request failed for ${url}. Server may be unavailable or there are connectivity issues.`));
       };
 
       xhr.ontimeout = () => {
-        console.error(`🔧 XMLHttpRequest timeout after ${xhr.timeout}ms`);
-        reject(new TypeError('Network request timed out via XMLHttpRequest'));
+        console.error(`🔧 XMLHttpRequest timeout after ${xhr.timeout}ms for ${url}`);
+        console.log('🔧 Network might be slow or server overloaded');
+        reject(new TypeError(`Network request timed out after ${xhr.timeout}ms for ${url}. Check network connectivity and server status.`));
       };
 
       xhr.onabort = () => {
@@ -143,8 +145,8 @@ class MySQLBusinessDataService {
         reject(new TypeError('Network request aborted via XMLHttpRequest'));
       };
 
-      // Set reasonable timeout for XMLHttpRequest fallback
-      xhr.timeout = 15000; // 15 seconds
+      // Set generous timeout for XMLHttpRequest fallback to handle slow networks
+      xhr.timeout = 30000; // 30 seconds
 
       // Send request
       console.log(`��� Sending XMLHttpRequest with method=${method}, body=${options.body ? 'present' : 'none'}`);
