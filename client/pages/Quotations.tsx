@@ -36,6 +36,7 @@ import {
   FileEdit,
   Trash2,
   Send,
+  Download,
   Calendar,
   User,
   Calculator,
