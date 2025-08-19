@@ -13,8 +13,16 @@ export function createServer() {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
-  // Database will be tested on first use - avoiding startup crash
-  console.log('🗄️ Database connection will be tested on first use');
+  // Test database connection on startup
+  Database.testConnection().then(connected => {
+    if (connected) {
+      console.log('✅ MySQL database connected successfully');
+    } else {
+      console.log('❌ MySQL database connection failed');
+    }
+  }).catch(error => {
+    console.log('⚠️ Database connection test failed:', error.message);
+  });
 
   // Example API routes
   app.get("/api/ping", (_req, res) => {
