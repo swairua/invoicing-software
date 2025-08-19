@@ -34,7 +34,18 @@ class MySQLBusinessDataService {
   // Hybrid fetch implementation with fast FullStory detection and XMLHttpRequest fallback
   private async robustFetch(url: string, options: RequestInit = {}): Promise<Response> {
     console.log(`🔍 robustFetch called for: ${url}`);
-    console.log(`🔍 Production mode XMLHttpRequest preference: ${this.hasDetectedFetchInterference}`);
+    console.log(`🔍 FullStory interference pre-detected: ${this.hasDetectedFetchInterference}`);
+
+    // If we've already detected FullStory interference, skip native fetch entirely
+    if (this.hasDetectedFetchInterference && typeof XMLHttpRequest !== 'undefined') {
+      console.log("🔧 Skipping native fetch, using XMLHttpRequest due to pre-detected FullStory interference");
+      try {
+        return await this.xmlHttpRequestFetch(url, options);
+      } catch (xhrError) {
+        console.error(`❌ XMLHttpRequest failed for ${url}:`, xhrError);
+        throw new Error(`XMLHttpRequest failed: ${xhrError.message}`);
+      }
+    }
 
     // Try native fetch first with reasonable timeout for production environments
     const timeoutPromise = new Promise<never>((_, reject) => {
@@ -136,7 +147,7 @@ class MySQLBusinessDataService {
       xhr.timeout = 15000; // 15 seconds
 
       // Send request
-      console.log(`🔧 Sending XMLHttpRequest with method=${method}, body=${options.body ? 'present' : 'none'}`);
+      console.log(`��� Sending XMLHttpRequest with method=${method}, body=${options.body ? 'present' : 'none'}`);
       if (options.body) {
         xhr.send(options.body as string);
       } else {
@@ -292,7 +303,7 @@ class MySQLBusinessDataService {
 
       // Add a small delay to prevent rapid successive calls
       if (endpoint === '/dashboard/metrics') {
-        console.log(`⏱️ Adding small delay for dashboard metrics to prevent race conditions...`);
+        console.log(`⏱��� Adding small delay for dashboard metrics to prevent race conditions...`);
         await new Promise(resolve => setTimeout(resolve, 100));
       }
 
