@@ -31,71 +31,44 @@ class MySQLBusinessDataService {
     }
   }
 
-  // Production-optimized fetch with multiple FullStory bypass strategies
+  // Simplified robust fetch that handles FullStory interference
   private async robustFetch(url: string, options: RequestInit = {}): Promise<Response> {
-    console.log(`🔍 robustFetch called for: ${url}`);
+    console.log(`🔍 API call to: ${url}`);
 
-    let lastError: Error | null = null;
+    // Default options for all requests
+    const defaultOptions: RequestInit = {
+      ...options,
+      mode: 'cors' as RequestMode,
+      credentials: 'same-origin' as RequestCredentials,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+    };
 
-    // Strategy 1: Try native fetch with FullStory bypass
     try {
-      console.log("📡 Strategy 1: Attempting native fetch...");
+      // Try direct fetch first (works in most cases)
+      const response = await fetch(url, defaultOptions);
 
-      // Save original fetch before FullStory can modify it
-      const originalFetch = (window as any).__originalFetch || window.fetch;
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
 
-      // Try with 3-second timeout to detect FullStory quickly
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Fetch timeout - FullStory detected')), 3000);
-      });
-
-      const fetchPromise = originalFetch(url, {
-        ...options,
-        mode: 'cors' as RequestMode,
-        credentials: 'same-origin' as RequestCredentials,
-      });
-
-      const response = await Promise.race([fetchPromise, timeoutPromise]);
-      console.log(`✅ Native fetch succeeded for: ${url}`);
+      console.log(`✅ API call successful: ${url}`);
       return response;
 
     } catch (fetchError) {
-      console.log(`⚠️ Strategy 1 failed: ${fetchError.message}`);
-      lastError = fetchError;
-    }
+      console.warn(`⚠️ Direct fetch failed for ${url}:`, fetchError.message);
 
-    // Strategy 2: Try XMLHttpRequest fallback
-    try {
-      console.log("🔧 Strategy 2: Trying XMLHttpRequest...");
-      return await this.xmlHttpRequestFetch(url, options);
-    } catch (xhrError) {
-      console.log(`⚠️ Strategy 2 failed: ${xhrError.message}`);
-      lastError = xhrError;
+      // Fallback to XMLHttpRequest if fetch fails
+      try {
+        console.log("🔧 Trying XMLHttpRequest fallback...");
+        return await this.xmlHttpRequestFetch(url, defaultOptions);
+      } catch (xhrError) {
+        console.error(`❌ All fetch strategies failed for ${url}:`, xhrError.message);
+        throw new Error(`Network request failed: ${xhrError.message}`);
+      }
     }
-
-    // Strategy 3: Try iframe-based fetch (ultimate FullStory bypass)
-    try {
-      console.log("🖼️ Strategy 3: Trying iframe-based fetch...");
-      return await this.iframeFetch(url, options);
-    } catch (iframeError) {
-      console.log(`⚠️ Strategy 3 failed: ${iframeError.message}`);
-      lastError = iframeError;
-    }
-
-    // Strategy 4: Try direct fetch without any modifications (last resort)
-    try {
-      console.log("🚨 Strategy 4: Direct fetch last resort...");
-      const response = await window.fetch(url, options);
-      console.log(`✅ Direct fetch succeeded for: ${url}`);
-      return response;
-    } catch (directError) {
-      console.log(`⚠️ Strategy 4 failed: ${directError.message}`);
-      lastError = directError;
-    }
-
-    // All strategies failed
-    console.error(`❌ All 4 strategies failed for ${url}`);
-    throw new Error(`All network strategies failed. Last error: ${lastError?.message || 'Unknown error'}`);
   }
 
   // Simplified iframe fetch for FullStory bypass
