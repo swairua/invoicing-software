@@ -2,7 +2,8 @@ import mysql from "mysql2/promise";
 
 // Database configuration - MySQL connection
 const DATABASE_CONFIG = {
-  host: process.env.DB_HOST || "mysql-242eb3d7-invoicing-software.c.aivencloud.com",
+  host:
+    process.env.DB_HOST || "mysql-242eb3d7-invoicing-software.c.aivencloud.com",
   port: parseInt(process.env.DB_PORT || "11397"),
   user: process.env.DB_USER || "avnadmin",
   password: process.env.DB_PASSWORD || "AVNS_x9WdjKNy72pMT6Zr90I",
@@ -15,8 +16,8 @@ const DATABASE_CONFIG = {
     },
   }),
   connectionLimit: 10,
-  charset: 'utf8mb4',
-  timezone: 'Z',
+  charset: "utf8mb4",
+  timezone: "Z",
 };
 
 // Create connection pool

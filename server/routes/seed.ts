@@ -144,8 +144,8 @@ router.post("/sample-data", async (req, res) => {
           dueDate: "2025-02-14",
           subtotal: 12931.03,
           taxAmount: 2068.97,
-          totalAmount: 15000.00,
-          currency: "KES"
+          totalAmount: 15000.0,
+          currency: "KES",
         },
         {
           customerId: createdCustomers[1]?.id || createdCustomers[0].id,
@@ -155,8 +155,8 @@ router.post("/sample-data", async (req, res) => {
           dueDate: "2025-02-09",
           subtotal: 7327.59,
           taxAmount: 1172.41,
-          totalAmount: 8500.00,
-          currency: "KES"
+          totalAmount: 8500.0,
+          currency: "KES",
         },
         {
           customerId: createdCustomers[2]?.id || createdCustomers[0].id,
@@ -166,8 +166,8 @@ router.post("/sample-data", async (req, res) => {
           dueDate: "2025-02-17",
           subtotal: 10344.83,
           taxAmount: 1655.17,
-          totalAmount: 12000.00,
-          currency: "KES"
+          totalAmount: 12000.0,
+          currency: "KES",
         },
         {
           customerId: createdCustomers[0].id,
@@ -177,8 +177,8 @@ router.post("/sample-data", async (req, res) => {
           dueDate: "2025-01-14",
           subtotal: 6465.52,
           taxAmount: 1034.48,
-          totalAmount: 7500.00,
-          currency: "KES"
+          totalAmount: 7500.0,
+          currency: "KES",
         },
         {
           customerId: createdCustomers[1]?.id || createdCustomers[0].id,
@@ -188,14 +188,15 @@ router.post("/sample-data", async (req, res) => {
           dueDate: "2025-02-11",
           subtotal: 8448.28,
           taxAmount: 1351.72,
-          totalAmount: 9800.00,
-          currency: "KES"
-        }
+          totalAmount: 9800.0,
+          currency: "KES",
+        },
       ];
 
       for (const invoice of sampleInvoices) {
         try {
-          const invoiceResult = await customerRepository.db.query(`
+          const invoiceResult = await customerRepository.db.query(
+            `
             INSERT INTO invoices (
               id, company_id, customer_id, invoice_number, status,
               issue_date, due_date, subtotal, tax_amount, total_amount,
@@ -203,15 +204,30 @@ router.post("/sample-data", async (req, res) => {
             ) VALUES (
               UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW()
             )
-          `, [
-            companyId, invoice.customerId, invoice.invoiceNumber, invoice.status,
-            invoice.issueDate, invoice.dueDate, invoice.subtotal, invoice.taxAmount,
-            invoice.totalAmount, invoice.currency, userId
-          ]);
-          console.log(`✅ Created invoice: ${invoice.invoiceNumber} (${invoice.status}) - KES ${invoice.totalAmount}`);
+          `,
+            [
+              companyId,
+              invoice.customerId,
+              invoice.invoiceNumber,
+              invoice.status,
+              invoice.issueDate,
+              invoice.dueDate,
+              invoice.subtotal,
+              invoice.taxAmount,
+              invoice.totalAmount,
+              invoice.currency,
+              userId,
+            ],
+          );
+          console.log(
+            `✅ Created invoice: ${invoice.invoiceNumber} (${invoice.status}) - KES ${invoice.totalAmount}`,
+          );
           createdInvoices.push(invoice);
         } catch (error) {
-          console.error(`❌ Failed to create invoice ${invoice.invoiceNumber}:`, error.message);
+          console.error(
+            `❌ Failed to create invoice ${invoice.invoiceNumber}:`,
+            error.message,
+          );
         }
       }
     }
@@ -224,49 +240,60 @@ router.post("/sample-data", async (req, res) => {
       const samplePayments = [
         {
           customerId: createdCustomers[0].id,
-          amount: 15000.00,
+          amount: 15000.0,
           paymentMethod: "bank_transfer",
           paymentDate: "2025-01-20",
-          status: "completed"
+          status: "completed",
         },
         {
           customerId: createdCustomers[1]?.id || createdCustomers[0].id,
-          amount: 8500.00,
+          amount: 8500.0,
           paymentMethod: "cash",
           paymentDate: "2025-01-15",
-          status: "completed"
+          status: "completed",
         },
         {
           customerId: createdCustomers[2]?.id || createdCustomers[0].id,
-          amount: 5000.00,
+          amount: 5000.0,
           paymentMethod: "mpesa",
           paymentDate: "2025-01-22",
-          status: "completed"
+          status: "completed",
         },
         {
           customerId: createdCustomers[0].id,
-          amount: 3200.00,
+          amount: 3200.0,
           paymentMethod: "bank_transfer",
           paymentDate: "2025-01-25",
-          status: "completed"
-        }
+          status: "completed",
+        },
       ];
 
       for (const payment of samplePayments) {
         try {
-          const paymentNumber = `PAY-2025-${String(createdPayments.length + 1).padStart(3, '0')}`;
-          await customerRepository.db.query(`
+          const paymentNumber = `PAY-2025-${String(createdPayments.length + 1).padStart(3, "0")}`;
+          await customerRepository.db.query(
+            `
             INSERT INTO payments (
               id, company_id, customer_id, payment_number, amount, payment_method,
               payment_date, status, created_by, created_at, updated_at
             ) VALUES (
               UUID(), ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW()
             )
-          `, [
-            companyId, payment.customerId, paymentNumber, payment.amount, payment.paymentMethod,
-            payment.paymentDate, payment.status, userId
-          ]);
-          console.log(`✅ Created payment: KES ${payment.amount} via ${payment.paymentMethod}`);
+          `,
+            [
+              companyId,
+              payment.customerId,
+              paymentNumber,
+              payment.amount,
+              payment.paymentMethod,
+              payment.paymentDate,
+              payment.status,
+              userId,
+            ],
+          );
+          console.log(
+            `✅ Created payment: KES ${payment.amount} via ${payment.paymentMethod}`,
+          );
           createdPayments.push(payment);
         } catch (error) {
           console.error(`❌ Failed to create payment:`, error.message);
