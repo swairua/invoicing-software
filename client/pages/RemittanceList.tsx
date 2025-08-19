@@ -157,30 +157,49 @@ export default function RemittanceList() {
       // Import PDFService if not already imported
       const PDFService = (await import("../services/pdfService")).default;
 
-      // Create a mock remittance document structure for PDF generation
-      const remittanceDoc = {
-        id: remittance.id,
-        remittanceNumber: remittance.remittanceNumber,
-        date: remittance.date,
-        customer: {
-          name: remittance.customerName,
-          email: remittance.customerEmail,
-          address: "Customer Address", // Default since not in interface
+      // Fetch the full remittance details from the API
+      const response = await fetch(`/api/remittances/${remittance.id}`, {
+        headers: {
+          'x-company-id': '00000000-0000-0000-0000-000000000001',
         },
-        items: [
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch remittance details');
+      }
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to fetch remittance details');
+      }
+
+      const fullRemittanceData = result.data;
+
+      // Create the remittance document structure for PDF generation
+      const remittanceDoc = {
+        id: fullRemittanceData.id,
+        remittanceNumber: fullRemittanceData.remittanceNumber,
+        date: fullRemittanceData.date,
+        customer: {
+          name: fullRemittanceData.customerName,
+          email: fullRemittanceData.customerEmail,
+          address: fullRemittanceData.customerAddress || "Address not provided",
+        },
+        items: fullRemittanceData.items || [
           {
-            id: "1",
-            date: remittance.date,
-            reference: "Sample Reference",
+            id: "default",
+            date: fullRemittanceData.date,
+            reference: "N/A",
             type: "invoice" as const,
-            amount: remittance.totalPayment,
-            paymentAmount: remittance.totalPayment,
+            amount: fullRemittanceData.totalPayment,
+            paymentAmount: fullRemittanceData.totalPayment,
           }
         ],
-        totalPayment: remittance.totalPayment,
-        status: remittance.status,
-        createdAt: new Date(remittance.createdAt),
-        updatedAt: new Date(remittance.updatedAt),
+        totalPayment: fullRemittanceData.totalPayment,
+        status: fullRemittanceData.status,
+        createdAt: new Date(fullRemittanceData.createdAt),
+        updatedAt: new Date(fullRemittanceData.updatedAt),
       };
 
       // Generate and download the remittance advice PDF
@@ -194,7 +213,7 @@ export default function RemittanceList() {
       console.error("Error generating remittance PDF:", error);
       toast({
         title: "Download Failed",
-        description: "Failed to generate remittance advice PDF",
+        description: "Failed to generate remittance advice PDF. " + (error.message || ""),
         variant: "destructive",
       });
     }
