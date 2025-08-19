@@ -65,17 +65,18 @@ export default function RemittanceList() {
   useEffect(() => {
     const fetchRemittances = async () => {
       try {
-        const response = await fetch('/api/remittances');
+        const response = await fetch("/api/remittances");
         if (!response.ok) {
-          throw new Error('Failed to fetch remittances');
+          throw new Error("Failed to fetch remittances");
         }
         const data = await response.json();
         setRemittances(data.remittances || []);
       } catch (error) {
-        console.error('Error fetching remittances:', error);
+        console.error("Error fetching remittances:", error);
         toast({
           title: "Error",
-          description: "Failed to load remittance advice records. Please check database connection.",
+          description:
+            "Failed to load remittance advice records. Please check database connection.",
           variant: "destructive",
         });
         setRemittances([]);
@@ -152,11 +153,72 @@ export default function RemittanceList() {
     });
   };
 
-  const handleDownload = (remittance: RemittanceAdvice) => {
-    toast({
-      title: "Download Started",
-      description: `Downloading ${remittance.remittanceNumber}.pdf`,
-    });
+  const handleDownload = async (remittance: RemittanceAdvice) => {
+    try {
+      // Import PDFService if not already imported
+      const PDFService = (await import("../services/pdfService")).default;
+
+      // Fetch the full remittance details from the API
+      const response = await fetch(`/api/remittances/${remittance.id}`, {
+        headers: {
+          "x-company-id": "00000000-0000-0000-0000-000000000001",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch remittance details");
+      }
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || "Failed to fetch remittance details");
+      }
+
+      const fullRemittanceData = result.data;
+
+      // Create the remittance document structure for PDF generation
+      const remittanceDoc = {
+        id: fullRemittanceData.id,
+        remittanceNumber: fullRemittanceData.remittanceNumber,
+        date: fullRemittanceData.date,
+        customer: {
+          name: fullRemittanceData.customerName,
+          email: fullRemittanceData.customerEmail,
+          address: fullRemittanceData.customerAddress || "Address not provided",
+        },
+        items: fullRemittanceData.items || [
+          {
+            id: "default",
+            date: fullRemittanceData.date,
+            reference: "N/A",
+            type: "invoice" as const,
+            amount: fullRemittanceData.totalPayment,
+            paymentAmount: fullRemittanceData.totalPayment,
+          },
+        ],
+        totalPayment: fullRemittanceData.totalPayment,
+        status: fullRemittanceData.status,
+        createdAt: new Date(fullRemittanceData.createdAt),
+        updatedAt: new Date(fullRemittanceData.updatedAt),
+      };
+
+      // Generate and download the remittance advice PDF
+      await PDFService.generateRemittanceAdvicePDF(remittanceDoc);
+
+      toast({
+        title: "Download Complete",
+        description: `${remittance.remittanceNumber}.pdf downloaded successfully`,
+      });
+    } catch (error) {
+      console.error("Error generating remittance PDF:", error);
+      toast({
+        title: "Download Failed",
+        description:
+          "Failed to generate remittance advice PDF. " + (error.message || ""),
+        variant: "destructive",
+      });
+    }
   };
 
   // Calculate summary statistics
