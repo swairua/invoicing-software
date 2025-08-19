@@ -1002,6 +1002,104 @@ export class PDFService {
   }
 
   /**
+   * Add credit note items table
+   */
+  private static addCreditNoteItemsTable(doc: jsPDF, creditNote: any): void {
+    const tableData = (creditNote.items || []).map((item: any, index: number) => [
+      index + 1,
+      item.product?.name || item.description || "Unknown Item",
+      item.quantity || 1,
+      item.product?.unit || "Piece",
+      this.formatCurrency(item.unitPrice || 0),
+      `${item.vatRate || 16}%`,
+      this.formatCurrency(item.total || 0),
+    ]);
+
+    const tableHeaders = [
+      "Item No.",
+      "Item Description",
+      "Qty",
+      "Unit Pack",
+      "Unit Price (incl) Ksh",
+      "Vat",
+      "Total Price (incl) Ksh",
+    ];
+
+    autoTable(doc, {
+      startY: 120,
+      head: [tableHeaders],
+      body: tableData,
+      theme: "grid",
+      headStyles: {
+        fillColor: [128, 128, 128],
+        textColor: [0, 0, 0],
+        fontStyle: "bold",
+        fontSize: 8,
+        halign: "center",
+        valign: "middle",
+        lineColor: [0, 0, 0],
+        lineWidth: 1,
+      },
+      styles: {
+        fontSize: 9,
+        cellPadding: 4,
+        lineColor: [0, 0, 0],
+        lineWidth: 0.5,
+        textColor: [40, 40, 40],
+      },
+      alternateRowStyles: {
+        fillColor: [248, 250, 252],
+      },
+      columnStyles: {
+        0: { halign: "center", cellWidth: 15 },
+        1: { halign: "left", cellWidth: 65 },
+        2: { halign: "center", cellWidth: 15 },
+        3: { halign: "center", cellWidth: 18 },
+        4: { halign: "right", cellWidth: 25 },
+        5: { halign: "center", cellWidth: 15 },
+        6: { halign: "right", cellWidth: 27 },
+      },
+    });
+  }
+
+  /**
+   * Add credit note total section
+   */
+  private static addCreditNoteTotalSection(
+    doc: jsPDF,
+    total: number,
+    startY: number,
+  ): void {
+    const boxWidth = 75;
+    const boxHeight = 18;
+    const rightMargin = 20;
+    const boxX = doc.internal.pageSize.width - rightMargin - boxWidth;
+
+    // Create bordered total section with red background for credit
+    doc.setDrawColor(220, 20, 60);
+    doc.setLineWidth(1);
+    doc.rect(boxX, startY, boxWidth, boxHeight);
+
+    // Red background for credit note
+    doc.setFillColor(255, 240, 240);
+    doc.rect(boxX, startY, boxWidth, boxHeight, "F");
+    doc.rect(boxX, startY, boxWidth, boxHeight);
+
+    doc.setTextColor(220, 20, 60);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+
+    doc.text("Credit Amount (Kes)", boxX + 3, startY + 12);
+    doc.text(this.formatCurrency(total), boxX + boxWidth - 3, startY + 12, {
+      align: "right",
+    });
+
+    // Reset colors
+    doc.setTextColor(0, 0, 0);
+    doc.setDrawColor(0, 0, 0);
+  }
+
+  /**
    * Add payment details
    */
   private static addPaymentDetails(
