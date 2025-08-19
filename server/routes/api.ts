@@ -8,7 +8,6 @@ import taxesRouter from "./taxes";
 import seedRouter from "./seed";
 import migrationRouter from "./migration";
 import testUpdateRouter from "./test-update";
-import remittancesRouter from "./remittances";
 import Database from "../database";
 import customerRepository from "../repositories/customerRepository";
 import productRepository from "../repositories/productRepository";
@@ -349,17 +348,13 @@ router.get("/dashboard/metrics", async (req, res) => {
     console.log("Request headers:", req.headers);
     console.log("Request URL:", req.url);
 
-    const companyId =
-      req.headers["x-company-id"] || "00000000-0000-0000-0000-000000000001";
+    const companyId = req.headers["x-company-id"] || "00000000-0000-0000-0000-000000000001";
 
     // First check what tables exist
     const tablesResult = await Database.query(
-      "SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE()",
+      "SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE()"
     );
-    console.log(
-      "Available tables:",
-      tablesResult.rows.map((r) => r.table_name || r.TABLE_NAME),
-    );
+    console.log("Available tables:", tablesResult.rows.map(r => r.table_name || r.TABLE_NAME));
 
     let metrics = {
       totalRevenue: 0,
@@ -371,20 +366,16 @@ router.get("/dashboard/metrics", async (req, res) => {
       recentActivities: [],
       outstandingInvoicesList: [],
       lowStockItems: [],
-      recentPaymentsList: [],
+      recentPaymentsList: []
     };
 
     // Get low stock alerts from products table (this should exist)
     try {
       const lowStockResult = await Database.query(
         "SELECT COUNT(*) as lowStockAlerts FROM products WHERE company_id = ? AND current_stock <= min_stock AND is_active = true",
-        [companyId],
+        [companyId]
       );
-      metrics.lowStockAlerts = parseInt(
-        lowStockResult.rows[0]?.lowStockAlerts ||
-          lowStockResult.rows[0]?.count ||
-          0,
-      );
+      metrics.lowStockAlerts = parseInt(lowStockResult.rows[0]?.lowStockAlerts || lowStockResult.rows[0]?.count || 0);
     } catch (error) {
       console.log("Error getting low stock alerts:", error.message);
     }
@@ -402,7 +393,7 @@ router.get("/dashboard/metrics", async (req, res) => {
          WHERE p.company_id = ? AND p.is_active = true
          ORDER BY p.selling_price DESC
          LIMIT 5`,
-        [companyId],
+        [companyId]
       );
       metrics.topProducts = topProductsResult.rows || [];
     } catch (error) {
@@ -413,11 +404,9 @@ router.get("/dashboard/metrics", async (req, res) => {
     try {
       const revenueResult = await Database.query(
         "SELECT COALESCE(SUM(total_amount), 0) as totalRevenue FROM invoices WHERE company_id = ? AND status = 'paid'",
-        [companyId],
+        [companyId]
       );
-      metrics.totalRevenue = parseFloat(
-        revenueResult.rows[0]?.totalRevenue || 0,
-      );
+      metrics.totalRevenue = parseFloat(revenueResult.rows[0]?.totalRevenue || 0);
     } catch (error) {
       console.log("Invoices table not available, using 0 for revenue");
     }
@@ -426,11 +415,9 @@ router.get("/dashboard/metrics", async (req, res) => {
     try {
       const outstandingResult = await Database.query(
         "SELECT COALESCE(SUM(total_amount), 0) as outstandingInvoices FROM invoices WHERE company_id = ? AND status IN ('sent', 'overdue')",
-        [companyId],
+        [companyId]
       );
-      metrics.outstandingInvoices = parseFloat(
-        outstandingResult.rows[0]?.outstandingInvoices || 0,
-      );
+      metrics.outstandingInvoices = parseFloat(outstandingResult.rows[0]?.outstandingInvoices || 0);
     } catch (error) {
       console.log("Invoices table not available, using 0 for outstanding");
     }
@@ -439,11 +426,9 @@ router.get("/dashboard/metrics", async (req, res) => {
     try {
       const paymentsResult = await Database.query(
         "SELECT COALESCE(SUM(amount), 0) as recentPayments FROM payments WHERE company_id = ? AND created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)",
-        [companyId],
+        [companyId]
       );
-      metrics.recentPayments = parseFloat(
-        paymentsResult.rows[0]?.recentPayments || 0,
-      );
+      metrics.recentPayments = parseFloat(paymentsResult.rows[0]?.recentPayments || 0);
     } catch (error) {
       console.log("Payments table not available, using 0 for payments");
     }
@@ -458,7 +443,7 @@ router.get("/dashboard/metrics", async (req, res) => {
     res.status(500).json({
       success: false,
       error: "Failed to load dashboard metrics from database",
-      message: error.message,
+      message: error.message
     });
   }
 });
@@ -671,21 +656,20 @@ router.get("/quotations", async (req, res) => {
     console.log(`📋 Found ${result.rows.length} quotations`);
 
     // Transform the data to match the expected interface
-    const transformedQuotations = result.rows.map((row) => ({
+    const transformedQuotations = result.rows.map(row => ({
       id: row.id,
       quoteNumber: row.quote_number,
       customerId: row.customer_id,
       customer: {
         id: row.customer_id,
         name: row.customer_name,
-        email: row.customer_email,
+        email: row.customer_email
       },
       items: [], // TODO: Load items separately if needed
-      subtotal: parseFloat(row.subtotal || "0"),
-      vatAmount:
-        parseFloat(row.vat_amount || "0") || parseFloat(row.tax_amount || "0"),
-      discountAmount: parseFloat(row.discount_amount || "0"),
-      total: parseFloat(row.total_amount || "0"),
+      subtotal: parseFloat(row.subtotal || '0'),
+      vatAmount: parseFloat(row.vat_amount || '0') || parseFloat(row.tax_amount || '0'),
+      discountAmount: parseFloat(row.discount_amount || '0'),
+      total: parseFloat(row.total_amount || '0'),
       status: row.status,
       validUntil: row.valid_until,
       issueDate: row.issue_date,
@@ -693,14 +677,11 @@ router.get("/quotations", async (req, res) => {
       companyId: row.company_id,
       createdBy: row.created_by,
       createdAt: row.created_at,
-      updatedAt: row.updated_at,
+      updatedAt: row.updated_at
     }));
 
     if (transformedQuotations.length > 0) {
-      console.log(
-        "📋 First transformed quotation sample:",
-        JSON.stringify(transformedQuotations[0], null, 2),
-      );
+      console.log("📋 First transformed quotation sample:", JSON.stringify(transformedQuotations[0], null, 2));
     }
 
     res.json({
@@ -712,7 +693,7 @@ router.get("/quotations", async (req, res) => {
     res.status(500).json({
       success: false,
       error: "Failed to fetch quotations from database",
-      message: error.message,
+      message: error.message
     });
   }
 });
@@ -830,7 +811,6 @@ router.use("/taxes", taxesRouter);
 router.use("/seed", seedRouter);
 router.use("/migration", migrationRouter);
 router.use("/test-update", testUpdateRouter);
-router.use("/remittances", remittancesRouter);
 
 router.get("/proformas", async (req, res) => {
   try {
@@ -840,7 +820,7 @@ router.get("/proformas", async (req, res) => {
 
     const result = await Database.query(
       `
-      SELECT
+      SELECT 
         p.*,
         c.name as customer_name,
         c.email as customer_email
@@ -853,32 +833,6 @@ router.get("/proformas", async (req, res) => {
       [companyId],
     );
 
-    // Fetch line items for each proforma
-    for (const proforma of result.rows) {
-      try {
-        const itemsResult = await Database.query(
-          `
-          SELECT
-            pi.*,
-            pr.name as product_name,
-            pr.description as product_description
-          FROM proforma_invoice_items pi
-          LEFT JOIN products pr ON pi.product_id = pr.id
-          WHERE pi.proforma_id = ?
-          ORDER BY pi.created_at
-          `,
-          [proforma.id],
-        );
-        proforma.items = itemsResult.rows || [];
-      } catch (itemError) {
-        console.warn(
-          `Failed to fetch items for proforma ${proforma.id}:`,
-          itemError,
-        );
-        proforma.items = [];
-      }
-    }
-
     res.json({
       success: true,
       data: result.rows,
@@ -888,7 +842,6 @@ router.get("/proformas", async (req, res) => {
     console.log("Returning fallback proformas data");
 
     // Return fallback proformas when database is unavailable
-    console.log("📦 Using fallback proforma list data with line items");
     const fallbackProformas = [
       {
         id: "1",
@@ -899,34 +852,7 @@ router.get("/proformas", async (req, res) => {
           name: "Acme Corporation Ltd",
           email: "contact@acme.com",
         },
-        items: [
-          {
-            id: "item-1-proforma-1",
-            productId: "prod-1",
-            product_name: "Medical Surgical Masks",
-            product_description:
-              "High-quality disposable surgical masks - Box of 50",
-            quantity: 100,
-            unit_price: 150.0,
-            discount_percentage: 0,
-            line_total: 15000.0,
-            tax_rate: 16,
-            tax_amount: 2400.0,
-          },
-          {
-            id: "item-2-proforma-1",
-            productId: "prod-2",
-            product_name: "Digital Thermometer",
-            product_description:
-              "Non-contact infrared thermometer with LCD display",
-            quantity: 10,
-            unit_price: 2000.0,
-            discount_percentage: 0,
-            line_total: 20000.0,
-            tax_rate: 16,
-            tax_amount: 3200.0,
-          },
-        ],
+        items: [],
         subtotal: 35000,
         vatAmount: 5600,
         discountAmount: 0,
@@ -979,39 +905,15 @@ router.get("/proformas/:id", async (req, res) => {
       });
     }
 
-    const proforma = result.rows[0];
-
-    // Fetch line items for this proforma
-    try {
-      const itemsResult = await Database.query(
-        `
-        SELECT
-          pi.*,
-          pr.name as product_name,
-          pr.description as product_description
-        FROM proforma_invoice_items pi
-        LEFT JOIN products pr ON pi.product_id = pr.id
-        WHERE pi.proforma_id = ?
-        ORDER BY pi.created_at
-        `,
-        [id],
-      );
-      proforma.items = itemsResult.rows || [];
-    } catch (itemError) {
-      console.warn(`Failed to fetch items for proforma ${id}:`, itemError);
-      proforma.items = [];
-    }
-
     res.json({
       success: true,
-      data: proforma,
+      data: result.rows[0],
     });
   } catch (error) {
     console.error("Error fetching proforma:", error);
     console.log("Returning fallback proforma data for ID:", req.params.id);
 
     // Return fallback proforma when database is unavailable
-    console.log("📦 Using fallback proforma data with line items");
     const fallbackProformas = [
       {
         id: "1",
@@ -1022,34 +924,7 @@ router.get("/proformas/:id", async (req, res) => {
           name: "Acme Corporation Ltd",
           email: "contact@acme.com",
         },
-        items: [
-          {
-            id: "item-1-proforma-1",
-            productId: "prod-1",
-            product_name: "Medical Surgical Masks",
-            product_description:
-              "High-quality disposable surgical masks - Box of 50",
-            quantity: 100,
-            unit_price: 150.0,
-            discount_percentage: 0,
-            line_total: 15000.0,
-            tax_rate: 16,
-            tax_amount: 2400.0,
-          },
-          {
-            id: "item-2-proforma-1",
-            productId: "prod-2",
-            product_name: "Digital Thermometer",
-            product_description:
-              "Non-contact infrared thermometer with LCD display",
-            quantity: 10,
-            unit_price: 2000.0,
-            discount_percentage: 0,
-            line_total: 20000.0,
-            tax_rate: 16,
-            tax_amount: 3200.0,
-          },
-        ],
+        items: [],
         subtotal: 35000,
         vatAmount: 5600,
         discountAmount: 0,

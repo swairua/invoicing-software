@@ -417,63 +417,6 @@ export default function StatementOfAccount() {
 
   const agingData = getAgingData();
 
-  const handleExportPDF = async () => {
-    try {
-      if (!filter.customerId) {
-        alert("Please select a customer first");
-        return;
-      }
-
-      const customer = customers.find((c) => c.id === filter.customerId);
-      if (!customer) {
-        alert("Customer not found");
-        return;
-      }
-
-      // Import PDFService
-      const PDFService = (await import("../services/pdfService")).default;
-
-      // Prepare statement data for PDF
-      const statementData = {
-        customer: {
-          name: customer.name,
-          address: customer.address || "No address on file",
-          email: customer.email || "",
-          phone: customer.phone || "",
-        },
-        transactions: statementEntries.map((entry) => ({
-          date: entry.date,
-          name: customer.name,
-          invoice: entry.reference,
-          dueDate: entry.invoiceData?.dueDate || null,
-          originalAmount: entry.debit,
-          paidAmount: entry.credit,
-          balance: entry.balance,
-          status: entry.status,
-        })),
-        dateRange: {
-          start: filter.startDate,
-          end: filter.endDate,
-        },
-        summary: {
-          totalOutstanding: agingData.total,
-          current: agingData.current,
-          overdue: agingData.overdue,
-        },
-      };
-
-      await PDFService.generateStatementPDF(statementData);
-
-      // Show success message
-      alert(
-        `Statement of Account PDF generated successfully for ${customer.name}`,
-      );
-    } catch (error) {
-      console.error("Error generating statement PDF:", error);
-      alert("Failed to generate statement PDF. Please try again.");
-    }
-  };
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -486,7 +429,7 @@ export default function StatementOfAccount() {
             Generate customer account statements with aging analysis
           </p>
         </div>
-        <Button onClick={handleExportPDF}>
+        <Button>
           <Download className="mr-2 h-4 w-4" />
           Export PDF
         </Button>

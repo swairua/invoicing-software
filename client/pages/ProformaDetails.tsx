@@ -40,7 +40,6 @@ import { ProformaInvoice } from "@shared/types";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import { useToast } from "../hooks/use-toast";
 import { safeFormatDateKE } from "@/lib/utils";
-import { PDFService } from "../services/pdfService";
 
 export default function ProformaDetails() {
   const { id } = useParams<{ id: string }>();
@@ -150,30 +149,6 @@ export default function ProformaDetails() {
     });
   };
 
-  const handleDownloadPDF = async () => {
-    if (!proforma) return;
-
-    try {
-      await PDFService.generateProformaPDF(proforma, true);
-      toast({
-        title: "PDF Downloaded",
-        description: "Proforma PDF has been downloaded successfully.",
-      });
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      toast({
-        title: "Error",
-        description: "Failed to generate PDF. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleEdit = () => {
-    if (!proforma) return;
-    navigate(`/proforma/${proforma.id}/edit`);
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -221,15 +196,11 @@ export default function ProformaDetails() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleEdit}>
-            <Edit className="mr-2 h-4 w-4" />
-            Edit
-          </Button>
           <Button variant="outline">
             <Copy className="mr-2 h-4 w-4" />
             Duplicate
           </Button>
-          <Button variant="outline" onClick={handleDownloadPDF}>
+          <Button variant="outline">
             <Download className="mr-2 h-4 w-4" />
             PDF
           </Button>
@@ -388,33 +359,21 @@ export default function ProformaDetails() {
                         <TableCell>
                           <div>
                             <div className="font-medium">
-                              {item.product?.name ||
-                                item.product_name ||
-                                "Unknown Product"}
+                              {item.product.name}
                             </div>
                             <div className="text-sm text-muted-foreground">
-                              {item.product_description ||
-                                item.product?.description ||
-                                "No description"}
+                              SKU: {item.product.sku}
                             </div>
                           </div>
                         </TableCell>
                         <TableCell>
-                          {item.quantity} {item.product?.unit || "units"}
+                          {item.quantity} {item.product.unit}
                         </TableCell>
-                        <TableCell>
-                          {formatCurrency(
-                            item.unit_price || item.unitPrice || 0,
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {item.discount_percentage || item.discount || 0}%
-                        </TableCell>
-                        <TableCell>
-                          {item.tax_rate || item.vatRate || 0}%
-                        </TableCell>
+                        <TableCell>{formatCurrency(item.unitPrice)}</TableCell>
+                        <TableCell>{item.discount}%</TableCell>
+                        <TableCell>{item.vatRate}%</TableCell>
                         <TableCell className="text-right font-medium">
-                          {formatCurrency(item.line_total || item.total || 0)}
+                          {formatCurrency(item.total)}
                         </TableCell>
                       </TableRow>
                     ))}

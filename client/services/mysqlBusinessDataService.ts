@@ -31,102 +31,160 @@ class MySQLBusinessDataService {
     }
   }
 
-  // Hybrid fetch implementation with fast FullStory detection and XMLHttpRequest fallback
-  private async robustFetch(
-    url: string,
-    options: RequestInit = {},
-  ): Promise<Response> {
+  // Production-optimized fetch with multiple FullStory bypass strategies
+  private async robustFetch(url: string, options: RequestInit = {}): Promise<Response> {
     console.log(`🔍 robustFetch called for: ${url}`);
-    console.log(
-      `🔍 FullStory interference pre-detected: ${this.hasDetectedFetchInterference}`,
-    );
 
-    // If we've already detected FullStory interference, skip native fetch entirely
-    if (
-      this.hasDetectedFetchInterference &&
-      typeof XMLHttpRequest !== "undefined"
-    ) {
-      console.log(
-        "🔧 Skipping native fetch, using XMLHttpRequest due to pre-detected FullStory interference",
-      );
-      try {
-        return await this.xmlHttpRequestFetch(url, options);
-      } catch (xhrError) {
-        console.error(`❌ XMLHttpRequest failed for ${url}:`, xhrError);
-        throw new Error(`XMLHttpRequest failed: ${xhrError.message}`);
-      }
-    }
+    let lastError: Error | null = null;
 
-    // Try native fetch first with reasonable timeout for production environments
-    const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(
-        () =>
-          reject(new Error("Fetch timeout - likely FullStory interference")),
-        10000,
-      ); // 10 second timeout for production
-    });
-
+    // Strategy 1: Try native fetch with FullStory bypass
     try {
-      console.log("📡 Attempting native fetch with FullStory detection...");
-      const fetchPromise = window.fetch(url, options);
+      console.log("📡 Strategy 1: Attempting native fetch...");
+
+      // Save original fetch before FullStory can modify it
+      const originalFetch = (window as any).__originalFetch || window.fetch;
+
+      // Try with 3-second timeout to detect FullStory quickly
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Fetch timeout - FullStory detected')), 3000);
+      });
+
+      const fetchPromise = originalFetch(url, {
+        ...options,
+        mode: 'cors' as RequestMode,
+        credentials: 'same-origin' as RequestCredentials,
+      });
+
       const response = await Promise.race([fetchPromise, timeoutPromise]);
       console.log(`✅ Native fetch succeeded for: ${url}`);
       return response;
-    } catch (error) {
-      console.error(`❌ Native fetch failed for ${url}:`, error);
 
-      // Any fetch failure in production likely means FullStory interference
-      if (typeof XMLHttpRequest !== "undefined") {
-        console.log("🔧 Falling back to XMLHttpRequest due to fetch failure");
-        this.hasDetectedFetchInterference = true; // Remember for future calls
-
-        try {
-          return await this.xmlHttpRequestFetch(url, options);
-        } catch (xhrError) {
-          console.error(`❌ XMLHttpRequest also failed for ${url}:`, xhrError);
-
-          // If XMLHttpRequest times out, try a more permissive approach
-          if (xhrError.message.includes("timeout")) {
-            console.log(
-              "�� XMLHttpRequest timed out, trying fetch with no-cors mode...",
-            );
-            try {
-              const response = await window.fetch(url, {
-                ...options,
-                mode: "cors",
-                credentials: "same-origin",
-              });
-              return response;
-            } catch (finalError) {
-              console.error(`❌ All methods failed for ${url}:`, finalError);
-              throw new Error(
-                `All network methods failed. Original: ${error.message}, XHR: ${xhrError.message}, Final: ${finalError.message}`,
-              );
-            }
-          }
-
-          throw new Error(
-            `Both fetch and XMLHttpRequest failed. Fetch: ${error.message}, XHR: ${xhrError.message}`,
-          );
-        }
-      } else {
-        throw new Error(
-          `Fetch failed and XMLHttpRequest not available: ${error.message}`,
-        );
-      }
+    } catch (fetchError) {
+      console.log(`⚠️ Strategy 1 failed: ${fetchError.message}`);
+      lastError = fetchError;
     }
+
+    // Strategy 2: Try XMLHttpRequest fallback
+    try {
+      console.log("🔧 Strategy 2: Trying XMLHttpRequest...");
+      return await this.xmlHttpRequestFetch(url, options);
+    } catch (xhrError) {
+      console.log(`⚠️ Strategy 2 failed: ${xhrError.message}`);
+      lastError = xhrError;
+    }
+
+    // Strategy 3: Try iframe-based fetch (ultimate FullStory bypass)
+    try {
+      console.log("🖼️ Strategy 3: Trying iframe-based fetch...");
+      return await this.iframeFetch(url, options);
+    } catch (iframeError) {
+      console.log(`⚠️ Strategy 3 failed: ${iframeError.message}`);
+      lastError = iframeError;
+    }
+
+    // Strategy 4: Try direct fetch without any modifications (last resort)
+    try {
+      console.log("🚨 Strategy 4: Direct fetch last resort...");
+      const response = await window.fetch(url, options);
+      console.log(`✅ Direct fetch succeeded for: ${url}`);
+      return response;
+    } catch (directError) {
+      console.log(`⚠️ Strategy 4 failed: ${directError.message}`);
+      lastError = directError;
+    }
+
+    // All strategies failed
+    console.error(`❌ All 4 strategies failed for ${url}`);
+    throw new Error(`All network strategies failed. Last error: ${lastError?.message || 'Unknown error'}`);
+  }
+
+  // Simplified iframe fetch for FullStory bypass
+  private async iframeFetch(url: string, options: RequestInit = {}): Promise<Response> {
+    return new Promise((resolve, reject) => {
+      console.log(`🖼️ Creating clean iframe for: ${url}`);
+
+      try {
+        // Create a completely isolated iframe
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.style.position = 'absolute';
+        iframe.style.left = '-9999px';
+        iframe.src = 'about:blank';
+
+        let timeoutId: number;
+
+        const cleanup = () => {
+          if (timeoutId) clearTimeout(timeoutId);
+          if (iframe.parentNode) {
+            iframe.parentNode.removeChild(iframe);
+          }
+        };
+
+        iframe.onload = () => {
+          try {
+            const iframeWindow = iframe.contentWindow;
+            if (!iframeWindow) {
+              cleanup();
+              reject(new Error('Cannot access iframe window'));
+              return;
+            }
+
+            // Create a simple fetch using the iframe's context
+            console.log(`🖼️ Executing fetch in clean iframe context`);
+
+            // Use the iframe's global fetch
+            iframeWindow.fetch(url, {
+              ...options,
+              mode: 'cors',
+              credentials: 'same-origin',
+            })
+            .then(response => {
+              console.log(`✅ Iframe fetch succeeded for: ${url}`);
+              cleanup();
+              resolve(response);
+            })
+            .catch(error => {
+              console.error(`❌ Iframe fetch request failed:`, error);
+              cleanup();
+              reject(error);
+            });
+
+          } catch (error) {
+            console.error(`❌ Iframe execution failed:`, error);
+            cleanup();
+            reject(error);
+          }
+        };
+
+        iframe.onerror = () => {
+          console.error(`❌ Iframe failed to load`);
+          cleanup();
+          reject(new Error('Iframe failed to load'));
+        };
+
+        // Set timeout
+        timeoutId = window.setTimeout(() => {
+          console.error(`❌ Iframe fetch timeout`);
+          cleanup();
+          reject(new Error('Iframe fetch timeout after 8 seconds'));
+        }, 8000);
+
+        document.body.appendChild(iframe);
+
+      } catch (error) {
+        console.error(`❌ Iframe creation failed:`, error);
+        reject(error);
+      }
+    });
   }
 
   // XMLHttpRequest-based fetch alternative
-  private async xmlHttpRequestFetch(
-    url: string,
-    options: RequestInit = {},
-  ): Promise<Response> {
+  private async xmlHttpRequestFetch(url: string, options: RequestInit = {}): Promise<Response> {
     return new Promise((resolve, reject) => {
       console.log(`🔧 XMLHttpRequest fallback for: ${url}`);
 
       const xhr = new XMLHttpRequest();
-      const method = options.method || "GET";
+      const method = options.method || 'GET';
 
       xhr.open(method, url, true);
 
@@ -140,58 +198,39 @@ class MySQLBusinessDataService {
       }
 
       xhr.onload = () => {
-        console.log(
-          `🔧 XMLHttpRequest response: status=${xhr.status}, statusText=${xhr.statusText}`,
-        );
-        console.log(
-          `🔧 XMLHttpRequest responseText length: ${xhr.responseText?.length || 0}`,
-        );
+        console.log(`🔧 XMLHttpRequest response: status=${xhr.status}, statusText=${xhr.statusText}`);
+        console.log(`🔧 XMLHttpRequest responseText length: ${xhr.responseText?.length || 0}`);
 
         const response = new Response(xhr.responseText, {
           status: xhr.status,
           statusText: xhr.statusText,
           headers: new Headers({
-            "content-type":
-              xhr.getResponseHeader("content-type") || "application/json",
-          }),
+            'content-type': xhr.getResponseHeader('content-type') || 'application/json'
+          })
         });
         resolve(response);
       };
 
       xhr.onerror = (event) => {
-        console.error(`🔧 XMLHttpRequest error for ${url}:`, event);
-        console.log("🔧 This could indicate server downtime or network issues");
-        reject(
-          new TypeError(
-            `Network request failed for ${url}. Server may be unavailable or there are connectivity issues.`,
-          ),
-        );
+        console.error(`🔧 XMLHttpRequest error:`, event);
+        reject(new TypeError('Network request failed via XMLHttpRequest'));
       };
 
       xhr.ontimeout = () => {
-        console.error(
-          `🔧 XMLHttpRequest timeout after ${xhr.timeout}ms for ${url}`,
-        );
-        console.log("🔧 Network might be slow or server overloaded");
-        reject(
-          new TypeError(
-            `Network request timed out after ${xhr.timeout}ms for ${url}. Check network connectivity and server status.`,
-          ),
-        );
+        console.error(`🔧 XMLHttpRequest timeout after ${xhr.timeout}ms`);
+        reject(new TypeError('Network request timed out via XMLHttpRequest'));
       };
 
       xhr.onabort = () => {
         console.error(`🔧 XMLHttpRequest aborted`);
-        reject(new TypeError("Network request aborted via XMLHttpRequest"));
+        reject(new TypeError('Network request aborted via XMLHttpRequest'));
       };
 
-      // Set generous timeout for XMLHttpRequest fallback to handle slow networks
-      xhr.timeout = 30000; // 30 seconds
+      // Set reasonable timeout for XMLHttpRequest fallback
+      xhr.timeout = 15000; // 15 seconds
 
       // Send request
-      console.log(
-        `��� Sending XMLHttpRequest with method=${method}, body=${options.body ? "present" : "none"}`,
-      );
+      console.log(`🔧 Sending XMLHttpRequest with method=${method}, body=${options.body ? 'present' : 'none'}`);
       if (options.body) {
         xhr.send(options.body as string);
       } else {
@@ -203,55 +242,21 @@ class MySQLBusinessDataService {
   constructor() {
     // Intelligent FullStory detection for all environments
     const currentUrl = window.location.href;
-    const isProduction =
-      currentUrl.includes("fly.dev") ||
-      currentUrl.includes(".app") ||
-      !currentUrl.includes("localhost");
+    const isProduction = currentUrl.includes('fly.dev') || currentUrl.includes('.app') || !currentUrl.includes('localhost');
 
-    // In production environments, ALWAYS use XMLHttpRequest to avoid FullStory
-    if (isProduction) {
-      console.log(`🚨 Production environment detected: ${currentUrl}`);
-      console.log(
-        `🚨 Pre-emptively enabling XMLHttpRequest fallback for production`,
-      );
-      this.hasDetectedFetchInterference = true;
-    } else {
-      // For development, run normal detection
-      this.detectBrowserInterference();
-    }
-
-    // Additional check: if we detect any FullStory indicators, force XMLHttpRequest
-    try {
-      if (
-        window.FS ||
-        document.querySelector('script[src*="fullstory"]') ||
-        document.querySelector('script[src*="fs.js"]')
-      ) {
-        console.log(
-          `🚨 FullStory scripts detected, forcing XMLHttpRequest fallback`,
-        );
-        this.hasDetectedFetchInterference = true;
-      }
-    } catch (e) {
-      console.log("🔍 Could not check for FullStory scripts");
-    }
+    // Always run detection, but be more aggressive in production
+    this.detectBrowserInterference();
 
     // Additional logging for debugging
     console.log(`🔍 MySQLBusinessDataService initialized`);
     console.log(`🔍 Current URL: ${currentUrl}`);
     console.log(`🔍 Is production: ${isProduction}`);
-    console.log(
-      `🔍 FullStory interference detected: ${this.hasDetectedFetchInterference}`,
-    );
+    console.log(`🔍 FullStory interference detected: ${this.hasDetectedFetchInterference}`);
 
     if (this.hasDetectedFetchInterference) {
-      console.log(
-        `🚨 Will use XMLHttpRequest fallback for FullStory-affected requests`,
-      );
+      console.log(`🚨 Will use XMLHttpRequest fallback for FullStory-affected requests`);
     } else {
-      console.log(
-        `✅ Will try normal fetch first with fast FullStory detection`,
-      );
+      console.log(`✅ Will try normal fetch first with fast FullStory detection`);
     }
   }
 
@@ -265,32 +270,26 @@ class MySQLBusinessDataService {
   // Detect if browser extensions or third-party scripts are interfering with fetch
   private detectBrowserInterference(): void {
     try {
-      console.log("🔍 Starting browser interference detection...");
+      console.log('🔍 Starting browser interference detection...');
 
       // Check if fetch has been modified
       const fetchString = window.fetch.toString();
-      const isNativeFetch = fetchString.includes("[native code]");
-      console.log(
-        "🔍 Fetch function string (first 100 chars):",
-        fetchString.substring(0, 100),
-      );
-      console.log("🔍 Is native fetch:", isNativeFetch);
+      const isNativeFetch = fetchString.includes('[native code]');
+      console.log('🔍 Fetch function string (first 100 chars):', fetchString.substring(0, 100));
+      console.log('🔍 Is native fetch:', isNativeFetch);
 
       // Check for known third-party scripts that can interfere
-      const hasFullStory =
-        !!window.FS ||
-        !!document.querySelector('script[src*="fullstory"]') ||
-        !!document.querySelector('script[src*="fs.js"]');
+      const hasFullStory = !!window.FS || !!document.querySelector('script[src*="fullstory"]') || !!document.querySelector('script[src*="fs.js"]');
       const hasIntercom = !!window.Intercom;
       const hasHotjar = !!window.hj;
       const hasGoogleTagManager = !!window.gtag || !!window.google_tag_manager;
 
-      console.log("🔍 Third-party script detection:", {
+      console.log('🔍 Third-party script detection:', {
         nativeFetch: isNativeFetch,
         fullStory: hasFullStory,
         intercom: hasIntercom,
         hotjar: hasHotjar,
-        gtm: hasGoogleTagManager,
+        gtm: hasGoogleTagManager
       });
 
       // Be more aggressive about detecting FullStory
@@ -299,72 +298,57 @@ class MySQLBusinessDataService {
 
       // Check for FullStory in multiple ways
       const hasFullStoryWindow = !!window.FS;
-      const hasFullStoryScript =
-        !!document.querySelector('script[src*="fullstory"]') ||
-        !!document.querySelector('script[src*="fs.js"]');
-      const hasFullStoryInUrl = currentUrl.includes("fullstory");
-      const hasFullStoryInFetch =
-        fetchString.includes("fullstory") || fetchString.includes("fs.js");
+      const hasFullStoryScript = !!document.querySelector('script[src*="fullstory"]') || !!document.querySelector('script[src*="fs.js"]');
+      const hasFullStoryInUrl = currentUrl.includes('fullstory');
+      const hasFullStoryInFetch = fetchString.includes('fullstory') || fetchString.includes('fs.js');
 
       // Since the error traces clearly show FullStory, let's also check for eval contexts
-      const hasEvalContext =
-        fetchString.includes("eval") || fetchString.includes("messageHandler");
+      const hasEvalContext = fetchString.includes('eval') || fetchString.includes('messageHandler');
 
-      const isLikelyFullStoryPresent =
-        hasFullStoryWindow ||
-        hasFullStoryScript ||
-        hasFullStoryInUrl ||
-        hasFullStoryInFetch ||
-        hasEvalContext;
+      const isLikelyFullStoryPresent = hasFullStoryWindow || hasFullStoryScript || hasFullStoryInUrl || hasFullStoryInFetch || hasEvalContext;
 
-      console.log("🔍 FullStory comprehensive detection:", {
+      console.log('🔍 FullStory comprehensive detection:', {
         hasFullStoryWindow,
         hasFullStoryScript,
         hasFullStoryInUrl,
         hasFullStoryInFetch,
         hasEvalContext,
-        overall: isLikelyFullStoryPresent,
+        overall: isLikelyFullStoryPresent
       });
 
       // Check for production environment where FullStory is likely present
-      const isProductionWithFullStory =
-        currentUrl.includes("fly.dev") || currentUrl.includes("fullstory");
+      const isProductionWithFullStory = currentUrl.includes('fly.dev') || currentUrl.includes('fullstory');
 
       // Be more conservative - only detect interference if we have strong evidence
       if (!isNativeFetch || hasFullStory || isLikelyFullStoryPresent) {
         this.hasDetectedFetchInterference = true;
-        console.warn("🚨 Detected definite fetch interference from:", {
+        console.warn('🚨 Detected definite fetch interference from:', {
           nativeFetch: isNativeFetch,
           fullStory: hasFullStory,
-          fullStoryAggressive: isLikelyFullStoryPresent,
+          fullStoryAggressive: isLikelyFullStoryPresent
         });
-        console.warn("🚨 Will use fallback strategy for network requests");
+        console.warn('🚨 Will use fallback strategy for network requests');
       } else if (isProductionWithFullStory) {
-        console.log(
-          "🔍 Production environment detected, will monitor for FullStory interference",
-        );
+        console.log('🔍 Production environment detected, will monitor for FullStory interference');
         // Don't pre-emptively set interference flag, let runtime detection handle it
       } else {
-        console.log("✅ No interference detected, using native fetch");
+        console.log('✅ No interference detected, using native fetch');
       }
     } catch (error) {
-      console.warn("⚠️ Could not detect browser interference:", error);
+      console.warn('⚠️ Could not detect browser interference:', error);
       // Default to safe mode if detection fails
       this.hasDetectedFetchInterference = true;
-      console.warn(
-        "⚠️ Defaulting to XMLHttpRequest fallback due to detection error",
-      );
+      console.warn('⚠️ Defaulting to XMLHttpRequest fallback due to detection error');
     }
   }
 
-  // API helper methods with retry mechanism
+  // API helper methods
   private async apiCall(
     endpoint: string,
     options: RequestInit = {},
-    retryCount = 0,
   ): Promise<any> {
     const url = `${this.baseUrl}${endpoint}`;
-    console.log(`🌐 Making API call to: ${url}`);
+    console.log(`���� Making API call to: ${url}`);
     console.log(`🌐 Base URL: ${this.baseUrl}`);
     console.log(`🌐 Endpoint: ${endpoint}`);
     console.log(`🌐 Full URL: ${url}`);
@@ -391,17 +375,12 @@ class MySQLBusinessDataService {
 
     try {
       console.log(`🔄 Starting fetch request to ${url}...`);
-      console.log(
-        `🔄 Request options being sent:`,
-        JSON.stringify(requestOptions, null, 2),
-      );
+      console.log(`🔄 Request options being sent:`, JSON.stringify(requestOptions, null, 2));
 
       // Add a small delay to prevent rapid successive calls
-      if (endpoint === "/dashboard/metrics") {
-        console.log(
-          `⏱��� Adding small delay for dashboard metrics to prevent race conditions...`,
-        );
-        await new Promise((resolve) => setTimeout(resolve, 100));
+      if (endpoint === '/dashboard/metrics') {
+        console.log(`⏱️ Adding small delay for dashboard metrics to prevent race conditions...`);
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
 
       // Use robust fetch to avoid third-party interference
@@ -411,7 +390,7 @@ class MySQLBusinessDataService {
         status: response.status,
         statusText: response.statusText,
         ok: response.ok,
-        url: response.url,
+        url: response.url
       });
 
       if (!response.ok) {
@@ -419,66 +398,39 @@ class MySQLBusinessDataService {
           `❌ API call failed: ${response.status} ${response.statusText}`,
         );
 
-        let errorDetails = "No additional details";
+        let errorDetails = 'No additional details';
         try {
           // Try to read error response as JSON first, fallback to text
-          const contentType = response.headers.get("content-type");
-          if (contentType && contentType.includes("application/json")) {
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
             const errorData = await response.json();
             errorDetails = JSON.stringify(errorData);
           } else {
             errorDetails = await response.text();
           }
         } catch (readError) {
-          console.warn("Could not read error response body:", readError);
+          console.warn('Could not read error response body:', readError);
         }
 
         console.error(`❌ Response body:`, errorDetails);
-        throw new Error(
-          `API call failed: ${response.status} ${response.statusText}`,
-        );
+        throw new Error(`API call failed: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
       console.log(`✅ API call successful for ${endpoint}`);
       return data;
     } catch (error) {
-      console.error(
-        `💥 API call error for ${endpoint} (attempt ${retryCount + 1}):`,
-        error,
-      );
-
-      // Retry on network timeouts or connection errors, but not on HTTP errors
-      const maxRetries = 2;
-      const shouldRetry =
-        retryCount < maxRetries &&
-        (error.message.includes("timeout") ||
-          error.message.includes("Network") ||
-          error.message.includes("failed to fetch") ||
-          error.message.includes("XMLHttpRequest failed"));
-
-      if (shouldRetry) {
-        const delayMs = Math.pow(2, retryCount) * 1000; // Exponential backoff: 1s, 2s, 4s
-        console.log(
-          `🔄 Retrying ${endpoint} in ${delayMs}ms... (attempt ${retryCount + 2}/${maxRetries + 1})`,
-        );
-        await new Promise((resolve) => setTimeout(resolve, delayMs));
-        return this.apiCall(endpoint, options, retryCount + 1);
-      }
+      console.error(`💥 API call error for ${endpoint}:`, error);
 
       // Provide more specific error information for network failures
-      if (error instanceof TypeError && error.message === "Failed to fetch") {
-        console.error(
-          `🌐 Network error for ${endpoint}: This usually indicates:`,
-        );
+      if (error instanceof TypeError && error.message === 'Failed to fetch') {
+        console.error(`🌐 Network error for ${endpoint}: This usually indicates:`);
         console.error(`   - Server is unreachable`);
         console.error(`   - CORS policy blocked the request`);
         console.error(`   - Network connection issues`);
         console.error(`   - Server endpoint doesn't exist`);
         console.error(`🔍 Attempted URL: ${url}`);
-        console.error(
-          `🏢 Company ID: ${requestOptions.headers["x-company-id"]}`,
-        );
+        console.error(`🏢 Company ID: ${requestOptions.headers['x-company-id']}`);
       }
 
       throw error;
@@ -585,7 +537,10 @@ class MySQLBusinessDataService {
       .then((response) => {
         console.log("MySQLBusinessDataService: API response:", response);
         const products = Array.isArray(response.data) ? response.data : [];
-        console.log("MySQLBusinessDataService: returning products:", products);
+        console.log(
+          "MySQLBusinessDataService: returning products:",
+          products,
+        );
         return products;
       })
       .catch((error) => {
@@ -619,9 +574,7 @@ class MySQLBusinessDataService {
 
   public async searchProducts(query: string): Promise<Product[]> {
     try {
-      const response = await this.apiCall(
-        `/products/search?q=${encodeURIComponent(query)}`,
-      );
+      const response = await this.apiCall(`/products/search?q=${encodeURIComponent(query)}`);
       return response.success ? response.data : [];
     } catch (error) {
       console.error("Failed to search products:", error);
@@ -691,9 +644,7 @@ class MySQLBusinessDataService {
     }
   }
 
-  public async createCategory(
-    category: Partial<ProductCategory>,
-  ): Promise<ProductCategory> {
+  public async createCategory(category: Partial<ProductCategory>): Promise<ProductCategory> {
     try {
       const response = await this.apiCall("/categories", {
         method: "POST",
@@ -750,92 +701,6 @@ class MySQLBusinessDataService {
     }
   }
 
-  public async updateInvoice(
-    id: string,
-    invoice: Partial<Invoice>,
-  ): Promise<Invoice> {
-    try {
-      const response = await this.apiCall(`/invoices/${id}`, {
-        method: "PUT",
-        body: JSON.stringify(invoice),
-      });
-
-      if (!response.success) {
-        throw new Error(response.error || "Failed to update invoice");
-      }
-
-      return response.data;
-    } catch (error) {
-      console.error(`Failed to update invoice ${id}:`, error);
-      throw error;
-    }
-  }
-
-  public async deleteInvoice(id: string): Promise<boolean> {
-    try {
-      const response = await this.apiCall(`/invoices/${id}`, {
-        method: "DELETE",
-      });
-      return response.success;
-    } catch (error) {
-      console.error(`Failed to delete invoice ${id}:`, error);
-      return false;
-    }
-  }
-
-  public processPayment(
-    invoiceId: string,
-    amount: number,
-    method: string,
-    reference: string,
-    notes?: string,
-  ): any {
-    try {
-      console.log(`Processing payment: ${amount} for invoice ${invoiceId}`);
-      // For now, return a mock payment object since the API endpoint may not exist yet
-      return {
-        id: Date.now().toString(),
-        invoiceId,
-        amount,
-        method,
-        reference,
-        notes,
-        status: "completed",
-        createdAt: new Date(),
-      };
-    } catch (error) {
-      console.error(
-        `Failed to process payment for invoice ${invoiceId}:`,
-        error,
-      );
-      return null;
-    }
-  }
-
-  public async createPayment(payment: {
-    invoiceId: string;
-    amount: number;
-    method: string;
-    reference?: string;
-    notes?: string;
-  }): Promise<any> {
-    try {
-      const response = await this.apiCall("/payments", {
-        method: "POST",
-        body: JSON.stringify(payment),
-      });
-
-      if (!response.success) {
-        throw new Error(response.error || "Failed to create payment");
-      }
-
-      return response.data;
-    } catch (error) {
-      console.error("Failed to create payment:", error);
-      throw error;
-    }
-  }
-
   // Quotation methods
   public async getQuotations(): Promise<Quotation[]> {
     try {
@@ -852,10 +717,7 @@ class MySQLBusinessDataService {
       console.log("🔍 Returning quotations:", quotations);
       return quotations;
     } catch (error) {
-      console.error(
-        "🔍 MySQLBusinessDataService.getQuotations() error:",
-        error,
-      );
+      console.error("🔍 MySQLBusinessDataService.getQuotations() error:", error);
       throw error;
     }
   }
@@ -870,9 +732,7 @@ class MySQLBusinessDataService {
     }
   }
 
-  public async createQuotation(
-    quotation: Partial<Quotation>,
-  ): Promise<Quotation> {
+  public async createQuotation(quotation: Partial<Quotation>): Promise<Quotation> {
     try {
       const response = await this.apiCall("/quotations", {
         method: "POST",
@@ -997,36 +857,6 @@ class MySQLBusinessDataService {
     }
   }
 
-  // Add alias method for consistency with ProformaInvoices.tsx
-  public async getProformas(): Promise<ProformaInvoice[]> {
-    return this.getProformaInvoices();
-  }
-
-  // Add missing conversion method
-  public async convertProformaToInvoice(
-    proformaId: string,
-  ): Promise<Invoice | null> {
-    try {
-      const response = await this.apiCall(`/proformas/${proformaId}/convert`, {
-        method: "POST",
-      });
-
-      if (!response.success) {
-        throw new Error(
-          response.error || "Failed to convert proforma to invoice",
-        );
-      }
-
-      return response.data;
-    } catch (error) {
-      console.error(
-        `Failed to convert proforma ${proformaId} to invoice:`,
-        error,
-      );
-      throw error;
-    }
-  }
-
   // Payment methods
   public async getPayments(): Promise<Payment[]> {
     try {
@@ -1045,6 +875,24 @@ class MySQLBusinessDataService {
     } catch (error) {
       console.error(`Failed to fetch payment ${id}:`, error);
       return null;
+    }
+  }
+
+  public async createPayment(payment: Partial<Payment>): Promise<Payment> {
+    try {
+      const response = await this.apiCall("/payments", {
+        method: "POST",
+        body: JSON.stringify(payment),
+      });
+
+      if (!response.success) {
+        throw new Error(response.error || "Failed to create payment");
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error("Failed to create payment:", error);
+      throw error;
     }
   }
 
@@ -1070,9 +918,7 @@ class MySQLBusinessDataService {
   public async getDashboardMetrics(): Promise<DashboardMetrics> {
     // Prevent concurrent calls by returning the existing promise
     if (this.dashboardMetricsPromise) {
-      console.log(
-        "🔄 Dashboard metrics call already in progress, waiting for existing call...",
-      );
+      console.log("🔄 Dashboard metrics call already in progress, waiting for existing call...");
       try {
         return await this.dashboardMetricsPromise;
       } catch (error) {
@@ -1111,13 +957,11 @@ class MySQLBusinessDataService {
         const healthResponse = await this.apiCall("/health");
         console.log("🏥 Health endpoint response:", healthResponse);
       } catch (healthError) {
-        console.error("���� Health endpoint failed:", healthError);
+        console.error("🏥 Health endpoint failed:", healthError);
       }
 
       if (!connectivityTest) {
-        console.warn(
-          "⚠️ Basic connectivity test failed, but proceeding with dashboard metrics call...",
-        );
+        console.warn("⚠️ Basic connectivity test failed, but proceeding with dashboard metrics call...");
       }
 
       console.log("🔄 Making dashboard metrics API call...");
@@ -1131,10 +975,7 @@ class MySQLBusinessDataService {
           break; // Success, exit retry loop
         } catch (error) {
           retryCount++;
-          console.log(
-            `⚠️ Dashboard metrics API call failed (attempt ${retryCount}/${maxRetries}):`,
-            error.message,
-          );
+          console.log(`⚠️ Dashboard metrics API call failed (attempt ${retryCount}/${maxRetries}):`, error.message);
 
           if (retryCount >= maxRetries) {
             throw error; // Re-throw the error after max retries
@@ -1143,7 +984,7 @@ class MySQLBusinessDataService {
           // Wait before retrying (exponential backoff)
           const delay = Math.pow(2, retryCount) * 1000; // 2s, 4s, 8s
           console.log(`🔄 Retrying in ${delay}ms...`);
-          await new Promise((resolve) => setTimeout(resolve, delay));
+          await new Promise(resolve => setTimeout(resolve, delay));
         }
       }
 
@@ -1151,9 +992,7 @@ class MySQLBusinessDataService {
 
       if (!response || !response.data) {
         console.error("❌ Invalid response structure:", response);
-        throw new Error(
-          "Invalid response structure from dashboard metrics API",
-        );
+        throw new Error("Invalid response structure from dashboard metrics API");
       }
 
       return response.data;
@@ -1168,36 +1007,25 @@ class MySQLBusinessDataService {
       console.error("🔍 Diagnostic information:");
       console.error("   - Current URL:", window.location.href);
       console.error("   - Base URL:", this.baseUrl);
-      console.error(
-        "   - Has fetch interference:",
-        this.hasDetectedFetchInterference,
-      );
+      console.error("   - Has fetch interference:", this.hasDetectedFetchInterference);
       console.error("   - User agent:", navigator.userAgent);
-      console.error(
-        "   - Connection type:",
-        (navigator as any).connection?.effectiveType || "unknown",
-      );
+      console.error("   - Connection type:", (navigator as any).connection?.effectiveType || 'unknown');
 
       // Check if this is specifically a "Failed to fetch" error
-      if (error instanceof TypeError && error.message === "Failed to fetch") {
-        console.error(
-          "🚨 This is a 'Failed to fetch' error - likely network or CORS issue",
-        );
+      if (error instanceof TypeError && error.message === 'Failed to fetch') {
+        console.error("🚨 This is a 'Failed to fetch' error - likely network or CORS issue");
 
         // Try one more time with a direct XMLHttpRequest approach
         try {
           console.log("🔄 Attempting final XMLHttpRequest fallback...");
-          const fallbackResponse = await this.xmlHttpRequestFetch(
-            `${this.baseUrl}/dashboard/metrics`,
-            {
-              headers: {
-                "Content-Type": "application/json",
-                "x-company-id": localStorage.getItem("user_data")
-                  ? JSON.parse(localStorage.getItem("user_data")!).companyId
-                  : "00000000-0000-0000-0000-000000000001",
-              },
-            },
-          );
+          const fallbackResponse = await this.xmlHttpRequestFetch(`${this.baseUrl}/dashboard/metrics`, {
+            headers: {
+              "Content-Type": "application/json",
+              "x-company-id": localStorage.getItem("user_data")
+                ? JSON.parse(localStorage.getItem("user_data")!).companyId
+                : "00000000-0000-0000-0000-000000000001"
+            }
+          });
 
           if (fallbackResponse.ok) {
             const data = await fallbackResponse.json();
@@ -1205,17 +1033,12 @@ class MySQLBusinessDataService {
             return data.data || data;
           }
         } catch (fallbackError) {
-          console.error(
-            "❌ XMLHttpRequest fallback also failed:",
-            fallbackError,
-          );
+          console.error("❌ XMLHttpRequest fallback also failed:", fallbackError);
         }
       }
 
       // Throw a more descriptive error for better error handling upstream
-      throw new Error(
-        `Failed to fetch dashboard metrics from database: ${error.message}`,
-      );
+      throw new Error(`Failed to fetch dashboard metrics from database: ${error.message}`);
     }
   }
 
