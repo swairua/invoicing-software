@@ -5,11 +5,11 @@ import jwt from "jsonwebtoken";
 
 const router = Router();
 
-// Login endpoint
+// Login endpoint with database fallback
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-    
+
     console.log("🔐 Login attempt for email:", email);
 
     if (!email || !password) {
@@ -19,26 +19,48 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    // Query the users table
-    const userQuery = `
-      SELECT u.*, c.name as company_name 
-      FROM users u 
-      LEFT JOIN companies c ON u.company_id = c.id 
-      WHERE u.email = ? AND u.is_active = 1
-    `;
-    
-    const result = await Database.query(userQuery, [email]);
-    
-    if (!result.rows || result.rows.length === 0) {
+    let user = null;
+
+    try {
+      // Try to query the users table
+      const userQuery = `
+        SELECT u.*, c.name as company_name
+        FROM users u
+        LEFT JOIN companies c ON u.company_id = c.id
+        WHERE u.email = ? AND u.is_active = 1
+      `;
+
+      const result = await Database.query(userQuery, [email]);
+
+      if (result.rows && result.rows.length > 0) {
+        user = result.rows[0];
+        console.log("👤 Found user in database:", user.email, "Role:", user.role);
+      }
+    } catch (dbError) {
+      console.log("⚠️ Database unavailable, using fallback authentication");
+
+      // Fallback authentication for demo/development
+      if (email === "admin@company.com" && password === "password") {
+        user = {
+          id: "demo-admin-001",
+          email: "admin@company.com",
+          first_name: "Admin",
+          last_name: "User",
+          role: "admin",
+          company_id: "demo-company-001",
+          company_name: "Demo Company"
+        };
+        console.log("👤 Using fallback admin user");
+      }
+    }
+
+    if (!user) {
       console.log("❌ User not found:", email);
       return res.status(401).json({
         success: false,
         error: "Invalid email or password"
       });
     }
-
-    const user = result.rows[0];
-    console.log("👤 Found user:", user.email, "Role:", user.role);
 
     // For demo purposes, accept simple password or hashed password
     let passwordValid = false;
@@ -64,8 +86,8 @@ router.post("/login", async (req, res) => {
 
     // Generate JWT token
     const token = jwt.sign(
-      { 
-        userId: user.id, 
+      {
+        userId: user.id,
         email: user.email,
         role: user.role,
         companyId: user.company_id
