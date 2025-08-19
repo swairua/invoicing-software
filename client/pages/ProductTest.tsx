@@ -45,7 +45,7 @@ export default function ProductTest() {
   const testProductById = async (productId: string) => {
     try {
       console.log("🔍 Testing product:", productId);
-      const product = await dataService.getProductById(productId);
+      const product = await dataService.getProduct(productId);
       console.log("📦 Product result:", product);
       alert(`Product ${productId}: ${product ? "Found" : "Not found"}`);
     } catch (error) {
