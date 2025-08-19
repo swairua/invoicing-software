@@ -36,9 +36,9 @@ class MySQLBusinessDataService {
     console.log(`🔍 robustFetch called for: ${url}`);
     console.log(`🔍 Production mode XMLHttpRequest preference: ${this.hasDetectedFetchInterference}`);
 
-    // Try native fetch first with fast timeout for FullStory detection
+    // Try native fetch first with reasonable timeout for production environments
     const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error('Fetch timeout - likely FullStory interference')), 2000); // 2 second timeout for FullStory detection
+      setTimeout(() => reject(new Error('Fetch timeout - likely FullStory interference')), 10000); // 10 second timeout for production
     });
 
     try {
@@ -62,7 +62,7 @@ class MySQLBusinessDataService {
 
           // If XMLHttpRequest times out, try a more permissive approach
           if (xhrError.message.includes('timeout')) {
-            console.log("🔄 XMLHttpRequest timed out, trying fetch with no-cors mode...");
+            console.log("�� XMLHttpRequest timed out, trying fetch with no-cors mode...");
             try {
               const response = await window.fetch(url, {
                 ...options,
@@ -863,7 +863,7 @@ class MySQLBusinessDataService {
         const healthResponse = await this.apiCall("/health");
         console.log("🏥 Health endpoint response:", healthResponse);
       } catch (healthError) {
-        console.error("🏥 Health endpoint failed:", healthError);
+        console.error("���� Health endpoint failed:", healthError);
       }
 
       if (!connectivityTest) {
