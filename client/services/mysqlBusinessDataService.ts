@@ -740,7 +740,7 @@ class MySQLBusinessDataService {
     try {
       console.log("🔍 MySQLBusinessDataService.getQuotations() called");
       const response = await this.apiCall("/quotations");
-      console.log("�� Quotations API response:", response);
+      console.log("🔍 Quotations API response:", response);
 
       if (!response.success) {
         console.error("🔍 Quotations API failed:", response.error);
@@ -1263,6 +1263,37 @@ class MySQLBusinessDataService {
       return response.data;
     } catch (error) {
       console.error("Failed to create credit note:", error);
+      throw error;
+    }
+  }
+
+  public async updateCreditNote(id: string, creditNote: any): Promise<any> {
+    try {
+      const response = await this.apiCall(`/credit-notes/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(creditNote),
+      });
+
+      if (!response.success) {
+        throw new Error(response.error || "Failed to update credit note");
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error("Failed to update credit note:", error);
+      throw error;
+    }
+  }
+
+  public async deleteCreditNote(id: string): Promise<boolean> {
+    try {
+      const response = await this.apiCall(`/credit-notes/${id}`, {
+        method: "DELETE",
+      });
+
+      return response.success;
+    } catch (error) {
+      console.error("Failed to delete credit note:", error);
       throw error;
     }
   }
