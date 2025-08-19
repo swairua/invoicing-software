@@ -152,11 +152,52 @@ export default function RemittanceList() {
     });
   };
 
-  const handleDownload = (remittance: RemittanceAdvice) => {
-    toast({
-      title: "Download Started",
-      description: `Downloading ${remittance.remittanceNumber}.pdf`,
-    });
+  const handleDownload = async (remittance: RemittanceAdvice) => {
+    try {
+      // Import PDFService if not already imported
+      const PDFService = (await import("../services/pdfService")).default;
+
+      // Create a mock remittance document structure for PDF generation
+      const remittanceDoc = {
+        id: remittance.id,
+        remittanceNumber: remittance.remittanceNumber,
+        date: remittance.date,
+        customer: {
+          name: remittance.customerName,
+          email: remittance.customerEmail,
+          address: "Customer Address", // Default since not in interface
+        },
+        items: [
+          {
+            id: "1",
+            date: remittance.date,
+            reference: "Sample Reference",
+            type: "invoice" as const,
+            amount: remittance.totalPayment,
+            paymentAmount: remittance.totalPayment,
+          }
+        ],
+        totalPayment: remittance.totalPayment,
+        status: remittance.status,
+        createdAt: new Date(remittance.createdAt),
+        updatedAt: new Date(remittance.updatedAt),
+      };
+
+      // Generate and download the remittance advice PDF
+      await PDFService.generateRemittanceAdvicePDF(remittanceDoc);
+
+      toast({
+        title: "Download Complete",
+        description: `${remittance.remittanceNumber}.pdf downloaded successfully`,
+      });
+    } catch (error) {
+      console.error("Error generating remittance PDF:", error);
+      toast({
+        title: "Download Failed",
+        description: "Failed to generate remittance advice PDF",
+        variant: "destructive",
+      });
+    }
   };
 
   // Calculate summary statistics
