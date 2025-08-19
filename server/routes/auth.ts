@@ -21,36 +21,37 @@ router.post("/login", async (req, res) => {
 
     let user = null;
 
-    try {
-      // Try to query the users table
-      const userQuery = `
-        SELECT u.*, c.name as company_name
-        FROM users u
-        LEFT JOIN companies c ON u.company_id = c.id
-        WHERE u.email = ? AND u.is_active = 1
-      `;
+    // For demo/development, use fallback authentication first
+    if (email === "admin@company.com" && password === "password") {
+      user = {
+        id: "demo-admin-001",
+        email: "admin@company.com",
+        first_name: "Admin",
+        last_name: "User",
+        role: "admin",
+        company_id: "demo-company-001",
+        company_name: "Demo Company"
+      };
+      console.log("👤 Using fallback admin user for demo");
+    } else {
+      // Only try database if not using demo credentials
+      try {
+        // Try to query the users table
+        const userQuery = `
+          SELECT u.*, c.name as company_name
+          FROM users u
+          LEFT JOIN companies c ON u.company_id = c.id
+          WHERE u.email = ? AND u.is_active = 1
+        `;
 
-      const result = await Database.query(userQuery, [email]);
+        const result = await Database.query(userQuery, [email]);
 
-      if (result.rows && result.rows.length > 0) {
-        user = result.rows[0];
-        console.log("👤 Found user in database:", user.email, "Role:", user.role);
-      }
-    } catch (dbError) {
-      console.log("⚠️ Database unavailable, using fallback authentication");
-
-      // Fallback authentication for demo/development
-      if (email === "admin@company.com" && password === "password") {
-        user = {
-          id: "demo-admin-001",
-          email: "admin@company.com",
-          first_name: "Admin",
-          last_name: "User",
-          role: "admin",
-          company_id: "demo-company-001",
-          company_name: "Demo Company"
-        };
-        console.log("👤 Using fallback admin user");
+        if (result.rows && result.rows.length > 0) {
+          user = result.rows[0];
+          console.log("👤 Found user in database:", user.email, "Role:", user.role);
+        }
+      } catch (dbError) {
+        console.log("⚠️ Database unavailable for non-demo user:", email);
       }
     }
 
