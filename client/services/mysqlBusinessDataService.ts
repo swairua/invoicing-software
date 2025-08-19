@@ -278,10 +278,11 @@ class MySQLBusinessDataService {
     }
   }
 
-  // API helper methods
+  // API helper methods with retry mechanism
   private async apiCall(
     endpoint: string,
     options: RequestInit = {},
+    retryCount = 0,
   ): Promise<any> {
     const url = `${this.baseUrl}${endpoint}`;
     console.log(`🌐 Making API call to: ${url}`);
