@@ -81,17 +81,27 @@ export class Database {
       );
       console.log("🗄️ Using LIVE MYSQL DATABASE - No mock data");
 
-      // Simple connection test using the pool
-      const result = await this.query("SELECT 1 as test");
+      // Try creating a simple connection first to test
+      const simpleConnection = await mysql.createConnection({
+        host: DATABASE_CONFIG.host,
+        port: DATABASE_CONFIG.port,
+        user: DATABASE_CONFIG.user,
+        password: DATABASE_CONFIG.password,
+        database: DATABASE_CONFIG.database,
+        ssl: DATABASE_CONFIG.ssl,
+      });
+
+      const [testResult] = await simpleConnection.execute("SELECT 1 as test, NOW() as current_time");
       console.log("✅ LIVE MYSQL DATABASE CONNECTION SUCCESSFUL!");
+      console.log(`🕐 Database time: ${testResult[0].current_time}`);
 
       // Test if we can query tables and check basic schema
       try {
-        const companyTest = await this.query(
+        const [companyResult] = await simpleConnection.execute(
           "SELECT COUNT(*) as count FROM companies",
         );
         console.log(
-          `✅ Database schema ready - Found ${companyTest.rows[0].count} companies`,
+          `✅ Database schema ready - Found ${companyResult[0].count} companies`,
         );
 
         // Check and add sample data if needed
@@ -101,11 +111,13 @@ export class Database {
         console.log("🔧 Run migration to create tables");
       }
 
+      await simpleConnection.end();
       console.log("✅ MySQL database connected successfully");
       return true;
     } catch (error: any) {
       console.error("❌ LIVE MYSQL DATABASE CONNECTION FAILED:", error.message);
       console.log("🔧 Check MySQL connection string and permissions");
+      console.log("ℹ️ Application will continue running without database");
       return false;
     }
   }
