@@ -1152,6 +1152,144 @@ export class PDFService {
   }
 
   /**
+   * Add statement customer info and date range
+   */
+  private static addStatementCustomerInfo(
+    doc: jsPDF,
+    statementData: any,
+    pageWidth: number,
+  ): void {
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(0, 0, 0);
+
+    let startY = 100;
+
+    // Customer info (left side)
+    doc.text("Customer:", 20, startY);
+    doc.setFont("helvetica", "bold");
+    doc.text(statementData.customer?.name || "Unknown Customer", 20, startY + 7);
+    doc.setFont("helvetica", "normal");
+
+    if (statementData.customer?.address) {
+      doc.text(statementData.customer.address, 20, startY + 14);
+    }
+
+    // Date range (right side)
+    const rightColumnX = pageWidth - 100;
+    const rightValueX = pageWidth - 20;
+
+    doc.text("Period:", rightColumnX, startY);
+    doc.text(`${statementData.dateRange.start} to ${statementData.dateRange.end}`, rightValueX, startY, { align: "right" });
+
+    doc.text("Statement Date:", rightColumnX, startY + 7);
+    doc.text(this.formatDate(new Date()), rightValueX, startY + 7, { align: "right" });
+  }
+
+  /**
+   * Add statement transactions table
+   */
+  private static addStatementTransactionsTable(doc: jsPDF, transactions: any[]): void {
+    const tableData = transactions.map((transaction: any) => [
+      this.formatDate(new Date(transaction.date)),
+      transaction.name || "Unknown",
+      transaction.invoice || "N/A",
+      transaction.dueDate ? this.formatDate(new Date(transaction.dueDate)) : "N/A",
+      this.formatCurrency(transaction.originalAmount || 0),
+      this.formatCurrency(transaction.paidAmount || 0),
+      this.formatCurrency(transaction.balance || 0),
+      transaction.status || "unknown",
+    ]);
+
+    const tableHeaders = [
+      "Date",
+      "Customer",
+      "Invoice",
+      "Due Date",
+      "Original Amount",
+      "Paid Amount",
+      "Balance",
+      "Status",
+    ];
+
+    autoTable(doc, {
+      startY: 120,
+      head: [tableHeaders],
+      body: tableData,
+      theme: "grid",
+      headStyles: {
+        fillColor: [128, 128, 128],
+        textColor: [0, 0, 0],
+        fontStyle: "bold",
+        fontSize: 8,
+        halign: "center",
+      },
+      styles: {
+        fontSize: 8,
+        cellPadding: 3,
+        lineColor: [0, 0, 0],
+        lineWidth: 0.5,
+      },
+      columnStyles: {
+        0: { halign: "center", cellWidth: 20 },
+        1: { halign: "left", cellWidth: 30 },
+        2: { halign: "center", cellWidth: 20 },
+        3: { halign: "center", cellWidth: 20 },
+        4: { halign: "right", cellWidth: 25 },
+        5: { halign: "right", cellWidth: 25 },
+        6: { halign: "right", cellWidth: 25 },
+        7: { halign: "center", cellWidth: 15 },
+      },
+    });
+  }
+
+  /**
+   * Add statement summary section
+   */
+  private static addStatementSummary(
+    doc: jsPDF,
+    summary: any,
+    startY: number,
+  ): void {
+    const boxWidth = 90;
+    const boxHeight = 40;
+    const rightMargin = 20;
+    const boxX = doc.internal.pageSize.width - rightMargin - boxWidth;
+
+    // Create bordered summary section
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(1);
+    doc.rect(boxX, startY, boxWidth, boxHeight);
+
+    // Background
+    doc.setFillColor(245, 245, 245);
+    doc.rect(boxX, startY, boxWidth, boxHeight, "F");
+    doc.rect(boxX, startY, boxWidth, boxHeight);
+
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+
+    let yPos = startY + 8;
+
+    doc.text("ACCOUNT SUMMARY", boxX + boxWidth / 2, yPos, { align: "center" });
+    yPos += 8;
+
+    doc.setFont("helvetica", "normal");
+
+    doc.text("Total Outstanding:", boxX + 3, yPos);
+    doc.text(this.formatCurrency(summary?.totalOutstanding || 0), boxX + boxWidth - 3, yPos, { align: "right" });
+    yPos += 6;
+
+    doc.text("Current:", boxX + 3, yPos);
+    doc.text(this.formatCurrency(summary?.current || 0), boxX + boxWidth - 3, yPos, { align: "right" });
+    yPos += 6;
+
+    doc.text("Overdue:", boxX + 3, yPos);
+    doc.text(this.formatCurrency(summary?.overdue || 0), boxX + boxWidth - 3, yPos, { align: "right" });
+  }
+
+  /**
    * Add payment details
    */
   private static addPaymentDetails(
