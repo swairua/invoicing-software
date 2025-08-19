@@ -402,13 +402,22 @@ router.get("/dashboard/metrics", async (req, res) => {
 
     // Try to get revenue from invoices table if it exists
     try {
+      console.log("🔍 Querying revenue with company_id:", companyId);
       const revenueResult = await Database.query(
         "SELECT COALESCE(SUM(total_amount), 0) as totalRevenue FROM invoices WHERE company_id = ? AND status = 'paid'",
         [companyId]
       );
+      console.log("💰 Revenue query result:", revenueResult.rows[0]);
       metrics.totalRevenue = parseFloat(revenueResult.rows[0]?.totalRevenue || 0);
+
+      // Also check how many invoices exist total
+      const invoiceCountResult = await Database.query(
+        "SELECT COUNT(*) as count, status FROM invoices WHERE company_id = ? GROUP BY status",
+        [companyId]
+      );
+      console.log("📋 Invoice status breakdown:", invoiceCountResult.rows);
     } catch (error) {
-      console.log("Invoices table not available, using 0 for revenue");
+      console.log("❌ Invoices query error:", error.message);
     }
 
     // Try to get outstanding invoices if table exists
