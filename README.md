@@ -61,6 +61,7 @@ npm run create-admin-user
 ```
 
 Default login credentials:
+
 - Email: `admin@demo.com`
 - Password: `password`
 
@@ -73,6 +74,7 @@ npm run build
 ## Production Deployment
 
 The application can be deployed to:
+
 - Netlify (recommended for static hosting)
 - Vercel (recommended for full-stack applications)
 - Any cloud provider supporting Node.js

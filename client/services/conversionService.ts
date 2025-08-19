@@ -1,4 +1,9 @@
-import { Quotation, ProformaInvoice, Invoice, InvoiceItem } from '@shared/types';
+import {
+  Quotation,
+  ProformaInvoice,
+  Invoice,
+  InvoiceItem,
+} from "@shared/types";
 
 export interface ConversionResult {
   success: boolean;
@@ -10,7 +15,9 @@ export class ConversionService {
   /**
    * Convert a quotation to a proforma invoice
    */
-  static async convertQuotationToProforma(quotation: Quotation): Promise<ConversionResult> {
+  static async convertQuotationToProforma(
+    quotation: Quotation,
+  ): Promise<ConversionResult> {
     try {
       const proforma: Partial<ProformaInvoice> = {
         proformaNumber: this.generateProformaNumber(),
@@ -21,7 +28,7 @@ export class ConversionService {
         vatAmount: quotation.vatAmount,
         discountAmount: quotation.discountAmount,
         total: quotation.total,
-        status: 'draft',
+        status: "draft",
         validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
         issueDate: new Date(),
         notes: `Converted from quotation ${quotation.quoteNumber}`,
@@ -32,15 +39,15 @@ export class ConversionService {
       };
 
       // In a real application, this would make an API call
-      
+
       return {
         success: true,
-        data: proforma
+        data: proforma,
       };
     } catch (error) {
       return {
         success: false,
-        error: 'Failed to convert quotation to proforma invoice'
+        error: "Failed to convert quotation to proforma invoice",
       };
     }
   }
@@ -48,7 +55,9 @@ export class ConversionService {
   /**
    * Convert a proforma invoice to a formal invoice
    */
-  static async convertProformaToInvoice(proforma: ProformaInvoice): Promise<ConversionResult> {
+  static async convertProformaToInvoice(
+    proforma: ProformaInvoice,
+  ): Promise<ConversionResult> {
     try {
       const invoice: Partial<Invoice> = {
         invoiceNumber: this.generateInvoiceNumber(),
@@ -61,11 +70,11 @@ export class ConversionService {
         total: proforma.total,
         amountPaid: 0,
         balance: proforma.total,
-        status: 'draft',
+        status: "draft",
         dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
         issueDate: new Date(),
         notes: `Converted from proforma ${proforma.proformaNumber}`,
-        etimsStatus: 'pending',
+        etimsStatus: "pending",
         companyId: proforma.companyId,
         createdBy: proforma.createdBy,
         createdAt: new Date(),
@@ -73,15 +82,15 @@ export class ConversionService {
       };
 
       // In a real application, this would make an API call
-      
+
       return {
         success: true,
-        data: invoice
+        data: invoice,
       };
     } catch (error) {
       return {
         success: false,
-        error: 'Failed to convert proforma to invoice'
+        error: "Failed to convert proforma to invoice",
       };
     }
   }
@@ -89,7 +98,9 @@ export class ConversionService {
   /**
    * Convert a quotation directly to an invoice (skip proforma)
    */
-  static async convertQuotationToInvoice(quotation: Quotation): Promise<ConversionResult> {
+  static async convertQuotationToInvoice(
+    quotation: Quotation,
+  ): Promise<ConversionResult> {
     try {
       const invoice: Partial<Invoice> = {
         invoiceNumber: this.generateInvoiceNumber(),
@@ -102,11 +113,11 @@ export class ConversionService {
         total: quotation.total,
         amountPaid: 0,
         balance: quotation.total,
-        status: 'draft',
+        status: "draft",
         dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
         issueDate: new Date(),
         notes: `Converted from quotation ${quotation.quoteNumber}`,
-        etimsStatus: 'pending',
+        etimsStatus: "pending",
         companyId: quotation.companyId,
         createdBy: quotation.createdBy,
         createdAt: new Date(),
@@ -114,15 +125,15 @@ export class ConversionService {
       };
 
       // In a real application, this would make an API call
-      
+
       return {
         success: true,
-        data: invoice
+        data: invoice,
       };
     } catch (error) {
       return {
         success: false,
-        error: 'Failed to convert quotation to invoice'
+        error: "Failed to convert quotation to invoice",
       };
     }
   }
@@ -132,7 +143,9 @@ export class ConversionService {
    */
   private static generateProformaNumber(): string {
     const year = new Date().getFullYear();
-    const sequence = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    const sequence = Math.floor(Math.random() * 1000)
+      .toString()
+      .padStart(3, "0");
     return `PRO-${year}-${sequence}`;
   }
 
@@ -141,7 +154,9 @@ export class ConversionService {
    */
   private static generateInvoiceNumber(): string {
     const year = new Date().getFullYear();
-    const sequence = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    const sequence = Math.floor(Math.random() * 1000)
+      .toString()
+      .padStart(3, "0");
     return `INV-${year}-${sequence}`;
   }
 
@@ -149,44 +164,57 @@ export class ConversionService {
    * Check if a quotation can be converted
    */
   static canConvertQuotation(quotation: Quotation): boolean {
-    return quotation.status === 'accepted' && 
-           quotation.validUntil > new Date() && 
-           quotation.items.length > 0;
+    return (
+      quotation.status === "accepted" &&
+      quotation.validUntil > new Date() &&
+      quotation.items.length > 0
+    );
   }
 
   /**
    * Check if a proforma can be converted
    */
   static canConvertProforma(proforma: ProformaInvoice): boolean {
-    return proforma.status === 'sent' && 
-           proforma.validUntil > new Date() && 
-           proforma.items.length > 0;
+    return (
+      proforma.status === "sent" &&
+      proforma.validUntil > new Date() &&
+      proforma.items.length > 0
+    );
   }
 
   /**
    * Get conversion options for a document
    */
-  static getConversionOptions(documentType: 'quotation' | 'proforma', document: Quotation | ProformaInvoice) {
+  static getConversionOptions(
+    documentType: "quotation" | "proforma",
+    document: Quotation | ProformaInvoice,
+  ) {
     const options = [];
 
-    if (documentType === 'quotation' && this.canConvertQuotation(document as Quotation)) {
+    if (
+      documentType === "quotation" &&
+      this.canConvertQuotation(document as Quotation)
+    ) {
       options.push({
-        label: 'Convert to Proforma',
-        action: 'convert_to_proforma',
-        description: 'Create a proforma invoice for advance billing'
+        label: "Convert to Proforma",
+        action: "convert_to_proforma",
+        description: "Create a proforma invoice for advance billing",
       });
       options.push({
-        label: 'Convert to Invoice',
-        action: 'convert_to_invoice',
-        description: 'Create a formal invoice directly'
+        label: "Convert to Invoice",
+        action: "convert_to_invoice",
+        description: "Create a formal invoice directly",
       });
     }
 
-    if (documentType === 'proforma' && this.canConvertProforma(document as ProformaInvoice)) {
+    if (
+      documentType === "proforma" &&
+      this.canConvertProforma(document as ProformaInvoice)
+    ) {
       options.push({
-        label: 'Convert to Invoice',
-        action: 'convert_to_invoice',
-        description: 'Create a formal invoice from this proforma'
+        label: "Convert to Invoice",
+        action: "convert_to_invoice",
+        description: "Create a formal invoice from this proforma",
       });
     }
 

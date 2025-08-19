@@ -52,7 +52,12 @@ import {
   MapPin,
 } from "lucide-react";
 import { Product, ProductCategory } from "@shared/types";
-import { productSchema, ProductFormData, productVariantSchema, ProductVariantFormData } from "@shared/validation";
+import {
+  productSchema,
+  ProductFormData,
+  productVariantSchema,
+  ProductVariantFormData,
+} from "@shared/validation";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import { useToast } from "../hooks/use-toast";
 import { useAuth } from "../hooks/use-auth";
@@ -117,7 +122,11 @@ export default function NewProductHookForm() {
   });
 
   // Variants form array
-  const { fields: variantFields, append: appendVariant, remove: removeVariant } = useFieldArray({
+  const {
+    fields: variantFields,
+    append: appendVariant,
+    remove: removeVariant,
+  } = useFieldArray({
     control: form.control,
     name: "variants" as any, // Temporary workaround for TS
   });
@@ -151,7 +160,7 @@ export default function NewProductHookForm() {
       const productData = await dataService.getProduct(productId);
       if (productData) {
         setProduct(productData);
-        
+
         // Populate form with existing product data
         form.reset({
           name: productData.name,
@@ -206,7 +215,7 @@ export default function NewProductHookForm() {
   const onSubmit = async (data: ProductFormData) => {
     try {
       setLoading(true);
-      
+
       if (isEditMode && product) {
         // Update existing product
         await dataService.updateProduct(product.id, {
@@ -216,12 +225,12 @@ export default function NewProductHookForm() {
           createdAt: product.createdAt,
           updatedAt: new Date(),
         });
-        
+
         toast({
           title: "Product Updated",
           description: `Product "${data.name}" has been updated successfully.`,
         });
-        
+
         navigate(`/products/${product.id}`);
       } else {
         // Create new product
@@ -231,12 +240,12 @@ export default function NewProductHookForm() {
           createdAt: new Date(),
           updatedAt: new Date(),
         });
-        
+
         toast({
           title: "Product Created",
           description: `Product "${data.name}" has been created successfully.`,
         });
-        
+
         navigate(`/products/${newProduct.id}`);
       }
     } catch (error) {
@@ -262,11 +271,7 @@ export default function NewProductHookForm() {
   return (
     <div className="container mx-auto py-6">
       <div className="mb-6">
-        <Button
-          variant="ghost"
-          onClick={() => navigate(-1)}
-          className="mb-4"
-        >
+        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
@@ -274,7 +279,9 @@ export default function NewProductHookForm() {
           {isEditMode ? `Edit Product: ${product?.name}` : "Add New Product"}
         </h1>
         <p className="text-muted-foreground">
-          {isEditMode ? "Update product information" : "Fill in the details to create a new product"}
+          {isEditMode
+            ? "Update product information"
+            : "Fill in the details to create a new product"}
         </p>
       </div>
 
@@ -318,7 +325,10 @@ export default function NewProductHookForm() {
                         <FormItem>
                           <FormLabel>Product Name *</FormLabel>
                           <FormControl>
-                            <Input placeholder="Enter product name" {...field} />
+                            <Input
+                              placeholder="Enter product name"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -365,7 +375,10 @@ export default function NewProductHookForm() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Category *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select category" />
@@ -404,7 +417,10 @@ export default function NewProductHookForm() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Unit *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select unit" />
@@ -454,7 +470,9 @@ export default function NewProductHookForm() {
                               step="0.01"
                               placeholder="0.00"
                               {...field}
-                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                              onChange={(e) =>
+                                field.onChange(parseFloat(e.target.value) || 0)
+                              }
                             />
                           </FormControl>
                           <FormMessage />
@@ -474,7 +492,9 @@ export default function NewProductHookForm() {
                               step="0.01"
                               placeholder="0.00"
                               {...field}
-                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                              onChange={(e) =>
+                                field.onChange(parseFloat(e.target.value) || 0)
+                              }
                             />
                           </FormControl>
                           <FormMessage />
@@ -496,7 +516,9 @@ export default function NewProductHookForm() {
                               step="0.01"
                               placeholder="0.00"
                               {...field}
-                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                              onChange={(e) =>
+                                field.onChange(parseFloat(e.target.value) || 0)
+                              }
                             />
                           </FormControl>
                           <FormMessage />
@@ -516,7 +538,9 @@ export default function NewProductHookForm() {
                               step="0.01"
                               placeholder="0.00"
                               {...field}
-                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                              onChange={(e) =>
+                                field.onChange(parseFloat(e.target.value) || 0)
+                              }
                             />
                           </FormControl>
                           <FormMessage />
@@ -532,7 +556,9 @@ export default function NewProductHookForm() {
                       render={({ field }) => (
                         <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                           <div className="space-y-0.5">
-                            <FormLabel className="text-base">Taxable Product</FormLabel>
+                            <FormLabel className="text-base">
+                              Taxable Product
+                            </FormLabel>
                             <FormDescription>
                               This product is subject to tax
                             </FormDescription>
@@ -559,7 +585,9 @@ export default function NewProductHookForm() {
                               step="0.01"
                               placeholder="16.00"
                               {...field}
-                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                              onChange={(e) =>
+                                field.onChange(parseFloat(e.target.value) || 0)
+                              }
                             />
                           </FormControl>
                           <FormMessage />
@@ -587,7 +615,9 @@ export default function NewProductHookForm() {
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
-                          <FormLabel className="text-base">Track Inventory</FormLabel>
+                          <FormLabel className="text-base">
+                            Track Inventory
+                          </FormLabel>
                           <FormDescription>
                             Monitor stock levels for this product
                           </FormDescription>
@@ -614,7 +644,9 @@ export default function NewProductHookForm() {
                               type="number"
                               placeholder="0"
                               {...field}
-                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                              onChange={(e) =>
+                                field.onChange(parseFloat(e.target.value) || 0)
+                              }
                             />
                           </FormControl>
                           <FormMessage />
@@ -633,7 +665,9 @@ export default function NewProductHookForm() {
                               type="number"
                               placeholder="0"
                               {...field}
-                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                              onChange={(e) =>
+                                field.onChange(parseFloat(e.target.value) || 0)
+                              }
                             />
                           </FormControl>
                           <FormMessage />
@@ -652,7 +686,9 @@ export default function NewProductHookForm() {
                               type="number"
                               placeholder="1000"
                               {...field}
-                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                              onChange={(e) =>
+                                field.onChange(parseFloat(e.target.value) || 0)
+                              }
                             />
                           </FormControl>
                           <FormMessage />
@@ -745,7 +781,10 @@ export default function NewProductHookForm() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Status</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select status" />
@@ -754,8 +793,12 @@ export default function NewProductHookForm() {
                           <SelectContent>
                             <SelectItem value="active">Active</SelectItem>
                             <SelectItem value="inactive">Inactive</SelectItem>
-                            <SelectItem value="discontinued">Discontinued</SelectItem>
-                            <SelectItem value="out_of_stock">Out of Stock</SelectItem>
+                            <SelectItem value="discontinued">
+                              Discontinued
+                            </SelectItem>
+                            <SelectItem value="out_of_stock">
+                              Out of Stock
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -779,7 +822,11 @@ export default function NewProductHookForm() {
             </Button>
             <Button type="submit" disabled={loading}>
               <Save className="mr-2 h-4 w-4" />
-              {loading ? "Saving..." : isEditMode ? "Update Product" : "Create Product"}
+              {loading
+                ? "Saving..."
+                : isEditMode
+                  ? "Update Product"
+                  : "Create Product"}
             </Button>
           </div>
         </form>

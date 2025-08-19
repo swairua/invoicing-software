@@ -1358,7 +1358,10 @@ class MySQLBusinessDataService {
     }
   }
 
-  public async toggleTaxConfigurationStatus(id: string, isActive: boolean): Promise<any> {
+  public async toggleTaxConfigurationStatus(
+    id: string,
+    isActive: boolean,
+  ): Promise<any> {
     try {
       const response = await this.apiCall(`/tax-configurations/${id}/toggle`, {
         method: "PATCH",
@@ -1366,7 +1369,9 @@ class MySQLBusinessDataService {
       });
 
       if (!response.success) {
-        throw new Error(response.error || "Failed to toggle tax configuration status");
+        throw new Error(
+          response.error || "Failed to toggle tax configuration status",
+        );
       }
 
       return response.data;
@@ -1378,12 +1383,17 @@ class MySQLBusinessDataService {
 
   public async setDefaultTaxConfiguration(id: string): Promise<any> {
     try {
-      const response = await this.apiCall(`/tax-configurations/${id}/set-default`, {
-        method: "PATCH",
-      });
+      const response = await this.apiCall(
+        `/tax-configurations/${id}/set-default`,
+        {
+          method: "PATCH",
+        },
+      );
 
       if (!response.success) {
-        throw new Error(response.error || "Failed to set default tax configuration");
+        throw new Error(
+          response.error || "Failed to set default tax configuration",
+        );
       }
 
       return response.data;
