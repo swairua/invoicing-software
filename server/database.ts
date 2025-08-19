@@ -20,8 +20,9 @@ const DATABASE_CONFIG = {
   charset: "utf8mb4_unicode_ci",
 };
 
-// Create connection pool
-const pool = mysql.createPool(DATABASE_CONFIG);
+// Create connection pool using URI format for better Aiven compatibility
+const connectionUri = `mysql://${DATABASE_CONFIG.user}:${DATABASE_CONFIG.password}@${DATABASE_CONFIG.host}:${DATABASE_CONFIG.port}/${DATABASE_CONFIG.database}?ssl=required&charset=utf8mb4&connectionLimit=${DATABASE_CONFIG.connectionLimit}`;
+const pool = mysql.createPool(connectionUri);
 
 // Database connection wrapper
 export class Database {
