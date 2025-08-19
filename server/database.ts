@@ -88,11 +88,31 @@ export class Database {
       console.log(
         `🔌 Connecting to: ${DATABASE_CONFIG.host}:${DATABASE_CONFIG.port}`,
       );
+      console.log(`🔑 Username: ${DATABASE_CONFIG.user}`);
+      console.log(`🗄️ Database: ${DATABASE_CONFIG.database}`);
+      console.log(`🔒 SSL Enabled: ${DATABASE_CONFIG.ssl ? 'Yes' : 'No'}`);
+      console.log(`⏱️ Timeout: ${DATABASE_CONFIG.connectTimeout}ms`);
       console.log("🗄️ Using LIVE MYSQL DATABASE - No mock data");
 
-      const result = await this.query("SELECT 1 as test");
+      // Try to create a direct connection first
+      const directConnection = await mysql.createConnection({
+        ...DATABASE_CONFIG,
+        connectTimeout: 30000,
+      });
+
+      console.log("✅ Direct connection established!");
+
+      const [result] = await directConnection.execute("SELECT 1 as test, NOW() as current_time, VERSION() as version");
       console.log("✅ LIVE MYSQL DATABASE CONNECTION SUCCESSFUL!");
-      console.log("🔗 Database test result:", result.rows[0].test);
+      console.log("🔗 Database test result:", result[0].test);
+      console.log("🕐 Server time:", result[0].current_time);
+      console.log("📊 MySQL version:", result[0].version);
+
+      await directConnection.end();
+
+      // Now test with pool
+      const poolResult = await this.query("SELECT 1 as test");
+      console.log("✅ Pool connection also working!");
 
       // Test if we can query tables
       try {
@@ -497,7 +517,7 @@ export class Database {
         ["00000000-0000-0000-0000-000000000001"],
       );
       if (productCount.rows[0].count === 0) {
-        console.log("📋 Adding sample products...");
+        console.log("��� Adding sample products...");
         await this.addSampleProducts();
       }
     } catch (error) {
