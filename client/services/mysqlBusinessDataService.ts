@@ -161,14 +161,24 @@ class MySQLBusinessDataService {
     const currentUrl = window.location.href;
     const isProduction = currentUrl.includes('fly.dev') || currentUrl.includes('.app') || !currentUrl.includes('localhost');
 
-    // In production environments, be very aggressive about FullStory detection
+    // In production environments, ALWAYS use XMLHttpRequest to avoid FullStory
     if (isProduction) {
       console.log(`🚨 Production environment detected: ${currentUrl}`);
       console.log(`🚨 Pre-emptively enabling XMLHttpRequest fallback for production`);
       this.hasDetectedFetchInterference = true;
     } else {
-      // Always run detection, but be more aggressive in production
+      // For development, run normal detection
       this.detectBrowserInterference();
+    }
+
+    // Additional check: if we detect any FullStory indicators, force XMLHttpRequest
+    try {
+      if (window.FS || document.querySelector('script[src*="fullstory"]') || document.querySelector('script[src*="fs.js"]')) {
+        console.log(`🚨 FullStory scripts detected, forcing XMLHttpRequest fallback`);
+        this.hasDetectedFetchInterference = true;
+      }
+    } catch (e) {
+      console.log('🔍 Could not check for FullStory scripts');
     }
 
     // Additional logging for debugging
