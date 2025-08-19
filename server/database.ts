@@ -121,10 +121,19 @@ export class Database {
       console.log("🔗 Database test result:", result[0].test);
 
       // Get additional info with separate queries
-      const [timeResult] = await directConnection.execute("SELECT NOW() as current_time");
-      const [versionResult] = await directConnection.execute("SELECT VERSION() as mysql_version");
-      console.log("🕐 Server time:", timeResult[0].current_time);
-      console.log("📊 MySQL version:", versionResult[0].mysql_version);
+      try {
+        const [timeResult] = await directConnection.execute("SELECT NOW() as server_time");
+        console.log("🕐 Server time:", timeResult[0].server_time);
+      } catch (e) {
+        console.log("⚠️ Could not get server time");
+      }
+
+      try {
+        const [versionResult] = await directConnection.execute("SELECT VERSION() as version");
+        console.log("📊 MySQL version:", versionResult[0].version);
+      } catch (e) {
+        console.log("⚠️ Could not get MySQL version");
+      }
 
       await directConnection.end();
 
