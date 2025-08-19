@@ -89,11 +89,30 @@ export class Database {
       console.log(`⏱️ Timeout: ${DATABASE_CONFIG.connectTimeout}ms`);
       console.log("🗄️ Using LIVE MYSQL DATABASE - No mock data");
 
-      // Try to create a direct connection first
-      const directConnection = await mysql.createConnection({
-        ...DATABASE_CONFIG,
-        connectTimeout: 30000,
-      });
+      // Try to create a direct connection first - try with SSL
+      console.log("🔒 Attempting connection with SSL...");
+      let directConnection;
+      try {
+        directConnection = await mysql.createConnection({
+          ...DATABASE_CONFIG,
+          connectTimeout: 15000,
+        });
+        console.log("✅ SSL connection successful!");
+      } catch (sslError) {
+        console.log("⚠️ SSL connection failed, trying without SSL...");
+        console.log(`SSL Error: ${sslError.message}`);
+
+        // Try without SSL
+        const configWithoutSSL = { ...DATABASE_CONFIG };
+        delete configWithoutSSL.ssl;
+
+        directConnection = await mysql.createConnection({
+          ...configWithoutSSL,
+          ssl: false,
+          connectTimeout: 15000,
+        });
+        console.log("✅ Non-SSL connection successful!");
+      }
 
       console.log("✅ Direct connection established!");
 
