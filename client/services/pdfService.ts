@@ -313,6 +313,58 @@ export class PDFService {
   }
 
   /**
+   * Generate Statement of Account PDF
+   */
+  static async generateStatementPDF(
+    statementData: {
+      customer: any;
+      transactions: any[];
+      dateRange: { start: string; end: string };
+      summary: any;
+    },
+    download: boolean = true,
+  ): Promise<jsPDF> {
+    await this.initialize();
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+
+    // Company Logo and Header
+    this.addCompanyHeader(doc, pageWidth);
+
+    // Company Information
+    this.addCompanyInfo(doc, pageWidth);
+
+    // Statement Title
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(0, 100, 200);
+    doc.text("STATEMENT OF ACCOUNT", pageWidth / 2, 80, {
+      align: "center",
+    });
+
+    // Reset text color
+    doc.setTextColor(0, 0, 0);
+
+    // Customer and Date Information
+    this.addStatementCustomerInfo(doc, statementData, pageWidth);
+
+    // Statement Transactions Table
+    this.addStatementTransactionsTable(doc, statementData.transactions);
+
+    // Statement Summary
+    const finalY = (doc as any).lastAutoTable?.finalY || 180;
+    this.addStatementSummary(doc, statementData.summary, finalY + 15);
+
+    if (download) {
+      const fileName = `Statement-${statementData.customer.name.replace(/[^a-zA-Z0-9]/g, '_')}-${statementData.dateRange.start}-${statementData.dateRange.end}.pdf`;
+      doc.save(fileName);
+    }
+
+    return doc;
+  }
+
+  /**
    * Generate Payment Receipt PDF
    */
   static async generatePaymentReceiptPDF(
