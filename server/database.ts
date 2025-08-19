@@ -20,9 +20,9 @@ const DATABASE_CONFIG = {
   charset: 'utf8mb4',
 };
 
-// Enable MySQL connection pool for real database operations
+// Temporarily enable mock mode to prevent crashes due to MySQL compatibility issue
 let pool: mysql.Pool | null = null;
-const MOCK_MODE = false; // Enable real database connection
+const MOCK_MODE = true; // Enable mock mode until database connection is fixed
 
 function getPool() {
   if (MOCK_MODE) {
@@ -62,6 +62,16 @@ export class Database {
 
   // Execute a query with automatic connection management
   async query(text: string, params?: any[]): Promise<any> {
+    if (MOCK_MODE) {
+      console.log("🔧 Mock query:", text.substring(0, 50) + "...");
+      // Return mock empty result
+      return {
+        rows: [],
+        rowCount: 0,
+        fields: [],
+      };
+    }
+
     try {
       const connection = await this.getConnection();
       try {
@@ -113,6 +123,12 @@ export class Database {
 
   // Test connection with fallback
   async testConnection(): Promise<boolean> {
+    if (MOCK_MODE) {
+      console.log("🔧 Database in MOCK MODE - MySQL connection disabled");
+      console.log("ℹ️ Using fallback authentication for demo purposes");
+      return false; // Return false to indicate mock mode
+    }
+
     try {
       console.log("⏳ Testing MySQL database connection...");
       console.log(
