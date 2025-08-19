@@ -120,7 +120,7 @@ export class Database {
       console.log("✅ LIVE MYSQL DATABASE CONNECTION SUCCESSFUL!");
       console.log("🔗 Database test result:", result[0].test);
       console.log("🕐 Server time:", result[0].current_time);
-      console.log("📊 MySQL version:", result[0].version);
+      console.log("📊 MySQL version:", result[0].mysql_version);
 
       await directConnection.end();
 
