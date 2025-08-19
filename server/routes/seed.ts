@@ -254,15 +254,16 @@ router.post("/sample-data", async (req, res) => {
 
       for (const payment of samplePayments) {
         try {
+          const paymentNumber = `PAY-2025-${String(createdPayments.length + 1).padStart(3, '0')}`;
           await customerRepository.db.query(`
             INSERT INTO payments (
-              id, company_id, customer_id, amount, payment_method,
+              id, company_id, customer_id, payment_number, amount, payment_method,
               payment_date, status, created_by, created_at, updated_at
             ) VALUES (
-              UUID(), ?, ?, ?, ?, ?, ?, ?, NOW(), NOW()
+              UUID(), ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW()
             )
           `, [
-            companyId, payment.customerId, payment.amount, payment.paymentMethod,
+            companyId, payment.customerId, paymentNumber, payment.amount, payment.paymentMethod,
             payment.paymentDate, payment.status, userId
           ]);
           console.log(`✅ Created payment: KES ${payment.amount} via ${payment.paymentMethod}`);
