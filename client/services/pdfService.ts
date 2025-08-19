@@ -216,6 +216,48 @@ export class PDFService {
   }
 
   /**
+   * Generate Remittance Advice PDF
+   */
+  static async generateRemittanceAdvicePDF(
+    remittanceData: any,
+    download: boolean = true,
+  ): Promise<jsPDF> {
+    await this.initialize();
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+
+    // Company Logo and Header
+    this.addCompanyHeader(doc, pageWidth);
+
+    // Company Information
+    this.addCompanyInfo(doc, pageWidth);
+
+    // Remittance Title and Number
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text(`REMITTANCE ADVICE NO. ${remittanceData.remittanceNumber}`, pageWidth / 2, 80, {
+      align: "center",
+    });
+
+    // Customer and Date Information
+    this.addRemittanceCustomerInfo(doc, remittanceData, pageWidth);
+
+    // Remittance Items Table
+    this.addRemittanceItemsTable(doc, remittanceData);
+
+    // Total Amount
+    const finalY = (doc as any).lastAutoTable?.finalY || 180;
+    this.addRemittanceTotalSection(doc, remittanceData.totalPayment, finalY + 15);
+
+    if (download) {
+      doc.save(`${remittanceData.remittanceNumber}.pdf`);
+    }
+
+    return doc;
+  }
+
+  /**
    * Generate Payment Receipt PDF
    */
   static async generatePaymentReceiptPDF(
