@@ -198,13 +198,10 @@ export default function NewProduct() {
   const loadProduct = async (productId: string) => {
     try {
       setLoading(true);
-      console.log("🔍 Loading product:", productId);
 
       const productData = await dataService.getProduct(productId);
-      console.log("📦 Received product data:", productData);
 
       if (!productData) {
-        console.log("❌ No product data received");
         toast({
           title: "Product Not Found",
           description:
