@@ -83,65 +83,13 @@ export class Database {
       console.log(
         `🔌 Connecting to: ${DATABASE_CONFIG.host}:${DATABASE_CONFIG.port}`,
       );
-      console.log(`🔑 Username: ${DATABASE_CONFIG.user}`);
-      console.log(`🗄️ Database: ${DATABASE_CONFIG.database}`);
-      console.log(`🔒 SSL Enabled: ${DATABASE_CONFIG.ssl ? 'Yes' : 'No'}`);
-      console.log(`⏱️ Timeout: ${DATABASE_CONFIG.connectTimeout}ms`);
       console.log("🗄️ Using LIVE MYSQL DATABASE - No mock data");
 
-      // Try to create a direct connection first - try with SSL
-      console.log("🔒 Attempting connection with SSL...");
-      let directConnection;
-      try {
-        directConnection = await mysql.createConnection({
-          ...DATABASE_CONFIG,
-          connectTimeout: 15000,
-        });
-        console.log("✅ SSL connection successful!");
-      } catch (sslError) {
-        console.log("⚠️ SSL connection failed, trying without SSL...");
-        console.log(`SSL Error: ${sslError.message}`);
-
-        // Try without SSL
-        const configWithoutSSL = { ...DATABASE_CONFIG };
-        delete configWithoutSSL.ssl;
-
-        directConnection = await mysql.createConnection({
-          ...configWithoutSSL,
-          ssl: false,
-          connectTimeout: 15000,
-        });
-        console.log("✅ Non-SSL connection successful!");
-      }
-
-      console.log("✅ Direct connection established!");
-
-      const [result] = await directConnection.execute("SELECT 1 as test");
+      // Simple connection test using the pool
+      const result = await this.query("SELECT 1 as test");
       console.log("✅ LIVE MYSQL DATABASE CONNECTION SUCCESSFUL!");
-      console.log("🔗 Database test result:", result[0].test);
 
-      // Get additional info with separate queries
-      try {
-        const [timeResult] = await directConnection.execute("SELECT NOW() as server_time");
-        console.log("🕐 Server time:", timeResult[0].server_time);
-      } catch (e) {
-        console.log("⚠️ Could not get server time");
-      }
-
-      try {
-        const [versionResult] = await directConnection.execute("SELECT VERSION() as version");
-        console.log("📊 MySQL version:", versionResult[0].version);
-      } catch (e) {
-        console.log("⚠️ Could not get MySQL version");
-      }
-
-      await directConnection.end();
-
-      // Now test with pool
-      const poolResult = await this.query("SELECT 1 as test");
-      console.log("✅ Pool connection also working!");
-
-      // Test if we can query tables
+      // Test if we can query tables and check basic schema
       try {
         const companyTest = await this.query(
           "SELECT COUNT(*) as count FROM companies",
@@ -150,30 +98,6 @@ export class Database {
           `✅ Database schema ready - Found ${companyTest.rows[0].count} companies`,
         );
 
-        const tableCheck = await this.query(
-          `
-          SELECT table_name FROM information_schema.tables
-          WHERE table_schema = ?
-          ORDER BY table_name
-        `,
-          [DATABASE_CONFIG.database],
-        );
-        console.log(`📋 Available tables: ${tableCheck.rows.length} total`);
-
-        // Check if quotations table exists, if not create it
-        const quotationsCheck = await this.query(
-          `
-          SELECT table_name FROM information_schema.tables
-          WHERE table_schema = ? AND table_name = 'quotations'
-        `,
-          [DATABASE_CONFIG.database],
-        );
-
-        if (quotationsCheck.rows.length === 0) {
-          console.log("📋 Creating missing quotations table...");
-          await this.createQuotationsTable();
-        }
-
         // Check and add sample data if needed
         await this.checkAndAddSampleData();
       } catch (schemaError) {
@@ -181,6 +105,7 @@ export class Database {
         console.log("🔧 Run migration to create tables");
       }
 
+      console.log("✅ MySQL database connected successfully");
       return true;
     } catch (error: any) {
       console.error("❌ LIVE MYSQL DATABASE CONNECTION FAILED:", error.message);
