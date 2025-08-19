@@ -32,7 +32,6 @@ export class ConversionService {
       };
 
       // In a real application, this would make an API call
-      console.log('Converting quotation to proforma:', proforma);
       
       return {
         success: true,
@@ -74,7 +73,6 @@ export class ConversionService {
       };
 
       // In a real application, this would make an API call
-      console.log('Converting proforma to invoice:', invoice);
       
       return {
         success: true,
@@ -116,7 +114,6 @@ export class ConversionService {
       };
 
       // In a real application, this would make an API call
-      console.log('Converting quotation to invoice:', invoice);
       
       return {
         success: true,
