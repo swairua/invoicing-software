@@ -33,7 +33,7 @@ export class CustomerRepository extends BaseRepository {
       ${whereClause}
     `;
     const countResult = await this.db.query(countQuery, params);
-    const total = parseInt(countResult.rows[0].total);
+    const total = countResult.rows.length > 0 ? parseInt(countResult.rows[0].total) : 0;
 
     // Get paginated results
     const offset = (page - 1) * limit;
