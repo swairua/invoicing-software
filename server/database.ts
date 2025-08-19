@@ -15,13 +15,20 @@ const DATABASE_CONFIG = {
   connectionLimit: 5,
 };
 
-// Create connection pool using object configuration
-const pool = mysql.createPool({
-  ...DATABASE_CONFIG,
-  ssl: {
-    rejectUnauthorized: false,
-  },
-});
+// Create connection pool lazily to prevent startup crash
+let pool: mysql.Pool | null = null;
+
+function getPool() {
+  if (!pool) {
+    pool = mysql.createPool({
+      ...DATABASE_CONFIG,
+      ssl: {
+        rejectUnauthorized: false,
+      },
+    });
+  }
+  return pool;
+}
 
 // Database connection wrapper
 export class Database {
@@ -36,7 +43,7 @@ export class Database {
 
   // Get a connection from the pool
   async getConnection(): Promise<mysql.PoolConnection> {
-    return await pool.getConnection();
+    return await getPool().getConnection();
   }
 
   // Execute a query with automatic connection management
@@ -74,7 +81,10 @@ export class Database {
 
   // Close all connections
   async close(): Promise<void> {
-    await pool.end();
+    if (pool) {
+      await pool.end();
+      pool = null;
+    }
   }
 
   // Test connection with fallback
