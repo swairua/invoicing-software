@@ -26,7 +26,8 @@
     "deploy-check-strict": "npm run typecheck && npm run build && npm run check-env",
     "postinstall": "npm run build",
     "db:migrate": "node scripts/migrate-mysql.js",
-    "create-admin-user": "node scripts/create-admin-user.js"
+    "create-admin-user": "node scripts/create-admin-user.js",
+    "check-users": "node scripts/check-users.js"
   },
   "dependencies": {
     "@radix-ui/react-visually-hidden": "^1.2.3",
