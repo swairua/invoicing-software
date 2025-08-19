@@ -60,7 +60,7 @@ async function checkAndCreateUsers() {
         INSERT INTO users (id, company_id, first_name, last_name, email, password_hash, role, is_active)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `, [
-        "crestview-admin-0000-0000-000000000001",
+        "00000000-0000-0000-0000-000000000003",
         companyId,
         "Crestview",
         "Admin",
