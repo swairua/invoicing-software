@@ -812,6 +812,7 @@ router.use("/taxes", taxesRouter);
 router.use("/seed", seedRouter);
 router.use("/migration", migrationRouter);
 router.use("/test-update", testUpdateRouter);
+router.use("/remittances", remittancesRouter);
 
 router.get("/proformas", async (req, res) => {
   try {
