@@ -37,6 +37,7 @@ import {
   FileEdit,
   Trash2,
   Send,
+  Download,
   Calendar,
   User,
   Calculator,
@@ -236,6 +237,28 @@ export default function ProformaInvoices() {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDownloadPDF = async (proforma: ProformaInvoice) => {
+    try {
+      // Import PDFService
+      const PDFService = (await import("../services/pdfService")).default;
+
+      // Generate and download the proforma PDF
+      await PDFService.generateProformaPDF(proforma);
+
+      toast({
+        title: "PDF Generated",
+        description: `Proforma ${proforma.proformaNumber} PDF downloaded successfully`,
+      });
+    } catch (error) {
+      console.error("Error generating proforma PDF:", error);
+      toast({
+        title: "PDF Generation Failed",
+        description: "Failed to generate proforma PDF",
+        variant: "destructive",
+      });
     }
   };
 
@@ -556,6 +579,12 @@ export default function ProformaInvoices() {
                             >
                               <Copy className="mr-2 h-4 w-4" />
                               Duplicate
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleDownloadPDF(proforma)}
+                            >
+                              <Download className="mr-2 h-4 w-4" />
+                              Download PDF
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             {proforma.status === "sent" && (
