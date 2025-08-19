@@ -292,6 +292,28 @@ export default function Quotations() {
     }
   };
 
+  const handleDownloadPDF = async (quotation: Quotation) => {
+    try {
+      // Import PDFService
+      const PDFService = (await import("../services/pdfService")).default;
+
+      // Generate and download the quotation PDF
+      await PDFService.generateQuotationPDF(quotation);
+
+      toast({
+        title: "PDF Generated",
+        description: `Quotation ${quotation.quoteNumber} PDF downloaded successfully`,
+      });
+    } catch (error) {
+      console.error("Error generating quotation PDF:", error);
+      toast({
+        title: "PDF Generation Failed",
+        description: "Failed to generate quotation PDF",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleDelete = async (id: string) => {
     try {
       await businessData.deleteQuotation?.(id);
