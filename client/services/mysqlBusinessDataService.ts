@@ -740,7 +740,7 @@ class MySQLBusinessDataService {
     try {
       console.log("🔍 MySQLBusinessDataService.getQuotations() called");
       const response = await this.apiCall("/quotations");
-      console.log("🔍 Quotations API response:", response);
+      console.log("�� Quotations API response:", response);
 
       if (!response.success) {
         console.error("🔍 Quotations API failed:", response.error);
@@ -1263,6 +1263,23 @@ class MySQLBusinessDataService {
       return response.data;
     } catch (error) {
       console.error("Failed to create credit note:", error);
+      throw error;
+    }
+  }
+
+  // Add activity log entry
+  public async addActivityLog(entry: any): Promise<void> {
+    try {
+      const response = await this.apiCall("/activity-log", {
+        method: "POST",
+        body: JSON.stringify(entry),
+      });
+
+      if (!response.success) {
+        throw new Error(response.error || "Failed to add activity log");
+      }
+    } catch (error) {
+      console.error("Failed to add activity log:", error);
       throw error;
     }
   }
