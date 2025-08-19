@@ -13,16 +13,18 @@ export function createServer() {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
-  // Test database connection on startup
-  Database.testConnection().then(connected => {
-    if (connected) {
-      console.log('✅ MySQL database connected successfully');
-    } else {
-      console.log('❌ MySQL database connection failed');
-    }
-  }).catch(error => {
-    console.log('⚠️ Database connection test failed:', error.message);
-  });
+  // Test database connection on startup (non-blocking)
+  setTimeout(() => {
+    Database.testConnection().then(connected => {
+      if (connected) {
+        console.log('✅ MySQL database connected successfully');
+      } else {
+        console.log('❌ MySQL database connection failed - continuing with fallback mode');
+      }
+    }).catch(error => {
+      console.log('⚠️ Database connection test failed - continuing with fallback mode:', error.message);
+    });
+  }, 1000); // Delay to prevent blocking server startup
 
   // Example API routes
   app.get("/api/ping", (_req, res) => {

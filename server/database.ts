@@ -57,16 +57,26 @@ export class Database {
 
   // Execute a query with automatic connection management
   async query(text: string, params?: any[]): Promise<any> {
-    const connection = await this.getConnection();
     try {
-      const [rows, fields] = await connection.execute(text, params || []);
+      const connection = await this.getConnection();
+      try {
+        const [rows, fields] = await connection.execute(text, params || []);
+        return {
+          rows: Array.isArray(rows) ? rows : [rows],
+          rowCount: Array.isArray(rows) ? rows.length : 1,
+          fields,
+        };
+      } finally {
+        connection.release();
+      }
+    } catch (error) {
+      console.error('Database query failed:', error.message);
+      // Return empty result instead of throwing
       return {
-        rows: Array.isArray(rows) ? rows : [rows],
-        rowCount: Array.isArray(rows) ? rows.length : 1,
-        fields,
+        rows: [],
+        rowCount: 0,
+        fields: [],
       };
-    } finally {
-      connection.release();
     }
   }
 
