@@ -13,13 +13,15 @@ export function createServer() {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
-  // Test database connection on startup
+  // Test database connection on startup (non-blocking)
   Database.testConnection().then(connected => {
     if (connected) {
       console.log('✅ MySQL database connected successfully');
     } else {
-      console.log('❌ MySQL database connection failed');
+      console.log('❌ MySQL database connection failed - using fallback mode');
     }
+  }).catch(error => {
+    console.log('⚠️ Database connection test failed - using fallback mode');
   });
 
   // Example API routes
