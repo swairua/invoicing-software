@@ -822,7 +822,7 @@ router.get("/proformas", async (req, res) => {
 
     const result = await Database.query(
       `
-      SELECT 
+      SELECT
         p.*,
         c.name as customer_name,
         c.email as customer_email
@@ -834,6 +834,29 @@ router.get("/proformas", async (req, res) => {
     `,
       [companyId],
     );
+
+    // Fetch line items for each proforma
+    for (const proforma of result.rows) {
+      try {
+        const itemsResult = await Database.query(
+          `
+          SELECT
+            pi.*,
+            pr.name as product_name,
+            pr.description as product_description
+          FROM proforma_invoice_items pi
+          LEFT JOIN products pr ON pi.product_id = pr.id
+          WHERE pi.proforma_id = ?
+          ORDER BY pi.created_at
+          `,
+          [proforma.id],
+        );
+        proforma.items = itemsResult.rows || [];
+      } catch (itemError) {
+        console.warn(`Failed to fetch items for proforma ${proforma.id}:`, itemError);
+        proforma.items = [];
+      }
+    }
 
     res.json({
       success: true,
@@ -907,9 +930,32 @@ router.get("/proformas/:id", async (req, res) => {
       });
     }
 
+    const proforma = result.rows[0];
+
+    // Fetch line items for this proforma
+    try {
+      const itemsResult = await Database.query(
+        `
+        SELECT
+          pi.*,
+          pr.name as product_name,
+          pr.description as product_description
+        FROM proforma_invoice_items pi
+        LEFT JOIN products pr ON pi.product_id = pr.id
+        WHERE pi.proforma_id = ?
+        ORDER BY pi.created_at
+        `,
+        [id],
+      );
+      proforma.items = itemsResult.rows || [];
+    } catch (itemError) {
+      console.warn(`Failed to fetch items for proforma ${id}:`, itemError);
+      proforma.items = [];
+    }
+
     res.json({
       success: true,
-      data: result.rows[0],
+      data: proforma,
     });
   } catch (error) {
     console.error("Error fetching proforma:", error);
