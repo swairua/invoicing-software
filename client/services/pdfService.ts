@@ -258,6 +258,61 @@ export class PDFService {
   }
 
   /**
+   * Generate Credit Note PDF
+   */
+  static async generateCreditNotePDF(
+    creditNote: any,
+    download: boolean = true,
+  ): Promise<jsPDF> {
+    await this.initialize();
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+
+    // Company Logo and Header
+    this.addCompanyHeader(doc, pageWidth);
+
+    // Company Information
+    this.addCompanyInfo(doc, pageWidth);
+
+    // Credit Note Title and Number
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(220, 20, 60); // Crimson color for credit note
+    doc.text(`CREDIT NOTE NO. ${creditNote.creditNoteNumber}`, pageWidth / 2, 80, {
+      align: "center",
+    });
+
+    // Reset text color
+    doc.setTextColor(0, 0, 0);
+
+    // Customer and Date Information
+    this.addCustomerAndDateInfo(doc, creditNote, pageWidth);
+
+    // Credit Note Items Table
+    this.addCreditNoteItemsTable(doc, creditNote);
+
+    // Credit Amount
+    const finalY = (doc as any).lastAutoTable?.finalY || 180;
+    this.addCreditNoteTotalSection(doc, creditNote.total, finalY + 15);
+
+    // Reason for credit note
+    if (creditNote.reason) {
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      doc.text("Reason for Credit Note:", 20, finalY + 40);
+      doc.setFont("helvetica", "normal");
+      doc.text(creditNote.reason, 20, finalY + 50);
+    }
+
+    if (download) {
+      doc.save(`${creditNote.creditNoteNumber}.pdf`);
+    }
+
+    return doc;
+  }
+
+  /**
    * Generate Payment Receipt PDF
    */
   static async generatePaymentReceiptPDF(
