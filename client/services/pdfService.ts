@@ -831,6 +831,122 @@ export class PDFService {
   }
 
   /**
+   * Add remittance customer info and date
+   */
+  private static addRemittanceCustomerInfo(
+    doc: jsPDF,
+    remittanceData: any,
+    pageWidth: number,
+  ): void {
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(0, 0, 0);
+
+    let startY = 100;
+
+    // Customer info (left side)
+    doc.text("To:", 20, startY);
+    doc.setFont("helvetica", "bold");
+    doc.text(remittanceData.customer?.name || "Unknown Customer", 20, startY + 7);
+    doc.setFont("helvetica", "normal");
+
+    if (remittanceData.customer?.address) {
+      doc.text(remittanceData.customer.address, 20, startY + 14);
+    }
+
+    // Date info (right side)
+    const rightColumnX = pageWidth - 100;
+    const rightValueX = pageWidth - 20;
+
+    doc.text("Date:", rightColumnX, startY);
+    doc.text(this.formatDate(new Date(remittanceData.date)), rightValueX, startY, { align: "right" });
+
+    doc.text("Account No.:", rightColumnX, startY + 7);
+    doc.text("N/A", rightValueX, startY + 7, { align: "right" });
+  }
+
+  /**
+   * Add remittance items table
+   */
+  private static addRemittanceItemsTable(doc: jsPDF, remittanceData: any): void {
+    const tableData = (remittanceData.items || []).map((item: any, index: number) => [
+      this.formatDate(new Date(item.date)),
+      item.reference || "N/A",
+      item.type === "invoice" ? "Invoice" : "Credit Note",
+      this.formatCurrency(item.amount),
+      this.formatCurrency(item.paymentAmount),
+    ]);
+
+    const tableHeaders = [
+      "Date",
+      "Reference",
+      "Type",
+      "Amount",
+      "Payment Amount",
+    ];
+
+    autoTable(doc, {
+      startY: 120,
+      head: [tableHeaders],
+      body: tableData,
+      theme: "grid",
+      headStyles: {
+        fillColor: [128, 128, 128],
+        textColor: [0, 0, 0],
+        fontStyle: "bold",
+        fontSize: 9,
+        halign: "center",
+      },
+      styles: {
+        fontSize: 9,
+        cellPadding: 4,
+        lineColor: [0, 0, 0],
+        lineWidth: 0.5,
+      },
+      columnStyles: {
+        0: { halign: "center", cellWidth: 30 },
+        1: { halign: "left", cellWidth: 50 },
+        2: { halign: "center", cellWidth: 30 },
+        3: { halign: "right", cellWidth: 35 },
+        4: { halign: "right", cellWidth: 35 },
+      },
+    });
+  }
+
+  /**
+   * Add remittance total section
+   */
+  private static addRemittanceTotalSection(
+    doc: jsPDF,
+    total: number,
+    startY: number,
+  ): void {
+    const boxWidth = 80;
+    const boxHeight = 20;
+    const rightMargin = 20;
+    const boxX = doc.internal.pageSize.width - rightMargin - boxWidth;
+
+    // Create bordered total section
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(1);
+    doc.rect(boxX, startY, boxWidth, boxHeight);
+
+    // Background
+    doc.setFillColor(240, 240, 240);
+    doc.rect(boxX, startY, boxWidth, boxHeight, "F");
+    doc.rect(boxX, startY, boxWidth, boxHeight);
+
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+
+    doc.text("Total Payment Amount", boxX + 3, startY + 12);
+    doc.text(this.formatCurrency(total), boxX + boxWidth - 3, startY + 12, {
+      align: "right",
+    });
+  }
+
+  /**
    * Add payment details
    */
   private static addPaymentDetails(
