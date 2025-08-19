@@ -1,6 +1,6 @@
 import mysql from "mysql2/promise";
 
-// Database configuration - MySQL connection optimized for Aiven
+// Database configuration - MySQL connection for Aiven with mysql2 v2.3.3
 const DATABASE_CONFIG = {
   host:
     process.env.DB_HOST || "mysql-242eb3d7-invoicing-software.c.aivencloud.com",
@@ -8,16 +8,11 @@ const DATABASE_CONFIG = {
   user: process.env.DB_USER || "avnadmin",
   password: process.env.DB_PASSWORD || "AVNS_x9WdjKNy72pMT6Zr90I",
   database: process.env.DB_NAME || "defaultdb",
-  connectTimeout: 30000,
-  acquireTimeout: 30000,
-  timeout: 30000,
+  connectTimeout: 60000,
   ssl: {
     rejectUnauthorized: false,
   },
-  connectionLimit: 3,
-  queueLimit: 0,
-  reconnect: true,
-  charset: "utf8mb4_unicode_ci",
+  connectionLimit: 5,
 };
 
 // Create connection pool using object configuration
