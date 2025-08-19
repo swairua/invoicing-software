@@ -357,7 +357,23 @@ class MySQLBusinessDataService {
       console.log(`✅ API call successful for ${endpoint}`);
       return data;
     } catch (error) {
-      console.error(`💥 API call error for ${endpoint}:`, error);
+      console.error(`💥 API call error for ${endpoint} (attempt ${retryCount + 1}):`, error);
+
+      // Retry on network timeouts or connection errors, but not on HTTP errors
+      const maxRetries = 2;
+      const shouldRetry = retryCount < maxRetries && (
+        error.message.includes('timeout') ||
+        error.message.includes('Network') ||
+        error.message.includes('failed to fetch') ||
+        error.message.includes('XMLHttpRequest failed')
+      );
+
+      if (shouldRetry) {
+        const delayMs = Math.pow(2, retryCount) * 1000; // Exponential backoff: 1s, 2s, 4s
+        console.log(`🔄 Retrying ${endpoint} in ${delayMs}ms... (attempt ${retryCount + 2}/${maxRetries + 1})`);
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+        return this.apiCall(endpoint, options, retryCount + 1);
+      }
 
       // Provide more specific error information for network failures
       if (error instanceof TypeError && error.message === 'Failed to fetch') {
