@@ -150,8 +150,15 @@ class MySQLBusinessDataService {
     const currentUrl = window.location.href;
     const isProduction = currentUrl.includes('fly.dev') || currentUrl.includes('.app') || !currentUrl.includes('localhost');
 
-    // Always run detection, but be more aggressive in production
-    this.detectBrowserInterference();
+    // In production environments, be very aggressive about FullStory detection
+    if (isProduction) {
+      console.log(`🚨 Production environment detected: ${currentUrl}`);
+      console.log(`🚨 Pre-emptively enabling XMLHttpRequest fallback for production`);
+      this.hasDetectedFetchInterference = true;
+    } else {
+      // Always run detection, but be more aggressive in production
+      this.detectBrowserInterference();
+    }
 
     // Additional logging for debugging
     console.log(`🔍 MySQLBusinessDataService initialized`);
