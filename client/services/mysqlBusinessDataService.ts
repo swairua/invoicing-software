@@ -892,23 +892,6 @@ class MySQLBusinessDataService {
     }
   }
 
-  public async createPayment(payment: Partial<Payment>): Promise<Payment> {
-    try {
-      const response = await this.apiCall("/payments", {
-        method: "POST",
-        body: JSON.stringify(payment),
-      });
-
-      if (!response.success) {
-        throw new Error(response.error || "Failed to create payment");
-      }
-
-      return response.data;
-    } catch (error) {
-      console.error("Failed to create payment:", error);
-      throw error;
-    }
-  }
 
   // Sample data creation
   public async createSampleData(): Promise<void> {
