@@ -1,9 +1,8 @@
 import mysql from "mysql2/promise";
 
-// Database configuration - MySQL connection for Aiven with mysql2 v2.3.3
+// Database configuration - Aiven MySQL with specific compatibility settings
 const DATABASE_CONFIG = {
-  host:
-    process.env.DB_HOST || "mysql-242eb3d7-invoicing-software.c.aivencloud.com",
+  host: process.env.DB_HOST || "mysql-242eb3d7-invoicing-software.c.aivencloud.com",
   port: parseInt(process.env.DB_PORT || "11401"),
   user: process.env.DB_USER || "avnadmin",
   password: process.env.DB_PASSWORD || "AVNS_x9WdjKNy72pMT6Zr90I",
@@ -11,8 +10,14 @@ const DATABASE_CONFIG = {
   connectTimeout: 60000,
   ssl: {
     rejectUnauthorized: false,
+    minVersion: 'TLSv1.2',
   },
-  connectionLimit: 5,
+  connectionLimit: 3,
+  acquireTimeout: 60000,
+  timeout: 60000,
+  // Add these flags to help with Aiven compatibility
+  flags: '+PROTOCOL_41 +TRANSACTIONS +SECURE_CONNECTION +MULTI_STATEMENTS +MULTI_RESULTS',
+  charset: 'utf8mb4',
 };
 
 // Enable MySQL connection pool for real database operations
