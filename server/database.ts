@@ -2,18 +2,22 @@ import mysql from "mysql2/promise";
 
 // Database configuration - MySQL connection
 const DATABASE_CONFIG = {
-  host: process.env.DB_HOST || "mysql-242eb3d7-invoicing-software.c.aivencloud.com",
+  host:
+    process.env.DB_HOST || "mysql-242eb3d7-invoicing-software.c.aivencloud.com",
   port: parseInt(process.env.DB_PORT || "11397"),
   user: process.env.DB_USER || "avnadmin",
   password: process.env.DB_PASSWORD || "AVNS_x9WdjKNy72pMT6Zr90I",
   database: process.env.DB_NAME || "defaultdb",
-  // Only use SSL for remote connections, not for localhost
+  connectTimeout: 30000,
+  // SSL configuration for remote connections
   ...(process.env.DB_HOST !== "localhost" && {
     ssl: {
       rejectUnauthorized: false,
     },
   }),
   connectionLimit: 10,
+  charset: "utf8mb4",
+  timezone: "Z",
 };
 
 // Create connection pool
@@ -82,11 +86,11 @@ export class Database {
       );
       console.log("🗄️ Using LIVE MYSQL DATABASE - No mock data");
 
+      // Simple connection test using the pool
       const result = await this.query("SELECT 1 as test");
       console.log("✅ LIVE MYSQL DATABASE CONNECTION SUCCESSFUL!");
-      console.log("🔗 Database test result:", result.rows[0].test);
 
-      // Test if we can query tables
+      // Test if we can query tables and check basic schema
       try {
         const companyTest = await this.query(
           "SELECT COUNT(*) as count FROM companies",
@@ -95,30 +99,6 @@ export class Database {
           `✅ Database schema ready - Found ${companyTest.rows[0].count} companies`,
         );
 
-        const tableCheck = await this.query(
-          `
-          SELECT table_name FROM information_schema.tables
-          WHERE table_schema = ?
-          ORDER BY table_name
-        `,
-          [DATABASE_CONFIG.database],
-        );
-        console.log(`📋 Available tables: ${tableCheck.rows.length} total`);
-
-        // Check if quotations table exists, if not create it
-        const quotationsCheck = await this.query(
-          `
-          SELECT table_name FROM information_schema.tables
-          WHERE table_schema = ? AND table_name = 'quotations'
-        `,
-          [DATABASE_CONFIG.database],
-        );
-
-        if (quotationsCheck.rows.length === 0) {
-          console.log("📋 Creating missing quotations table...");
-          await this.createQuotationsTable();
-        }
-
         // Check and add sample data if needed
         await this.checkAndAddSampleData();
       } catch (schemaError) {
@@ -126,6 +106,7 @@ export class Database {
         console.log("🔧 Run migration to create tables");
       }
 
+      console.log("✅ MySQL database connected successfully");
       return true;
     } catch (error: any) {
       console.error("❌ LIVE MYSQL DATABASE CONNECTION FAILED:", error.message);
@@ -489,7 +470,7 @@ export class Database {
         ["00000000-0000-0000-0000-000000000001"],
       );
       if (productCount.rows[0].count === 0) {
-        console.log("📋 Adding sample products...");
+        console.log("��� Adding sample products...");
         await this.addSampleProducts();
       }
     } catch (error) {
