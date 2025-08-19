@@ -484,7 +484,7 @@ export default function StatementOfAccount() {
             Generate customer account statements with aging analysis
           </p>
         </div>
-        <Button>
+        <Button onClick={handleExportPDF}>
           <Download className="mr-2 h-4 w-4" />
           Export PDF
         </Button>
