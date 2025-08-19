@@ -398,7 +398,7 @@ class MySQLBusinessDataService {
     try {
       console.log(`🔄 Starting fetch request to ${url}...`);
       console.log(
-        `🔄 Request options being sent:`,
+        `�� Request options being sent:`,
         JSON.stringify(requestOptions, null, 2),
       );
 
@@ -1294,6 +1294,101 @@ class MySQLBusinessDataService {
       return response.success;
     } catch (error) {
       console.error("Failed to delete credit note:", error);
+      throw error;
+    }
+  }
+
+  // Tax configuration methods
+  public async getTaxConfigurations(): Promise<any[]> {
+    try {
+      const response = await this.apiCall("/tax-configurations");
+      return response.success ? response.data : [];
+    } catch (error) {
+      console.error("Failed to fetch tax configurations:", error);
+      return [];
+    }
+  }
+
+  public async createTaxConfiguration(config: any): Promise<any> {
+    try {
+      const response = await this.apiCall("/tax-configurations", {
+        method: "POST",
+        body: JSON.stringify(config),
+      });
+
+      if (!response.success) {
+        throw new Error(response.error || "Failed to create tax configuration");
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error("Failed to create tax configuration:", error);
+      throw error;
+    }
+  }
+
+  public async updateTaxConfiguration(id: string, config: any): Promise<any> {
+    try {
+      const response = await this.apiCall(`/tax-configurations/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(config),
+      });
+
+      if (!response.success) {
+        throw new Error(response.error || "Failed to update tax configuration");
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error("Failed to update tax configuration:", error);
+      throw error;
+    }
+  }
+
+  public async deleteTaxConfiguration(id: string): Promise<boolean> {
+    try {
+      const response = await this.apiCall(`/tax-configurations/${id}`, {
+        method: "DELETE",
+      });
+
+      return response.success;
+    } catch (error) {
+      console.error("Failed to delete tax configuration:", error);
+      throw error;
+    }
+  }
+
+  public async toggleTaxConfigurationStatus(id: string, isActive: boolean): Promise<any> {
+    try {
+      const response = await this.apiCall(`/tax-configurations/${id}/toggle`, {
+        method: "PATCH",
+        body: JSON.stringify({ isActive }),
+      });
+
+      if (!response.success) {
+        throw new Error(response.error || "Failed to toggle tax configuration status");
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error("Failed to toggle tax configuration status:", error);
+      throw error;
+    }
+  }
+
+  public async setDefaultTaxConfiguration(id: string): Promise<any> {
+    try {
+      const response = await this.apiCall(`/tax-configurations/${id}/set-default`, {
+        method: "PATCH",
+      });
+
+      if (!response.success) {
+        throw new Error(response.error || "Failed to set default tax configuration");
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error("Failed to set default tax configuration:", error);
       throw error;
     }
   }
