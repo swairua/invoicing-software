@@ -20,9 +20,13 @@ const DATABASE_CONFIG = {
   charset: "utf8mb4_unicode_ci",
 };
 
-// Create connection pool using URI format for better Aiven compatibility
-const connectionUri = `mysql://${DATABASE_CONFIG.user}:${DATABASE_CONFIG.password}@${DATABASE_CONFIG.host}:${DATABASE_CONFIG.port}/${DATABASE_CONFIG.database}?ssl=required&charset=utf8mb4&connectionLimit=${DATABASE_CONFIG.connectionLimit}`;
-const pool = mysql.createPool(connectionUri);
+// Create connection pool using object configuration
+const pool = mysql.createPool({
+  ...DATABASE_CONFIG,
+  ssl: {
+    rejectUnauthorized: false,
+  },
+});
 
 // Database connection wrapper
 export class Database {
@@ -87,10 +91,18 @@ export class Database {
       );
       console.log("🗄️ Using LIVE MYSQL DATABASE - No mock data");
 
-      // Use connection URI approach for better Aiven compatibility
-      const connectionUri = `mysql://${DATABASE_CONFIG.user}:${DATABASE_CONFIG.password}@${DATABASE_CONFIG.host}:${DATABASE_CONFIG.port}/${DATABASE_CONFIG.database}?ssl=required&charset=utf8mb4`;
-
-      const simpleConnection = await mysql.createConnection(connectionUri);
+      // Use object configuration for better compatibility
+      const simpleConnection = await mysql.createConnection({
+        host: DATABASE_CONFIG.host,
+        port: DATABASE_CONFIG.port,
+        user: DATABASE_CONFIG.user,
+        password: DATABASE_CONFIG.password,
+        database: DATABASE_CONFIG.database,
+        ssl: {
+          rejectUnauthorized: false,
+        },
+        charset: "utf8mb4",
+      });
 
       const [testResult] = await simpleConnection.execute("SELECT 1 as test, VERSION() as version");
       console.log("✅ LIVE MYSQL DATABASE CONNECTION SUCCESSFUL!");
