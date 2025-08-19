@@ -64,7 +64,6 @@ router.get("/", async (req, res) => {
       result.products.length,
     );
 
-
     // If no products found (mock mode), return sample data
     if (result.products.length === 0 && result.total === 0) {
       console.log("📋 No products found, returning sample data for demo");
@@ -168,7 +167,7 @@ router.get("/", async (req, res) => {
     res.status(500).json({
       success: false,
       error: "Failed to fetch products from database",
-      message: error.message
+      message: error.message,
     });
   }
 });

@@ -14,7 +14,7 @@ export function createServer() {
   app.use(express.urlencoded({ extended: true }));
 
   // Database connection will be tested on first use to prevent startup crashes
-  console.log('🗄️ Database connection will be tested on first API call');
+  console.log("🗄️ Database connection will be tested on first API call");
 
   // Example API routes
   app.get("/api/ping", (_req, res) => {

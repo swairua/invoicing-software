@@ -33,7 +33,8 @@ export class CustomerRepository extends BaseRepository {
       ${whereClause}
     `;
     const countResult = await this.db.query(countQuery, params);
-    const total = countResult.rows.length > 0 ? parseInt(countResult.rows[0].total) : 0;
+    const total =
+      countResult.rows.length > 0 ? parseInt(countResult.rows[0].total) : 0;
 
     // Get paginated results
     const offset = (page - 1) * limit;
@@ -52,7 +53,7 @@ export class CustomerRepository extends BaseRepository {
     const customers = this.toCamelCase(result.rows) as any[];
 
     // Map currentBalance to balance for compatibility with Customer interface
-    customers.forEach(customer => {
+    customers.forEach((customer) => {
       if (customer.currentBalance !== undefined) {
         customer.balance = customer.currentBalance;
       }
@@ -114,8 +115,10 @@ export class CustomerRepository extends BaseRepository {
 
     // Add UUID generation explicitly
     const insertQuery = `
-      INSERT INTO customers (id, ${Object.keys(data).join(', ')})
-      VALUES (UUID(), ${Object.keys(data).map(() => '?').join(', ')})
+      INSERT INTO customers (id, ${Object.keys(data).join(", ")})
+      VALUES (UUID(), ${Object.keys(data)
+        .map(() => "?")
+        .join(", ")})
     `;
 
     console.log("📝 Insert query:", insertQuery);
@@ -125,8 +128,8 @@ export class CustomerRepository extends BaseRepository {
 
     // Get the inserted record by finding the most recent one for this company
     const recentCustomer = await this.db.query(
-      'SELECT * FROM customers WHERE company_id = ? ORDER BY created_at DESC LIMIT 1',
-      [customerData.companyId]
+      "SELECT * FROM customers WHERE company_id = ? ORDER BY created_at DESC LIMIT 1",
+      [customerData.companyId],
     );
 
     const customer = this.toCamelCase(recentCustomer.rows[0]) as any;

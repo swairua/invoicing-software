@@ -25,8 +25,10 @@ router.get("/", async (req, res) => {
       search,
       isActive,
     });
-    console.log("✅ Repository call successful, customers found:", result.customers.length);
-
+    console.log(
+      "✅ Repository call successful, customers found:",
+      result.customers.length,
+    );
 
     // If no customers found (mock mode), return sample data
     if (result.customers.length === 0 && result.total === 0) {

@@ -2,7 +2,8 @@ import mysql from "mysql2/promise";
 
 // Database configuration - Aiven MySQL with specific compatibility settings
 const DATABASE_CONFIG = {
-  host: process.env.DB_HOST || "mysql-242eb3d7-invoicing-software.c.aivencloud.com",
+  host:
+    process.env.DB_HOST || "mysql-242eb3d7-invoicing-software.c.aivencloud.com",
   port: parseInt(process.env.DB_PORT || "11401"),
   user: process.env.DB_USER || "avnadmin",
   password: process.env.DB_PASSWORD || "AVNS_x9WdjKNy72pMT6Zr90I",
@@ -10,14 +11,15 @@ const DATABASE_CONFIG = {
   connectTimeout: 60000,
   ssl: {
     rejectUnauthorized: false,
-    minVersion: 'TLSv1.2',
+    minVersion: "TLSv1.2",
   },
   connectionLimit: 3,
   acquireTimeout: 60000,
   timeout: 60000,
   // Add these flags to help with Aiven compatibility
-  flags: '+PROTOCOL_41 +TRANSACTIONS +SECURE_CONNECTION +MULTI_STATEMENTS +MULTI_RESULTS',
-  charset: 'utf8mb4',
+  flags:
+    "+PROTOCOL_41 +TRANSACTIONS +SECURE_CONNECTION +MULTI_STATEMENTS +MULTI_RESULTS",
+  charset: "utf8mb4",
 };
 
 // Temporarily enable mock mode to prevent crashes due to MySQL compatibility issue
@@ -37,7 +39,7 @@ function getPool() {
         },
       });
     } catch (error) {
-      console.error('Failed to create database pool:', error.message);
+      console.error("Failed to create database pool:", error.message);
       throw error;
     }
   }
@@ -85,7 +87,7 @@ export class Database {
         connection.release();
       }
     } catch (error) {
-      console.error('Database query failed:', error.message);
+      console.error("Database query failed:", error.message);
       // Return empty result instead of throwing
       return {
         rows: [],
@@ -149,7 +151,9 @@ export class Database {
         charset: "utf8mb4",
       });
 
-      const [testResult] = await simpleConnection.execute("SELECT 1 as test, VERSION() as version");
+      const [testResult] = await simpleConnection.execute(
+        "SELECT 1 as test, VERSION() as version",
+      );
       console.log("✅ LIVE MYSQL DATABASE CONNECTION SUCCESSFUL!");
       console.log(`🗄️ MySQL version: ${testResult[0].version}`);
 

@@ -15,7 +15,7 @@ router.post("/login", async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        error: "Email and password are required"
+        error: "Email and password are required",
       });
     }
 
@@ -30,7 +30,7 @@ router.post("/login", async (req, res) => {
         last_name: "User",
         role: "admin",
         company_id: "demo-company-001",
-        company_name: "Demo Company"
+        company_name: "Demo Company",
       };
       console.log("👤 Using fallback admin user for demo");
     } else {
@@ -48,7 +48,12 @@ router.post("/login", async (req, res) => {
 
         if (result.rows && result.rows.length > 0) {
           user = result.rows[0];
-          console.log("👤 Found user in database:", user.email, "Role:", user.role);
+          console.log(
+            "👤 Found user in database:",
+            user.email,
+            "Role:",
+            user.role,
+          );
         }
       } catch (dbError) {
         console.log("⚠️ Database unavailable for non-demo user:", email);
@@ -59,29 +64,30 @@ router.post("/login", async (req, res) => {
       console.log("❌ User not found:", email);
       return res.status(401).json({
         success: false,
-        error: "Invalid email or password"
+        error: "Invalid email or password",
       });
     }
 
     // For demo purposes, accept simple password or hashed password
     let passwordValid = false;
 
-    if (user.password_hash && user.password_hash.startsWith('$2')) {
+    if (user.password_hash && user.password_hash.startsWith("$2")) {
       // Check hashed password with bcrypt
       passwordValid = await bcrypt.compare(password, user.password_hash);
     } else {
       // For demo/development, allow simple password match
-      passwordValid = password === 'password' ||
-                     password === 'admin' ||
-                     password === user.email.split('@')[0] ||
-                     password === user.password_hash; // In case password_hash contains plain text
+      passwordValid =
+        password === "password" ||
+        password === "admin" ||
+        password === user.email.split("@")[0] ||
+        password === user.password_hash; // In case password_hash contains plain text
     }
 
     if (!passwordValid) {
       console.log("❌ Invalid password for user:", email);
       return res.status(401).json({
         success: false,
-        error: "Invalid email or password"
+        error: "Invalid email or password",
       });
     }
 
@@ -91,10 +97,10 @@ router.post("/login", async (req, res) => {
         userId: user.id,
         email: user.email,
         role: user.role,
-        companyId: user.company_id
+        companyId: user.company_id,
       },
       process.env.JWT_SECRET || "default_secret_key",
-      { expiresIn: "24h" }
+      { expiresIn: "24h" },
     );
 
     // Return user data and token
@@ -105,7 +111,7 @@ router.post("/login", async (req, res) => {
       lastName: user.last_name,
       role: user.role,
       companyId: user.company_id,
-      companyName: user.company_name
+      companyName: user.company_name,
     };
 
     console.log("✅ Login successful for:", email);
@@ -113,14 +119,13 @@ router.post("/login", async (req, res) => {
     res.json({
       success: true,
       user: userData,
-      token
+      token,
     });
-
   } catch (error) {
     console.error("💥 Login error:", error);
     res.status(500).json({
       success: false,
-      error: "Internal server error"
+      error: "Internal server error",
     });
   }
 });
@@ -128,30 +133,33 @@ router.post("/login", async (req, res) => {
 // Get current user endpoint (for token validation)
 router.get("/me", async (req, res) => {
   try {
-    const token = req.headers.authorization?.replace('Bearer ', '');
-    
+    const token = req.headers.authorization?.replace("Bearer ", "");
+
     if (!token) {
       return res.status(401).json({
         success: false,
-        error: "No token provided"
+        error: "No token provided",
       });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "default_secret_key") as any;
-    
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET || "default_secret_key",
+    ) as any;
+
     const userQuery = `
       SELECT u.*, c.name as company_name 
       FROM users u 
       LEFT JOIN companies c ON u.company_id = c.id 
       WHERE u.id = ? AND u.is_active = 1
     `;
-    
+
     const result = await Database.query(userQuery, [decoded.userId]);
-    
+
     if (!result.rows || result.rows.length === 0) {
       return res.status(401).json({
         success: false,
-        error: "User not found"
+        error: "User not found",
       });
     }
 
@@ -163,19 +171,18 @@ router.get("/me", async (req, res) => {
       lastName: user.last_name,
       role: user.role,
       companyId: user.company_id,
-      companyName: user.company_name
+      companyName: user.company_name,
     };
 
     res.json({
       success: true,
-      user: userData
+      user: userData,
     });
-
   } catch (error) {
     console.error("💥 Token validation error:", error);
     res.status(401).json({
       success: false,
-      error: "Invalid token"
+      error: "Invalid token",
     });
   }
 });
