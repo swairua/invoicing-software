@@ -1,30 +1,30 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Create Proforma Table</title>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Create Proforma Tables</h1>
     <button onclick="createProformaTable()">Create Proforma Table</button>
     <div id="output"></div>
 
     <script>
-        async function createProformaTable() {
-            const output = document.getElementById('output');
-            output.innerHTML = '<p>Creating proforma_invoices table...</p>';
+      async function createProformaTable() {
+        const output = document.getElementById("output");
+        output.innerHTML = "<p>Creating proforma_invoices table...</p>";
 
-            try {
-                // Create main proforma_invoices table
-                const createTableResponse = await fetch('/api/database/execute', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-company-id': '00000000-0000-0000-0000-000000000001'
-                    },
-                    body: JSON.stringify({
-                        query: `CREATE TABLE IF NOT EXISTS proforma_invoices (
+        try {
+          // Create main proforma_invoices table
+          const createTableResponse = await fetch("/api/database/execute", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-company-id": "00000000-0000-0000-0000-000000000001",
+            },
+            body: JSON.stringify({
+              query: `CREATE TABLE IF NOT EXISTS proforma_invoices (
                             id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
                             company_id VARCHAR(36) NOT NULL,
                             customer_id VARCHAR(36) NOT NULL,
@@ -42,26 +42,29 @@
                             INDEX idx_company_customer (company_id, customer_id),
                             INDEX idx_proforma_number (proforma_number),
                             INDEX idx_status (status)
-                        )`
-                    })
-                });
+                        )`,
+            }),
+          });
 
-                const tableResult = await createTableResponse.json();
-                if (!tableResult.success) {
-                    throw new Error('Failed to create proforma_invoices table: ' + tableResult.error);
-                }
+          const tableResult = await createTableResponse.json();
+          if (!tableResult.success) {
+            throw new Error(
+              "Failed to create proforma_invoices table: " + tableResult.error,
+            );
+          }
 
-                output.innerHTML += '<p>✅ proforma_invoices table created successfully</p>';
+          output.innerHTML +=
+            "<p>✅ proforma_invoices table created successfully</p>";
 
-                // Create proforma_invoice_items table
-                const createItemsResponse = await fetch('/api/database/execute', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-company-id': '00000000-0000-0000-0000-000000000001'
-                    },
-                    body: JSON.stringify({
-                        query: `CREATE TABLE IF NOT EXISTS proforma_invoice_items (
+          // Create proforma_invoice_items table
+          const createItemsResponse = await fetch("/api/database/execute", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-company-id": "00000000-0000-0000-0000-000000000001",
+            },
+            body: JSON.stringify({
+              query: `CREATE TABLE IF NOT EXISTS proforma_invoice_items (
                             id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
                             proforma_id VARCHAR(36) NOT NULL,
                             product_id VARCHAR(36) NOT NULL,
@@ -74,26 +77,30 @@
                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                             INDEX idx_proforma (proforma_id),
                             INDEX idx_product (product_id)
-                        )`
-                    })
-                });
+                        )`,
+            }),
+          });
 
-                const itemsResult = await createItemsResponse.json();
-                if (!itemsResult.success) {
-                    throw new Error('Failed to create proforma_invoice_items table: ' + itemsResult.error);
-                }
+          const itemsResult = await createItemsResponse.json();
+          if (!itemsResult.success) {
+            throw new Error(
+              "Failed to create proforma_invoice_items table: " +
+                itemsResult.error,
+            );
+          }
 
-                output.innerHTML += '<p>✅ proforma_invoice_items table created successfully</p>';
+          output.innerHTML +=
+            "<p>✅ proforma_invoice_items table created successfully</p>";
 
-                // Insert sample data
-                const insertSampleResponse = await fetch('/api/database/execute', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-company-id': '00000000-0000-0000-0000-000000000001'
-                    },
-                    body: JSON.stringify({
-                        query: `INSERT IGNORE INTO proforma_invoices (
+          // Insert sample data
+          const insertSampleResponse = await fetch("/api/database/execute", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-company-id": "00000000-0000-0000-0000-000000000001",
+            },
+            body: JSON.stringify({
+              query: `INSERT IGNORE INTO proforma_invoices (
                             id, company_id, customer_id, proforma_number, status, 
                             issue_date, valid_until, subtotal, tax_amount, total_amount, notes
                         ) VALUES 
@@ -122,29 +129,32 @@
                             4000.00,
                             29000.00,
                             'Electronics equipment proforma'
-                        )`
-                    })
-                });
+                        )`,
+            }),
+          });
 
-                const sampleResult = await insertSampleResponse.json();
-                if (!sampleResult.success) {
-                    console.warn('Sample data insertion failed:', sampleResult.error);
-                    output.innerHTML += '<p>⚠️ Sample data insertion failed, but tables created successfully</p>';
-                } else {
-                    output.innerHTML += '<p>✅ Sample proforma data inserted</p>';
-                }
+          const sampleResult = await insertSampleResponse.json();
+          if (!sampleResult.success) {
+            console.warn("Sample data insertion failed:", sampleResult.error);
+            output.innerHTML +=
+              "<p>⚠️ Sample data insertion failed, but tables created successfully</p>";
+          } else {
+            output.innerHTML += "<p>✅ Sample proforma data inserted</p>";
+          }
 
-                output.innerHTML += '<p>🎉 <strong>Proforma tables setup completed successfully!</strong></p>';
-                output.innerHTML += '<p>You can now refresh the proforma page to see the data.</p>';
-
-            } catch (error) {
-                output.innerHTML += '<p style="color: red;">❌ Error: ' + error.message + '</p>';
-                console.error('Error creating proforma table:', error);
-            }
+          output.innerHTML +=
+            "<p>🎉 <strong>Proforma tables setup completed successfully!</strong></p>";
+          output.innerHTML +=
+            "<p>You can now refresh the proforma page to see the data.</p>";
+        } catch (error) {
+          output.innerHTML +=
+            '<p style="color: red;">❌ Error: ' + error.message + "</p>";
+          console.error("Error creating proforma table:", error);
         }
+      }
 
-        // Auto-run on page load
-        window.addEventListener('load', createProformaTable);
+      // Auto-run on page load
+      window.addEventListener("load", createProformaTable);
     </script>
-</body>
+  </body>
 </html>

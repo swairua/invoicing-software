@@ -65,17 +65,18 @@ export default function RemittanceList() {
   useEffect(() => {
     const fetchRemittances = async () => {
       try {
-        const response = await fetch('/api/remittances');
+        const response = await fetch("/api/remittances");
         if (!response.ok) {
-          throw new Error('Failed to fetch remittances');
+          throw new Error("Failed to fetch remittances");
         }
         const data = await response.json();
         setRemittances(data.remittances || []);
       } catch (error) {
-        console.error('Error fetching remittances:', error);
+        console.error("Error fetching remittances:", error);
         toast({
           title: "Error",
-          description: "Failed to load remittance advice records. Please check database connection.",
+          description:
+            "Failed to load remittance advice records. Please check database connection.",
           variant: "destructive",
         });
         setRemittances([]);
@@ -160,18 +161,18 @@ export default function RemittanceList() {
       // Fetch the full remittance details from the API
       const response = await fetch(`/api/remittances/${remittance.id}`, {
         headers: {
-          'x-company-id': '00000000-0000-0000-0000-000000000001',
+          "x-company-id": "00000000-0000-0000-0000-000000000001",
         },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch remittance details');
+        throw new Error("Failed to fetch remittance details");
       }
 
       const result = await response.json();
 
       if (!result.success) {
-        throw new Error(result.error || 'Failed to fetch remittance details');
+        throw new Error(result.error || "Failed to fetch remittance details");
       }
 
       const fullRemittanceData = result.data;
@@ -194,7 +195,7 @@ export default function RemittanceList() {
             type: "invoice" as const,
             amount: fullRemittanceData.totalPayment,
             paymentAmount: fullRemittanceData.totalPayment,
-          }
+          },
         ],
         totalPayment: fullRemittanceData.totalPayment,
         status: fullRemittanceData.status,
@@ -213,7 +214,8 @@ export default function RemittanceList() {
       console.error("Error generating remittance PDF:", error);
       toast({
         title: "Download Failed",
-        description: "Failed to generate remittance advice PDF. " + (error.message || ""),
+        description:
+          "Failed to generate remittance advice PDF. " + (error.message || ""),
         variant: "destructive",
       });
     }

@@ -236,9 +236,14 @@ export class PDFService {
     // Remittance Title and Number
     doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
-    doc.text(`REMITTANCE ADVICE NO. ${remittanceData.remittanceNumber}`, pageWidth / 2, 80, {
-      align: "center",
-    });
+    doc.text(
+      `REMITTANCE ADVICE NO. ${remittanceData.remittanceNumber}`,
+      pageWidth / 2,
+      80,
+      {
+        align: "center",
+      },
+    );
 
     // Customer and Date Information
     this.addRemittanceCustomerInfo(doc, remittanceData, pageWidth);
@@ -248,7 +253,11 @@ export class PDFService {
 
     // Total Amount
     const finalY = (doc as any).lastAutoTable?.finalY || 180;
-    this.addRemittanceTotalSection(doc, remittanceData.totalPayment, finalY + 15);
+    this.addRemittanceTotalSection(
+      doc,
+      remittanceData.totalPayment,
+      finalY + 15,
+    );
 
     if (download) {
       doc.save(`${remittanceData.remittanceNumber}.pdf`);
@@ -279,9 +288,14 @@ export class PDFService {
     doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(220, 20, 60); // Crimson color for credit note
-    doc.text(`CREDIT NOTE NO. ${creditNote.creditNoteNumber}`, pageWidth / 2, 80, {
-      align: "center",
-    });
+    doc.text(
+      `CREDIT NOTE NO. ${creditNote.creditNoteNumber}`,
+      pageWidth / 2,
+      80,
+      {
+        align: "center",
+      },
+    );
 
     // Reset text color
     doc.setTextColor(0, 0, 0);
@@ -357,7 +371,7 @@ export class PDFService {
     this.addStatementSummary(doc, statementData.summary, finalY + 15);
 
     if (download) {
-      const fileName = `Statement-${statementData.customer.name.replace(/[^a-zA-Z0-9]/g, '_')}-${statementData.dateRange.start}-${statementData.dateRange.end}.pdf`;
+      const fileName = `Statement-${statementData.customer.name.replace(/[^a-zA-Z0-9]/g, "_")}-${statementData.dateRange.start}-${statementData.dateRange.end}.pdf`;
       doc.save(fileName);
     }
 
@@ -954,7 +968,11 @@ export class PDFService {
     // Customer info (left side)
     doc.text("To:", 20, startY);
     doc.setFont("helvetica", "bold");
-    doc.text(remittanceData.customer?.name || "Unknown Customer", 20, startY + 7);
+    doc.text(
+      remittanceData.customer?.name || "Unknown Customer",
+      20,
+      startY + 7,
+    );
     doc.setFont("helvetica", "normal");
 
     if (remittanceData.customer?.address) {
@@ -966,7 +984,12 @@ export class PDFService {
     const rightValueX = pageWidth - 20;
 
     doc.text("Date:", rightColumnX, startY);
-    doc.text(this.formatDate(new Date(remittanceData.date)), rightValueX, startY, { align: "right" });
+    doc.text(
+      this.formatDate(new Date(remittanceData.date)),
+      rightValueX,
+      startY,
+      { align: "right" },
+    );
 
     doc.text("Account No.:", rightColumnX, startY + 7);
     doc.text("N/A", rightValueX, startY + 7, { align: "right" });
@@ -975,14 +998,19 @@ export class PDFService {
   /**
    * Add remittance items table
    */
-  private static addRemittanceItemsTable(doc: jsPDF, remittanceData: any): void {
-    const tableData = (remittanceData.items || []).map((item: any, index: number) => [
-      this.formatDate(new Date(item.date)),
-      item.reference || "N/A",
-      item.type === "invoice" ? "Invoice" : "Credit Note",
-      this.formatCurrency(item.amount),
-      this.formatCurrency(item.paymentAmount),
-    ]);
+  private static addRemittanceItemsTable(
+    doc: jsPDF,
+    remittanceData: any,
+  ): void {
+    const tableData = (remittanceData.items || []).map(
+      (item: any, index: number) => [
+        this.formatDate(new Date(item.date)),
+        item.reference || "N/A",
+        item.type === "invoice" ? "Invoice" : "Credit Note",
+        this.formatCurrency(item.amount),
+        this.formatCurrency(item.paymentAmount),
+      ],
+    );
 
     const tableHeaders = [
       "Date",
@@ -1057,15 +1085,17 @@ export class PDFService {
    * Add credit note items table
    */
   private static addCreditNoteItemsTable(doc: jsPDF, creditNote: any): void {
-    const tableData = (creditNote.items || []).map((item: any, index: number) => [
-      index + 1,
-      item.product?.name || item.description || "Unknown Item",
-      item.quantity || 1,
-      item.product?.unit || "Piece",
-      this.formatCurrency(item.unitPrice || 0),
-      `${item.vatRate || 16}%`,
-      this.formatCurrency(item.total || 0),
-    ]);
+    const tableData = (creditNote.items || []).map(
+      (item: any, index: number) => [
+        index + 1,
+        item.product?.name || item.description || "Unknown Item",
+        item.quantity || 1,
+        item.product?.unit || "Piece",
+        this.formatCurrency(item.unitPrice || 0),
+        `${item.vatRate || 16}%`,
+        this.formatCurrency(item.total || 0),
+      ],
+    );
 
     const tableHeaders = [
       "Item No.",
@@ -1168,7 +1198,11 @@ export class PDFService {
     // Customer info (left side)
     doc.text("Customer:", 20, startY);
     doc.setFont("helvetica", "bold");
-    doc.text(statementData.customer?.name || "Unknown Customer", 20, startY + 7);
+    doc.text(
+      statementData.customer?.name || "Unknown Customer",
+      20,
+      startY + 7,
+    );
     doc.setFont("helvetica", "normal");
 
     if (statementData.customer?.address) {
@@ -1180,21 +1214,33 @@ export class PDFService {
     const rightValueX = pageWidth - 20;
 
     doc.text("Period:", rightColumnX, startY);
-    doc.text(`${statementData.dateRange.start} to ${statementData.dateRange.end}`, rightValueX, startY, { align: "right" });
+    doc.text(
+      `${statementData.dateRange.start} to ${statementData.dateRange.end}`,
+      rightValueX,
+      startY,
+      { align: "right" },
+    );
 
     doc.text("Statement Date:", rightColumnX, startY + 7);
-    doc.text(this.formatDate(new Date()), rightValueX, startY + 7, { align: "right" });
+    doc.text(this.formatDate(new Date()), rightValueX, startY + 7, {
+      align: "right",
+    });
   }
 
   /**
    * Add statement transactions table
    */
-  private static addStatementTransactionsTable(doc: jsPDF, transactions: any[]): void {
+  private static addStatementTransactionsTable(
+    doc: jsPDF,
+    transactions: any[],
+  ): void {
     const tableData = transactions.map((transaction: any) => [
       this.formatDate(new Date(transaction.date)),
       transaction.name || "Unknown",
       transaction.invoice || "N/A",
-      transaction.dueDate ? this.formatDate(new Date(transaction.dueDate)) : "N/A",
+      transaction.dueDate
+        ? this.formatDate(new Date(transaction.dueDate))
+        : "N/A",
       this.formatCurrency(transaction.originalAmount || 0),
       this.formatCurrency(transaction.paidAmount || 0),
       this.formatCurrency(transaction.balance || 0),
@@ -1278,15 +1324,30 @@ export class PDFService {
     doc.setFont("helvetica", "normal");
 
     doc.text("Total Outstanding:", boxX + 3, yPos);
-    doc.text(this.formatCurrency(summary?.totalOutstanding || 0), boxX + boxWidth - 3, yPos, { align: "right" });
+    doc.text(
+      this.formatCurrency(summary?.totalOutstanding || 0),
+      boxX + boxWidth - 3,
+      yPos,
+      { align: "right" },
+    );
     yPos += 6;
 
     doc.text("Current:", boxX + 3, yPos);
-    doc.text(this.formatCurrency(summary?.current || 0), boxX + boxWidth - 3, yPos, { align: "right" });
+    doc.text(
+      this.formatCurrency(summary?.current || 0),
+      boxX + boxWidth - 3,
+      yPos,
+      { align: "right" },
+    );
     yPos += 6;
 
     doc.text("Overdue:", boxX + 3, yPos);
-    doc.text(this.formatCurrency(summary?.overdue || 0), boxX + boxWidth - 3, yPos, { align: "right" });
+    doc.text(
+      this.formatCurrency(summary?.overdue || 0),
+      boxX + boxWidth - 3,
+      yPos,
+      { align: "right" },
+    );
   }
 
   /**

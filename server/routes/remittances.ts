@@ -10,7 +10,10 @@ router.get("/", async (req, res) => {
       (req.headers["x-company-id"] as string) ||
       "00000000-0000-0000-0000-000000000001";
 
-    console.log("📋 Fetching remittance advice records for company:", companyId);
+    console.log(
+      "📋 Fetching remittance advice records for company:",
+      companyId,
+    );
 
     // For now, return mock data since the remittances table may not exist yet
     // TODO: Create remittances table in database and implement proper queries
@@ -53,7 +56,9 @@ router.get("/", async (req, res) => {
       },
     ];
 
-    console.log(`📋 Returning ${mockRemittances.length} remittance advice records`);
+    console.log(
+      `📋 Returning ${mockRemittances.length} remittance advice records`,
+    );
 
     res.json({
       success: true,
@@ -210,7 +215,7 @@ router.get("/:id", async (req, res) => {
     ];
 
     // Find the specific remittance or return default
-    const mockRemittance = allRemittances.find(r => r.id === id) || {
+    const mockRemittance = allRemittances.find((r) => r.id === id) || {
       id,
       remittanceNumber: `RA202401${id.padStart(3, "0")}`,
       date: new Date().toISOString().split("T")[0],

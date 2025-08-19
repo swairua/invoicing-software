@@ -5,19 +5,19 @@
  * Creates the missing proforma_invoices table and related structures
  */
 
-import mysql from 'mysql2/promise';
+import mysql from "mysql2/promise";
 
 async function createProformasTable() {
   console.log("🔧 Creating proforma_invoices table...\n");
 
   const connection = await mysql.createConnection({
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'defaultdb',
+    host: process.env.DB_HOST || "localhost",
+    user: process.env.DB_USER || "root",
+    password: process.env.DB_PASSWORD || "",
+    database: process.env.DB_NAME || "defaultdb",
     ssl: {
-      rejectUnauthorized: false
-    }
+      rejectUnauthorized: false,
+    },
   });
 
   try {
@@ -116,7 +116,6 @@ async function createProformasTable() {
     console.log("✅ Sample proforma data inserted");
 
     console.log("\n🎉 Proforma invoices table setup completed successfully!");
-    
   } catch (error) {
     console.error("❌ Error creating proforma tables:", error);
     throw error;

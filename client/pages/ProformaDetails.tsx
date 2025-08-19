@@ -388,19 +388,31 @@ export default function ProformaDetails() {
                         <TableCell>
                           <div>
                             <div className="font-medium">
-                              {item.product?.name || item.product_name || 'Unknown Product'}
+                              {item.product?.name ||
+                                item.product_name ||
+                                "Unknown Product"}
                             </div>
                             <div className="text-sm text-muted-foreground">
-                              {item.product_description || item.product?.description || 'No description'}
+                              {item.product_description ||
+                                item.product?.description ||
+                                "No description"}
                             </div>
                           </div>
                         </TableCell>
                         <TableCell>
-                          {item.quantity} {item.product?.unit || 'units'}
+                          {item.quantity} {item.product?.unit || "units"}
                         </TableCell>
-                        <TableCell>{formatCurrency(item.unit_price || item.unitPrice || 0)}</TableCell>
-                        <TableCell>{item.discount_percentage || item.discount || 0}%</TableCell>
-                        <TableCell>{item.tax_rate || item.vatRate || 0}%</TableCell>
+                        <TableCell>
+                          {formatCurrency(
+                            item.unit_price || item.unitPrice || 0,
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {item.discount_percentage || item.discount || 0}%
+                        </TableCell>
+                        <TableCell>
+                          {item.tax_rate || item.vatRate || 0}%
+                        </TableCell>
                         <TableCell className="text-right font-medium">
                           {formatCurrency(item.line_total || item.total || 0)}
                         </TableCell>

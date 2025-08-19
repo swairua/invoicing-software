@@ -65,7 +65,8 @@ export default function NewProforma() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [editingProforma, setEditingProforma] = useState<ProformaInvoice | null>(null);
+  const [editingProforma, setEditingProforma] =
+    useState<ProformaInvoice | null>(null);
   const isEditing = Boolean(id);
   // Product filtering handled by DynamicLineItems component
 
@@ -120,25 +121,27 @@ export default function NewProforma() {
             setEditingProforma(proforma);
             setFormData({
               customerId: proforma.customerId,
-              issueDate: proforma.issueDate.split('T')[0],
-              validUntil: proforma.validUntil.split('T')[0],
-              notes: proforma.notes || '',
+              issueDate: proforma.issueDate.split("T")[0],
+              validUntil: proforma.validUntil.split("T")[0],
+              notes: proforma.notes || "",
             });
-            setItems(proforma.items?.map((item: any, index: number) => ({
-              id: `item-${index}`,
-              productId: item.productId,
-              quantity: item.quantity.toString(),
-              unitPrice: item.unitPrice.toString(),
-              discount: item.discount.toString(),
-              lineItemTaxes: item.lineItemTaxes || [],
-            })) || []);
+            setItems(
+              proforma.items?.map((item: any, index: number) => ({
+                id: `item-${index}`,
+                productId: item.productId,
+                quantity: item.quantity.toString(),
+                unitPrice: item.unitPrice.toString(),
+                discount: item.discount.toString(),
+                lineItemTaxes: item.lineItemTaxes || [],
+              })) || [],
+            );
           } else {
             toast({
               title: "Error",
               description: "Proforma not found.",
               variant: "destructive",
             });
-            navigate('/proforma');
+            navigate("/proforma");
             return;
           }
         }
@@ -275,7 +278,10 @@ export default function NewProforma() {
           ...totals,
         };
 
-        await dataService.updateProformaInvoice(editingProforma.id, updatedProforma);
+        await dataService.updateProformaInvoice(
+          editingProforma.id,
+          updatedProforma,
+        );
 
         toast({
           title: "Proforma Updated",
@@ -296,7 +302,7 @@ export default function NewProforma() {
             lineItemTaxes: item.lineItemTaxes || [],
           })),
           ...totals,
-          status: sendImmediately ? 'sent' : 'draft',
+          status: sendImmediately ? "sent" : "draft",
         };
 
         await dataService.createProformaInvoice(newProforma);
@@ -319,7 +325,7 @@ export default function NewProforma() {
       console.error("Error creating proforma:", error);
       toast({
         title: "Error",
-        description: `Failed to ${isEditing ? 'update' : 'create'} proforma. Please try again.`,
+        description: `Failed to ${isEditing ? "update" : "create"} proforma. Please try again.`,
         variant: "destructive",
       });
     } finally {
@@ -346,19 +352,19 @@ export default function NewProforma() {
               {isEditing
                 ? "Edit Proforma Invoice"
                 : duplicateData
-                ? "Duplicate Proforma"
-                : convertData
-                  ? "Convert to Proforma"
-                  : "New Proforma Invoice"}
+                  ? "Duplicate Proforma"
+                  : convertData
+                    ? "Convert to Proforma"
+                    : "New Proforma Invoice"}
             </h1>
             <p className="text-muted-foreground">
               {isEditing
-                ? `Edit proforma invoice ${editingProforma?.proformaNumber || ''}`
+                ? `Edit proforma invoice ${editingProforma?.proformaNumber || ""}`
                 : convertData
-                ? `Convert ${convertData.quoteNumber || "quotation"} to proforma invoice`
-                : duplicateData
-                  ? "Create a copy of an existing proforma"
-                  : "Create a new proforma invoice for your customer"}
+                  ? `Convert ${convertData.quoteNumber || "quotation"} to proforma invoice`
+                  : duplicateData
+                    ? "Create a copy of an existing proforma"
+                    : "Create a new proforma invoice for your customer"}
             </p>
           </div>
         </div>

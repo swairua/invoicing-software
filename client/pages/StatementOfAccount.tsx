@@ -424,7 +424,7 @@ export default function StatementOfAccount() {
         return;
       }
 
-      const customer = customers.find(c => c.id === filter.customerId);
+      const customer = customers.find((c) => c.id === filter.customerId);
       if (!customer) {
         alert("Customer not found");
         return;
@@ -441,7 +441,7 @@ export default function StatementOfAccount() {
           email: customer.email || "",
           phone: customer.phone || "",
         },
-        transactions: statementEntries.map(entry => ({
+        transactions: statementEntries.map((entry) => ({
           date: entry.date,
           name: customer.name,
           invoice: entry.reference,
@@ -465,7 +465,9 @@ export default function StatementOfAccount() {
       await PDFService.generateStatementPDF(statementData);
 
       // Show success message
-      alert(`Statement of Account PDF generated successfully for ${customer.name}`);
+      alert(
+        `Statement of Account PDF generated successfully for ${customer.name}`,
+      );
     } catch (error) {
       console.error("Error generating statement PDF:", error);
       alert("Failed to generate statement PDF. Please try again.");
