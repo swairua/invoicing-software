@@ -867,6 +867,7 @@ router.get("/proformas", async (req, res) => {
     console.log("Returning fallback proformas data");
 
     // Return fallback proformas when database is unavailable
+    console.log("📦 Using fallback proforma list data with line items");
     const fallbackProformas = [
       {
         id: "1",
@@ -877,7 +878,32 @@ router.get("/proformas", async (req, res) => {
           name: "Acme Corporation Ltd",
           email: "contact@acme.com",
         },
-        items: [],
+        items: [
+          {
+            id: "item-1-proforma-1",
+            productId: "prod-1",
+            product_name: "Medical Surgical Masks",
+            product_description: "High-quality disposable surgical masks - Box of 50",
+            quantity: 100,
+            unit_price: 150.00,
+            discount_percentage: 0,
+            line_total: 15000.00,
+            tax_rate: 16,
+            tax_amount: 2400.00
+          },
+          {
+            id: "item-2-proforma-1",
+            productId: "prod-2",
+            product_name: "Digital Thermometer",
+            product_description: "Non-contact infrared thermometer with LCD display",
+            quantity: 10,
+            unit_price: 2000.00,
+            discount_percentage: 0,
+            line_total: 20000.00,
+            tax_rate: 16,
+            tax_amount: 3200.00
+          }
+        ],
         subtotal: 35000,
         vatAmount: 5600,
         discountAmount: 0,
