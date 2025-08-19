@@ -4,20 +4,20 @@ import mysql from "mysql2/promise";
 const DATABASE_CONFIG = {
   host:
     process.env.DB_HOST || "mysql-242eb3d7-invoicing-software.c.aivencloud.com",
-  port: parseInt(process.env.DB_PORT || "11397"),
+  port: parseInt(process.env.DB_PORT || "11401"),
   user: process.env.DB_USER || "avnadmin",
   password: process.env.DB_PASSWORD || "AVNS_x9WdjKNy72pMT6Zr90I",
   database: process.env.DB_NAME || "defaultdb",
-  connectTimeout: 30000,
+  connectTimeout: 60000,
+  acquireTimeout: 60000,
+  timeout: 60000,
   // SSL configuration for remote connections
-  ...(process.env.DB_HOST !== "localhost" && {
-    ssl: {
-      rejectUnauthorized: false,
-    },
-  }),
-  connectionLimit: 10,
+  ssl: {
+    rejectUnauthorized: false,
+  },
+  connectionLimit: 5,
   charset: "utf8mb4",
-  timezone: "Z",
+  timezone: "+00:00",
 };
 
 // Create connection pool
