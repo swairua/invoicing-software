@@ -86,19 +86,14 @@ export class Database {
       );
       console.log("🗄️ Using LIVE MYSQL DATABASE - No mock data");
 
-      // Try creating a simple connection first to test
-      const simpleConnection = await mysql.createConnection({
-        host: DATABASE_CONFIG.host,
-        port: DATABASE_CONFIG.port,
-        user: DATABASE_CONFIG.user,
-        password: DATABASE_CONFIG.password,
-        database: DATABASE_CONFIG.database,
-        ssl: DATABASE_CONFIG.ssl,
-      });
+      // Use connection URI approach for better Aiven compatibility
+      const connectionUri = `mysql://${DATABASE_CONFIG.user}:${DATABASE_CONFIG.password}@${DATABASE_CONFIG.host}:${DATABASE_CONFIG.port}/${DATABASE_CONFIG.database}?ssl=required&charset=utf8mb4`;
 
-      const [testResult] = await simpleConnection.execute("SELECT 1 as test, NOW() as current_time");
+      const simpleConnection = await mysql.createConnection(connectionUri);
+
+      const [testResult] = await simpleConnection.execute("SELECT 1 as test, VERSION() as version");
       console.log("✅ LIVE MYSQL DATABASE CONNECTION SUCCESSFUL!");
-      console.log(`🕐 Database time: ${testResult[0].current_time}`);
+      console.log(`🗄️ MySQL version: ${testResult[0].version}`);
 
       // Test if we can query tables and check basic schema
       try {
