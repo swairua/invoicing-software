@@ -9,7 +9,7 @@ import { Alert, AlertDescription } from '../components/ui/alert';
 import { Loader2, Building2 } from 'lucide-react';
 
 export default function Login() {
-  const [email, setEmail] = useState('admin@company.com');
+  const [email, setEmail] = useState('admin@crestview.co.ke');
   const [password, setPassword] = useState('password');
   const [error, setError] = useState('');
   const { login, isLoading } = useAuth();
@@ -88,7 +88,7 @@ export default function Login() {
               Demo credentials:
             </p>
             <p className="text-sm text-center font-mono">
-              admin@company.com / password
+              admin@crestview.co.ke / password
             </p>
           </div>
         </CardContent>
