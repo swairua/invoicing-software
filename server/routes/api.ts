@@ -422,13 +422,15 @@ router.get("/dashboard/metrics", async (req, res) => {
 
     // Try to get outstanding invoices if table exists
     try {
+      console.log("🔍 Querying outstanding invoices with company_id:", companyId);
       const outstandingResult = await Database.query(
         "SELECT COALESCE(SUM(total_amount), 0) as outstandingInvoices FROM invoices WHERE company_id = ? AND status IN ('sent', 'overdue')",
         [companyId]
       );
+      console.log("📊 Outstanding query result:", outstandingResult.rows[0]);
       metrics.outstandingInvoices = parseFloat(outstandingResult.rows[0]?.outstandingInvoices || 0);
     } catch (error) {
-      console.log("Invoices table not available, using 0 for outstanding");
+      console.log("❌ Outstanding invoices query error:", error.message);
     }
 
     // Try to get payments if table exists
