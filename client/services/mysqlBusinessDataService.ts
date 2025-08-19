@@ -871,6 +871,29 @@ class MySQLBusinessDataService {
     }
   }
 
+  // Add alias method for consistency with ProformaInvoices.tsx
+  public async getProformas(): Promise<ProformaInvoice[]> {
+    return this.getProformaInvoices();
+  }
+
+  // Add missing conversion method
+  public async convertProformaToInvoice(proformaId: string): Promise<Invoice | null> {
+    try {
+      const response = await this.apiCall(`/proformas/${proformaId}/convert`, {
+        method: "POST",
+      });
+
+      if (!response.success) {
+        throw new Error(response.error || "Failed to convert proforma to invoice");
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error(`Failed to convert proforma ${proformaId} to invoice:`, error);
+      throw error;
+    }
+  }
+
   // Payment methods
   public async getPayments(): Promise<Payment[]> {
     try {
