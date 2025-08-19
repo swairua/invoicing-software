@@ -9,13 +9,10 @@ const DATABASE_CONFIG = {
   password: process.env.DB_PASSWORD || "AVNS_x9WdjKNy72pMT6Zr90I",
   database: process.env.DB_NAME || "defaultdb",
   connectTimeout: 60000,
-  // SSL configuration for remote connections
   ssl: {
     rejectUnauthorized: false,
   },
   connectionLimit: 5,
-  charset: "utf8mb4",
-  timezone: "+00:00",
 };
 
 // Create connection pool
