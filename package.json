@@ -32,7 +32,8 @@
     "db:fix": "node scripts/fix-database.js",
     "db:sample": "node scripts/add-sample-customers.js",
     "db:schema": "node scripts/check-schema.js",
-    "db:companies": "node scripts/check-companies.js"
+    "db:companies": "node scripts/check-companies.js",
+    "create-admin-user": "node scripts/create-admin-user.js"
   },
   "dependencies": {
     "@radix-ui/react-visually-hidden": "^1.2.3",
