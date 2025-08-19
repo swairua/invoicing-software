@@ -257,13 +257,55 @@ export default function NewProforma() {
     setIsSubmitting(true);
 
     try {
-      // Here you would normally call a create proforma API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (isEditing && editingProforma) {
+        // Update existing proforma
+        const updatedProforma = {
+          ...editingProforma,
+          customerId: formData.customerId,
+          issueDate: formData.issueDate,
+          validUntil: formData.validUntil,
+          notes: formData.notes,
+          items: validItems.map((item) => ({
+            productId: item.productId,
+            quantity: parseFloat(item.quantity) || 0,
+            unitPrice: parseFloat(item.unitPrice) || 0,
+            discount: parseFloat(item.discount) || 0,
+            lineItemTaxes: item.lineItemTaxes || [],
+          })),
+          ...totals,
+        };
 
-      toast({
-        title: "Proforma Created",
-        description: `Proforma invoice has been created successfully.`,
-      });
+        await dataService.updateProformaInvoice(editingProforma.id, updatedProforma);
+
+        toast({
+          title: "Proforma Updated",
+          description: `Proforma invoice has been updated successfully.`,
+        });
+      } else {
+        // Create new proforma
+        const newProforma = {
+          customerId: formData.customerId,
+          issueDate: formData.issueDate,
+          validUntil: formData.validUntil,
+          notes: formData.notes,
+          items: validItems.map((item) => ({
+            productId: item.productId,
+            quantity: parseFloat(item.quantity) || 0,
+            unitPrice: parseFloat(item.unitPrice) || 0,
+            discount: parseFloat(item.discount) || 0,
+            lineItemTaxes: item.lineItemTaxes || [],
+          })),
+          ...totals,
+          status: sendImmediately ? 'sent' : 'draft',
+        };
+
+        await dataService.createProformaInvoice(newProforma);
+
+        toast({
+          title: "Proforma Created",
+          description: `Proforma invoice has been created successfully.`,
+        });
+      }
 
       if (sendImmediately) {
         toast({
@@ -277,7 +319,7 @@ export default function NewProforma() {
       console.error("Error creating proforma:", error);
       toast({
         title: "Error",
-        description: "Failed to create proforma. Please try again.",
+        description: `Failed to ${isEditing ? 'update' : 'create'} proforma. Please try again.`,
         variant: "destructive",
       });
     } finally {
@@ -301,14 +343,18 @@ export default function NewProforma() {
           </Button>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              {duplicateData
+              {isEditing
+                ? "Edit Proforma Invoice"
+                : duplicateData
                 ? "Duplicate Proforma"
                 : convertData
                   ? "Convert to Proforma"
                   : "New Proforma Invoice"}
             </h1>
             <p className="text-muted-foreground">
-              {convertData
+              {isEditing
+                ? `Edit proforma invoice ${editingProforma?.proformaNumber || ''}`
+                : convertData
                 ? `Convert ${convertData.quoteNumber || "quotation"} to proforma invoice`
                 : duplicateData
                   ? "Create a copy of an existing proforma"
