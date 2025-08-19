@@ -42,7 +42,7 @@ import {
   Calendar,
   Send,
 } from "lucide-react";
-import { Customer, Product } from "@shared/types";
+import { Customer, Product, ProformaInvoice } from "@shared/types";
 import { dataServiceFactory } from "../services/dataServiceFactory";
 import DynamicLineItems, { LineItem } from "../components/DynamicLineItems";
 import { useToast } from "../hooks/use-toast";
