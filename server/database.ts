@@ -7,9 +7,12 @@ const DATABASE_CONFIG = {
   user: process.env.DB_USER || "avnadmin",
   password: process.env.DB_PASSWORD || "AVNS_x9WdjKNy72pMT6Zr90I",
   database: process.env.DB_NAME || "defaultdb",
-  ssl: {
-    rejectUnauthorized: false,
-  },
+  // Only use SSL for remote connections, not for localhost
+  ...(process.env.DB_HOST !== "localhost" && {
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  }),
   connectionLimit: 10,
 };
 
