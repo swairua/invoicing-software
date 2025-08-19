@@ -327,18 +327,21 @@ class MySQLBusinessDataService {
     console.log(`🌐 Full URL: ${url}`);
     console.log(`🌐 Current window location:`, window.location.href);
 
-    // Get company ID from localStorage (stored by auth system)
+    // Get company ID and auth token from localStorage (stored by auth system)
     const userData = localStorage.getItem("user_data");
+    const authToken = localStorage.getItem("auth_token");
     const companyId = userData
       ? JSON.parse(userData).companyId
       : "00000000-0000-0000-0000-000000000001";
 
     console.log(`🏢 Using company ID: ${companyId}`);
+    console.log(`🔐 Auth token available: ${authToken ? 'Yes' : 'No'}`);
 
     const requestOptions = {
       headers: {
         "Content-Type": "application/json",
         "x-company-id": companyId,
+        ...(authToken && { "Authorization": `Bearer ${authToken}` }),
         ...options.headers,
       },
       ...options,
