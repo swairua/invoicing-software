@@ -116,11 +116,15 @@ export class Database {
 
       console.log("✅ Direct connection established!");
 
-      const [result] = await directConnection.execute("SELECT 1 as test, NOW() as current_time, VERSION() as mysql_version");
+      const [result] = await directConnection.execute("SELECT 1 as test");
       console.log("✅ LIVE MYSQL DATABASE CONNECTION SUCCESSFUL!");
       console.log("🔗 Database test result:", result[0].test);
-      console.log("🕐 Server time:", result[0].current_time);
-      console.log("📊 MySQL version:", result[0].mysql_version);
+
+      // Get additional info with separate queries
+      const [timeResult] = await directConnection.execute("SELECT NOW() as current_time");
+      const [versionResult] = await directConnection.execute("SELECT VERSION() as mysql_version");
+      console.log("🕐 Server time:", timeResult[0].current_time);
+      console.log("📊 MySQL version:", versionResult[0].mysql_version);
 
       await directConnection.end();
 
