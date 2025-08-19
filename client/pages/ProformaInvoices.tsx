@@ -240,6 +240,28 @@ export default function ProformaInvoices() {
     }
   };
 
+  const handleDownloadPDF = async (proforma: ProformaInvoice) => {
+    try {
+      // Import PDFService
+      const PDFService = (await import("../services/pdfService")).default;
+
+      // Generate and download the proforma PDF
+      await PDFService.generateProformaPDF(proforma);
+
+      toast({
+        title: "PDF Generated",
+        description: `Proforma ${proforma.proformaNumber} PDF downloaded successfully`,
+      });
+    } catch (error) {
+      console.error("Error generating proforma PDF:", error);
+      toast({
+        title: "PDF Generation Failed",
+        description: "Failed to generate proforma PDF",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleDelete = async (id: string) => {
     try {
       await businessData.deleteProformaInvoice?.(id);
