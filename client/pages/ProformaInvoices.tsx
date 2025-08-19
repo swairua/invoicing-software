@@ -580,6 +580,12 @@ export default function ProformaInvoices() {
                               <Copy className="mr-2 h-4 w-4" />
                               Duplicate
                             </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleDownloadPDF(proforma)}
+                            >
+                              <Download className="mr-2 h-4 w-4" />
+                              Download PDF
+                            </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             {proforma.status === "sent" && (
                               <DropdownMenuItem
