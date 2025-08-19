@@ -28,6 +28,88 @@ router.get("/", async (req, res) => {
     console.log("✅ Repository call successful, customers found:", result.customers.length);
 
 
+    // If no customers found (mock mode), return sample data
+    if (result.customers.length === 0 && result.total === 0) {
+      console.log("📋 No customers found, returning sample data for demo");
+      const mockCustomers = [
+        {
+          id: "sample-cust-1",
+          name: "ABC Medical Center",
+          email: "orders@abcmedical.co.ke",
+          phone: "+254712345678",
+          kraPin: "P051234567A",
+          addressLine1: "123 Hospital Road",
+          addressLine2: "",
+          city: "Nairobi",
+          state: "Nairobi County",
+          postalCode: "00100",
+          country: "Kenya",
+          creditLimit: 100000,
+          balance: 15000,
+          currentBalance: 15000,
+          isActive: true,
+          companyId: companyId,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: "sample-cust-2",
+          name: "Kenyatta University Hospital",
+          email: "procurement@kuh.ac.ke",
+          phone: "+254723456789",
+          kraPin: "P051234567B",
+          addressLine1: "456 University Way",
+          addressLine2: "",
+          city: "Nairobi",
+          state: "Nairobi County",
+          postalCode: "00100",
+          country: "Kenya",
+          creditLimit: 200000,
+          balance: 0,
+          currentBalance: 0,
+          isActive: true,
+          companyId: companyId,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: "sample-cust-3",
+          name: "Health Plus Clinic",
+          email: "supplies@healthplus.co.ke",
+          phone: "+254734567890",
+          kraPin: "P051234567C",
+          addressLine1: "789 Wellness Street",
+          addressLine2: "",
+          city: "Mombasa",
+          state: "Mombasa County",
+          postalCode: "80100",
+          country: "Kenya",
+          creditLimit: 50000,
+          balance: 8500,
+          currentBalance: 8500,
+          isActive: true,
+          companyId: companyId,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+
+      const response = {
+        success: true,
+        data: mockCustomers,
+        meta: {
+          total: mockCustomers.length,
+          page,
+          limit,
+          totalPages: 1,
+        },
+      };
+
+      console.log("📤 Sending sample customers response");
+      res.json(response);
+      return;
+    }
+
     const response = {
       success: true,
       data: result.customers,

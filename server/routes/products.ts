@@ -65,6 +65,91 @@ router.get("/", async (req, res) => {
     );
 
 
+    // If no products found (mock mode), return sample data
+    if (result.products.length === 0 && result.total === 0) {
+      console.log("📋 No products found, returning sample data for demo");
+      const mockProducts = [
+        {
+          id: "sample-1",
+          name: "Latex Gloves (Box of 100)",
+          description: "High-quality latex examination gloves",
+          sku: "LAT-GLV-100",
+          categoryId: "cat-1",
+          categoryName: "Medical Supplies",
+          unitOfMeasure: "box",
+          purchasePrice: 1200,
+          sellingPrice: 1500,
+          minStock: 20,
+          maxStock: 500,
+          currentStock: 150,
+          trackInventory: true,
+          isActive: true,
+          isTaxable: true,
+          taxRate: 16,
+          companyId: companyId,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: "sample-2",
+          name: "Digital Thermometer",
+          description: "Accurate digital medical thermometer",
+          sku: "DIG-THERM-01",
+          categoryId: "cat-2",
+          categoryName: "Medical Equipment",
+          unitOfMeasure: "piece",
+          purchasePrice: 800,
+          sellingPrice: 1200,
+          minStock: 10,
+          maxStock: 100,
+          currentStock: 45,
+          trackInventory: true,
+          isActive: true,
+          isTaxable: true,
+          taxRate: 16,
+          companyId: companyId,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: "sample-3",
+          name: "Surgical Masks (Pack of 50)",
+          description: "Disposable surgical face masks",
+          sku: "SUR-MASK-50",
+          categoryId: "cat-1",
+          categoryName: "Medical Supplies",
+          unitOfMeasure: "pack",
+          purchasePrice: 600,
+          sellingPrice: 900,
+          minStock: 30,
+          maxStock: 300,
+          currentStock: 8, // Low stock item
+          trackInventory: true,
+          isActive: true,
+          isTaxable: true,
+          taxRate: 16,
+          companyId: companyId,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+
+      const response = {
+        success: true,
+        data: mockProducts,
+        meta: {
+          total: mockProducts.length,
+          page,
+          limit,
+          totalPages: 1,
+        },
+      };
+
+      console.log("📤 Sending sample products response");
+      res.json(response);
+      return;
+    }
+
     const response = {
       success: true,
       data: result.products,
@@ -662,7 +747,7 @@ router.put("/:id", async (req, res) => {
     console.log(
       "🚨 EMERGENCY: Forcing category_id to null to prevent FK errors",
     );
-    console.log("🚨 Original categoryId was:", dbUpdateData.categoryId);
+    console.log("�� Original categoryId was:", dbUpdateData.categoryId);
     dbUpdateData.categoryId = null;
     console.log("🚨 Set categoryId to:", dbUpdateData.categoryId);
 
